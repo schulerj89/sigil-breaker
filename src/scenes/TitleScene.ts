@@ -21,23 +21,42 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.scale.on('resize', this.render, this);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.scale.off('resize', this.render, this);
+    });
+    this.render();
+  }
+
+  private render(): void {
+    this.children.removeAll(true);
+    const compact = this.scale.width < 720;
+    const titleY = compact ? 84 : 92;
+    const buttonY = compact ? 204 : 210;
+
     this.add.rectangle(0, 0, this.scale.width, this.scale.height, 0x101418).setOrigin(0);
-    this.add.text(this.scale.width / 2, 92, 'Sigilbreaker', TITLE_STYLE).setOrigin(0.5);
+    this.add.text(this.scale.width / 2, titleY, 'Sigilbreaker', {
+      ...TITLE_STYLE,
+      fontSize: compact ? '38px' : '48px',
+    }).setOrigin(0.5);
     this.add
-      .text(this.scale.width / 2, 142, 'Small deterministic dungeon puzzles', BODY_STYLE)
+      .text(this.scale.width / 2, compact ? 132 : 142, 'Small deterministic dungeon puzzles', {
+        ...BODY_STYLE,
+        fontSize: compact ? '14px' : '16px',
+      })
       .setOrigin(0.5);
 
     const centerX = this.scale.width / 2 - 90;
-    makeTextButton(this, centerX, 210, 'Continue', () => {
+    makeTextButton(this, centerX, buttonY, 'Continue', () => {
       const progress = loadProgress(getBrowserStorage(), levelIds());
       this.scene.start('LevelScene', {
         levelIndex: getContinueLevelIndex(progress, levelIds()),
       });
     }, 180);
-    makeTextButton(this, centerX, 258, 'Level Select', () => {
+    makeTextButton(this, centerX, buttonY + 48, 'Level Select', () => {
       this.scene.start('LevelSelectScene');
     }, 180);
-    makeTextButton(this, centerX, 306, 'Credits', () => {
+    makeTextButton(this, centerX, buttonY + 96, 'Credits', () => {
       this.scene.start('CreditsScene');
     }, 180);
   }

@@ -13,14 +13,26 @@ export class CreditsScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.scale.on('resize', this.render, this);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.scale.off('resize', this.render, this);
+    });
+    this.render();
+  }
+
+  private render(): void {
+    this.children.removeAll(true);
+    const compact = this.scale.width < 720;
+    const margin = compact ? 16 : 24;
+
     this.add.rectangle(0, 0, this.scale.width, this.scale.height, 0x101418).setOrigin(0);
-    this.add.text(24, 24, 'Credits', {
+    this.add.text(margin, compact ? 18 : 24, 'Credits', {
       ...TEXT_STYLE,
-      fontSize: '30px',
+      fontSize: compact ? '24px' : '30px',
     });
     this.add.text(
-      24,
-      92,
+      margin,
+      compact ? 74 : 92,
       [
         'Sigilbreaker prototype by Josh Schuler.',
         '',
@@ -33,12 +45,14 @@ export class CreditsScene extends Phaser.Scene {
       {
         ...TEXT_STYLE,
         color: '#b8c0ca',
-        lineSpacing: 10,
+        fontSize: compact ? '14px' : '18px',
+        lineSpacing: compact ? 7 : 10,
+        wordWrap: { width: this.scale.width - margin * 2 },
       },
     );
 
-    makeTextButton(this, 24, this.scale.height - 58, 'Back', () => {
+    makeTextButton(this, margin, this.scale.height - (compact ? 46 : 58), 'Back', () => {
       this.scene.start('TitleScene');
-    });
+    }, compact ? 64 : 70);
   }
 }

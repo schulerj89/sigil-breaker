@@ -21,12 +21,25 @@ body,
   height: 100%;
   margin: 0;
   overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
 }
 
 body {
-  min-width: 320px;
+  position: fixed;
+  inset: 0;
+  min-width: 0;
+}
+
+#game {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
 }
 
 canvas {
   display: block;
+  width: 100% !important;
+  height: 100% !important;
+  touch-action: none;
 }
