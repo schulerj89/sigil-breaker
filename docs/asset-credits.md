@@ -11,6 +11,7 @@ public/assets/kenney/sokoban/
   Blocks/
   Crates/
   Environment/
+  Enemies/
   Ground/
   Player/
 ```

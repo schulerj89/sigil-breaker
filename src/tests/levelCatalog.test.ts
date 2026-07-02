@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { levelCatalog } from '../content/levelCatalog';
 
 describe('levelCatalog', () => {
-  it('loads eight ordered tutorial levels with metadata', () => {
-    expect(levelCatalog).toHaveLength(8);
-    expect(levelCatalog.map((entry) => entry.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+  it('loads ordered tutorial levels with metadata', () => {
+    expect(levelCatalog).toHaveLength(12);
+    expect(levelCatalog.map((entry) => entry.order)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
     expect(levelCatalog.map((entry) => entry.id)).toEqual([
       'tutorial-01',
       'tutorial-02',
@@ -14,6 +14,10 @@ describe('levelCatalog', () => {
       'tutorial-06',
       'tutorial-07',
       'tutorial-08',
+      'tutorial-09',
+      'tutorial-10',
+      'tutorial-11',
+      'tutorial-12',
     ]);
   });
 

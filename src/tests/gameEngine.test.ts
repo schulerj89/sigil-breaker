@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { Direction } from '../core/direction';
-import { applyMove, createLevelState, isPassable, recomputeDerivedState } from '../core/levelState';
+import {
+  applyMove,
+  createLevelState,
+  isPassable,
+  previewGolemMoves,
+  recomputeDerivedState,
+} from '../core/levelState';
 import { parseLevel } from '../core/levelParser';
 import type { ParsedLevel } from '../core/levelTypes';
 import {
@@ -105,6 +111,73 @@ describe('game engine movement', () => {
     expect(state.player).toEqual({ x: 2, y: 1 });
     expect(state.hasWon).toBe(true);
   });
+
+  it('moves a golem after a successful player move', () => {
+    const level = levelFromMap(['#####', '#P..#', '#..G#', '#...#', '#####']);
+    const state = applyMove(level, createLevelState(level), 'right');
+
+    expect(state.player).toEqual({ x: 2, y: 1 });
+    expect(state.golems).toEqual([{ x: 3, y: 1 }]);
+  });
+
+  it('does not move a golem after a blocked player move', () => {
+    const level = levelFromMap(['#####', '#P#G#', '#...#', '#####']);
+    const state = createLevelState(level);
+
+    expect(applyMove(level, state, 'right')).toBe(state);
+    expect(state.golems).toEqual([{ x: 3, y: 1 }]);
+  });
+
+  it('uses deterministic golem tie-break priority', () => {
+    const level = levelFromMap(['#####', '#P..#', '#.G.#', '#...#', '#####']);
+    const state = recomputeDerivedState(level, {
+      ...createLevelState(level),
+      player: { x: 3, y: 1 },
+    });
+
+    expect(previewGolemMoves(level, state)).toEqual([{ x: 2, y: 1 }]);
+  });
+
+  it('prevents a golem from passing through a wall', () => {
+    const level = levelFromMap(['#####', '#P..#', '#..##', '#..G#', '#####']);
+    const state = recomputeDerivedState(level, {
+      ...createLevelState(level),
+      player: { x: 3, y: 1 },
+    });
+
+    expect(previewGolemMoves(level, state)).toEqual([{ x: 3, y: 3 }]);
+  });
+
+  it('prevents a golem from passing through a crate', () => {
+    const level = levelFromMap(['#####', '#...#', '#PCG#', '#...#', '#####']);
+    const state = createLevelState(level);
+
+    expect(previewGolemMoves(level, state)).toEqual([{ x: 3, y: 2 }]);
+  });
+
+  it('allows a golem to stand on a red plate', () => {
+    const level = levelFromMap(['#####', '#.P.#', '#.R.#', '#.G.#', '#####']);
+    const state = applyMove(level, createLevelState(level), 'left');
+
+    expect(state.golems).toEqual([{ x: 2, y: 2 }]);
+  });
+
+  it('opens a red door when a golem stands on a red plate', () => {
+    const level = levelFromMap(['######', '#.P..#', '#.RD.#', '#.G..#', '######']);
+    const state = applyMove(level, createLevelState(level), 'left');
+
+    expect(state.golems).toEqual([{ x: 2, y: 2 }]);
+    expect(state.openDoors).toEqual([{ x: 3, y: 2 }]);
+    expect(isPassable(level, state, { x: 3, y: 2 })).toBe(true);
+  });
+
+  it('sets caught state when a golem moves onto the player', () => {
+    const level = levelFromMap(['#####', '#P..#', '#.G.#', '#...#', '#####']);
+    const state = applyMove(level, createLevelState(level), 'right');
+
+    expect(state.golems).toEqual([{ x: 2, y: 1 }]);
+    expect(state.isCaught).toBe(true);
+  });
 });
 
 describe('game session history', () => {
@@ -136,5 +209,31 @@ describe('game session history', () => {
 
     expect(session.state).toEqual(session.initialState);
     expect(session.history).toEqual([]);
+  });
+
+  it('undo restores golem position and caught state', () => {
+    const level = levelFromMap(['#####', '#P..#', '#.G.#', '#...#', '#####']);
+    let session = createGameSession(level);
+
+    session = applySessionMove(session, 'right');
+    expect(session.state.isCaught).toBe(true);
+    expect(session.state.golems).toEqual([{ x: 2, y: 1 }]);
+
+    session = undoSession(session);
+
+    expect(session.state.golems).toEqual([{ x: 2, y: 2 }]);
+    expect(session.state.isCaught).toBe(false);
+  });
+
+  it('restart restores golem position', () => {
+    const level = levelFromMap(['#####', '#P..#', '#..G#', '#...#', '#####']);
+    let session = createGameSession(level);
+
+    session = applySessionMove(session, 'right');
+    expect(session.state.golems).toEqual([{ x: 3, y: 1 }]);
+
+    session = restartSession(session);
+
+    expect(session.state.golems).toEqual([{ x: 3, y: 2 }]);
   });
 });

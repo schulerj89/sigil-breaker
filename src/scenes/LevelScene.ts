@@ -3,6 +3,7 @@ import { TILE_TEXTURE_KEYS } from '../assets/assetManifest';
 import { getLevelEntry, levelCatalog } from '../content/levelCatalog';
 import type { Direction } from '../core/direction';
 import { positionsEqual, type Position } from '../core/grid';
+import { previewGolemMoves } from '../core/levelState';
 import type { TerrainTile } from '../core/levelTypes';
 import type { GameSession } from '../systems/gameEngine';
 import {
@@ -37,6 +38,7 @@ export class LevelScene extends Phaser.Scene {
   private session!: GameSession;
   private progress!: ProgressState;
   private showGrid = true;
+  private showPreview = false;
   private hasRecordedWin = false;
 
   constructor() {
@@ -78,6 +80,13 @@ export class LevelScene extends Phaser.Scene {
     if (event.key.toLowerCase() === 'g') {
       event.preventDefault();
       this.showGrid = !this.showGrid;
+      this.renderLevel();
+      return;
+    }
+
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      this.showPreview = !this.showPreview;
       this.renderLevel();
       return;
     }
@@ -127,6 +136,10 @@ export class LevelScene extends Phaser.Scene {
       this.addEntity(TILE_TEXTURE_KEYS.crate, originX, originY, crate.x, crate.y, tileSize, 0.82);
     }
 
+    for (const golem of this.session.state.golems) {
+      this.addEntity(TILE_TEXTURE_KEYS.golem, originX, originY, golem.x, golem.y, tileSize, 0.76);
+    }
+
     this.addEntity(
       TILE_TEXTURE_KEYS.player,
       originX,
@@ -140,6 +153,10 @@ export class LevelScene extends Phaser.Scene {
     if (this.showGrid) {
       this.addGridOverlay(originX, originY, width, height, tileSize);
     }
+
+    if (this.showPreview) {
+      this.addGolemPreview(originX, originY, tileSize);
+    }
   }
 
   private renderHud(): void {
@@ -152,7 +169,7 @@ export class LevelScene extends Phaser.Scene {
       fontSize: '20px',
     });
     this.add.text(18, 40, `Turns ${this.session.state.turnCount}   Best ${bestTurns}`, TEXT_STYLE);
-    this.add.text(18, 66, 'Undo Z/Backspace   Restart R   Grid G', {
+    this.add.text(18, 66, 'Undo Z/Backspace   Restart R   Grid G   Preview Tab', {
       ...TEXT_STYLE,
       color: '#b8c0ca',
       fontSize: '14px',
@@ -176,6 +193,16 @@ export class LevelScene extends Phaser.Scene {
         .text(this.scale.width / 2, 36, 'Solved! Press N for next', {
           ...TEXT_STYLE,
           color: '#62c997',
+          fontSize: '22px',
+        })
+        .setOrigin(0.5, 0);
+    }
+
+    if (this.session.state.isCaught) {
+      this.add
+        .text(this.scale.width / 2, 36, 'Caught! Undo or restart', {
+          ...TEXT_STYLE,
+          color: '#e26d6d',
           fontSize: '22px',
         })
         .setOrigin(0.5, 0);
@@ -246,6 +273,19 @@ export class LevelScene extends Phaser.Scene {
     }
   }
 
+  private addGolemPreview(originX: number, originY: number, tileSize: number): void {
+    const graphics = this.add.graphics();
+    graphics.lineStyle(3, 0xd8ccff, 0.92);
+    graphics.fillStyle(0xd8ccff, 0.18);
+
+    for (const position of previewGolemMoves(this.session.level, this.session.state)) {
+      const x = originX + position.x * tileSize + tileSize / 2;
+      const y = originY + position.y * tileSize + tileSize / 2;
+      graphics.fillCircle(x, y, tileSize * 0.22);
+      graphics.strokeCircle(x, y, tileSize * 0.24);
+    }
+  }
+
   private textureKeyForTile(tile: TerrainTile, position: Position): string {
     if (tile.kind === 'pressurePlate') {
       return TILE_TEXTURE_KEYS.redPressurePlate;
@@ -276,6 +316,7 @@ export class LevelScene extends Phaser.Scene {
     this.levelIndex = index;
     this.session = createGameSession(nextEntry.level);
     this.hasRecordedWin = false;
+    this.showPreview = false;
     this.renderLevel();
   }
 

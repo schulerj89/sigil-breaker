@@ -33,6 +33,7 @@ export interface ParsedLevel {
   tiles: TerrainTile[][];
   playerStart: Position;
   crates: Position[];
+  golems: Position[];
   pressurePlates: PressurePlate[];
   doors: Door[];
   exits: Position[];

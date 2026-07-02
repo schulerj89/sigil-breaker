@@ -18,11 +18,12 @@
 - Exit and room completion detection.
 - Basic level progression.
 
-## v0.4 enemies
+## v0.4 enemies started
 
-- Deterministic enemy movement.
-- Enemy collision and threat visualization.
-- Puzzle-safe enemy timing rules.
+- Sleepy golem parser, state, rendering, and tutorial levels.
+- Deterministic post-player golem movement.
+- Caught state, undo/restart restoration, and preview markers.
+- Golems can hold red pressure plates.
 
 ## v0.5 level editor
 

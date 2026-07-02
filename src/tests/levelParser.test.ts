@@ -11,6 +11,7 @@ describe('parseLevel', () => {
     expect(parsed.height).toBe(8);
     expect(parsed.playerStart).toEqual({ x: 1, y: 1 });
     expect(parsed.crates).toEqual([]);
+    expect(parsed.golems).toEqual([]);
     expect(parsed.pressurePlates).toEqual([]);
     expect(parsed.doors).toEqual([]);
     expect(parsed.exits).toEqual([{ x: 6, y: 1 }]);
@@ -60,5 +61,18 @@ describe('parseLevel', () => {
         map: ['####', '#P#', '####'],
       }),
     ).toThrow(/row 2 has width 3, expected 4/);
+  });
+
+  it('supports sleepy golems', () => {
+    const parsed = parseLevel({
+      id: 'golems',
+      name: 'Golems',
+      map: ['#####', '#PGG#', '#..E#', '#####'],
+    });
+
+    expect(parsed.golems).toEqual([
+      { x: 2, y: 1 },
+      { x: 3, y: 1 },
+    ]);
   });
 });

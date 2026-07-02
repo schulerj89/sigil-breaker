@@ -23,7 +23,7 @@ export function createGameSession(level: ParsedLevel): GameSession {
 }
 
 export function applySessionMove(session: GameSession, direction: Direction): GameSession {
-  if (session.state.hasWon) {
+  if (session.state.hasWon || session.state.isCaught) {
     return session;
   }
 

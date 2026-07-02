@@ -12,6 +12,7 @@ const symbolDescriptions: Record<string, string> = {
   '.': 'floor',
   P: 'player',
   C: 'crate',
+  G: 'sleepy golem',
   R: 'red pressure plate',
   D: 'red door',
   E: 'exit',
@@ -41,6 +42,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
 
   const tiles: TerrainTile[][] = [];
   const crates: Position[] = [];
+  const golems: Position[] = [];
   const pressurePlates: PressurePlate[] = [];
   const doors: Door[] = [];
   const exits: Position[] = [];
@@ -74,6 +76,10 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
         crates.push(position);
       }
 
+      if (symbol === 'G') {
+        golems.push(position);
+      }
+
       if (symbol === 'R') {
         pressurePlates.push({ position, color: 'red' });
       }
@@ -105,6 +111,7 @@ export function parseLevel(definition: LevelDefinition): ParsedLevel {
     tiles,
     playerStart: playerStarts[0],
     crates,
+    golems,
     pressurePlates,
     doors,
     exits,
@@ -124,6 +131,7 @@ function tileForSymbol(symbol: string): TerrainTile {
     case '.':
     case 'P':
     case 'C':
+    case 'G':
       return { kind: 'floor' };
     default:
       throw new Error(`Unsupported parsed symbol: ${symbol}`);

@@ -9,6 +9,7 @@ export const TILE_TEXTURE_KEYS = {
   wall: 'tile.wall',
   player: 'entity.player',
   crate: 'entity.crate',
+  golem: 'entity.golem',
   redPressurePlate: 'tile.pressure.red',
   redDoor: 'tile.door.red',
   redDoorOpen: 'tile.door.red.open',
@@ -39,6 +40,11 @@ export const assetManifest: AssetManifestEntry[] = [
     key: TILE_TEXTURE_KEYS.crate,
     path: 'assets/kenney/sokoban/Crates/crate_01.png',
     placeholderColor: 0xb87844,
+  },
+  {
+    key: TILE_TEXTURE_KEYS.golem,
+    path: 'assets/kenney/sokoban/Enemies/golem.png',
+    placeholderColor: 0x8b84b8,
   },
   {
     key: TILE_TEXTURE_KEYS.redPressurePlate,
