@@ -47,10 +47,29 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: https://schulerj89.github.io/sigil-breaker/
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Check GitHub Pages status
+        id: pages-status
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          status="$(
+            curl -fsSL https://www.githubstatus.com/api/v2/components.json |
+              python3 -c "import json, sys; data = json.load(sys.stdin); print(next((component['status'] for component in data['components'] if component['name'] == 'Pages'), 'unknown'))"
+          )"
+
+          echo "status=${status}" >> "$GITHUB_OUTPUT"
+          echo "GitHub Pages status: ${status}"
+
+          if [ "${status}" != "operational" ]; then
+            echo "::notice::Skipping Pages deployment because GitHub currently reports Pages as ${status}."
+          fi
+
       - name: Deploy to GitHub Pages
+        if: steps.pages-status.outputs.status == 'operational'
         id: deployment
         uses: actions/deploy-pages@v5
