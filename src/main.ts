@@ -4,7 +4,10 @@ import { CreditsScene } from './scenes/CreditsScene';
 import { LevelScene } from './scenes/LevelScene';
 import { LevelSelectScene } from './scenes/LevelSelectScene';
 import { TitleScene } from './scenes/TitleScene';
+import { initializeCacheBuster } from './systems/cacheBuster';
 import './style.css';
+
+initializeCacheBuster();
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
