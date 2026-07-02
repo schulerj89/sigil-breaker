@@ -61,7 +61,7 @@ export class BootScene extends Phaser.Scene {
 async function assetExists(path: string): Promise<boolean> {
   try {
     const response = await fetch(path, { method: 'HEAD' });
-    return response.ok;
+    return response.ok && response.headers.get('content-type')?.startsWith('image/') === true;
   } catch {
     return false;
   }
