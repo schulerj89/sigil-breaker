@@ -15,6 +15,10 @@ export const TILE_TEXTURE_KEYS = {
   exit: 'tile.exit',
 } as const;
 
+// Kenney's Sokoban pack has changed folder and filename casing across releases.
+// Keep this manifest as the one place where downloaded sprite filenames map to
+// Sigilbreaker tile types. If your local pack uses different names, update only
+// the path for the relevant key and the placeholder renderer will keep working.
 export const assetManifest: AssetManifestEntry[] = [
   {
     key: TILE_TEXTURE_KEYS.floor,

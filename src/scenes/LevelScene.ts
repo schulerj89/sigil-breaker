@@ -1,9 +1,9 @@
 import Phaser from 'phaser';
 import { TILE_TEXTURE_KEYS } from '../assets/assetManifest';
+import { getLevelEntry, levelCatalog } from '../content/levelCatalog';
 import type { Direction } from '../core/direction';
 import { positionsEqual, type Position } from '../core/grid';
-import { parseLevel } from '../core/levelParser';
-import type { LevelDefinition, TerrainTile } from '../core/levelTypes';
+import type { TerrainTile } from '../core/levelTypes';
 import type { GameSession } from '../systems/gameEngine';
 import {
   applySessionMove,
@@ -11,33 +11,42 @@ import {
   restartSession,
   undoSession,
 } from '../systems/gameEngine';
-import tutorialLevel from '../content/levels/tutorial-01.json';
-import tutorialLevelTwo from '../content/levels/tutorial-02.json';
-import tutorialLevelThree from '../content/levels/tutorial-03.json';
+import {
+  completeLevel,
+  loadProgress,
+  saveProgress,
+  type ProgressState,
+  type StorageLike,
+} from '../systems/progress';
+import { makeTextButton } from '../ui/textButton';
 
 const LEVEL_PADDING = 18;
-const HUD_HEIGHT = 72;
+const HUD_HEIGHT = 100;
 const TEXT_STYLE: Phaser.Types.GameObjects.Text.TextStyle = {
   color: '#f4efe7',
   fontFamily: 'Inter, Arial, sans-serif',
-  fontSize: '18px',
+  fontSize: '16px',
 };
 
+interface LevelSceneData {
+  levelIndex?: number;
+}
+
 export class LevelScene extends Phaser.Scene {
-  private levels = [
-    parseLevel(tutorialLevel as LevelDefinition),
-    parseLevel(tutorialLevelTwo as LevelDefinition),
-    parseLevel(tutorialLevelThree as LevelDefinition),
-  ];
   private levelIndex = 0;
   private session!: GameSession;
+  private progress!: ProgressState;
+  private showGrid = true;
+  private hasRecordedWin = false;
 
   constructor() {
     super('LevelScene');
   }
 
-  create(): void {
-    this.session = createGameSession(this.levels[this.levelIndex]);
+  create(data: LevelSceneData): void {
+    this.levelIndex = Phaser.Math.Clamp(data.levelIndex ?? 0, 0, levelCatalog.length - 1);
+    this.progress = loadProgress(getBrowserStorage(), levelIds());
+    this.session = createGameSession(getLevelEntry(this.levelIndex).level);
 
     this.input.keyboard?.on('keydown', this.handleKeyDown);
     this.scale.on('resize', this.renderLevel, this);
@@ -50,16 +59,10 @@ export class LevelScene extends Phaser.Scene {
   }
 
   private readonly handleKeyDown = (event: KeyboardEvent): void => {
-    const levelIndex = levelIndexFromKeyboardEvent(event);
-    if (levelIndex !== undefined) {
-      event.preventDefault();
-      this.loadLevel(levelIndex);
-      return;
-    }
-
     if (event.key.toLowerCase() === 'z' || event.key === 'Backspace') {
       event.preventDefault();
       this.session = undoSession(this.session);
+      this.hasRecordedWin = this.session.state.hasWon;
       this.renderLevel();
       return;
     }
@@ -67,7 +70,21 @@ export class LevelScene extends Phaser.Scene {
     if (event.key.toLowerCase() === 'r') {
       event.preventDefault();
       this.session = restartSession(this.session);
+      this.hasRecordedWin = false;
       this.renderLevel();
+      return;
+    }
+
+    if (event.key.toLowerCase() === 'g') {
+      event.preventDefault();
+      this.showGrid = !this.showGrid;
+      this.renderLevel();
+      return;
+    }
+
+    if (event.key.toLowerCase() === 'n' && this.session.state.hasWon) {
+      event.preventDefault();
+      this.goToLevel(this.levelIndex + 1);
       return;
     }
 
@@ -80,6 +97,7 @@ export class LevelScene extends Phaser.Scene {
     const nextSession = applySessionMove(this.session, direction);
     if (nextSession !== this.session) {
       this.session = nextSession;
+      this.recordWinIfNeeded();
       this.renderLevel();
     }
   };
@@ -87,6 +105,7 @@ export class LevelScene extends Phaser.Scene {
   private renderLevel(): void {
     this.children.removeAll(true);
 
+    this.add.rectangle(0, 0, this.scale.width, this.scale.height, 0x101418).setOrigin(0);
     this.renderHud();
 
     const { width, height } = this.session.level;
@@ -117,40 +136,50 @@ export class LevelScene extends Phaser.Scene {
       tileSize,
       0.72,
     );
+
+    if (this.showGrid) {
+      this.addGridOverlay(originX, originY, width, height, tileSize);
+    }
   }
 
   private renderHud(): void {
-    this.add.text(18, 14, this.session.level.name, {
+    const entry = getLevelEntry(this.levelIndex);
+    const progress = this.progress.levels[entry.id];
+    const bestTurns = progress?.bestTurns === undefined ? '--' : String(progress.bestTurns);
+
+    this.add.text(18, 12, `${entry.order.toString().padStart(2, '0')} ${entry.title}`, {
       ...TEXT_STYLE,
       fontSize: '20px',
     });
+    this.add.text(18, 40, `Turns ${this.session.state.turnCount}   Best ${bestTurns}`, TEXT_STYLE);
+    this.add.text(18, 66, 'Undo Z/Backspace   Restart R   Grid G', {
+      ...TEXT_STYLE,
+      color: '#b8c0ca',
+      fontSize: '14px',
+    });
 
-    this.add.text(18, 42, `Turns ${this.session.state.turnCount}`, TEXT_STYLE);
+    makeTextButton(this, this.scale.width - 322, 18, 'Select', () => {
+      this.scene.start('LevelSelectScene');
+    });
+    makeTextButton(this, this.scale.width - 238, 18, 'Prev', () => {
+      this.goToLevel(this.levelIndex - 1);
+    });
+    makeTextButton(this, this.scale.width - 166, 18, 'Next', () => {
+      this.goToLevel(this.levelIndex + 1);
+    });
+    makeTextButton(this, this.scale.width - 94, 18, 'Menu', () => {
+      this.scene.start('TitleScene');
+    });
 
     if (this.session.state.hasWon) {
       this.add
-        .text(this.scale.width / 2, 26, 'Solved!', {
+        .text(this.scale.width / 2, 36, 'Solved! Press N for next', {
           ...TEXT_STYLE,
           color: '#62c997',
-          fontSize: '24px',
+          fontSize: '22px',
         })
         .setOrigin(0.5, 0);
     }
-
-    this.levels.forEach((_level, index) => {
-      const label = String(index + 1).padStart(2, '0');
-      const isActive = index === this.levelIndex;
-      const text = this.add
-        .text(this.scale.width - 130 + index * 38, 24, label, {
-          ...TEXT_STYLE,
-          color: isActive ? '#f0d078' : '#8f9aa6',
-        })
-        .setInteractive({ useHandCursor: true });
-
-      text.on('pointerdown', () => {
-        this.loadLevel(index);
-      });
-    });
   }
 
   private addTile(
@@ -180,13 +209,41 @@ export class LevelScene extends Phaser.Scene {
     scale: number,
   ): void {
     const size = Math.max(1, Math.floor(tileSize * scale));
-    this.add
+    const image = this.add
       .image(
         originX + x * tileSize + tileSize / 2,
         originY + y * tileSize + tileSize / 2,
         textureKey,
       )
       .setDisplaySize(size, size);
+
+    this.tweens.add({
+      targets: image,
+      scaleX: image.scaleX * 1.04,
+      scaleY: image.scaleY * 1.04,
+      duration: 80,
+      yoyo: true,
+      ease: 'Sine.easeOut',
+    });
+  }
+
+  private addGridOverlay(
+    originX: number,
+    originY: number,
+    width: number,
+    height: number,
+    tileSize: number,
+  ): void {
+    const graphics = this.add.graphics();
+    graphics.lineStyle(1, 0x0f1418, 0.58);
+
+    for (let x = 0; x <= width; x += 1) {
+      graphics.lineBetween(originX + x * tileSize, originY, originX + x * tileSize, originY + height * tileSize);
+    }
+
+    for (let y = 0; y <= height; y += 1) {
+      graphics.lineBetween(originX, originY + y * tileSize, originX + width * tileSize, originY + y * tileSize);
+    }
   }
 
   private textureKeyForTile(tile: TerrainTile, position: Position): string {
@@ -206,10 +263,35 @@ export class LevelScene extends Phaser.Scene {
     return tile.kind === 'wall' ? TILE_TEXTURE_KEYS.wall : TILE_TEXTURE_KEYS.floor;
   }
 
-  private loadLevel(index: number): void {
-    this.levelIndex = Phaser.Math.Clamp(index, 0, this.levels.length - 1);
-    this.session = createGameSession(this.levels[this.levelIndex]);
+  private goToLevel(index: number): void {
+    if (index < 0 || index >= levelCatalog.length) {
+      return;
+    }
+
+    const nextEntry = getLevelEntry(index);
+    if (!this.progress.levels[nextEntry.id]?.unlocked) {
+      return;
+    }
+
+    this.levelIndex = index;
+    this.session = createGameSession(nextEntry.level);
+    this.hasRecordedWin = false;
     this.renderLevel();
+  }
+
+  private recordWinIfNeeded(): void {
+    if (!this.session.state.hasWon || this.hasRecordedWin) {
+      return;
+    }
+
+    this.progress = completeLevel(
+      this.progress,
+      levelIds(),
+      this.session.level.id,
+      this.session.state.turnCount,
+    );
+    saveProgress(getBrowserStorage(), this.progress);
+    this.hasRecordedWin = true;
   }
 }
 
@@ -232,10 +314,10 @@ function directionFromKeyboardEvent(event: KeyboardEvent): Direction | undefined
   }
 }
 
-function levelIndexFromKeyboardEvent(event: KeyboardEvent): number | undefined {
-  if (!/^[1-3]$/.test(event.key)) {
-    return undefined;
-  }
+function levelIds(): string[] {
+  return levelCatalog.map((entry) => entry.id);
+}
 
-  return Number(event.key) - 1;
+function getBrowserStorage(): StorageLike | undefined {
+  return typeof window === 'undefined' ? undefined : window.localStorage;
 }

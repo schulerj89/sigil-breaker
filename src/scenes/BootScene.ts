@@ -26,7 +26,7 @@ export class BootScene extends Phaser.Scene {
 
     if (availableAssets.length === 0) {
       this.createMissingPlaceholders();
-      this.scene.start('LevelScene');
+      this.scene.start('TitleScene');
       return;
     }
 
@@ -36,7 +36,7 @@ export class BootScene extends Phaser.Scene {
 
     this.load.once(Phaser.Loader.Events.COMPLETE, () => {
       this.createMissingPlaceholders();
-      this.scene.start('LevelScene');
+      this.scene.start('TitleScene');
     });
     this.load.start();
   }

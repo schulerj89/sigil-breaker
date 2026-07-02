@@ -1,6 +1,9 @@
 import Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
+import { CreditsScene } from './scenes/CreditsScene';
 import { LevelScene } from './scenes/LevelScene';
+import { LevelSelectScene } from './scenes/LevelSelectScene';
+import { TitleScene } from './scenes/TitleScene';
 import './style.css';
 
 const config: Phaser.Types.Core.GameConfig = {
@@ -13,7 +16,7 @@ const config: Phaser.Types.Core.GameConfig = {
     width: window.innerWidth,
     height: window.innerHeight,
   },
-  scene: [BootScene, LevelScene],
+  scene: [BootScene, TitleScene, LevelSelectScene, CreditsScene, LevelScene],
 };
 
 new Phaser.Game(config);

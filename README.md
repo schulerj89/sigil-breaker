@@ -18,4 +18,15 @@ npm run dev
 
 ## GitHub Pages
 
-The Vite build uses a relative base path so the `dist/` output can be served from the `sigil-breaker` project path on GitHub Pages.
+This repository is configured as a normal GitHub Pages project repository, so the production Vite base path is `/sigil-breaker/`.
+
+Deployment steps:
+
+1. Push to `main`.
+2. In GitHub, open repository Settings.
+3. Under Pages, set Source to GitHub Actions.
+4. The `Deploy GitHub Pages` workflow will run `npm ci`, `npm test`, and `npm run build`, then publish `dist/`.
+
+If this project is ever moved to a user or organization site repository named `USERNAME.github.io`, change the production Vite base path in `vite.config.ts` from `/sigil-breaker/` to `/`.
+
+No Kenney asset binaries are included in this repository. Place CC0 assets manually under `public/assets/kenney/sokoban/` when ready.
