@@ -20,10 +20,13 @@ public/assets/kenney/sokoban/
   Ground/
     ground_01.png
   Player/
-    player_03.png
     player_05.png
+  Enemies/
+    sleepy_golem.png
   License.txt
 ```
+
+`Enemies/sleepy_golem.png` is an optional future custom sprite path. The Kenney Sokoban pack does not include a dedicated golem enemy, so the game generates a stone golem texture when this file is absent.
 
 The current code maps expected filenames in `src/assets/assetManifest.ts`. If your Kenney download uses different folder names or file names, update the manifest paths rather than changing game logic.
 
@@ -33,7 +36,7 @@ Current mapping:
 - `block_01.png`: wall
 - `crate_01.png`: crate
 - `player_05.png`: player
-- `player_03.png`: sleepy golem stand-in
+- `Enemies/sleepy_golem.png`: optional custom sleepy golem sprite
 - `environment_04.png`: red pressure plate
 - `environment_15.png`: closed red door stand-in
 - `environment_16.png`: open red door stand-in

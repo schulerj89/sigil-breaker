@@ -43,8 +43,10 @@ export const assetManifest: AssetManifestEntry[] = [
   },
   {
     key: TILE_TEXTURE_KEYS.golem,
-    path: 'assets/kenney/sokoban/Player/player_03.png',
-    placeholderColor: 0x8b84b8,
+    // Kenney Sokoban does not include a golem enemy. Drop a future compatible
+    // custom sprite here, or the boot scene will generate a stone golem.
+    path: 'assets/kenney/sokoban/Enemies/sleepy_golem.png',
+    placeholderColor: 0x6f7782,
   },
   {
     key: TILE_TEXTURE_KEYS.redPressurePlate,

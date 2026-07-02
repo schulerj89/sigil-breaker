@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { assetManifest } from '../assets/assetManifest';
+import { TILE_TEXTURE_KEYS, assetManifest } from '../assets/assetManifest';
 
 const PLACEHOLDER_SIZE = 64;
 
@@ -47,6 +47,11 @@ export class BootScene extends Phaser.Scene {
         continue;
       }
 
+      if (asset.key === TILE_TEXTURE_KEYS.golem) {
+        this.createGolemPlaceholder();
+        continue;
+      }
+
       const graphics = this.make.graphics({ x: 0, y: 0 }, false);
       graphics.fillStyle(asset.placeholderColor, 1);
       graphics.fillRect(0, 0, PLACEHOLDER_SIZE, PLACEHOLDER_SIZE);
@@ -55,6 +60,35 @@ export class BootScene extends Phaser.Scene {
       graphics.generateTexture(asset.key, PLACEHOLDER_SIZE, PLACEHOLDER_SIZE);
       graphics.destroy();
     }
+  }
+
+  private createGolemPlaceholder(): void {
+    const graphics = this.make.graphics({ x: 0, y: 0 }, false);
+
+    graphics.fillStyle(0x2d3439, 1);
+    graphics.fillRoundedRect(14, 28, 36, 28, 5);
+    graphics.fillStyle(0x6f7782, 1);
+    graphics.fillRoundedRect(18, 12, 28, 22, 5);
+    graphics.fillRoundedRect(10, 30, 12, 20, 4);
+    graphics.fillRoundedRect(42, 30, 12, 20, 4);
+    graphics.fillRoundedRect(18, 50, 10, 8, 3);
+    graphics.fillRoundedRect(36, 50, 10, 8, 3);
+
+    graphics.lineStyle(3, 0x171d23, 0.85);
+    graphics.strokeRoundedRect(18, 12, 28, 22, 5);
+    graphics.strokeRoundedRect(14, 28, 36, 28, 5);
+
+    graphics.lineStyle(2, 0x3d464e, 0.9);
+    graphics.lineBetween(25, 15, 32, 21);
+    graphics.lineBetween(38, 35, 30, 42);
+    graphics.lineBetween(22, 44, 27, 50);
+
+    graphics.fillStyle(0xd8ccff, 1);
+    graphics.fillCircle(27, 24, 2.5);
+    graphics.fillCircle(37, 24, 2.5);
+
+    graphics.generateTexture(TILE_TEXTURE_KEYS.golem, PLACEHOLDER_SIZE, PLACEHOLDER_SIZE);
+    graphics.destroy();
   }
 }
 

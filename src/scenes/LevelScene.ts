@@ -137,7 +137,7 @@ export class LevelScene extends Phaser.Scene {
     }
 
     for (const golem of this.session.state.golems) {
-      this.addEntity(TILE_TEXTURE_KEYS.golem, originX, originY, golem.x, golem.y, tileSize, 0.76);
+      this.addEntity(TILE_TEXTURE_KEYS.golem, originX, originY, golem.x, golem.y, tileSize, 0.88);
     }
 
     this.addEntity(
