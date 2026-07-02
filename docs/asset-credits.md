@@ -9,13 +9,34 @@ Place the downloaded Sokoban files under:
 ```text
 public/assets/kenney/sokoban/
   Blocks/
+    block_01.png
   Crates/
+    crate_01.png
   Environment/
-  Enemies/
+    environment_04.png
+    environment_06.png
+    environment_15.png
+    environment_16.png
   Ground/
+    ground_01.png
   Player/
+    player_03.png
+    player_05.png
+  License.txt
 ```
 
 The current code maps expected filenames in `src/assets/assetManifest.ts`. If your Kenney download uses different folder names or file names, update the manifest paths rather than changing game logic.
+
+Current mapping:
+
+- `ground_01.png`: floor
+- `block_01.png`: wall
+- `crate_01.png`: crate
+- `player_05.png`: player
+- `player_03.png`: sleepy golem stand-in
+- `environment_04.png`: red pressure plate
+- `environment_15.png`: closed red door stand-in
+- `environment_16.png`: open red door stand-in
+- `environment_06.png`: exit stand-in
 
 The game includes placeholder textures so missing local art assets do not prevent local development or tests from running.

@@ -43,27 +43,27 @@ export const assetManifest: AssetManifestEntry[] = [
   },
   {
     key: TILE_TEXTURE_KEYS.golem,
-    path: 'assets/kenney/sokoban/Enemies/golem.png',
+    path: 'assets/kenney/sokoban/Player/player_03.png',
     placeholderColor: 0x8b84b8,
   },
   {
     key: TILE_TEXTURE_KEYS.redPressurePlate,
-    path: 'assets/kenney/sokoban/Environment/button_red.png',
+    path: 'assets/kenney/sokoban/Environment/environment_04.png',
     placeholderColor: 0xc94747,
   },
   {
     key: TILE_TEXTURE_KEYS.redDoor,
-    path: 'assets/kenney/sokoban/Environment/door_red.png',
+    path: 'assets/kenney/sokoban/Environment/environment_15.png',
     placeholderColor: 0x843b3b,
   },
   {
     key: TILE_TEXTURE_KEYS.redDoorOpen,
-    path: 'assets/kenney/sokoban/Environment/door_red_open.png',
+    path: 'assets/kenney/sokoban/Environment/environment_16.png',
     placeholderColor: 0x5f805f,
   },
   {
     key: TILE_TEXTURE_KEYS.exit,
-    path: 'assets/kenney/sokoban/Environment/exit.png',
+    path: 'assets/kenney/sokoban/Environment/environment_06.png',
     placeholderColor: 0x62c997,
   },
 ];

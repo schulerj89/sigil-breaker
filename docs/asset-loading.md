@@ -10,4 +10,4 @@ Runtime loading is manifest-driven in `src/assets/assetManifest.ts`. Each manife
 
 `BootScene` probes each manifest path before loading it. Files that exist are loaded as Phaser textures. Files that are missing are replaced with generated placeholder textures, so the game remains playable, testable, and deployable with no binary art assets committed.
 
-When manually adding the Kenney pack, keep the folder structure documented in `docs/asset-credits.md`. If the downloaded pack uses different filenames, update only `assetManifest.ts`.
+When manually adding the Kenney pack, keep the folder structure documented in `docs/asset-credits.md`. The current repo includes the small CC0 subset used by the game. If a future downloaded pack uses different filenames, update only `assetManifest.ts`.
