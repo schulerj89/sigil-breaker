@@ -1,0 +1,9 @@
+# Sigilbreaker Design
+
+Sigilbreaker is a compact turn-based puzzle strategy game about reading a room, understanding its rules, and breaking the sigil that seals the exit. Each room is a deterministic grid puzzle with one controllable character, visible mechanisms, and no hidden randomness. The player should feel that every failure came from a misunderstood rule or a missed consequence, not from opaque simulation.
+
+The first version focuses on Sokoban-like dungeon rooms: walls shape the route, crates alter the layout, pressure plates open doors, and exits complete rooms. Later versions can add enemies, beams, relics, terrain rules, and seeded challenge rooms, but those features should remain legible on the same grid foundation. The core promise is tactical clarity: small rooms, readable state, instant input, undo support, and puzzles that can be reasoned through step by step.
+
+The project is structured so puzzle rules live outside Phaser. Phaser owns rendering, input, and presentation, while `src/core` owns level parsing, level state, movement, validation, and eventually win conditions and undo history. This separation keeps rules testable and makes it possible to add tools such as a level editor or daily puzzle generator without rewriting game logic.
+
+The visual direction starts with simple placeholder tiles and is intended to move toward Kenney's CC0 Sokoban assets. The game should remain playable without art installed, which keeps onboarding and CI simple. Mobile is a first priority, so the board should scale cleanly to small screens and avoid relying on dense text or tiny controls.
