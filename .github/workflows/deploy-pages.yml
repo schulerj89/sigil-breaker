@@ -52,6 +52,7 @@ jobs:
 
           find pages-dist -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
           cp -R dist/. pages-dist/
+          find pages-dist -name .gitkeep -delete
           touch pages-dist/.nojekyll
 
           git -C pages-dist add -A
