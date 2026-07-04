@@ -1,0 +1,40 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "asset-registry-agent",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial registry scaffold only; no FPS registry files exist.",
+  "observations": [
+    "The current asset manifest is MVP-specific.",
+    "Future FPS assets need source, license, load group, fallback, and QA metadata."
+  ],
+  "decisions": [
+    "Use stable namespaced asset IDs.",
+    "Do not require a full-game preload for level assets."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "A weak registry can make memory and streaming QA impossible."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "idPatternExamples": [
+      "level01.building.watchtower.01",
+      "enemy.grunt.urban.01",
+      "weapon.rifle.burst.01",
+      "powerup.damage.common.01"
+    ],
+    "requiredRegistryStatusFields": [
+      "licensePass",
+      "playgroundPass",
+      "mobileBudgetPass"
+    ]
+  },
+  "nextAgents": [
+    "gltf-optimization-agent",
+    "asset-playground-qa-agent",
+    "performance-budget-agent"
+  ]
+}
+

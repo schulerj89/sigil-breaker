@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sigil-breaker.local/sub-agents/asset-handoff.schema.json",
+  "title": "Asset Handoff",
+  "type": "object",
+  "required": ["handoffVersion", "agentId", "status", "assetId", "assetType", "gameUse", "source", "files", "qa"],
+  "properties": {
+    "handoffVersion": { "type": "string" },
+    "agentId": { "type": "string" },
+    "status": { "enum": ["candidate", "approved", "rejected", "needs-review"] },
+    "assetId": { "type": "string" },
+    "assetType": { "enum": ["model", "texture", "audio", "music", "sfx", "ui", "vfx", "animation", "skybox"] },
+    "gameUse": { "enum": ["level-kit", "enemy", "weapon", "upgrade", "powerup", "environment", "audio", "hud", "camera"] },
+    "levelScope": { "type": "array", "items": { "type": "string" } },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "source": {
+      "type": "object",
+      "required": ["name", "url", "author", "license", "commercialUseAllowed", "redistributionAllowed", "attributionRequired"],
+      "properties": {
+        "name": { "type": "string" },
+        "url": { "type": "string" },
+        "author": { "type": "string" },
+        "license": { "type": "string" },
+        "licenseUrl": { "type": "string" },
+        "commercialUseAllowed": { "type": "boolean" },
+        "redistributionAllowed": { "type": "boolean" },
+        "attributionRequired": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "kind", "bytes"],
+        "properties": {
+          "path": { "type": "string" },
+          "kind": { "enum": ["source", "optimized", "preview", "license", "metadata"] },
+          "bytes": { "type": "integer", "minimum": 0 },
+          "hash": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "properties": {
+        "loadGroup": { "type": "string" },
+        "fallbackAssetId": { "type": "string" },
+        "preload": { "type": "boolean" },
+        "streamingPriority": { "type": "integer" }
+      },
+      "additionalProperties": false
+    },
+    "threejs": {
+      "type": "object",
+      "properties": {
+        "format": { "type": "string" },
+        "units": { "type": "string" },
+        "scale": { "type": "number" },
+        "triangleCount": { "type": "integer", "minimum": 0 },
+        "materialCount": { "type": "integer", "minimum": 0 },
+        "textureCount": { "type": "integer", "minimum": 0 },
+        "animations": { "type": "array", "items": { "type": "string" } },
+        "hasDraco": { "type": "boolean" },
+        "hasMeshopt": { "type": "boolean" },
+        "hasKtx2": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "gameplay": {
+      "type": "object",
+      "properties": {
+        "collisionProxy": { "type": "string" },
+        "spawnPolicy": { "type": "string" },
+        "anchor": { "type": "string" },
+        "rarity": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "qa": {
+      "type": "object",
+      "required": ["validatedInPlayground", "mobileBudgetPass", "licensePass", "notes"],
+      "properties": {
+        "validatedInPlayground": { "type": "boolean" },
+        "mobileBudgetPass": { "type": "boolean" },
+        "licensePass": { "type": "boolean" },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
+

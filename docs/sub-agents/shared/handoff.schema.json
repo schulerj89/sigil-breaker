@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sigil-breaker.local/sub-agents/handoff.schema.json",
+  "title": "Sub-Agent Handoff",
+  "type": "object",
+  "required": ["handoffVersion", "agentId", "status", "updatedAt", "summary", "observations", "decisions", "risks", "nextAgents"],
+  "properties": {
+    "handoffVersion": { "type": "string" },
+    "agentId": { "type": "string" },
+    "status": { "enum": ["not-started", "in-progress", "complete", "blocked", "needs-review"] },
+    "updatedAt": { "type": "string" },
+    "summary": { "type": "string" },
+    "observations": { "type": "array", "items": { "type": "string" } },
+    "decisions": { "type": "array", "items": { "type": "string" } },
+    "caughtIssues": { "type": "array", "items": { "type": "string" } },
+    "risks": { "type": "array", "items": { "type": "string" } },
+    "blockers": { "type": "array", "items": { "type": "string" } },
+    "artifacts": { "type": "array", "items": { "type": "string" } },
+    "jsonForAgents": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "nextAgents": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": false
+}
+

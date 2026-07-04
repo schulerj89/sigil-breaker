@@ -1,0 +1,39 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "mobile-fps-game-feel-agent",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial game-feel scaffold only; no FPS controller exists.",
+  "observations": [
+    "No movement, aim, weapon cadence, or hit feedback implementation exists yet."
+  ],
+  "decisions": [
+    "Target touch input latency under 50 ms.",
+    "Keep recoil and shake readable on mobile landscape."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "A desktop-first controller can feel unusable once touch controls are layered on."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "inputLatencyTargetMs": 50,
+    "frameBudgetMs": 16.7,
+    "reviewFocus": [
+      "movement",
+      "aim",
+      "weaponCadence",
+      "reload",
+      "hitFeedback",
+      "recoil",
+      "powerupFeel"
+    ]
+  },
+  "nextAgents": [
+    "touch-controls-agent",
+    "camera-cutscene-agent",
+    "playthrough-qa-agent"
+  ]
+}
+

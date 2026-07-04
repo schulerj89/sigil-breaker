@@ -1,0 +1,36 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "gltf-optimization-agent",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial GLTF optimization scaffold only; no FPS models have been processed.",
+  "observations": [
+    "No GLB or GLTF assets are ready for optimization."
+  ],
+  "decisions": [
+    "Track triangles, materials, textures, animations, bytes, and compression.",
+    "Validate optimized assets in the playground."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "Large external models can silently break mobile frame budgets."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "startingBudgets": {
+      "reusablePropMaxMb": 6,
+      "initialLevelPayloadMaxMb": 40,
+      "gameplayDrawCallsMax": 90,
+      "gameplayTrianglesMax": 250000,
+      "texturesMax": 64
+    },
+    "collisionFromRenderMeshAllowed": false
+  },
+  "nextAgents": [
+    "asset-playground-qa-agent",
+    "performance-budget-agent",
+    "memory-lifecycle-agent"
+  ]
+}
+

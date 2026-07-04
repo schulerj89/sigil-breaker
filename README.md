@@ -2,6 +2,10 @@
 
 Sigilbreaker is a browser-based turn-based grid puzzle strategy game built with TypeScript, Vite, and Phaser.
 
+## Future FPS Rewrite Planning
+
+The planned mobile-first landscape Three.js FPS rewrite is scaffolded under `docs/sub-agents/`. That folder defines the asset pipeline, review, QA, mobile controls, audio, camera, and coordination sub-agents to use before replacing the MVP game code.
+
 ## Local Development
 
 ```bash

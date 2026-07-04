@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sigil-breaker.local/sub-agents/qa-finding.schema.json",
+  "title": "QA Finding",
+  "type": "object",
+  "required": ["severity", "agentId", "summary", "reproSteps", "expected", "actual", "status"],
+  "properties": {
+    "severity": { "enum": ["P0", "P1", "P2", "P3"] },
+    "agentId": { "type": "string" },
+    "summary": { "type": "string" },
+    "sceneId": { "type": "string" },
+    "viewport": { "type": "string" },
+    "reproSteps": { "type": "array", "items": { "type": "string" } },
+    "expected": { "type": "string" },
+    "actual": { "type": "string" },
+    "artifacts": { "type": "array", "items": { "type": "string" } },
+    "status": { "enum": ["open", "fixed", "wont-fix", "needs-info"] },
+    "nextAgent": { "type": "string" }
+  },
+  "additionalProperties": false
+}
+

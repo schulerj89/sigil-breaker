@@ -1,0 +1,45 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "performance-budget-agent",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial performance scaffold only; no Three.js metrics have been measured.",
+  "observations": [
+    "No Three.js renderer metrics API exists in the current MVP."
+  ],
+  "decisions": [
+    "Visible-browser landscape QA is required for 60 FPS validation.",
+    "Headless smoke should assert metrics and state, not final FPS."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "Without a metrics API, future performance regressions will be hard to catch."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "visibleFpsTarget": 60,
+    "budgets": {
+      "drawCallsMax": 90,
+      "trianglesMax": 250000,
+      "geometriesMax": 100,
+      "texturesMax": 64,
+      "initialScenePayloadMbMax": 40
+    },
+    "requiredMetrics": [
+      "fps",
+      "calls",
+      "triangles",
+      "geometries",
+      "textures",
+      "loadedAssetIds",
+      "assetLoadErrors"
+    ]
+  },
+  "nextAgents": [
+    "memory-lifecycle-agent",
+    "smoke-qa-agent",
+    "asset-playground-qa-agent"
+  ]
+}
+

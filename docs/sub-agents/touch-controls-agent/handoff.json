@@ -1,0 +1,46 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "touch-controls-agent",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial touch-controls scaffold only; no FPS touch layout exists.",
+  "observations": [
+    "No future virtual-stick or touch-button implementation exists."
+  ],
+  "decisions": [
+    "Left thumb zone owns movement.",
+    "Right thumb zone owns look and aim.",
+    "Move, aim, and fire must work simultaneously."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "Controls added late can force HUD and camera rewrites."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "requiredButtons": [
+      "fire",
+      "reload",
+      "jumpOrDodge",
+      "interact",
+      "weaponSwap",
+      "ability",
+      "pause"
+    ],
+    "testViewports": [
+      "667x375",
+      "740x360",
+      "844x390",
+      "932x430",
+      "tablet-landscape"
+    ],
+    "requiresStablePointerIds": true
+  },
+  "nextAgents": [
+    "landscape-title-hud-agent",
+    "mobile-fps-game-feel-agent",
+    "smoke-qa-agent"
+  ]
+}
+

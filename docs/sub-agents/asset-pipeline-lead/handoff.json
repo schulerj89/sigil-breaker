@@ -1,0 +1,41 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "asset-pipeline-lead",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial asset pipeline scaffold only; no FPS assets have been selected.",
+  "observations": [
+    "The current repo has basic MVP asset documentation, but no FPS asset registry.",
+    "Future assets need source, license, optimization, playground, and load-group records."
+  ],
+  "decisions": [
+    "External assets are required for final art.",
+    "Asset playground validation is required before gameplay integration."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "Importing assets before license and budget checks can create costly rework."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "requiredAssetFields": [
+      "assetId",
+      "assetType",
+      "gameUse",
+      "source",
+      "files",
+      "runtime",
+      "threejs",
+      "gameplay",
+      "qa"
+    ],
+    "playgroundRequired": true
+  },
+  "nextAgents": [
+    "external-asset-scout",
+    "license-provenance-curator",
+    "asset-registry-agent"
+  ]
+}
+

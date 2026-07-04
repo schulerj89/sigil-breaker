@@ -1,0 +1,49 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "playthrough-qa-agent",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial playthrough QA scaffold only; no FPS route exists.",
+  "observations": [
+    "No playable FPS route, reward choice, or transition exists yet."
+  ],
+  "decisions": [
+    "Playthrough QA must include combat, pause, death/recovery, objective, reward choice, and transition.",
+    "Player-facing breakage should be reported before polish."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "Smoke tests can pass while the actual combat and reward loop feels broken."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "minimumRoute": [
+      "boot",
+      "start-game",
+      "move",
+      "aim",
+      "shoot",
+      "reload",
+      "take-damage",
+      "pause-resume",
+      "complete-objective",
+      "choose-powerup",
+      "transition"
+    ],
+    "failOn": [
+      "inputLock",
+      "unrecoverableDeathState",
+      "hudOverlap",
+      "touchControlsOffscreen",
+      "brokenRewardChoice",
+      "transitionFailure"
+    ]
+  },
+  "nextAgents": [
+    "mobile-fps-coordinator",
+    "performance-budget-agent",
+    "memory-lifecycle-agent"
+  ]
+}
+

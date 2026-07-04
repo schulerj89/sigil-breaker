@@ -1,0 +1,41 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "enemy-asset-curator",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial enemy asset scaffold only; no enemy roster exists.",
+  "observations": [
+    "No level-specific enemy brief has been created."
+  ],
+  "decisions": [
+    "Enemy assets must be judged by silhouette, animation coverage, hit proxies, audio hooks, and mobile performance.",
+    "Use recurring enemy types for recognition and unique variants for level identity."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "Enemy assets without readable attack and hit states will make mobile combat feel unfair."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "requiredAnimations": [
+      "idle",
+      "move",
+      "attack",
+      "hit",
+      "death"
+    ],
+    "requiredProxyTypes": [
+      "capsule",
+      "box",
+      "projectile-blocker"
+    ]
+  },
+  "nextAgents": [
+    "external-asset-scout",
+    "license-provenance-curator",
+    "asset-playground-qa-agent",
+    "playthrough-qa-agent"
+  ]
+}
+

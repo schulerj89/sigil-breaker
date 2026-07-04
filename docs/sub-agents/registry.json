@@ -1,0 +1,148 @@
+{
+  "version": "1.0.0",
+  "repo": "sigil-breaker",
+  "root": "docs/sub-agents",
+  "agents": [
+    {
+      "id": "mobile-fps-coordinator",
+      "category": "coordination",
+      "folder": "docs/sub-agents/mobile-fps-coordinator",
+      "purpose": "Routes work across sub-agents, resolves conflicts, enforces lifecycle and merge gates.",
+      "primaryOutputs": ["slice-plan", "cross-agent-risk-list", "integration-blockers"]
+    },
+    {
+      "id": "asset-pipeline-lead",
+      "category": "assets",
+      "folder": "docs/sub-agents/asset-pipeline-lead",
+      "purpose": "Owns asset taxonomy, naming, source ledger policy, load groups, and acceptance standards.",
+      "primaryOutputs": ["asset-taxonomy", "pipeline-decision-log", "asset-handoff-contract"]
+    },
+    {
+      "id": "external-asset-scout",
+      "category": "assets",
+      "folder": "docs/sub-agents/external-asset-scout",
+      "purpose": "Finds external free or permissive assets that match the level, enemy, weapon, UI, and audio needs.",
+      "primaryOutputs": ["candidate-source-list", "asset-shortlist", "source-risk-notes"]
+    },
+    {
+      "id": "license-provenance-curator",
+      "category": "assets",
+      "folder": "docs/sub-agents/license-provenance-curator",
+      "purpose": "Verifies source, license, attribution, redistribution, modification, and commercial-use status.",
+      "primaryOutputs": ["license-ledger", "rejected-source-list", "credits-requirements"]
+    },
+    {
+      "id": "asset-registry-agent",
+      "category": "assets",
+      "folder": "docs/sub-agents/asset-registry-agent",
+      "purpose": "Maintains future asset manifest records, IDs, tags, dependencies, fallbacks, and load groups.",
+      "primaryOutputs": ["asset-registry-delta", "load-group-map", "fallback-map"]
+    },
+    {
+      "id": "level-kit-curator",
+      "category": "assets",
+      "folder": "docs/sub-agents/level-kit-curator",
+      "purpose": "Builds unique level asset kits for buildings, props, hazards, landmarks, skies, and encounter spaces.",
+      "primaryOutputs": ["level-kit-plan", "level-asset-gaps", "environment-identity-notes"]
+    },
+    {
+      "id": "enemy-asset-curator",
+      "category": "assets",
+      "folder": "docs/sub-agents/enemy-asset-curator",
+      "purpose": "Sources and classifies unique and recurring enemy assets, animations, hit proxies, and audio needs.",
+      "primaryOutputs": ["enemy-asset-map", "animation-needs", "enemy-readability-risks"]
+    },
+    {
+      "id": "weapon-upgrade-asset-curator",
+      "category": "assets",
+      "folder": "docs/sub-agents/weapon-upgrade-asset-curator",
+      "purpose": "Sources guns, attachments, projectile VFX, muzzle effects, pickups, icons, and upgrade presentation assets.",
+      "primaryOutputs": ["weapon-asset-map", "upgrade-visual-map", "viewmodel-risk-list"]
+    },
+    {
+      "id": "powerup-progression-agent",
+      "category": "systems",
+      "folder": "docs/sub-agents/powerup-progression-agent",
+      "purpose": "Defines level-relative randomized powerup pools, caps, ranges, stack policies, and balance checks.",
+      "primaryOutputs": ["powerup-pool-plan", "scaling-band-report", "balance-risk-list"]
+    },
+    {
+      "id": "gltf-optimization-agent",
+      "category": "assets",
+      "folder": "docs/sub-agents/gltf-optimization-agent",
+      "purpose": "Optimizes GLB/GLTF assets for mobile WebGL budgets, including mesh, texture, material, and animation costs.",
+      "primaryOutputs": ["optimization-report", "mobile-budget-pass", "conversion-notes"]
+    },
+    {
+      "id": "asset-playground-qa-agent",
+      "category": "qa",
+      "folder": "docs/sub-agents/asset-playground-qa-agent",
+      "purpose": "Tests external assets in a standalone Three.js playground before gameplay integration.",
+      "primaryOutputs": ["playground-report", "scale-screenshots", "asset-defect-list"]
+    },
+    {
+      "id": "performance-budget-agent",
+      "category": "review",
+      "folder": "docs/sub-agents/performance-budget-agent",
+      "purpose": "Reviews FPS, draw calls, triangles, texture counts, shader cost, postprocessing, and visible mobile performance.",
+      "primaryOutputs": ["performance-report", "budget-regression-list", "fps-qa-notes"]
+    },
+    {
+      "id": "memory-lifecycle-agent",
+      "category": "review",
+      "folder": "docs/sub-agents/memory-lifecycle-agent",
+      "purpose": "Reviews GPU resource ownership, disposal, scene reset leaks, asset lifetime, and cache growth.",
+      "primaryOutputs": ["memory-report", "reset-loop-report", "disposal-risk-list"]
+    },
+    {
+      "id": "smoke-qa-agent",
+      "category": "qa",
+      "folder": "docs/sub-agents/smoke-qa-agent",
+      "purpose": "Runs boot, render, mobile landscape, debug API, console, and network smoke checks.",
+      "primaryOutputs": ["smoke-report", "screenshot-manifest", "blocking-failure-list"]
+    },
+    {
+      "id": "playthrough-qa-agent",
+      "category": "qa",
+      "folder": "docs/sub-agents/playthrough-qa-agent",
+      "purpose": "Plays complete slices to catch broken loops, wonky behavior, unreadable encounters, and transition failures.",
+      "primaryOutputs": ["playthrough-report", "route-notes", "player-facing-defect-list"]
+    },
+    {
+      "id": "mobile-fps-game-feel-agent",
+      "category": "systems",
+      "folder": "docs/sub-agents/mobile-fps-game-feel-agent",
+      "purpose": "Reviews mobile FPS movement, aiming, recoil, hit feedback, weapon cadence, and combat feel.",
+      "primaryOutputs": ["game-feel-report", "input-latency-risk-list", "weapon-feel-notes"]
+    },
+    {
+      "id": "touch-controls-agent",
+      "category": "systems",
+      "folder": "docs/sub-agents/touch-controls-agent",
+      "purpose": "Owns virtual sticks, fire/reload/jump/interact buttons, safe thumb zones, and multitouch behavior.",
+      "primaryOutputs": ["touch-layout-report", "control-overlap-list", "gesture-conflict-notes"]
+    },
+    {
+      "id": "landscape-title-hud-agent",
+      "category": "systems",
+      "folder": "docs/sub-agents/landscape-title-hud-agent",
+      "purpose": "Reviews landscape title, HUD, pause, reward choice, rotate prompt, safe-area, and text fit.",
+      "primaryOutputs": ["hud-report", "title-screen-notes", "safe-area-risk-list"]
+    },
+    {
+      "id": "elevenlabs-audio-music-agent",
+      "category": "audio",
+      "folder": "docs/sub-agents/elevenlabs-audio-music-agent",
+      "purpose": "Plans ElevenLabs music, SFX, voice, ambience, prompt metadata, caching, captions, and mobile mix.",
+      "primaryOutputs": ["audio-plan", "elevenlabs-prompt-ledger", "mix-risk-list"]
+    },
+    {
+      "id": "camera-cutscene-agent",
+      "category": "systems",
+      "folder": "docs/sub-agents/camera-cutscene-agent",
+      "purpose": "Reviews first-person camera, viewmodel framing, FOV, shake, hit/death states, and cutscene camera behavior.",
+      "primaryOutputs": ["camera-report", "cutscene-shot-list", "input-restore-risk-list"]
+    }
+  ]
+}
+

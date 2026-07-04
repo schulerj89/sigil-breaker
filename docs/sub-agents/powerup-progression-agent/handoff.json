@@ -1,0 +1,49 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "powerup-progression-agent",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial powerup scaffold only; no pools have been implemented.",
+  "observations": [
+    "Powerups need level-relative randomized pools with capped scalar bands."
+  ],
+  "decisions": [
+    "Level 1 scalar boosts should stay in the 3-5% range.",
+    "Level 5 scalar boosts should stay in the 7-12% range.",
+    "Each level family should define 10-20 candidate powerups."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "Uncapped stacking can break later levels and invalidate playthrough QA."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "scalarBands": {
+      "level1": { "minPercent": 3, "maxPercent": 5 },
+      "level2": { "minPercent": 4, "maxPercent": 7 },
+      "level3": { "minPercent": 5, "maxPercent": 9 },
+      "level4": { "minPercent": 6, "maxPercent": 10 },
+      "level5": { "minPercent": 7, "maxPercent": 12 }
+    },
+    "candidateCountPerLevelFamily": { "min": 10, "max": 20 },
+    "requiredPowerupFields": [
+      "id",
+      "name",
+      "levelScope",
+      "stat",
+      "minPercent",
+      "maxPercent",
+      "stackPolicy",
+      "cap",
+      "rarity",
+      "uiCopy"
+    ]
+  },
+  "nextAgents": [
+    "landscape-title-hud-agent",
+    "weapon-upgrade-asset-curator",
+    "playthrough-qa-agent"
+  ]
+}
+

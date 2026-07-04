@@ -1,0 +1,43 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "camera-cutscene-agent",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial camera scaffold only; no FPS camera or cutscene system exists.",
+  "observations": [
+    "No camera modes, viewmodel framing, or cutscene system exists yet."
+  ],
+  "decisions": [
+    "Cutscenes must be skippable.",
+    "Input state must be restored after cutscenes.",
+    "Camera shake and FOV shifts must remain readable on mobile."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "Camera and viewmodel decisions can break touch controls and HUD readability if reviewed late."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "cameraModes": [
+      "title",
+      "gameplay",
+      "aim",
+      "sprint",
+      "hit",
+      "death",
+      "cinematic"
+    ],
+    "defaultFovDegrees": 70,
+    "cutsceneSkippable": true,
+    "restoreInputAfterCutscene": true,
+    "debugPoseRequired": true
+  },
+  "nextAgents": [
+    "weapon-upgrade-asset-curator",
+    "touch-controls-agent",
+    "landscape-title-hud-agent",
+    "playthrough-qa-agent"
+  ]
+}
+

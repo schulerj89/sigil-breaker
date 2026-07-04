@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sigil-breaker.local/sub-agents/agent-report.schema.json",
+  "title": "Agent Report",
+  "type": "object",
+  "required": ["runId", "agentId", "status", "startedAt", "finishedAt", "summary", "findings"],
+  "properties": {
+    "runId": { "type": "string" },
+    "agentId": { "type": "string" },
+    "status": { "enum": ["complete", "blocked", "needs-review"] },
+    "startedAt": { "type": "string" },
+    "finishedAt": { "type": "string" },
+    "summary": { "type": "string" },
+    "inputsRead": { "type": "array", "items": { "type": "string" } },
+    "filesChanged": { "type": "array", "items": { "type": "string" } },
+    "commandsRun": { "type": "array", "items": { "type": "string" } },
+    "artifacts": { "type": "array", "items": { "type": "string" } },
+    "findings": { "type": "array", "items": { "$ref": "qa-finding.schema.json" } },
+    "handoffPath": { "type": "string" }
+  },
+  "additionalProperties": false
+}
+

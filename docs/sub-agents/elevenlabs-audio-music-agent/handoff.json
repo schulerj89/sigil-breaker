@@ -1,0 +1,51 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "elevenlabs-audio-music-agent",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial ElevenLabs audio scaffold only; no FPS audio workflow exists.",
+  "observations": [
+    "No future FPS audio manifest, generation script, or mix policy exists yet."
+  ],
+  "decisions": [
+    "Do not expose ElevenLabs API keys in browser code.",
+    "Generate server-side or build-time and cache audio as assets.",
+    "Record prompt and settings metadata for generated audio."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "Runtime secret usage would leak API keys in the web build.",
+    "Untracked generated audio cannot be reproduced or credited."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "secretEnvVars": [
+      "ELEVENLABS_API_KEY"
+    ],
+    "runtimeGenerationAllowedInBrowser": false,
+    "requiredAudioMetadata": [
+      "assetId",
+      "provider",
+      "prompt",
+      "modelOrVoice",
+      "settings",
+      "generationDate",
+      "durationSeconds",
+      "loopable",
+      "lufsTarget",
+      "captionText"
+    ],
+    "defaultLufsTargets": {
+      "music": -18,
+      "sfx": -14,
+      "voice": -16
+    }
+  },
+  "nextAgents": [
+    "license-provenance-curator",
+    "playthrough-qa-agent",
+    "mobile-fps-game-feel-agent"
+  ]
+}
+

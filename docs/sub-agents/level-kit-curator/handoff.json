@@ -1,0 +1,41 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "level-kit-curator",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial level-kit scaffold only; no FPS levels have been planned.",
+  "observations": [
+    "No target level theme or arena layout exists yet."
+  ],
+  "decisions": [
+    "Use unique external kits per level.",
+    "Avoid full-level monolithic GLBs.",
+    "Define level-relative anchors for powerups and encounters."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "Weak scale references can make buildings, cover, and enemies feel wrong on mobile."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "requiredLevelKitSections": [
+      "environmentIdentity",
+      "buildings",
+      "coverProps",
+      "hazards",
+      "landmarks",
+      "skyLighting",
+      "rewardSpace",
+      "powerupAnchors"
+    ],
+    "monolithicLevelGlbAllowed": false
+  },
+  "nextAgents": [
+    "external-asset-scout",
+    "enemy-asset-curator",
+    "weapon-upgrade-asset-curator",
+    "asset-playground-qa-agent"
+  ]
+}
+

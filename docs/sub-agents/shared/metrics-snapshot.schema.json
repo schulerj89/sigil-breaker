@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sigil-breaker.local/sub-agents/metrics-snapshot.schema.json",
+  "title": "Metrics Snapshot",
+  "type": "object",
+  "required": ["scene", "device", "rendererMetrics", "memoryMetrics", "assetLoadErrors"],
+  "properties": {
+    "scene": {
+      "type": "object",
+      "required": ["sceneId", "phase", "cameraMode"],
+      "properties": {
+        "sceneId": { "type": "string" },
+        "phase": { "type": "string" },
+        "cameraMode": { "type": "string" },
+        "playerPosition": { "type": "array", "items": { "type": "number" }, "minItems": 3, "maxItems": 3 }
+      },
+      "additionalProperties": false
+    },
+    "device": {
+      "type": "object",
+      "required": ["profile", "viewport", "visibleBrowser"],
+      "properties": {
+        "profile": { "type": "string" },
+        "viewport": {
+          "type": "object",
+          "required": ["width", "height"],
+          "properties": {
+            "width": { "type": "integer" },
+            "height": { "type": "integer" },
+            "deviceScaleFactor": { "type": "number" }
+          },
+          "additionalProperties": false
+        },
+        "visibleBrowser": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    },
+    "rendererMetrics": {
+      "type": "object",
+      "required": ["fps", "calls", "triangles", "geometries", "textures"],
+      "properties": {
+        "fps": { "type": "number" },
+        "calls": { "type": "integer" },
+        "triangles": { "type": "integer" },
+        "geometries": { "type": "integer" },
+        "textures": { "type": "integer" }
+      },
+      "additionalProperties": false
+    },
+    "memoryMetrics": {
+      "type": "object",
+      "properties": {
+        "jsHeapMb": { "type": "number" },
+        "decodedTextureMbEstimate": { "type": "number" },
+        "loadedAssetIds": { "type": "array", "items": { "type": "string" } },
+        "activeSceneRoots": { "type": "integer" }
+      },
+      "additionalProperties": false
+    },
+    "assetLoadErrors": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": false
+}
+

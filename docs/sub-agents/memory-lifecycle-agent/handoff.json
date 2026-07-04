@@ -1,0 +1,37 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "memory-lifecycle-agent",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial memory scaffold only; no Three.js lifecycle code exists.",
+  "observations": [
+    "No Three.js loaders, scene transitions, or GPU disposal paths exist yet."
+  ],
+  "decisions": [
+    "Five reset loops should return texture and geometry counts to baseline.",
+    "Shared resources need ownership or reference counting."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "Scene resets can leak GPU memory if disposal is bolted on late."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "resetLoopCount": 5,
+    "maxHeapGrowthPercent": 5,
+    "maxTextureGrowth": 0,
+    "maxGeometryGrowth": 0,
+    "disposeOwnedResourceTypes": [
+      "BufferGeometry",
+      "Material",
+      "Texture",
+      "WebGLRenderTarget"
+    ]
+  },
+  "nextAgents": [
+    "performance-budget-agent",
+    "smoke-qa-agent"
+  ]
+}
+

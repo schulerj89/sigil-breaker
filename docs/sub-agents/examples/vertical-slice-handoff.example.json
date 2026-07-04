@@ -1,0 +1,47 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "mobile-fps-coordinator",
+  "status": "needs-review",
+  "updatedAt": "2026-07-03T00:00:00Z",
+  "summary": "Example handoff for a future mobile FPS vertical slice.",
+  "observations": [
+    "The current repo is a Phaser MVP; Three.js FPS work has not started.",
+    "The first slice should prove mobile landscape controls, nonblank WebGL canvas, one arena, one enemy, one weapon, and one reward choice."
+  ],
+  "decisions": [
+    "Asset playground validation is required before importing external GLB assets into gameplay.",
+    "Visible-browser 60 FPS is the target; headless smoke should assert state and budgets."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "External asset licenses can block redistribution if not checked before download.",
+    "Touch controls can overlap HUD or fail multitouch if not designed before gameplay tuning."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "featureSlice": "mobile-fps-vertical-slice",
+    "platform": {
+      "orientation": "landscape",
+      "primaryInput": "touch",
+      "targetFps": 60,
+      "minViewportCssPx": {
+        "width": 667,
+        "height": 360
+      }
+    },
+    "requiredAgents": [
+      "asset-pipeline-lead",
+      "touch-controls-agent",
+      "performance-budget-agent",
+      "smoke-qa-agent"
+    ]
+  },
+  "nextAgents": [
+    "asset-pipeline-lead",
+    "touch-controls-agent",
+    "landscape-title-hud-agent",
+    "performance-budget-agent"
+  ]
+}
+

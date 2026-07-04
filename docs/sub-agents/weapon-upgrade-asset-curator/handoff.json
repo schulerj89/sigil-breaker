@@ -1,0 +1,38 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "weapon-upgrade-asset-curator",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial weapon asset scaffold only; no weapon roster exists.",
+  "observations": [
+    "No weapon or upgrade asset brief has been created."
+  ],
+  "decisions": [
+    "Weapon candidates must be tested as first-person viewmodels.",
+    "Upgrade icons and VFX must map to actual mechanics."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "Weapon assets can look acceptable in orbit view but fail when framed as mobile FPS viewmodels."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "weaponAssetCategories": [
+      "viewmodel",
+      "worldPickup",
+      "attachment",
+      "muzzleFlash",
+      "projectile",
+      "hitImpact",
+      "upgradeIcon"
+    ],
+    "requiresCameraReview": true
+  },
+  "nextAgents": [
+    "camera-cutscene-agent",
+    "mobile-fps-game-feel-agent",
+    "asset-playground-qa-agent"
+  ]
+}
+

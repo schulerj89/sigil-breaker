@@ -1,0 +1,34 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "license-provenance-curator",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial license scaffold only; no FPS candidates have been reviewed.",
+  "observations": [
+    "No future FPS source ledger exists yet."
+  ],
+  "decisions": [
+    "License approval is required before shippable asset import.",
+    "Mixed-license sources require per-asset review."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "Free download availability does not imply game redistribution rights."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "approvalRequiredBeforeImport": true,
+    "rejectLicenseTypes": [
+      "noncommercial",
+      "editorial-only",
+      "unknown",
+      "ripped"
+    ]
+  },
+  "nextAgents": [
+    "asset-registry-agent",
+    "asset-pipeline-lead"
+  ]
+}
+

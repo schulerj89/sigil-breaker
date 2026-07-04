@@ -1,0 +1,47 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "landscape-title-hud-agent",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial landscape HUD scaffold only; no FPS UI exists.",
+  "observations": [
+    "No landscape FPS title, HUD, pause, or reward UI exists yet."
+  ],
+  "decisions": [
+    "Landscape is the playable orientation.",
+    "Portrait should show a rotate prompt.",
+    "Reward choices must show clear stat deltas and selected state."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "Reward UI can become unreadable if powerup names and stat copy are not constrained early."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "hudElements": [
+      "crosshair",
+      "health",
+      "shield",
+      "ammo",
+      "objective",
+      "pause",
+      "rewardChoices"
+    ],
+    "forbiddenOverlapZones": [
+      "thumb-left",
+      "thumb-right",
+      "notch",
+      "home-indicator",
+      "crosshair"
+    ],
+    "portraitPlayable": false
+  },
+  "nextAgents": [
+    "touch-controls-agent",
+    "powerup-progression-agent",
+    "smoke-qa-agent",
+    "playthrough-qa-agent"
+  ]
+}
+

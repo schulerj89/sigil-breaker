@@ -1,0 +1,40 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "asset-playground-qa-agent",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial playground QA scaffold only; no playground or assets have been tested.",
+  "observations": [
+    "The future Three.js asset playground has not been implemented."
+  ],
+  "decisions": [
+    "Assets must pass playground QA before gameplay use.",
+    "Playground screenshots should be stable and named for comparison."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "Skipping playground QA can hide scale, material, animation, and mobile framing failures until gameplay integration."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "requiredPlaygroundFeatures": [
+      "registryOrPathLoader",
+      "orbitCamera",
+      "firstPersonCamera",
+      "mobileLandscapePresets",
+      "scaleGridMeters",
+      "animationSelector",
+      "materialTextureInspector",
+      "rendererMetricsPanel",
+      "collisionProxyPreview",
+      "screenshotCapture"
+    ]
+  },
+  "nextAgents": [
+    "gltf-optimization-agent",
+    "performance-budget-agent",
+    "level-kit-curator"
+  ]
+}
+

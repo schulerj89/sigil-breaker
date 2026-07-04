@@ -1,0 +1,59 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "level-kit-curator",
+  "status": "candidate",
+  "assetId": "level01.building.watchtower.01",
+  "assetType": "model",
+  "gameUse": "level-kit",
+  "levelScope": ["level-01"],
+  "tags": ["arena", "cover", "landmark"],
+  "source": {
+    "name": "Example CC0 pack",
+    "url": "https://example.com/asset",
+    "author": "Example Author",
+    "license": "CC0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "commercialUseAllowed": true,
+    "redistributionAllowed": true,
+    "attributionRequired": false
+  },
+  "files": [
+    {
+      "path": "public/assets/fps/level-01/watchtower.glb",
+      "kind": "optimized",
+      "bytes": 0,
+      "hash": "sha256-placeholder"
+    }
+  ],
+  "runtime": {
+    "loadGroup": "level-01-core",
+    "fallbackAssetId": "fallback.cover.blockout",
+    "preload": true,
+    "streamingPriority": 1
+  },
+  "threejs": {
+    "format": "glb",
+    "units": "meters",
+    "scale": 1,
+    "triangleCount": 0,
+    "materialCount": 0,
+    "textureCount": 0,
+    "animations": [],
+    "hasDraco": false,
+    "hasMeshopt": false,
+    "hasKtx2": false
+  },
+  "gameplay": {
+    "collisionProxy": "box",
+    "spawnPolicy": "fixed",
+    "anchor": "level01.arena.north",
+    "rarity": "unique"
+  },
+  "qa": {
+    "validatedInPlayground": false,
+    "mobileBudgetPass": false,
+    "licensePass": false,
+    "notes": []
+  }
+}
+

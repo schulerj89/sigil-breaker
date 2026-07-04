@@ -1,0 +1,37 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "mobile-fps-coordinator",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial coordinator scaffold only; no implementation slice has run.",
+  "observations": [
+    "The repo is currently a Phaser MVP.",
+    "Future work should start with a bounded mobile FPS vertical-slice plan."
+  ],
+  "decisions": [
+    "Use docs/sub-agents as the sub-agent source of truth.",
+    "Require per-agent observations and handoff JSON.",
+    "Close spawned agents after final output is captured."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "A rewrite can sprawl unless each slice has an owner, gate, and stop condition."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "firstSliceRecommendation": "mobile-fps-vertical-slice",
+    "requiredFirstAgents": [
+      "asset-pipeline-lead",
+      "touch-controls-agent",
+      "performance-budget-agent",
+      "smoke-qa-agent"
+    ]
+  },
+  "nextAgents": [
+    "asset-pipeline-lead",
+    "touch-controls-agent",
+    "landscape-title-hud-agent"
+  ]
+}
+

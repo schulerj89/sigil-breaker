@@ -1,0 +1,36 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "external-asset-scout",
+  "status": "not-started",
+  "updatedAt": "2026-07-04T00:00:00Z",
+  "summary": "Initial source-scout scaffold only; no candidate assets have been selected.",
+  "observations": [
+    "No FPS level, enemy, weapon, or HUD asset brief exists yet."
+  ],
+  "decisions": [
+    "Discovery handoffs must not be treated as license approval.",
+    "Prefer CC0 sources before mixed-license sources."
+  ],
+  "caughtIssues": [],
+  "risks": [
+    "Free asset pages often still have redistribution or attribution obligations."
+  ],
+  "blockers": [],
+  "artifacts": [],
+  "jsonForAgents": {
+    "candidateFields": [
+      "sourceUrl",
+      "author",
+      "licenseClaim",
+      "assetType",
+      "intendedUse",
+      "riskNotes"
+    ],
+    "licenseReviewRequired": true
+  },
+  "nextAgents": [
+    "license-provenance-curator",
+    "asset-registry-agent"
+  ]
+}
+
