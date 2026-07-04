@@ -4,7 +4,7 @@ import { getWeaponFootprintClearance } from './weapons/weaponClearance';
 
 const EYE_HEIGHT = 1.62;
 export const PLAYER_COLLISION_RADIUS = 0.3;
-export const MOVE_SPEED_UNITS_PER_SECOND = 4.0625;
+export const MOVE_SPEED_UNITS_PER_SECOND = 5.078125;
 const LOOK_SENSITIVITY = 0.004;
 const FIRE_LOOK_SENSITIVITY_MULTIPLIER = 0.72;
 const FIRE_LOOK_DEAD_ZONE_PX = 3;

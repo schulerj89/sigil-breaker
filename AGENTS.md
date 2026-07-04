@@ -12,6 +12,14 @@ Unless the user explicitly says not to, finish every code or documentation chang
 
 Do not commit broken work just to satisfy this rule. If validation fails and cannot be fixed in the same turn, report the failure and leave the work uncommitted unless the user explicitly asks for a commit anyway.
 
+## GitHub Pages Deployment
+
+Source code lives on `main`, but GitHub Pages publishes generated files from the `gh-pages` branch. The Pages source is intentionally set to legacy branch publishing because artifact deployment with `actions/deploy-pages@v5` repeatedly failed with GitHub's generic deployment error after successful builds.
+
+Do not edit `gh-pages` directly. The `Deploy GitHub Pages` workflow builds from `main`, writes cache-busted production files into `gh-pages`, and asks Pages to rebuild. Do not switch the workflow back to `actions/deploy-pages@v5` unless the Pages deployment model is intentionally being revisited.
+
+The repo `GITHUB_TOKEN` can push the generated branch but could not change Pages source settings through the API (`403`). If Pages fails again, check the workflow logs, the `gh-pages` branch contents, the Pages API/source setting, and the deployed `version.json` before changing the workflow.
+
 ## Credentials And Secrets
 
 Use the local Windows secret broker for all API keys and credentials. Do not read plaintext key files from `C:\Users\joshs\Projects`, do not print secret values, and do not write secrets into docs, logs, JSON handoffs, screenshots, commits, or artifacts.

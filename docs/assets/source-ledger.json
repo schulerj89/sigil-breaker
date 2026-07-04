@@ -1,6 +1,6 @@
 {
   "ledgerVersion": "1.0.0",
-  "updatedAt": "2026-07-04T15:05:00Z",
+  "updatedAt": "2026-07-04T16:13:24Z",
   "sources": [
     {
       "sourceId": "kenney.blaster-kit.2-1",
@@ -73,7 +73,7 @@
       "author": "Kenney",
       "sourceUrl": "https://www.kenney.nl/assets/prototype-textures",
       "downloadUrl": "https://opengameart.org/sites/default/files/kenney_prototypeTextures.zip",
-      "downloadedAt": "2026-07-04T15:05:00Z",
+      "downloadedAt": "2026-07-04T16:13:24Z",
       "license": "Creative Commons Zero, CC0",
       "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
       "licenseFile": "public/assets/environment/kenney-prototype-textures/LICENSE.txt",
@@ -84,44 +84,44 @@
       "notes": [
         "Official Kenney asset page lists Creative Commons CC0.",
         "OpenGameArt listing identifies Kenney as author and CC0 license.",
-        "Only selected colored PNG textures are committed for the foundation floor, walls, and roof.",
+        "Only selected steel-toned PNG textures are committed for the foundation floor, walls, and roof.",
         "Selected textures are unmodified copies from the source zip; sourceSha256, optimizedSha256, and sha256 intentionally match."
       ],
       "sharedFiles": [],
       "assets": [
         {
-          "assetId": "environment.foundation.floor-grid-green",
+          "assetId": "environment.foundation.floor-grid-steel",
           "assetType": "texture",
-          "sourceFile": "PNG/Green/texture_07.png",
-          "path": "public/assets/environment/kenney-prototype-textures/textures/floor-grid-green.png",
-          "bytes": 2739,
-          "sourceSha256": "7e9dcf4d6e4a5dfae1ca44a2396216193f52af31273ff22a61f6ba35fcab8b72",
-          "optimizedSha256": "7e9dcf4d6e4a5dfae1ca44a2396216193f52af31273ff22a61f6ba35fcab8b72",
-          "sha256": "7e9dcf4d6e4a5dfae1ca44a2396216193f52af31273ff22a61f6ba35fcab8b72",
+          "sourceFile": "PNG/Light/texture_06.png",
+          "path": "public/assets/environment/kenney-prototype-textures/textures/floor-grid-steel.png",
+          "bytes": 2743,
+          "sourceSha256": "0bbf0bf3177290112a415f06be4d57af1b32d5be363c4ba3a107d85810762d52",
+          "optimizedSha256": "0bbf0bf3177290112a415f06be4d57af1b32d5be363c4ba3a107d85810762d52",
+          "sha256": "0bbf0bf3177290112a415f06be4d57af1b32d5be363c4ba3a107d85810762d52",
           "gameUse": "environment",
           "loadGroup": "foundation-environment"
         },
         {
-          "assetId": "environment.foundation.wall-panel-orange",
+          "assetId": "environment.foundation.wall-panel-steel",
           "assetType": "texture",
-          "sourceFile": "PNG/Orange/texture_05.png",
-          "path": "public/assets/environment/kenney-prototype-textures/textures/wall-panel-orange.png",
-          "bytes": 13212,
-          "sourceSha256": "3415a948e1d9265c531620180fd574e2aefed0ba1ee807df20b08c2a1ce4c5bd",
-          "optimizedSha256": "3415a948e1d9265c531620180fd574e2aefed0ba1ee807df20b08c2a1ce4c5bd",
-          "sha256": "3415a948e1d9265c531620180fd574e2aefed0ba1ee807df20b08c2a1ce4c5bd",
+          "sourceFile": "PNG/Dark/texture_05.png",
+          "path": "public/assets/environment/kenney-prototype-textures/textures/wall-panel-steel.png",
+          "bytes": 19065,
+          "sourceSha256": "5f54c65814e1f35ab744c0b84b810c22e886019f0fecc308efc1514b7b50caa9",
+          "optimizedSha256": "5f54c65814e1f35ab744c0b84b810c22e886019f0fecc308efc1514b7b50caa9",
+          "sha256": "5f54c65814e1f35ab744c0b84b810c22e886019f0fecc308efc1514b7b50caa9",
           "gameUse": "environment",
           "loadGroup": "foundation-environment"
         },
         {
-          "assetId": "environment.foundation.roof-flat-purple",
+          "assetId": "environment.foundation.roof-flat-steel",
           "assetType": "texture",
-          "sourceFile": "PNG/Purple/texture_09.png",
-          "path": "public/assets/environment/kenney-prototype-textures/textures/roof-flat-purple.png",
+          "sourceFile": "PNG/Dark/texture_08.png",
+          "path": "public/assets/environment/kenney-prototype-textures/textures/roof-flat-steel.png",
           "bytes": 637,
-          "sourceSha256": "71a0ff68f911cc1a747cadcbc8cdb34051b33d3fc010158e0e38a8ea3524adb8",
-          "optimizedSha256": "71a0ff68f911cc1a747cadcbc8cdb34051b33d3fc010158e0e38a8ea3524adb8",
-          "sha256": "71a0ff68f911cc1a747cadcbc8cdb34051b33d3fc010158e0e38a8ea3524adb8",
+          "sourceSha256": "31853441a32d26821d55b08d821304f0cce70fdf1b9bd308082132be89df6dc0",
+          "optimizedSha256": "31853441a32d26821d55b08d821304f0cce70fdf1b9bd308082132be89df6dc0",
+          "sha256": "31853441a32d26821d55b08d821304f0cce70fdf1b9bd308082132be89df6dc0",
           "gameUse": "environment",
           "loadGroup": "foundation-environment"
         }

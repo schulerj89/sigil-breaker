@@ -1,6 +1,6 @@
 # Observations: performance-budget-agent
 
-Status: needs review after input/collision/effect-pose/entry-splitter, body-collision resolver, pitch shot math, zoom guard, hold-fire aim, foundation textures, and MVP browser-smoke pass.
+Status: needs review after input/collision/effect-pose/entry-splitter, body-collision resolver, pitch shot math, zoom guard, hold-fire aim, steel foundation textures, and MVP browser-smoke pass.
 
 ## What It Saw
 
@@ -26,16 +26,16 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - The mobile zoom guard adds non-passive event listeners and debug counters only; it adds no scene objects, textures, geometries, or per-frame render work.
 - Browser smoke now uses two Playwright workers and limits full movement/gesture interaction coverage to `chromium-modern-phone-landscape`; all five viewports still run boot, HUD, asset, canvas, cache, viewport-scale, and hold-fire checks.
 - Local `npm run test:e2e` measured about 19 seconds after the MVP split.
-- Taller foundation walls reuse the existing instanced wall geometry path and add no new draw calls or textures.
-- Larger gun scale and per-weapon aim poses are manifest/math changes; they add no new model payload.
+- The 3.84-unit foundation walls reuse the existing instanced wall geometry path and add no new draw calls or textures.
+- Larger gun scale and centered per-weapon aim poses are manifest/math changes; they add no new model payload.
 - Hold-fire aim adds one camera FOV blend, one viewmodel pose blend, and cadence-gated shooting while held.
 - The reticle icon is a CSS-only DOM control and adds no WebGL resources; the extra gun-cycle icon button was removed.
-- Latest production JS chunk is about 651.34 kB minified and still triggers the known Vite large chunk warning.
-- Latest `npm run validate:browser` passed all five landscape viewports in 40.4 seconds with two workers and the QA restart loop.
+- Latest production JS chunk is about 651.33 kB minified and still triggers the known Vite large chunk warning.
+- Latest `npm run validate:browser` passed all five landscape viewports in 44.5 seconds with two workers and the QA restart loop after the steel texture, wall height, movement speed, and centered-gun changes.
 - Browser smoke now asserts render calls, triangles, geometries, and textures against the debug budget object.
-- The foundation texture pass adds three 1024 x 1024 PNG textures totaling 16588B source payload and about 12MB decoded RGBA estimate.
+- The steel foundation texture pass uses three 1024 x 1024 PNG textures totaling 22445B source payload and about 12MB decoded RGBA estimate.
 - The full-level roof adds one PlaneGeometry, one MeshBasicMaterial, and one draw call.
-- The foundation floor, wall, and roof use unlit textured materials so the prototype colors stay visible without extra lighting work.
+- The foundation floor, wall, and roof use unlit textured materials so the steel-toned prototype textures stay visible without extra lighting work.
 - The heavy browser smoke project now restarts the app five times through the QA restart hook and rechecks loaded assets plus renderer budgets each time.
 
 ## Decisions

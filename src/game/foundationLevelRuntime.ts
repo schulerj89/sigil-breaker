@@ -19,10 +19,10 @@ import {
 import { publicAssetUrl } from './assetUrls';
 
 const MATRIX_BYTES = 16 * Float32Array.BYTES_PER_ELEMENT;
-export const FOUNDATION_WALL_HEIGHT_UNITS = 3.2;
+export const FOUNDATION_WALL_HEIGHT_UNITS = 3.84;
 export const FOUNDATION_COVER_HEIGHT_UNITS = 1.15;
-export const FOUNDATION_ROOF_HEIGHT_UNITS = 3.28;
-export const FOUNDATION_ENVIRONMENT_TEXTURE_SOURCE_BYTES = 16_588;
+export const FOUNDATION_ROOF_HEIGHT_UNITS = 3.92;
+export const FOUNDATION_ENVIRONMENT_TEXTURE_SOURCE_BYTES = 22_445;
 export const FOUNDATION_ENVIRONMENT_TEXTURE_DECODED_BYTES = 3 * 1024 * 1024 * 4;
 
 interface EnvironmentTextureDefinition {
@@ -33,18 +33,18 @@ interface EnvironmentTextureDefinition {
 
 const FOUNDATION_ENVIRONMENT_TEXTURES = {
   floor: {
-    id: 'environment.foundation.floor-grid-green',
-    path: 'assets/environment/kenney-prototype-textures/textures/floor-grid-green.png',
+    id: 'environment.foundation.floor-grid-steel',
+    path: 'assets/environment/kenney-prototype-textures/textures/floor-grid-steel.png',
     repeat: [8, 8],
   },
   wall: {
-    id: 'environment.foundation.wall-panel-orange',
-    path: 'assets/environment/kenney-prototype-textures/textures/wall-panel-orange.png',
+    id: 'environment.foundation.wall-panel-steel',
+    path: 'assets/environment/kenney-prototype-textures/textures/wall-panel-steel.png',
     repeat: [1, 1],
   },
   roof: {
-    id: 'environment.foundation.roof-flat-purple',
-    path: 'assets/environment/kenney-prototype-textures/textures/roof-flat-purple.png',
+    id: 'environment.foundation.roof-flat-steel',
+    path: 'assets/environment/kenney-prototype-textures/textures/roof-flat-steel.png',
     repeat: [8, 8],
   },
 } as const satisfies Record<string, EnvironmentTextureDefinition>;
@@ -59,10 +59,10 @@ export function createFoundationLevelRuntime(
   scene: THREE.Scene,
   track: <Resource extends { dispose: () => void }>(resource: Resource) => Resource,
 ): FoundationLevelRuntime {
-  const ambient = new THREE.HemisphereLight(0xd8fff0, 0x1b1410, 0.82);
+  const ambient = new THREE.HemisphereLight(0xdce8f2, 0x15191d, 0.82);
   scene.add(ambient);
 
-  const keyLight = new THREE.DirectionalLight(0xffefc2, 1.35);
+  const keyLight = new THREE.DirectionalLight(0xe9f3ff, 1.35);
   keyLight.position.set(5, 8, 7);
   scene.add(keyLight);
 
@@ -104,7 +104,7 @@ export function createFoundationLevelRuntime(
   floor.rotation.x = -Math.PI / 2;
   scene.add(floor);
 
-  const grid = new THREE.GridHelper(levelWidth, LEVEL_WIDTH_TILES, 0x6ee7b7, 0x334155);
+  const grid = new THREE.GridHelper(levelWidth, LEVEL_WIDTH_TILES, 0xb6c5d0, 0x5d6974);
   grid.position.y = 0.01;
   track(grid.geometry);
   if (Array.isArray(grid.material)) {

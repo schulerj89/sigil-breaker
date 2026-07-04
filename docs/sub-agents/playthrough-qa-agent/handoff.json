@@ -2,7 +2,7 @@
   "handoffVersion": "1.0.0",
   "agentId": "playthrough-qa-agent",
   "status": "not-started",
-  "updatedAt": "2026-07-04T15:25:00Z",
+  "updatedAt": "2026-07-04T16:13:24Z",
   "summary": "Initial playthrough QA scaffold only; no full FPS route exists, but the first route should cover widened structural entries, splitter-post branches, weapon-footprint traversal, hold-fire aim, release cleanup, weapon-tray switching, and textured foundation readability.",
   "observations": [
     "No playable FPS route, reward choice, or transition exists yet.",
@@ -11,7 +11,7 @@
     "Hold-fire now controls continuous firing, aim zoom, weapon centering, and reduced-sensitivity look.",
     "Weapon switching remains through the bottom weapon tray.",
     "The foundation now has floor, wall, and roof textures plus a full-level roof.",
-    "Gameplay-height screenshot QA confirmed the colored texture read for orange walls, green floor, and purple ceiling."
+    "Gameplay-height screenshot QA confirmed the steel texture read for floor, walls, and ceiling."
   ],
   "decisions": [
     "Playthrough QA must include combat, pause, death/recovery, objective, reward choice, and transition.",

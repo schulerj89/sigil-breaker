@@ -4,15 +4,15 @@
   "author": "Kenney",
   "sourceUrl": "https://www.kenney.nl/assets/prototype-textures",
   "downloadUrl": "https://opengameart.org/sites/default/files/kenney_prototypeTextures.zip",
-  "downloadedAt": "2026-07-04T15:05:00Z",
+  "downloadedAt": "2026-07-04T16:13:24Z",
   "license": "Creative Commons Zero, CC0",
   "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
   "selectedFiles": [
-    "PNG/Green/texture_07.png",
-    "PNG/Orange/texture_05.png",
-    "PNG/Purple/texture_09.png"
+    "PNG/Light/texture_06.png",
+    "PNG/Dark/texture_05.png",
+    "PNG/Dark/texture_08.png"
   ],
   "notes": [
-    "Selected textures are unmodified copies from the source zip."
+    "Selected steel-toned textures are unmodified copies from the source zip."
   ]
 }

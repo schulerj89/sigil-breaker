@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "asset-registry-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T15:20:00Z",
-  "summary": "Registered the first three external weapon assets, registered the foundation Kenney environment textures, and added runtime assetBuild cache invalidation for public assets.",
+  "updatedAt": "2026-07-04T16:13:24Z",
+  "summary": "Registered the first three external weapon assets, registered the foundation Kenney steel environment textures, and added runtime assetBuild cache invalidation for public assets.",
   "observations": [
     "docs/assets/source-ledger.json records source, license, hashes, byte counts, and load group.",
     "src/game/weapons/weaponManifest.ts exposes the runtime weapon definitions for the selector and loader.",
@@ -11,7 +11,7 @@
     "publicAssetUrl() appends assetBuild to preview and model paths.",
     "GLTFLoader uses LoadingManager.setURLModifier(withAssetVersion) so GLB-referenced textures also receive assetBuild.",
     "Kenney Prototype Textures are registered as the first foundation environment texture source.",
-    "The foundation environment texture payload is 16588B across floor, wall, and roof PNGs.",
+    "The active foundation environment texture payload is 22445B across steel floor, wall, and roof PNGs.",
     "publicAssetUrl and withAssetVersion now live in src/game/assetUrls.ts and are re-exported by the weapon manifest for compatibility.",
     "validate-assets checks git tracking with git ls-files --error-unmatch so ledger files cannot pass by existing only on local disk.",
     "Foundation texture records include matching sourceSha256, optimizedSha256, and sha256 because the committed PNGs are unmodified source copies."
@@ -42,9 +42,9 @@
   ],
   "jsonForAgents": {
     "registeredAssetIds": [
-      "environment.foundation.floor-grid-green",
-      "environment.foundation.roof-flat-purple",
-      "environment.foundation.wall-panel-orange",
+      "environment.foundation.floor-grid-steel",
+      "environment.foundation.roof-flat-steel",
+      "environment.foundation.wall-panel-steel",
       "weapon.blaster.spark",
       "weapon.blaster.bore",
       "weapon.blaster.vault"

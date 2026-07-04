@@ -1,6 +1,6 @@
 # Observations: level-kit-curator
 
-Status: in progress for foundation layout, entry-width, splitter, pinch QA, and foundation texture pass.
+Status: in progress for foundation layout, entry-width, splitter, pinch QA, and steel foundation texture pass.
 
 ## What It Saw
 
@@ -17,9 +17,9 @@ Status: in progress for foundation layout, entry-width, splitter, pinch QA, and 
 - Added `minEntrySplitSideUnits: 3` and `minEntrySplitAreaUnits: 6` to catch `.#.` wall posts that split a structural entry into two narrow branches.
 - Widened row 30 columns 15-22 and row 39 entries at columns 8-14 and 26-32 so adjacent wall posts leave at least 3 units per side.
 - The foundation level now reports 1653 walkable tiles and keeps spawn-to-exit reachability.
-- The foundation level now uses Kenney CC0 prototype textures for floor, wall, and roof surfaces instead of flat-color placeholder materials.
-- A full-level roof plane covers the 45 x 45 foundation arena at 3.28 units high.
-- Gameplay-height screenshot QA confirmed the prototype kit now reads as colored orange walls, green floor, and purple ceiling after waiting for GPU texture upload.
+- The foundation level now uses steel-toned Kenney CC0 prototype textures for floor, wall, and roof surfaces instead of bright prototype colors.
+- A full-level roof plane covers the 45 x 45 foundation arena at 3.92 units high.
+- Gameplay-height screenshot QA confirmed the steel floor, wall, and roof readability after waiting for GPU texture upload.
 
 ## Decisions
 
@@ -29,7 +29,7 @@ Status: in progress for foundation layout, entry-width, splitter, pinch QA, and 
 - Level QA should also reject one-tile corner pinch points even when the straight row/column run is longer than 3 tiles.
 - Level QA should reject structural wall-band entries below 5 tiles without treating every short cover-adjacent open run as a doorway.
 - Level QA should reject structural entry splitter posts when either side has below 3 tiles or the combined side clearance is below 6 tiles.
-- Keep the first texture pass as a lightweight prototype kit, not a final level identity kit.
+- Keep the steel texture pass as a lightweight prototype kit, not a final level identity kit.
 
 ## Caught Issues
 

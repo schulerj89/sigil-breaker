@@ -126,17 +126,17 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   });
   expect(debugSnapshot.assetLoadErrors).toEqual([]);
   expect(debugSnapshot.memoryMetrics.loadedAssetIds).toEqual([
-    'environment.foundation.floor-grid-green',
-    'environment.foundation.roof-flat-purple',
-    'environment.foundation.wall-panel-orange',
+    'environment.foundation.floor-grid-steel',
+    'environment.foundation.roof-flat-steel',
+    'environment.foundation.wall-panel-steel',
     'weapon.blaster.bore',
     'weapon.blaster.spark',
     'weapon.blaster.vault',
   ]);
   expect(debugSnapshot.level.streaming.loadedTextureAssetIds).toEqual([
-    'environment.foundation.floor-grid-green',
-    'environment.foundation.roof-flat-purple',
-    'environment.foundation.wall-panel-orange',
+    'environment.foundation.floor-grid-steel',
+    'environment.foundation.roof-flat-steel',
+    'environment.foundation.wall-panel-steel',
   ]);
   expect(debugSnapshot.level.streaming.assetLoadErrors).toEqual([]);
   expect(debugSnapshot.rendererMetrics.calls).toBeGreaterThan(0);
@@ -212,9 +212,9 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
 
   if (isFullInteractionProject) {
     expect(shotSnapshot.weapon.shotCount).toBeGreaterThan(preShotSnapshot.weapon.shotCount + 1);
-    expect(shotSnapshot.weapon.aimBlend).toBeGreaterThan(0.45);
+    expect(shotSnapshot.weapon.aimBlend).toBeGreaterThan(0.75);
     expect(shotSnapshot.weapon.cameraFovDegrees).toBeLessThan(preShotSnapshot.weapon.cameraFovDegrees);
-    expect(shotSnapshot.weapon.effectPose.muzzle[0]).toBeGreaterThan(0.15);
+    expect(Math.abs(shotSnapshot.weapon.effectPose.muzzle[0])).toBeLessThan(0.16);
     expect(shotSnapshot.weapon.effectPose.muzzle[0]).toBeLessThan(preShotSnapshot.weapon.effectPose.muzzle[0]);
     expect(shotSnapshot.weapon.effectPose.muzzle[2]).toBeLessThan(-1);
     expect(shotSnapshot.weapon.effectPose.tracerEnd[0]).toBe(0);

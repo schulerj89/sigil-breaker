@@ -61,11 +61,11 @@ describe('FPS foundation config', () => {
     expect(PERFORMANCE_BUDGETS.drawCallsMax).toBeLessThanOrEqual(90);
     expect(PERFORMANCE_BUDGETS.trianglesMax).toBeLessThanOrEqual(250_000);
     expect(PERFORMANCE_BUDGETS.initialScenePayloadMbMax).toBeLessThanOrEqual(40);
-    expect(MOVE_SPEED_UNITS_PER_SECOND).toBeCloseTo(4.0625);
-    expect(FOUNDATION_WALL_HEIGHT_UNITS).toBeCloseTo(3.2);
+    expect(MOVE_SPEED_UNITS_PER_SECOND).toBeCloseTo(5.078125);
+    expect(FOUNDATION_WALL_HEIGHT_UNITS).toBeCloseTo(3.84);
     expect(FOUNDATION_COVER_HEIGHT_UNITS).toBeCloseTo(1.15);
     expect(FOUNDATION_ROOF_HEIGHT_UNITS).toBeGreaterThan(FOUNDATION_WALL_HEIGHT_UNITS);
-    expect(FOUNDATION_ENVIRONMENT_TEXTURE_SOURCE_BYTES).toBe(16_588);
+    expect(FOUNDATION_ENVIRONMENT_TEXTURE_SOURCE_BYTES).toBe(22_445);
     expect(FOUNDATION_ENVIRONMENT_TEXTURE_DECODED_BYTES).toBe(12_582_912);
   });
 
@@ -195,6 +195,7 @@ describe('FPS foundation config', () => {
       expect(weapon.rangeUnits).toBeGreaterThan(12);
       expect(weapon.view.position[0]).toBeGreaterThanOrEqual(0.52);
       expect(weapon.view.aimPosition[0]).toBeLessThan(weapon.view.position[0]);
+      expect(Math.abs(weapon.view.aimPosition[0])).toBeLessThanOrEqual(0.02);
       expect(weapon.view.aimScaleMultiplier).toBeGreaterThanOrEqual(1);
       expect(clearance.rightOffset).toBeGreaterThanOrEqual(weapon.view.position[0]);
       expect(clearance.forwardOffset).toBeGreaterThanOrEqual(Math.abs(weapon.view.position[2]));
@@ -226,6 +227,7 @@ describe('FPS foundation config', () => {
       const root = getWeaponRootCameraPosition(weapon.view, neutralPose);
       const aimRoot = getWeaponRootCameraPosition(weapon.view, aimPose);
       const muzzle = getWeaponMuzzleCameraPosition(weapon.view, neutralPose);
+      const aimMuzzle = getWeaponMuzzleCameraPosition(weapon.view, aimPose);
       const closeEffects = getWeaponShotEffectPositions(weapon.view, 0.35, neutralPose);
       const shiftedView = {
         ...weapon.view,
@@ -241,6 +243,8 @@ describe('FPS foundation config', () => {
       expect(muzzle[0]).toBeGreaterThan(root[0]);
       expect(muzzle[2]).toBeLessThan(root[2]);
       expect(aimRoot[0]).toBeLessThan(root[0]);
+      expect(Math.abs(aimRoot[0])).toBeLessThanOrEqual(0.02);
+      expect(Math.abs(aimMuzzle[0])).toBeLessThan(0.12);
       expect(getWeaponRootCameraScale(weapon.view, aimPose)).toBeGreaterThanOrEqual(
         getWeaponRootCameraScale(weapon.view, neutralPose),
       );
@@ -363,8 +367,8 @@ describe('FPS foundation config', () => {
       /assets\/weapons\/example\.glb\?assetBuild=.+/,
     );
     expect(withAssetVersion('Textures/colormap.png')).toMatch(/^Textures\/colormap\.png\?assetBuild=.+/);
-    expect(publicAssetUrl('assets/environment/kenney-prototype-textures/textures/floor-grid-green.png')).toMatch(
-      /assets\/environment\/kenney-prototype-textures\/textures\/floor-grid-green\.png\?assetBuild=.+/,
+    expect(publicAssetUrl('assets/environment/kenney-prototype-textures/textures/floor-grid-steel.png')).toMatch(
+      /assets\/environment\/kenney-prototype-textures\/textures\/floor-grid-steel\.png\?assetBuild=.+/,
     );
     expect(withAssetVersion('Textures/colormap.png?assetBuild=already')).toBe(
       'Textures/colormap.png?assetBuild=already',
