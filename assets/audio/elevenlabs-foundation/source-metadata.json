@@ -1,0 +1,97 @@
+{
+  "generatedAt": "2026-07-04T17:00:43.795Z",
+  "records": [
+    {
+      "assetId": "audio.weapon.spark.elevenlabs",
+      "fileName": "spark-sidearm.mp3",
+      "path": "public/assets/audio/elevenlabs-foundation/spark-sidearm.mp3",
+      "bytes": 17180,
+      "sha256": "e70e2ea2a8871dcce0cd2bc7a7d996ddda1f39a63e384b772b352f7664f468ba",
+      "provider": "ElevenLabs",
+      "endpoint": "text-to-sound-effects",
+      "modelId": "eleven_text_to_sound_v2",
+      "prompt": "Tight futuristic plasma sidearm shot, punchy laser crack with bright electrical snap and short metallic tail, dry, no ambience, mobile sci-fi FPS weapon SFX.",
+      "settings": {
+        "duration_seconds": 1,
+        "prompt_influence": 0.85,
+        "loop": false,
+        "output_format": "mp3_44100_128"
+      },
+      "intendedUse": "weapon-sfx",
+      "durationSeconds": 1,
+      "loopable": false,
+      "volume": 0.82,
+      "lufsTarget": -14,
+      "generatedAt": "2026-07-04T17:00:43.795Z"
+    },
+    {
+      "assetId": "audio.weapon.bore.elevenlabs",
+      "fileName": "bore-scatter.mp3",
+      "path": "public/assets/audio/elevenlabs-foundation/bore-scatter.mp3",
+      "bytes": 20106,
+      "sha256": "4a332daad145de992452a0261d7490760ae16b5a741e8d9eeeb9cda7d89405e0",
+      "provider": "ElevenLabs",
+      "endpoint": "text-to-sound-effects",
+      "modelId": "eleven_text_to_sound_v2",
+      "prompt": "Wide sci-fi scatter blaster blast, chunky low-mid thump with layered plasma pellets and a short metallic pump tail, dry, no ambience, mobile sci-fi FPS weapon SFX.",
+      "settings": {
+        "duration_seconds": 1.2,
+        "prompt_influence": 0.82,
+        "loop": false,
+        "output_format": "mp3_44100_128"
+      },
+      "intendedUse": "weapon-sfx",
+      "durationSeconds": 1.2,
+      "loopable": false,
+      "volume": 0.9,
+      "lufsTarget": -14,
+      "generatedAt": "2026-07-04T17:00:43.795Z"
+    },
+    {
+      "assetId": "audio.weapon.vault.elevenlabs",
+      "fileName": "vault-heavy.mp3",
+      "path": "public/assets/audio/elevenlabs-foundation/vault-heavy.mp3",
+      "bytes": 18434,
+      "sha256": "88f057a49031d18a6e6a9bfd023fd1fa9151bb4e7a5ff23b05bfde58cae2a4cf",
+      "provider": "ElevenLabs",
+      "endpoint": "text-to-sound-effects",
+      "modelId": "eleven_text_to_sound_v2",
+      "prompt": "Heavy futuristic energy rifle pulse, deep capacitor boom with powerful sci-fi blast, crisp transient, and short bass tail, dry, no ambience, mobile sci-fi FPS weapon SFX.",
+      "settings": {
+        "duration_seconds": 1.1,
+        "prompt_influence": 0.84,
+        "loop": false,
+        "output_format": "mp3_44100_128"
+      },
+      "intendedUse": "weapon-sfx",
+      "durationSeconds": 1.1,
+      "loopable": false,
+      "volume": 0.88,
+      "lufsTarget": -14,
+      "generatedAt": "2026-07-04T17:00:43.795Z"
+    },
+    {
+      "assetId": "audio.music.foundation.elevenlabs",
+      "fileName": "foundation-combat-loop.mp3",
+      "path": "public/assets/audio/elevenlabs-foundation/foundation-combat-loop.mp3",
+      "bytes": 384149,
+      "sha256": "c46a755455b53d2eeddfc2ca70fec47b43a9b7919caf861978b4e23f85768bb1",
+      "provider": "ElevenLabs",
+      "endpoint": "music-stream",
+      "modelId": "music_v1",
+      "prompt": "Instrumental loopable mobile sci-fi FPS combat track for a steel test arena, dark industrial pulse, tight drums, low synth bass, tense but uncluttered, no vocals, seamless game loop, 90 BPM.",
+      "settings": {
+        "music_length_ms": 24000,
+        "prompt_influence": 0.8,
+        "force_instrumental": true,
+        "output_format": "mp3_44100_128"
+      },
+      "intendedUse": "music-loop",
+      "durationSeconds": 24,
+      "loopable": true,
+      "volume": 0.34,
+      "lufsTarget": -18,
+      "generatedAt": "2026-07-04T17:00:43.795Z"
+    }
+  ]
+}
