@@ -24,7 +24,7 @@
     "Latest validate:browser passed after adding structural entry splitter validation and widening row 30/39 split entries.",
     "Unit coverage now pins the user-reported world coordinates near row 39/40 and checks the widened row slices.",
     "Unit coverage now verifies body-only player collision, non-blocking weapon-only footprint overlap, wall depenetration, and tangential slide while pushed into a wall.",
-    "Latest Playwright smoke drives keyboard movement into the top divider, asserts the player footprint stays clear during wall push, then routes through the row-10 structural entry."
+    "Latest Playwright smoke drives keyboard movement into the near-spawn top wall, asserts the player footprint stays clear during wall push, then escapes and moves east."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",

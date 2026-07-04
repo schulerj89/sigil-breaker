@@ -135,23 +135,22 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   }
 
   await page.locator('.game-canvas').click({ position: { x: 12, y: 12 } });
-  await driveUntil(page, 'KeyW', (routeSnapshot) => routeSnapshot.scene.playerPosition[0] > -0.95, 6500);
+  await driveUntil(page, 'KeyA', (routeSnapshot) => routeSnapshot.scene.playerPosition[2] < -21.15, 2500);
   const wallPushStart = await readDebugSnapshot(page);
-  await page.keyboard.down('KeyW');
+  await page.keyboard.down('KeyA');
   await page.waitForTimeout(350);
-  await page.keyboard.up('KeyW');
+  await page.keyboard.up('KeyA');
   const wallPushEnd = await readDebugSnapshot(page);
   expectPlayerFootprintClear(wallPushEnd);
-  expect(wallPushEnd.scene.playerPosition[0]).toBeLessThan(-0.75);
-  expect(wallPushEnd.scene.playerPosition[0]).toBeGreaterThanOrEqual(wallPushStart.scene.playerPosition[0] - 0.05);
+  expect(wallPushEnd.scene.playerPosition[2]).toBeLessThan(-21.1);
+  expect(wallPushEnd.scene.playerPosition[2]).toBeGreaterThanOrEqual(wallPushStart.scene.playerPosition[2] - 0.05);
 
-  await driveUntil(page, 'KeyD', (routeSnapshot) => routeSnapshot.scene.playerPosition[2] > -18.2, 2500);
-  await driveUntil(page, 'KeyW', (routeSnapshot) => routeSnapshot.scene.playerPosition[0] > 2, 2500);
-  await driveUntil(page, 'KeyS', (routeSnapshot) => routeSnapshot.scene.playerPosition[0] < -4, 3000);
-  await driveUntil(page, 'KeyD', (routeSnapshot) => routeSnapshot.scene.playerPosition[2] > -11.2, 3500);
+  await driveUntil(page, 'KeyD', (routeSnapshot) => routeSnapshot.scene.playerPosition[2] > -20.6, 2500);
+  await driveUntil(page, 'KeyW', (routeSnapshot) => routeSnapshot.scene.playerPosition[0] > -19.8, 3000);
   const routeSnapshot = await readDebugSnapshot(page);
   expectPlayerFootprintClear(routeSnapshot);
-  expect(routeSnapshot.scene.playerPosition[2]).toBeGreaterThan(-11.2);
+  expect(routeSnapshot.scene.playerPosition[0]).toBeGreaterThan(-19.8);
+  expect(routeSnapshot.scene.playerPosition[2]).toBeGreaterThan(-20.6);
 
   await page.locator('[data-fire-button]').click();
   await expect

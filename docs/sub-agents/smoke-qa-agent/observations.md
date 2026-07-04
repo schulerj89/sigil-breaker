@@ -21,7 +21,7 @@ Status: complete for input/collision/layout plus coordinate/cache/effect-pose, e
 - Browser smoke now fires once, verifies ammo and shot count changed, and checks `snapshot.weapon.effectPose` for a right-offset muzzle plus aligned tracer/impact positions.
 - Latest Playwright smoke after structural entry splitter validation passed all five landscape viewports.
 - Unit coverage now pins the user-reported world coordinates near row 39/40 and the widened row 30/39 entry slices.
-- Latest Playwright smoke now drives a keyboard route from spawn into the top divider, verifies the body footprint stays clear while pushing against the wall, then routes through the row-10 structural entry across all five landscape viewports.
+- Latest Playwright smoke now drives a near-spawn keyboard route into the top wall, verifies the body footprint stays clear while pushing against the wall, then escapes and moves east across all five landscape viewports.
 - Unit coverage now verifies body-only player collision, weapon-only overlap as a non-blocking visual condition, wall depenetration, and tangential slide while pressed into a wall.
 
 ## Decisions
