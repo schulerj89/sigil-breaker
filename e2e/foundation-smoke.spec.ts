@@ -9,6 +9,8 @@ interface DebugSnapshot {
     id: string;
     widthUnits: number;
     depthUnits: number;
+    tileSize: number;
+    map: readonly string[];
   };
   device: {
     orientation: 'landscape' | 'portrait';
@@ -132,6 +134,25 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     expect(new URL(url).searchParams.get('assetBuild')).toBe(debugSnapshot.buildId);
   }
 
+  await page.locator('.game-canvas').click({ position: { x: 12, y: 12 } });
+  await driveUntil(page, 'KeyW', (routeSnapshot) => routeSnapshot.scene.playerPosition[0] > -0.95, 6500);
+  const wallPushStart = await readDebugSnapshot(page);
+  await page.keyboard.down('KeyW');
+  await page.waitForTimeout(350);
+  await page.keyboard.up('KeyW');
+  const wallPushEnd = await readDebugSnapshot(page);
+  expectPlayerFootprintClear(wallPushEnd);
+  expect(wallPushEnd.scene.playerPosition[0]).toBeLessThan(-0.75);
+  expect(wallPushEnd.scene.playerPosition[0]).toBeGreaterThanOrEqual(wallPushStart.scene.playerPosition[0] - 0.05);
+
+  await driveUntil(page, 'KeyD', (routeSnapshot) => routeSnapshot.scene.playerPosition[2] > -18.2, 2500);
+  await driveUntil(page, 'KeyW', (routeSnapshot) => routeSnapshot.scene.playerPosition[0] > 2, 2500);
+  await driveUntil(page, 'KeyS', (routeSnapshot) => routeSnapshot.scene.playerPosition[0] < -4, 3000);
+  await driveUntil(page, 'KeyD', (routeSnapshot) => routeSnapshot.scene.playerPosition[2] > -11.2, 3500);
+  const routeSnapshot = await readDebugSnapshot(page);
+  expectPlayerFootprintClear(routeSnapshot);
+  expect(routeSnapshot.scene.playerPosition[2]).toBeGreaterThan(-11.2);
+
   await page.locator('[data-fire-button]').click();
   await expect
     .poll(async () => (await page.evaluate(() => window.__SIGILBREAKER_DEBUG__?.getSnapshot().weapon.shotCount)) ?? 0)
@@ -184,6 +205,64 @@ function readCanvasSamples(): { supported: boolean; nonBlankSamples: number } {
   }
 
   return { supported: true, nonBlankSamples };
+}
+
+async function readDebugSnapshot(page: Page): Promise<DebugSnapshot> {
+  const snapshot = await page.evaluate<DebugSnapshot | undefined>(() => window.__SIGILBREAKER_DEBUG__?.getSnapshot());
+  expect(snapshot).toBeDefined();
+  return snapshot as DebugSnapshot;
+}
+
+async function driveUntil(
+  page: Page,
+  key: string,
+  isDone: (snapshot: DebugSnapshot) => boolean,
+  timeout: number,
+): Promise<void> {
+  await page.keyboard.down(key);
+  try {
+    await expect
+      .poll(
+        async () => {
+          const snapshot = await readDebugSnapshot(page);
+          expectPlayerFootprintClear(snapshot);
+          return isDone(snapshot);
+        },
+        { timeout, intervals: [100] },
+      )
+      .toBe(true);
+  } finally {
+    await page.keyboard.up(key);
+  }
+}
+
+function expectPlayerFootprintClear(snapshot: DebugSnapshot): void {
+  const [x, , z] = snapshot.scene.playerPosition;
+  const radius = 0.28;
+  const samples = [
+    [x - radius, z - radius],
+    [x + radius, z - radius],
+    [x - radius, z + radius],
+    [x + radius, z + radius],
+    [x, z - radius],
+    [x, z + radius],
+    [x - radius, z],
+    [x + radius, z],
+  ] as const;
+
+  expect(samples.filter(([sampleX, sampleZ]) => isSolidAtSnapshotWorld(snapshot, sampleX, sampleZ))).toEqual([]);
+}
+
+function isSolidAtSnapshotWorld(snapshot: DebugSnapshot, worldX: number, worldZ: number): boolean {
+  const column = Math.floor((worldX + snapshot.level.widthUnits / 2) / snapshot.level.tileSize);
+  const row = Math.floor((worldZ + snapshot.level.depthUnits / 2) / snapshot.level.tileSize);
+
+  if (row < 0 || row >= snapshot.level.map.length || column < 0 || column >= snapshot.level.map[row].length) {
+    return true;
+  }
+
+  const symbol = snapshot.level.map[row][column];
+  return symbol === '#' || symbol === 'C';
 }
 
 function isIgnorableHeadlessThreeShaderValidation(message: string): boolean {

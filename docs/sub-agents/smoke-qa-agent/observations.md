@@ -1,6 +1,6 @@
 # Observations: smoke-qa-agent
 
-Status: complete for input/collision/layout plus coordinate/cache/effect-pose and entry-splitter browser smoke.
+Status: complete for input/collision/layout plus coordinate/cache/effect-pose, entry-splitter, and movement-route browser smoke.
 
 ## What It Saw
 
@@ -16,11 +16,13 @@ Status: complete for input/collision/layout plus coordinate/cache/effect-pose an
 - The browser smoke checks the coordinate HUD, nonblank WebGL canvas, debug API state, asset load errors, HUD fit, and cache-busted weapon resources.
 - Weapon previews, GLB models, and the GLB shared texture are asserted to carry the current `assetBuild` query.
 - Latest Playwright smoke after level pinch and weapon-clearance fixes passed all five landscape viewports.
-- Unit tests now pin the reported pinch coordinates and the weapon footprint collision case.
+- Unit tests now pin the reported pinch coordinates and the weapon-only footprint overlap case.
 - Latest Playwright smoke after entry-width and shot-effect alignment fixes passed all five landscape viewports.
 - Browser smoke now fires once, verifies ammo and shot count changed, and checks `snapshot.weapon.effectPose` for a right-offset muzzle plus aligned tracer/impact positions.
 - Latest Playwright smoke after structural entry splitter validation passed all five landscape viewports.
 - Unit coverage now pins the user-reported world coordinates near row 39/40 and the widened row 30/39 entry slices.
+- Latest Playwright smoke now drives a keyboard route from spawn into the top divider, verifies the body footprint stays clear while pushing against the wall, then routes through the row-10 structural entry across all five landscape viewports.
+- Unit coverage now verifies body-only player collision, weapon-only overlap as a non-blocking visual condition, wall depenetration, and tangential slide while pressed into a wall.
 
 ## Decisions
 
@@ -39,10 +41,9 @@ Status: complete for input/collision/layout plus coordinate/cache/effect-pose an
 - Playwright initially caught that plain `vite preview` did not serve the production `/sigil-breaker/` base path like GitHub Pages; a Pages preview server now covers that path.
 - Playwright/HUD review caught the coordinate badge crowding risk on 667 px landscape; HUD fit assertions and CSS wrapping now cover it.
 - Level QA caught no remaining corner pinches after the six tile closures.
-- Weapon wall avoidance is exposed as `snapshot.weapon.wallAvoidance`, but a browser interaction assertion for close-wall turning is still future work.
+- Weapon wall avoidance is exposed as `snapshot.weapon.wallAvoidance`; the browser route now covers movement near a wall, while close-wall look rotation remains future work.
 
 ## Next Handoff Notes
 
 - Next smoke slice should add weapon switching and fast-fire/no-zoom coverage.
-- Add automated wall-hit route assertions when deterministic debug poses exist.
 - Add automated close-wall turn/retract coverage once debug pose controls or deterministic input routes exist.

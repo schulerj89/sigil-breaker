@@ -1,6 +1,6 @@
 # Observations: performance-budget-agent
 
-Status: needs review after input/collision/effect-pose/entry-splitter and browser-smoke pass.
+Status: needs review after input/collision/effect-pose/entry-splitter, body-collision resolver, and browser-smoke pass.
 
 ## What It Saw
 
@@ -12,13 +12,14 @@ Status: needs review after input/collision/effect-pose/entry-splitter and browse
 - Coordinate HUD text and URL query rewriting add no meaningful render geometry or asset payload.
 - Playwright production-preview smoke now runs the five landscape viewport gates serially to avoid headless WebGL contention.
 - `qaCapture=1` enables `preserveDrawingBuffer` only for QA readback/screenshots; normal production users keep it off.
-- Weapon-aware collision adds one extra level-footprint probe for movement and one wall-avoidance ray/probe per weapon update.
+- Player movement now uses a nearby-tile body collision resolver only while movement input is active; weapon wall avoidance still adds one ray/probe per weapon update.
 - The level pinch fix removes six walkable cells and does not add render assets.
 - The entry-width fix opens eight walkable cells and does not add render assets.
 - `weaponViewPose.ts` adds small shot-time/effect-visible camera-local math so tracer placement follows the same pose as the viewmodel.
 - Latest production-preview Playwright smoke passed all five landscape viewports after the entry-width and effect-pose changes.
 - The entry-splitter fix opens five additional walkable cells and does not add render assets.
 - Latest production-preview Playwright smoke passed all five landscape viewports after the splitter validator and map widening changes.
+- Latest production-preview Playwright smoke passed all five landscape viewports after adding the body collision resolver and keyboard wall-push route.
 
 ## Decisions
 
@@ -27,7 +28,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter and browse
 - The new shot feedback primitives are short-lived and add minimal geometry, but FPS still needs production-preview comparison.
 - Query-based cache invalidation should not change GPU memory, but it can create duplicate browser-cache entries across builds.
 - Do not use Playwright QA-capture FPS as the final gameplay performance number because preserveDrawingBuffer can reduce FPS.
-- Keep the weapon wall-avoidance probes while the weapon set is small; revisit if weapon logic becomes per-projectile or per-mesh.
+- Keep the tile-based body resolver and weapon wall-avoidance probes while the level is grid-backed; revisit if collision becomes per-mesh.
 - Keep the shared shot-effect pose helper; it avoids extra scene objects and keeps placement math unit-testable.
 
 ## Caught Issues
@@ -38,7 +39,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter and browse
 - Coordinate HUD is DOM text only and should remain in debug metrics rather than the final combat HUD.
 - The build still emits Vite's large chunk warning around the Three.js bundle.
 - The build JS chunk increased slightly after adding the shared weapon clearance module and wall-avoidance debug field.
-- The production JS chunk is now about 642.83 kB minified after adding the shot-pose helper and debug effect-pose field.
+- The production JS chunk is now about 644.14 kB minified after adding the movement route smoke and body collision resolver.
 
 ## Next Handoff Notes
 
@@ -46,6 +47,6 @@ Status: needs review after input/collision/effect-pose/entry-splitter and browse
 - Next performance pass should compare production preview FPS against dev-server FPS.
 - Watch FPS before adding enemies because dev smoke is still below the 60 target.
 - Future asset streaming should account for cache-busted URLs when comparing network/cache behavior between builds.
-- Future performance profiling should measure close-wall movement with weapon avoidance active.
+- Future performance profiling should measure close-wall movement with body collision resolution and weapon avoidance active.
 - Future performance profiling should measure repeated firing with effect-pose updates visible, although the current helper is lightweight.
 - Entry-splitter validation is build/test-time only and should not affect runtime frame budget.

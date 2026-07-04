@@ -11,7 +11,7 @@ Status: in progress after weapon placement, collision, cache-busting, and shot-e
 - Added per-weapon range metadata and wall hit detection through the level map.
 - Public weapon asset paths now flow through the asset registry cache-busting helper.
 - Shifted all three first-person view offsets farther right so the active gun sits less over the bottom-center weapon choices.
-- Added manifest-derived weapon clearance for movement collision and viewmodel wall avoidance.
+- Added manifest-derived weapon clearance for viewmodel wall avoidance and debug weapon-footprint checks.
 - Shifted tracer origin to follow the right-offset weapon presentation.
 - Added `weaponViewPose.ts` so muzzle flash, tracer start, tracer endpoint, and wall impact positions are derived from one camera-local weapon pose helper.
 - The pose helper includes view offset, scale, view rotation, recoil, and wall-avoidance retraction/lowering.
@@ -23,7 +23,7 @@ Status: in progress after weapon placement, collision, cache-busting, and shot-e
 - Delay upgrade visuals until powerups and weapon progression are implemented.
 - Treat current yaw `0` and right-shifted model offsets as prototype framing values pending camera/game-feel review.
 - Use temporary primitive tracer and impact feedback until external projectile/hit assets are sourced.
-- Derive movement footprint clearance from the current weapon manifest so later offset changes do not under-protect the gun.
+- Derive viewmodel wall clearance from the current weapon manifest so later offset changes do not desync wall retraction.
 - Derive shot feedback from `getWeaponShotEffectPositions` so later viewmodel movement cannot desync muzzle flash and tracer placement.
 
 ## Caught Issues

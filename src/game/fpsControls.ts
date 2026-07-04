@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { collidesWithLevel, getSpawnPosition } from './levelMap';
+import { collidesWithLevel, getSpawnPosition, resolveLevelCollision } from './levelMap';
 import { getWeaponFootprintClearance } from './weapons/weaponClearance';
 
 const EYE_HEIGHT = 1.62;
@@ -229,15 +229,13 @@ export class FpsControls {
   }
 
   private tryMove(deltaX: number, deltaZ: number): void {
-    const nextX = this.player.x + deltaX;
-    if (!collidesWithPlayerFootprint(nextX, this.player.z, this.yaw)) {
-      this.player.x = nextX;
-    }
-
-    const nextZ = this.player.z + deltaZ;
-    if (!collidesWithPlayerFootprint(this.player.x, nextZ, this.yaw)) {
-      this.player.z = nextZ;
-    }
+    const resolved = resolveLevelCollision(
+      this.player.x + deltaX,
+      this.player.z + deltaZ,
+      PLAYER_COLLISION_RADIUS,
+    );
+    this.player.x = resolved.x;
+    this.player.z = resolved.z;
   }
 
   private syncCamera(): void {
@@ -268,10 +266,11 @@ function mapKey(code: string): KeyName | null {
 }
 
 export function collidesWithPlayerFootprint(worldX: number, worldZ: number, yawRadians: number): boolean {
-  if (collidesWithLevel(worldX, worldZ, PLAYER_COLLISION_RADIUS)) {
-    return true;
-  }
+  void yawRadians;
+  return collidesWithLevel(worldX, worldZ, PLAYER_COLLISION_RADIUS);
+}
 
+export function collidesWithWeaponFootprint(worldX: number, worldZ: number, yawRadians: number): boolean {
   const weaponCenter = getWeaponCollisionCenter(worldX, worldZ, yawRadians);
   return collidesWithLevel(weaponCenter.x, weaponCenter.z, getWeaponFootprintClearance().radius);
 }

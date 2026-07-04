@@ -13,7 +13,7 @@
     "Shots raycast against the tile level and report lastShot wall hit details through debug state.",
     "Weapon preview/model paths use runtime assetBuild cache invalidation through the manifest helper.",
     "SPARK, BORE, and VAULT view offsets moved to x 0.52, 0.56, and 0.60.",
-    "Weapon movement collision footprint is derived from WEAPON_DEFINITIONS through weaponClearance.ts.",
+    "Weapon wall clearance and debug footprint checks are derived from WEAPON_DEFINITIONS through weaponClearance.ts.",
     "WeaponSystem retracts and lowers the viewmodel when the forward ray or weapon probe nears a wall.",
     "Shot tracer origin now uses the active weapon right-side offset instead of a near-center hardcoded start.",
     "Added weaponViewPose.ts so muzzle flash, tracer start, tracer endpoint, and wall impact positions are derived from one camera-local pose helper.",
@@ -26,7 +26,7 @@
     "Leave upgrades, reload button, enemy/projectile behavior, and final hit impact assets for later iterations.",
     "Use primitive tracer and wall impact only as temporary gameplay feedback.",
     "Keep yaw 0 until camera/game-feel review proves a better first-person framing.",
-    "Keep collision clearance tied to manifest view offsets to avoid future drift.",
+    "Keep viewmodel wall clearance tied to manifest view offsets to avoid future drift.",
     "Route future muzzle flash, tracer, projectile, and impact placement through getWeaponShotEffectPositions."
   ],
   "caughtIssues": [
@@ -87,6 +87,7 @@
     "wallAvoidanceDebugField": "snapshot.weapon.wallAvoidance",
     "effectPoseDebugField": "snapshot.weapon.effectPose",
     "clearanceSource": "src/game/weapons/weaponClearance.ts",
+    "weaponFootprintBlocksMovement": false,
     "shotEffectPoseSource": "src/game/weapons/weaponViewPose.ts",
     "muzzleLocalOffset": [0.04, 0.04, -1.1],
     "requiresCameraReview": true

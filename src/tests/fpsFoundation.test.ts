@@ -18,6 +18,8 @@ import {
   getSpawnPosition,
   isSolidSymbol,
   raycastLevel,
+  resolveLevelCollision,
+  tileToWorld,
   worldToTile,
 } from '../game/levelMap';
 import { createLevelChunks, getActiveChunkIdsForTile } from '../game/levelStreaming';
@@ -25,6 +27,7 @@ import {
   MOVE_SPEED_UNITS_PER_SECOND,
   PLAYER_COLLISION_RADIUS,
   collidesWithPlayerFootprint,
+  collidesWithWeaponFootprint,
   getWeaponCollisionCenter,
 } from '../game/fpsControls';
 import { getWeaponFootprintClearance } from '../game/weapons/weaponClearance';
@@ -210,7 +213,7 @@ describe('FPS foundation config', () => {
     }
   });
 
-  it('extends player collision with a right-handed weapon footprint', () => {
+  it('keeps weapon clearance visual without making it a movement blocker', () => {
     const yawFacingEast = -Math.PI / 2;
     const nearEastBoundaryX = 20.4;
     const topLaneZ = -21;
@@ -218,7 +221,88 @@ describe('FPS foundation config', () => {
 
     expect(collidesWithLevel(nearEastBoundaryX, topLaneZ, PLAYER_COLLISION_RADIUS)).toBe(false);
     expect(weaponCenter.x).toBeGreaterThan(nearEastBoundaryX);
-    expect(collidesWithPlayerFootprint(nearEastBoundaryX, topLaneZ, yawFacingEast)).toBe(true);
+    expect(collidesWithWeaponFootprint(nearEastBoundaryX, topLaneZ, yawFacingEast)).toBe(true);
+    expect(collidesWithPlayerFootprint(nearEastBoundaryX, topLaneZ, yawFacingEast)).toBe(false);
+  });
+
+  it('keeps player body collision independent from camera yaw', () => {
+    const samplePositions = [
+      getSpawnPosition(),
+      { x: -10, z: 17.8 },
+      { x: -9.4, z: 17.2 },
+      { x: 8.2, z: 17.5 },
+      { x: -21.35, z: -21 },
+    ];
+    const yaws = [0, Math.PI / 2, Math.PI, -Math.PI / 2];
+
+    for (const position of samplePositions) {
+      const bodyCollision = collidesWithLevel(position.x, position.z, PLAYER_COLLISION_RADIUS);
+
+      for (const yaw of yaws) {
+        expect(collidesWithPlayerFootprint(position.x, position.z, yaw)).toBe(bodyCollision);
+      }
+    }
+  });
+
+  it('resolves player body overlap out of wall tiles', () => {
+    const wallCenter = tileToWorld(0, 1);
+    const resolved = resolveLevelCollision(wallCenter.worldX, wallCenter.worldZ, PLAYER_COLLISION_RADIUS);
+
+    expect(resolved.collided).toBe(true);
+    expect(resolved.iterations).toBeGreaterThan(0);
+    expect(collidesWithLevel(resolved.x, resolved.z, PLAYER_COLLISION_RADIUS)).toBe(false);
+    expect(worldToTile(resolved.x, resolved.z)?.symbol).toBe('S');
+  });
+
+  it('slides along wall contact instead of freezing tangential movement', () => {
+    let player = { x: -21.19, z: -21 };
+    const startZ = player.z;
+
+    for (let frame = 0; frame < 45; frame++) {
+      const resolved = resolveLevelCollision(player.x - 0.08, player.z + 0.035, PLAYER_COLLISION_RADIUS);
+      player = { x: resolved.x, z: resolved.z };
+
+      expect(collidesWithLevel(player.x, player.z, PLAYER_COLLISION_RADIUS)).toBe(false);
+    }
+
+    expect(player.x).toBeCloseTo(-21.2, 2);
+    expect(player.z).toBeGreaterThan(startZ + 1.2);
+  });
+
+  it('keeps structural entry lanes clear for the player body', () => {
+    const minimumEntryOpenTiles = Math.ceil(MIN_FOUNDATION_ENTRY_UNITS / LEVEL_TILE_SIZE);
+    const minimumWallRunTiles = Math.ceil(MIN_FOUNDATION_PASSAGE_UNITS / LEVEL_TILE_SIZE);
+    const entries = findStructuralWallBandEntries(minimumWallRunTiles).filter(
+      (entry) => entry.length >= minimumEntryOpenTiles,
+    );
+
+    expect(entries.length).toBeGreaterThan(0);
+
+    for (const entry of entries) {
+      if (entry.axis === 'row') {
+        const centerColumn = Math.floor((entry.start + entry.end) / 2);
+        const rows = [entry.row, entry.row - 1, entry.row + 1].filter((row) => isOpenAt(row, centerColumn));
+        expect(rows).toContain(entry.row);
+
+        for (const row of rows) {
+          const point = tileToWorld(centerColumn, row);
+          expect(collidesWithLevel(point.worldX, point.worldZ, PLAYER_COLLISION_RADIUS)).toBe(false);
+          expect(resolveLevelCollision(point.worldX, point.worldZ, PLAYER_COLLISION_RADIUS).collided).toBe(false);
+        }
+      } else {
+        const centerRow = Math.floor((entry.start + entry.end) / 2);
+        const columns = [entry.column, entry.column - 1, entry.column + 1].filter((column) =>
+          isOpenAt(centerRow, column),
+        );
+        expect(columns).toContain(entry.column);
+
+        for (const column of columns) {
+          const point = tileToWorld(column, centerRow);
+          expect(collidesWithLevel(point.worldX, point.worldZ, PLAYER_COLLISION_RADIUS)).toBe(false);
+          expect(resolveLevelCollision(point.worldX, point.worldZ, PLAYER_COLLISION_RADIUS).collided).toBe(false);
+        }
+      }
+    }
   });
 
   it('cache-busts public asset URLs with the current build id', () => {
