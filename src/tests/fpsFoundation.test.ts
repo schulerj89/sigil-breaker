@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { DEBUG_SCENE_ID, MOBILE_VIEWPORTS, PERFORMANCE_BUDGETS } from '../game/config';
 import {
   FOUNDATION_LEVEL_MAP,
+  FOUNDATION_LEVEL_ID,
+  LEVEL_CHUNK_LOAD_RADIUS,
+  LEVEL_CHUNK_SIZE_TILES,
   LEVEL_HEIGHT_TILES,
   LEVEL_TILE_SIZE,
   LEVEL_WIDTH_TILES,
@@ -12,6 +15,7 @@ import {
   getSpawnPosition,
   isSolidSymbol,
 } from '../game/levelMap';
+import { createLevelChunks, getActiveChunkIdsForTile } from '../game/levelStreaming';
 
 describe('FPS foundation config', () => {
   it('keeps the bootstrap scene aligned with the mobile landscape gates', () => {
@@ -34,8 +38,12 @@ describe('FPS foundation config', () => {
     ]);
   });
 
-  it('uses a valid 34 x 34 symbol map with boundary collision', () => {
+  it('uses a valid 45 x 45 symbol map with boundary collision', () => {
+    expect(FOUNDATION_LEVEL_ID).toBe('foundation-45x45');
     expect(FOUNDATION_LEVEL_MAP).toHaveLength(LEVEL_HEIGHT_TILES);
+    expect(LEVEL_WIDTH_TILES).toBe(45);
+    expect(LEVEL_HEIGHT_TILES).toBe(45);
+
     for (const row of FOUNDATION_LEVEL_MAP) {
       expect(row).toHaveLength(LEVEL_WIDTH_TILES);
     }
@@ -51,6 +59,18 @@ describe('FPS foundation config', () => {
       expect(FOUNDATION_LEVEL_MAP[index][0]).toBe('#');
       expect(FOUNDATION_LEVEL_MAP[index][LEVEL_WIDTH_TILES - 1]).toBe('#');
     }
+  });
+
+  it('partitions the level into streamable chunks around the player', () => {
+    const chunks = createLevelChunks(getLevelTiles());
+    const spawnActiveChunkIds = getActiveChunkIdsForTile(1, 1);
+
+    expect(LEVEL_CHUNK_SIZE_TILES).toBe(9);
+    expect(LEVEL_CHUNK_LOAD_RADIUS).toBe(2);
+    expect(chunks).toHaveLength(25);
+    expect(spawnActiveChunkIds).toContain('0:0');
+    expect(spawnActiveChunkIds).toHaveLength(9);
+    expect(spawnActiveChunkIds.length).toBeLessThan(chunks.length);
   });
 
   it('keeps walkable lanes at least three units wide', () => {
@@ -77,8 +97,8 @@ describe('FPS foundation config', () => {
     const spawn = getSpawnPosition();
 
     expect(collidesWithLevel(spawn.x, spawn.z, 0.24)).toBe(false);
-    expect(collidesWithLevel(-17.1, 0, 0.24)).toBe(true);
-    expect(collidesWithLevel(17.1, 0, 0.24)).toBe(true);
+    expect(collidesWithLevel(-22.6, 0, 0.24)).toBe(true);
+    expect(collidesWithLevel(22.6, 0, 0.24)).toBe(true);
   });
 });
 

@@ -8,7 +8,7 @@ The sub-agent system is scaffolded under `docs/sub-agents/`. That folder defines
 
 ## Foundation Level
 
-The first playable foundation is a bare 34 x 34 unit FPS level built from a symbol map in `src/game/levelMap.ts`. A readable copy with the `#`, `.`, `S`, `C`, and `E` legend is in `docs/level-foundation.md`.
+The first playable foundation is a bare 45 x 45 unit FPS level built from a structured symbol map in `src/game/foundationLevelMap.json`. A readable copy with the `#`, `.`, `S`, `C`, and `E` legend is in `docs/level-foundation.md`. The level is partitioned into 9 x 9 tile chunks so runtime loading can grow toward asset-backed streaming.
 
 ## Local Development
 
@@ -22,6 +22,7 @@ npm run dev
 - `npm run dev` starts the Vite dev server.
 - `npm run build` type-checks and builds the production bundle.
 - `npm test` runs unit tests with Vitest.
+- `npm run validate:levels` runs the standalone level QA checker for map dimensions, boundaries, reachability, and minimum traversal width.
 - `npm run lint` runs ESLint.
 
 ## Runtime Debug Hook

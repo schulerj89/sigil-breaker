@@ -95,6 +95,8 @@ canvas {
 
 .hud__center {
   justify-content: center;
+  flex-wrap: wrap;
+  row-gap: 6px;
 }
 
 .hud__badge {
@@ -124,6 +126,12 @@ canvas {
 .hud__badge--build {
   min-width: 92px;
   color: #aab7c2;
+}
+
+.hud__badge--metric {
+  min-width: 58px;
+  height: 28px;
+  font-size: 11px;
 }
 
 .crosshair {
@@ -254,6 +262,26 @@ canvas {
 }
 
 @media (max-height: 390px) {
+  .hud {
+    gap: 8px;
+  }
+
+  .hud__left,
+  .hud__right,
+  .hud__center {
+    gap: 6px;
+  }
+
+  .hud__badge {
+    min-width: 58px;
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .hud__badge--build {
+    min-width: 72px;
+  }
+
   .stick {
     width: 112px;
     height: 112px;

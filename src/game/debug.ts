@@ -3,10 +3,12 @@ import { DEBUG_SCENE_ID, PERFORMANCE_BUDGETS, type CameraMode } from './config';
 import type { FpsControllerSnapshot } from './fpsControls';
 import {
   FOUNDATION_LEVEL_MAP,
+  FOUNDATION_LEVEL_ID,
   LEVEL_HEIGHT_TILES,
   LEVEL_TILE_SIZE,
   LEVEL_WIDTH_TILES,
 } from './levelMap';
+import type { LevelStreamingSnapshot } from './levelStreaming';
 
 export interface DebugSnapshot {
   buildId: string;
@@ -24,6 +26,7 @@ export interface DebugSnapshot {
     depthUnits: number;
     tileSize: number;
     map: readonly string[];
+    streaming: LevelStreamingSnapshot;
   };
   device: {
     orientation: 'landscape' | 'portrait';
@@ -44,6 +47,8 @@ export interface DebugSnapshot {
   memoryMetrics: {
     jsHeapMb: number | null;
     decodedTextureMbEstimate: number;
+    levelRuntimeBytesEstimate: number;
+    chunkInstanceMatrixBytes: number;
     loadedAssetIds: string[];
     activeSceneRoots: number;
   };
@@ -69,12 +74,14 @@ export function createDebugApi(
   renderer: WebGLRenderer,
   getFps: () => number,
   getControllerSnapshot: () => FpsControllerSnapshot,
+  getLevelStreamingSnapshot: () => LevelStreamingSnapshot,
 ): DebugApi {
   return {
     getSnapshot: () => {
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
       const controllerSnapshot = getControllerSnapshot();
+      const levelStreamingSnapshot = getLevelStreamingSnapshot();
 
       return {
         buildId: __SIGILBREAKER_BUILD_ID__,
@@ -87,11 +94,12 @@ export function createDebugApi(
           pitchRadians: controllerSnapshot.player.pitchRadians,
         },
         level: {
-          id: 'foundation-34x34',
+          id: FOUNDATION_LEVEL_ID,
           widthUnits: LEVEL_WIDTH_TILES * LEVEL_TILE_SIZE,
           depthUnits: LEVEL_HEIGHT_TILES * LEVEL_TILE_SIZE,
           tileSize: LEVEL_TILE_SIZE,
           map: FOUNDATION_LEVEL_MAP,
+          streaming: levelStreamingSnapshot,
         },
         device: {
           orientation: viewportWidth >= viewportHeight ? 'landscape' : 'portrait',
@@ -112,8 +120,10 @@ export function createDebugApi(
         memoryMetrics: {
           jsHeapMb: readHeapMb(),
           decodedTextureMbEstimate: 0,
+          levelRuntimeBytesEstimate: levelStreamingSnapshot.runtimeBytesEstimate,
+          chunkInstanceMatrixBytes: levelStreamingSnapshot.instanceMatrixBytes,
           loadedAssetIds: [],
-          activeSceneRoots: 1,
+          activeSceneRoots: 1 + levelStreamingSnapshot.activeChunks,
         },
         assetLoadErrors: [],
         controls: {

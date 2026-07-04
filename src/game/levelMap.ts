@@ -1,48 +1,17 @@
 import * as THREE from 'three';
+import foundationLevelData from './foundationLevelMap.json';
 
-export const LEVEL_TILE_SIZE = 1;
-export const LEVEL_WIDTH_TILES = 34;
-export const LEVEL_HEIGHT_TILES = 34;
-export const MIN_FOUNDATION_PASSAGE_UNITS = 3;
+export const FOUNDATION_LEVEL_ID = foundationLevelData.id;
+export const LEVEL_TILE_SIZE = foundationLevelData.tileSize;
+export const LEVEL_WIDTH_TILES = foundationLevelData.dimensions.width;
+export const LEVEL_HEIGHT_TILES = foundationLevelData.dimensions.height;
+export const MIN_FOUNDATION_PASSAGE_UNITS = foundationLevelData.minPassageUnits;
+export const LEVEL_CHUNK_SIZE_TILES = foundationLevelData.streaming.chunkSizeTiles;
+export const LEVEL_CHUNK_LOAD_RADIUS = foundationLevelData.streaming.loadRadiusChunks;
 export const LEVEL_WORLD_WIDTH = LEVEL_WIDTH_TILES * LEVEL_TILE_SIZE;
 export const LEVEL_WORLD_DEPTH = LEVEL_HEIGHT_TILES * LEVEL_TILE_SIZE;
 
-export const FOUNDATION_LEVEL_MAP = [
-  '##################################',
-  '#S...............#..............E#',
-  '#................#...............#',
-  '#................#...............#',
-  '#................#...............#',
-  '#....C...........#..........C....#',
-  '#................#...............#',
-  '#................#...............#',
-  '#................#...............#',
-  '#############.....################',
-  '#.........#.............#........#',
-  '#.........#.............#........#',
-  '#.........#.............#........#',
-  '#.........#.............#........#',
-  '#....C....#......C......#...C....#',
-  '#.........#.............#........#',
-  '#.........#.............#........#',
-  '#.........#.............#........#',
-  '######.....############.....######',
-  '#.......#.............#..........#',
-  '#.......#.............#..........#',
-  '#.......#.............#..........#',
-  '#.......#.............#..........#',
-  '#.......#......C......#......C...#',
-  '#.......#.............#..........#',
-  '#.......#.............#..........#',
-  '#.......#.............#..........#',
-  '#############.....#######.....####',
-  '#................................#',
-  '#................................#',
-  '#................................#',
-  '#................................#',
-  '#................................#',
-  '##################################',
-] as const;
+export const FOUNDATION_LEVEL_MAP: readonly string[] = foundationLevelData.map;
 
 export type LevelTileSymbol = '#' | '.' | 'S' | 'E' | 'C';
 
