@@ -49,6 +49,8 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Browser smoke expects zero runtime weapon preview resource URLs because the preview tray has been removed.
 - Browser smoke checks the rotate prompt phone and arrow have active CSS animation names.
 - The Playwright request-failed filter now narrowly ignores only Chromium `net::ERR_ABORTED` audio request shutdowns for the ElevenLabs audio path.
+- CI smoke now uses a synthetic cancelable `WheelEvent` for the ctrl-wheel zoom guard because `page.mouse.wheel` was timing-sensitive under mobile emulation.
+- The e2e per-test timeout is 240 seconds so the heavy modern-phone project has enough GitHub runner headroom.
 - Latest screenshot artifacts live under `artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/`.
 
 ## Decisions
@@ -68,6 +70,7 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Keep the portrait rotate prompt coverage scoped to the heavy viewport until portrait-specific regressions appear.
 - Treat the single weapon cycle button as the MVP weapon switching contract; do not expect preview thumbnail buttons in browser smoke.
 - Keep rotate-prompt animation checks lightweight by reading computed animation names rather than relying on pixel timing.
+- Use deterministic synthetic DOM events for zoom-guard assertions when browser chrome or input emulation is not the thing being tested.
 
 ## Caught Issues
 
@@ -83,6 +86,7 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Repeating full movement/gesture smoke across all five viewports made the Pages workflow slow for MVP-level coverage.
 - Earlier fire smoke only proved one shot; it did not catch hold cadence, release cleanup, FOV zoom, or weapon-centering state.
 - HTMLMediaElement MP3 fetches can emit `net::ERR_ABORTED` when the page closes after cycling/mute tests; the smoke filter is intentionally scoped to that ElevenLabs audio path only.
+- GitHub Actions caught that `page.mouse.wheel` plus Control could wait too long under mobile emulation; direct `WheelEvent` dispatch now tests the same zoom-guard handler without depending on that input path.
 
 ## Next Handoff Notes
 

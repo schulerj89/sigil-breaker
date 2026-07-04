@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-test.setTimeout(180_000);
+test.setTimeout(240_000);
 
 const FULL_INTERACTION_PROJECT = 'chromium-modern-phone-landscape';
 const EXPECTED_LOADED_ASSET_IDS = [
@@ -509,12 +509,9 @@ async function verifyZoomGesturesAreBlocked(page: Page): Promise<void> {
   await expectViewportScaleLocked(page);
 
   const afterGesture = await readDebugSnapshot(page);
-  await page.keyboard.down('Control');
-  await page.mouse.wheel(0, -320);
-  await page.keyboard.up('Control');
-  await expect
-    .poll(async () => (await readDebugSnapshot(page)).controls.preventedWheelZooms)
-    .toBeGreaterThan(afterGesture.controls.preventedWheelZooms);
+  const wheelZoomResult = await dispatchSyntheticWheelZoom(page);
+  expect(wheelZoomResult.defaultPrevented).toBe(true);
+  expect(wheelZoomResult.preventedWheelZooms).toBeGreaterThan(afterGesture.controls.preventedWheelZooms);
   await expectViewportScaleLocked(page);
 
   await verifySimultaneousMoveAimFire(page);
@@ -587,6 +584,26 @@ async function dispatchSyntheticWebKitGesture(
       };
     }),
   );
+}
+
+async function dispatchSyntheticWheelZoom(
+  page: Page,
+): Promise<{ defaultPrevented: boolean; dispatchResult: boolean; preventedWheelZooms: number }> {
+  return page.evaluate(() => {
+    const event = new WheelEvent('wheel', {
+      bubbles: true,
+      cancelable: true,
+      ctrlKey: true,
+      deltaY: -320,
+    });
+    const dispatchResult = window.dispatchEvent(event);
+
+    return {
+      defaultPrevented: event.defaultPrevented,
+      dispatchResult,
+      preventedWheelZooms: window.__SIGILBREAKER_DEBUG__?.getSnapshot().controls.preventedWheelZooms ?? 0,
+    };
+  });
 }
 
 async function verifySimultaneousMoveAimFire(page: Page): Promise<void> {
