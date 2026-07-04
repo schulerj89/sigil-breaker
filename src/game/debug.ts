@@ -9,6 +9,7 @@ import {
   LEVEL_WIDTH_TILES,
 } from './levelMap';
 import type { LevelStreamingSnapshot } from './levelStreaming';
+import type { MobileZoomGuardSnapshot } from './mobileZoomGuard';
 import type { WeaponSystemSnapshot } from './weapons/weaponSystem';
 
 export interface DebugSnapshot {
@@ -60,6 +61,13 @@ export interface DebugSnapshot {
     orientationLock: 'landscape';
     primaryInput: 'touch';
     touchShellReady: boolean;
+    viewportScale: number;
+    preventedZoomGestures: number;
+    preventedMultiTouchStarts: number;
+    preventedMultiTouchMoves: number;
+    preventedWheelZooms: number;
+    preventedDoubleTaps: number;
+    lastPreventedZoomAt: number;
     lookActive: boolean;
     movePointerActive: boolean;
     moveVector: [number, number];
@@ -79,6 +87,7 @@ export function createDebugApi(
   getControllerSnapshot: () => FpsControllerSnapshot,
   getLevelStreamingSnapshot: () => LevelStreamingSnapshot,
   getWeaponSnapshot: () => WeaponSystemSnapshot,
+  getZoomGuardSnapshot: () => MobileZoomGuardSnapshot,
 ): DebugApi {
   return {
     getSnapshot: () => {
@@ -87,6 +96,7 @@ export function createDebugApi(
       const controllerSnapshot = getControllerSnapshot();
       const levelStreamingSnapshot = getLevelStreamingSnapshot();
       const weaponSnapshot = getWeaponSnapshot();
+      const zoomGuardSnapshot = getZoomGuardSnapshot();
 
       return {
         buildId: __SIGILBREAKER_BUILD_ID__,
@@ -137,6 +147,13 @@ export function createDebugApi(
           orientationLock: 'landscape',
           primaryInput: 'touch',
           touchShellReady: true,
+          viewportScale: zoomGuardSnapshot.viewportScale,
+          preventedZoomGestures: zoomGuardSnapshot.preventedZoomGestures,
+          preventedMultiTouchStarts: zoomGuardSnapshot.preventedMultiTouchStarts,
+          preventedMultiTouchMoves: zoomGuardSnapshot.preventedMultiTouchMoves,
+          preventedWheelZooms: zoomGuardSnapshot.preventedWheelZooms,
+          preventedDoubleTaps: zoomGuardSnapshot.preventedDoubleTaps,
+          lastPreventedZoomAt: zoomGuardSnapshot.lastPreventedZoomAt,
           lookActive: controllerSnapshot.controls.lookActive,
           movePointerActive: controllerSnapshot.controls.movePointerActive,
           moveVector: controllerSnapshot.controls.moveVector,

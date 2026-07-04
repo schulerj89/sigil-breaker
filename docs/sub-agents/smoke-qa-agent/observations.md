@@ -1,6 +1,6 @@
 # Observations: smoke-qa-agent
 
-Status: complete for input/collision/layout plus coordinate/cache/effect-pose, pitch-corrected tracer math, entry-splitter, and movement-route browser smoke.
+Status: complete for input/collision/layout plus coordinate/cache/effect-pose, pitch-corrected tracer math, entry-splitter, movement-route, and browser zoom-guard smoke.
 
 ## What It Saw
 
@@ -26,6 +26,8 @@ Status: complete for input/collision/layout plus coordinate/cache/effect-pose, p
 - Latest unit coverage verifies per-weapon muzzle offsets and pitch-corrected conversion from flat X/Z wall raycast distance to camera-space tracer distance.
 - Captured SPARK, BORE, and VAULT level/fire screenshots plus SPARK pitch-up/pitch-down firing frames under `artifacts/sub-agents/20260704-weapon-framing/smoke-qa-agent/`.
 - Latest `npm run validate:browser` passed all five landscape viewports after per-weapon muzzle and pitch-distance changes.
+- Browser smoke now checks `visualViewport.scale`, simulates a full-canvas double tap, simulates a two-finger pinch with CDP touch events, dispatches WebKit-style gesture events, and sends a ctrl-wheel zoom gesture.
+- The smoke gate asserts the debug zoom-guard counters move while viewport scale remains locked at 1, then holds move/look touches while firing to check pointer stability.
 
 ## Decisions
 
@@ -33,6 +35,7 @@ Status: complete for input/collision/layout plus coordinate/cache/effect-pose, p
 - Use Playwright browser smoke for production-preview boot, HUD, debug API, canvas, and asset-cache gates.
 - Use Playwright browser smoke for one-shot ammo/shot-count and effect-pose regressions.
 - Keep using `visualViewport.scale` as the smoke signal for double-tap zoom regressions.
+- Keep an initial viewport-scale assertion before the movement route, then run active gesture smoke after deterministic movement so look-zone drags cannot rotate the route setup.
 - Use Playwright as the automated browser smoke harness for production preview and Pages path validation.
 - Use the `qaCapture=1` query only for capture/readback reliability; normal production users keep `preserveDrawingBuffer` off.
 - Use `snapshot.weapon.effectPose` as the automated source for tracer alignment because the primitive tracer can disappear between screenshots.
@@ -47,9 +50,11 @@ Status: complete for input/collision/layout plus coordinate/cache/effect-pose, p
 - Level QA caught no remaining corner pinches after the six tile closures.
 - Weapon wall avoidance is exposed as `snapshot.weapon.wallAvoidance`; the browser route now covers movement near a wall, while close-wall look rotation remains future work.
 - Still screenshots confirmed BORE and VAULT sit lower in the landscape frame, but visual tuning remains approximate until final first-person weapon assets exist.
+- Existing UI-control-only no-zoom coverage missed the full look/canvas surface and pinch paths.
 
 ## Next Handoff Notes
 
 - Next smoke slice should add weapon switching and fast-fire/no-zoom coverage.
 - Add automated close-wall turn/retract coverage once debug pose controls or deterministic input routes exist.
 - Future screenshot QA should use deterministic debug look poses for pitch-up and pitch-down firing rather than pointer-drag approximation.
+- Physical-device smoke should retry two-finger pinch and double tap on mobile Safari because headless Chromium cannot fully represent every browser chrome behavior.

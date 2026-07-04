@@ -25,6 +25,7 @@ body,
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -53,6 +54,8 @@ canvas {
   height: 100%;
   overflow: hidden;
   background: #0d1012;
+  touch-action: none;
+  -webkit-touch-callout: none;
 }
 
 .game-canvas {
@@ -243,6 +246,7 @@ canvas {
   justify-content: space-between;
   pointer-events: none;
   z-index: 4;
+  touch-action: none;
 }
 
 .stick {

@@ -1,31 +1,40 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "touch-controls-agent",
-  "status": "in-progress",
-  "updatedAt": "2026-07-04T04:45:00Z",
-  "summary": "Mobile touch controls exist and the fast-fire double-tap zoom path has been guarded.",
+  "status": "complete",
+  "updatedAt": "2026-07-04T13:15:00Z",
+  "summary": "Mobile touch controls exist and the full game surface now guards double-tap, pinch, WebKit gesture, and ctrl-wheel zoom paths.",
   "observations": [
     "The prototype has a left movement stick, right look zone, center weapon tray, and one right-side fire button.",
     "Fast fire input now prevents default on pointerup, click, dblclick, and touchend for UI controls.",
-    "844 x 390 browser smoke kept visualViewport.scale at 1 after repeated fire input."
+    "844 x 390 browser smoke kept visualViewport.scale at 1 after repeated fire input.",
+    "The game now has a document/root mobile zoom guard for full-canvas double taps, two-finger touch starts/movement, WebKit gesture events, and ctrl-wheel zoom emulation.",
+    "Active move/look pointers are stable; later non-UI touches in an already-owned zone are ignored instead of replacing the current pointer.",
+    "The debug API reports viewportScale plus prevented zoom gesture, multi-touch start/move, wheel zoom, and double-tap counters."
   ],
   "decisions": [
     "Left thumb zone owns movement.",
     "Right thumb zone owns look and aim.",
     "Move, aim, and fire must work simultaneously.",
-    "Weapon and fire controls should respond on pointerdown instead of waiting for synthetic click."
+    "Weapon and fire controls should respond on pointerdown instead of waiting for synthetic click.",
+    "Zoom prevention should call preventDefault without stopPropagation so gameplay pointer handlers keep receiving movement, aim, and fire input."
   ],
   "caughtIssues": [
-    "The viewport tag needed explicit minimum and maximum scale values to help prevent mobile double-tap zoom."
+    "The viewport tag needed explicit minimum and maximum scale values to help prevent mobile double-tap zoom.",
+    "UI-control-only double-tap prevention did not cover accidental double taps or pinches on the main look/canvas surface."
   ],
   "risks": [
-    "Physical mobile Safari still needs direct device verification for double-tap zoom behavior."
+    "Physical mobile Safari still needs direct device verification for double-tap and pinch zoom behavior.",
+    "Any future custom gesture recognizer must preserve the guard's non-propagation-blocking behavior."
   ],
   "blockers": [],
   "artifacts": [
     "index.html",
     "src/style.css",
-    "src/game/weapons/weaponSystem.ts"
+    "src/game/weapons/weaponSystem.ts",
+    "src/game/mobileZoomGuard.ts",
+    "src/game/debug.ts",
+    "e2e/foundation-smoke.spec.ts"
   ],
   "jsonForAgents": {
     "requiredButtons": [
@@ -48,6 +57,23 @@
     "latestSmoke": {
       "viewport": "844x390",
       "visualViewportScaleAfterFastFire": 1
+    },
+    "zoomGuard": {
+      "debugFields": [
+        "controls.viewportScale",
+        "controls.preventedZoomGestures",
+        "controls.preventedMultiTouchStarts",
+        "controls.preventedMultiTouchMoves",
+        "controls.preventedWheelZooms",
+        "controls.preventedDoubleTaps"
+      ],
+      "blockedBrowserDefaults": [
+        "double-tap",
+        "pinch-touchstart",
+        "pinch-touchmove",
+        "webkit-gesture-events",
+        "ctrl-wheel"
+      ]
     }
   },
   "nextAgents": [

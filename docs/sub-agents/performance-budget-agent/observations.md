@@ -1,6 +1,6 @@
 # Observations: performance-budget-agent
 
-Status: needs review after input/collision/effect-pose/entry-splitter, body-collision resolver, pitch shot math, and browser-smoke pass.
+Status: needs review after input/collision/effect-pose/entry-splitter, body-collision resolver, pitch shot math, zoom guard, and browser-smoke pass.
 
 ## What It Saw
 
@@ -23,6 +23,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Per-weapon muzzle offsets are manifest-only data and do not add render assets.
 - Pitch-corrected shot math adds CPU-only scalar conversion between flat X/Z wall raycast distance and camera-space tracer distance.
 - Latest production-preview Playwright smoke passed all five landscape viewports after per-weapon muzzle and pitch-distance changes.
+- The mobile zoom guard adds non-passive event listeners and debug counters only; it adds no scene objects, textures, geometries, or per-frame render work.
 
 ## Decisions
 
@@ -33,6 +34,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Do not use Playwright QA-capture FPS as the final gameplay performance number because preserveDrawingBuffer can reduce FPS.
 - Keep the tile-based body resolver and weapon wall-avoidance probes while the level is grid-backed; revisit if collision becomes per-mesh.
 - Keep the shared shot-effect pose helper; it avoids extra scene objects and keeps placement math unit-testable.
+- Keep zoom prevention out of the animation loop; smoke should verify counters through the existing debug snapshot.
 
 ## Caught Issues
 
@@ -53,3 +55,4 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Future performance profiling should measure close-wall movement with body collision resolution and weapon avoidance active.
 - Future performance profiling should measure repeated firing with effect-pose updates visible, although the current helper is lightweight.
 - Entry-splitter validation is build/test-time only and should not affect runtime frame budget.
+- Future mobile profiling should check that pinch/double-tap guard listeners do not interfere with simultaneous move/look/fire pointer throughput.

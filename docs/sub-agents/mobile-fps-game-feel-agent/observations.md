@@ -1,6 +1,6 @@
 # Observations: mobile-fps-game-feel-agent
 
-Status: complete after body-only movement collision, wall-shot, entry-width, splitter, and weapon-effect tuning.
+Status: complete after body-only movement collision, wall-shot, entry-width, splitter, weapon-effect tuning, and touch zoom-guard pass.
 
 ## What It Saw
 
@@ -16,6 +16,8 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - Structural entries also reject continuing wall posts that split the entry into branches below 3 units per side or 6 units combined.
 - The bottom wall-band entries near the reported `x -10` and `x 8.2` coordinates were widened to leave 3-unit branches around the adjacent divider posts.
 - Shot feedback now derives from the shared weapon view pose so tracer start follows the active gun offset, recoil, and wall retraction.
+- Accidental double-tap, pinch, WebKit gesture, and ctrl-wheel zoom paths are guarded without moving the work into the frame loop.
+- Move/look pointer ownership now ignores later non-UI touches in already-owned zones, preserving stable simultaneous input.
 
 ## Decisions
 
@@ -38,3 +40,4 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 
 - Playthrough QA should re-check the faster traversal speed, wall approach, turning near walls, widened 5-tile structural entries, and splitter-post branches against the 45 x 45 layout.
 - Do not reintroduce the weapon footprint as a hard movement collider unless escape movement and yaw recovery are explicitly handled.
+- Do not let future gesture recognizers replace active move/look pointer IDs; multi-touch combat depends on stable pointer ownership.

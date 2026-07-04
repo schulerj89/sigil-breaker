@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-test.setTimeout(60_000);
+test.setTimeout(120_000);
 
 interface DebugSnapshot {
   buildId: string;
@@ -47,6 +47,17 @@ interface DebugSnapshot {
       distanceUnits: number;
       tile: [number, number] | null;
     } | null;
+  };
+  controls: {
+    viewportScale: number;
+    preventedZoomGestures: number;
+    preventedMultiTouchStarts: number;
+    preventedMultiTouchMoves: number;
+    preventedWheelZooms: number;
+    preventedDoubleTaps: number;
+    lookActive: boolean;
+    movePointerActive: boolean;
+    moveVector: [number, number];
   };
 }
 
@@ -106,10 +117,12 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(debugSnapshot.weapon.activeWeaponId).toBe('weapon.blaster.spark');
   expect(debugSnapshot.weapon.activeWeaponLabel).toBe('SPARK');
   expect(debugSnapshot.weapon.ammoInMagazine).toBe(debugSnapshot.weapon.magazineSize);
+  expect(debugSnapshot.controls.viewportScale).toBe(1);
 
   const coordinateText = await page.locator('[data-debug-coordinates]').textContent();
   expect(coordinateText).toBe(formatCoordinates(debugSnapshot.scene.playerPosition));
   await expectHudToFit(page);
+  await expectViewportScaleLocked(page);
 
   await expect.poll(async () => (await page.evaluate(readCanvasSamples)).nonBlankSamples).toBeGreaterThan(0);
 
@@ -153,15 +166,17 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expectPlayerFootprintClear(routeSnapshot);
   expect(routeSnapshot.scene.playerPosition[0]).toBeGreaterThan(-19.8);
   expect(routeSnapshot.scene.playerPosition[2]).toBeGreaterThan(-20.6);
+  await verifyZoomGesturesAreBlocked(page);
 
+  const preShotSnapshot = await readDebugSnapshot(page);
   await page.locator('[data-fire-button]').click();
   await expect
     .poll(async () => (await page.evaluate(() => window.__SIGILBREAKER_DEBUG__?.getSnapshot().weapon.shotCount)) ?? 0)
-    .toBeGreaterThan(debugSnapshot.weapon.shotCount);
+    .toBeGreaterThan(preShotSnapshot.weapon.shotCount);
   const shotSnapshot = (await page.evaluate<DebugSnapshot | undefined>(
     () => window.__SIGILBREAKER_DEBUG__?.getSnapshot(),
   )) as DebugSnapshot;
-  expect(shotSnapshot.weapon.ammoInMagazine).toBe(debugSnapshot.weapon.ammoInMagazine - 1);
+  expect(shotSnapshot.weapon.ammoInMagazine).toBe(preShotSnapshot.weapon.ammoInMagazine - 1);
   expect(shotSnapshot.weapon.effectPose.muzzle[0]).toBeGreaterThan(0.5);
   expect(shotSnapshot.weapon.effectPose.muzzle[2]).toBeLessThan(-1);
   expect(shotSnapshot.weapon.effectPose.tracerEnd[0]).toBe(0);
@@ -212,6 +227,209 @@ async function readDebugSnapshot(page: Page): Promise<DebugSnapshot> {
   const snapshot = await page.evaluate<DebugSnapshot | undefined>(() => window.__SIGILBREAKER_DEBUG__?.getSnapshot());
   expect(snapshot).toBeDefined();
   return snapshot as DebugSnapshot;
+}
+
+async function verifyZoomGesturesAreBlocked(page: Page): Promise<void> {
+  const start = await readDebugSnapshot(page);
+
+  await simulateDoubleTap(page);
+  await expect
+    .poll(async () => (await readDebugSnapshot(page)).controls.preventedDoubleTaps)
+    .toBeGreaterThan(start.controls.preventedDoubleTaps);
+  await expectViewportScaleLocked(page);
+
+  const afterDoubleTap = await readDebugSnapshot(page);
+  await simulatePinch(page);
+  await expect
+    .poll(async () => (await readDebugSnapshot(page)).controls.preventedMultiTouchStarts)
+    .toBeGreaterThan(afterDoubleTap.controls.preventedMultiTouchStarts);
+  await expect
+    .poll(async () => (await readDebugSnapshot(page)).controls.preventedMultiTouchMoves)
+    .toBeGreaterThan(afterDoubleTap.controls.preventedMultiTouchMoves);
+  await expectViewportScaleLocked(page);
+
+  const afterPinch = await readDebugSnapshot(page);
+  const gestureResult = await dispatchSyntheticWebKitGesture(page);
+  expect(gestureResult.every((eventResult) => eventResult.defaultPrevented)).toBe(true);
+  await expect
+    .poll(async () => (await readDebugSnapshot(page)).controls.preventedZoomGestures)
+    .toBeGreaterThanOrEqual(afterPinch.controls.preventedZoomGestures + 3);
+  await expectViewportScaleLocked(page);
+
+  const afterGesture = await readDebugSnapshot(page);
+  await page.keyboard.down('Control');
+  await page.mouse.wheel(0, -320);
+  await page.keyboard.up('Control');
+  await expect
+    .poll(async () => (await readDebugSnapshot(page)).controls.preventedWheelZooms)
+    .toBeGreaterThan(afterGesture.controls.preventedWheelZooms);
+  await expectViewportScaleLocked(page);
+
+  await verifySimultaneousMoveAimFire(page);
+  await expectViewportScaleLocked(page);
+}
+
+async function simulateDoubleTap(page: Page): Promise<void> {
+  const point = await readGesturePoint(page);
+  const client = await page.context().newCDPSession(page);
+
+  try {
+    for (const id of [21, 22]) {
+      await client.send('Input.dispatchTouchEvent', {
+        type: 'touchStart',
+        touchPoints: [{ x: point.x, y: point.y, radiusX: 4, radiusY: 4, id }],
+      });
+      await client.send('Input.dispatchTouchEvent', {
+        type: 'touchEnd',
+        touchPoints: [],
+      });
+      await page.waitForTimeout(80);
+    }
+  } finally {
+    await client.detach();
+  }
+
+  await page.mouse.dblclick(point.x, point.y);
+}
+
+async function simulatePinch(page: Page): Promise<void> {
+  const point = await readGesturePoint(page);
+  const client = await page.context().newCDPSession(page);
+
+  try {
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [
+        { x: point.x - 18, y: point.y, radiusX: 4, radiusY: 4, id: 1 },
+        { x: point.x + 18, y: point.y, radiusX: 4, radiusY: 4, id: 2 },
+      ],
+    });
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [
+        { x: point.x - 46, y: point.y, radiusX: 4, radiusY: 4, id: 1 },
+        { x: point.x + 46, y: point.y, radiusX: 4, radiusY: 4, id: 2 },
+      ],
+    });
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: [],
+    });
+  } finally {
+    await client.detach();
+  }
+}
+
+async function dispatchSyntheticWebKitGesture(
+  page: Page,
+): Promise<Array<{ type: string; defaultPrevented: boolean; dispatchResult: boolean }>> {
+  return page.evaluate(() =>
+    ['gesturestart', 'gesturechange', 'gestureend'].map((type) => {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      const dispatchResult = window.dispatchEvent(event);
+
+      return {
+        type,
+        defaultPrevented: event.defaultPrevented,
+        dispatchResult,
+      };
+    }),
+  );
+}
+
+async function verifySimultaneousMoveAimFire(page: Page): Promise<void> {
+  const start = await readDebugSnapshot(page);
+  const points = await readCombatTouchPoints(page);
+  const client = await page.context().newCDPSession(page);
+
+  try {
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [
+        { x: points.stick.x, y: points.stick.y, radiusX: 4, radiusY: 4, id: 11 },
+        { x: points.look.x, y: points.look.y, radiusX: 4, radiusY: 4, id: 12 },
+      ],
+    });
+    await expect.poll(async () => (await readDebugSnapshot(page)).controls.movePointerActive).toBe(true);
+    await expect.poll(async () => (await readDebugSnapshot(page)).controls.lookActive).toBe(true);
+
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [
+        { x: points.stick.x + 30, y: points.stick.y, radiusX: 4, radiusY: 4, id: 11 },
+        { x: points.look.x + 36, y: points.look.y, radiusX: 4, radiusY: 4, id: 12 },
+      ],
+    });
+    await expect
+      .poll(async () => Math.hypot(...(await readDebugSnapshot(page)).controls.moveVector))
+      .toBeGreaterThan(0.2);
+
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [
+        { x: points.stick.x + 30, y: points.stick.y, radiusX: 4, radiusY: 4, id: 11 },
+        { x: points.look.x + 36, y: points.look.y, radiusX: 4, radiusY: 4, id: 12 },
+        { x: points.fire.x, y: points.fire.y, radiusX: 4, radiusY: 4, id: 13 },
+      ],
+    });
+
+    await expect
+      .poll(async () => (await readDebugSnapshot(page)).weapon.shotCount)
+      .toBeGreaterThan(start.weapon.shotCount);
+    const activeSnapshot = await readDebugSnapshot(page);
+    expect(activeSnapshot.controls.movePointerActive).toBe(true);
+    expect(activeSnapshot.controls.lookActive).toBe(true);
+    expect(Math.hypot(...activeSnapshot.controls.moveVector)).toBeGreaterThan(0.2);
+  } finally {
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: [],
+    });
+    await client.detach();
+  }
+}
+
+async function readGesturePoint(page: Page): Promise<{ x: number; y: number }> {
+  return page.evaluate(() => ({
+    x: Math.round(window.innerWidth * 0.66),
+    y: Math.round(window.innerHeight * 0.54),
+  }));
+}
+
+async function readCombatTouchPoints(page: Page): Promise<{
+  stick: { x: number; y: number };
+  look: { x: number; y: number };
+  fire: { x: number; y: number };
+}> {
+  return page.evaluate(() => {
+    const stick = document.querySelector('[data-move-stick]')?.getBoundingClientRect();
+    const fire = document.querySelector('[data-fire-button]')?.getBoundingClientRect();
+
+    if (!stick || !fire) {
+      throw new Error('Missing combat touch controls.');
+    }
+
+    return {
+      stick: {
+        x: Math.round(stick.left + stick.width / 2),
+        y: Math.round(stick.top + stick.height / 2),
+      },
+      look: {
+        x: Math.round(window.innerWidth * 0.66),
+        y: Math.round(window.innerHeight * 0.42),
+      },
+      fire: {
+        x: Math.round(fire.left + fire.width / 2),
+        y: Math.round(fire.top + fire.height / 2),
+      },
+    };
+  });
+}
+
+async function expectViewportScaleLocked(page: Page): Promise<void> {
+  await expect.poll(async () => page.evaluate(() => window.visualViewport?.scale ?? 1)).toBeCloseTo(1, 2);
+  const snapshot = await readDebugSnapshot(page);
+  expect(snapshot.controls.viewportScale).toBe(1);
 }
 
 async function driveUntil(

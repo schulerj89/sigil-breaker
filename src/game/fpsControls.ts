@@ -121,6 +121,11 @@ export class FpsControls {
     }
 
     if (target.closest('[data-move-stick]')) {
+      if (this.movePointerId !== null) {
+        event.preventDefault();
+        return;
+      }
+
       this.movePointerId = event.pointerId;
       this.root.setPointerCapture(event.pointerId);
       this.updateMoveInput(event);
@@ -129,6 +134,11 @@ export class FpsControls {
     }
 
     if (event.clientX >= window.innerWidth * 0.42) {
+      if (this.lookPointerId !== null) {
+        event.preventDefault();
+        return;
+      }
+
       this.lookPointerId = event.pointerId;
       this.lastLookX = event.clientX;
       this.lastLookY = event.clientY;
@@ -156,18 +166,26 @@ export class FpsControls {
   };
 
   private readonly onPointerUp = (event: PointerEvent): void => {
+    let handledTrackedPointer = false;
+
     if (event.pointerId === this.movePointerId) {
       this.movePointerId = null;
       this.moveInput.set(0, 0);
       this.updateStickKnob(0, 0);
+      handledTrackedPointer = true;
     }
 
     if (event.pointerId === this.lookPointerId) {
       this.lookPointerId = null;
+      handledTrackedPointer = true;
     }
 
     if (this.root.hasPointerCapture(event.pointerId)) {
       this.root.releasePointerCapture(event.pointerId);
+    }
+
+    if (handledTrackedPointer) {
+      event.preventDefault();
     }
   };
 

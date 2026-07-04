@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-04T12:00:00Z",
-  "summary": "Weapon and shot-feedback budget instrumentation is wired; entry and splitter widening add no assets, body collision resolution is nearby-tile scoped, pitch-corrected shot math is CPU-only, and Playwright production smoke remains green, but visible FPS still needs production profiling.",
+  "updatedAt": "2026-07-04T13:15:00Z",
+  "summary": "Weapon and shot-feedback budget instrumentation is wired; entry and splitter widening add no assets, body collision resolution is nearby-tile scoped, pitch-corrected shot math is CPU-only, zoom prevention is event-only, and Playwright production smoke remains green, but visible FPS still needs production profiling.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -26,7 +26,8 @@
     "Per-weapon muzzle offsets are manifest data only and do not add render assets.",
     "weaponShotMath.ts adds a few CPU-only scalar calculations to keep pitched tracer endpoints aligned with the reticle.",
     "Latest npm run validate:browser passed all five landscape viewport gates after per-weapon muzzle and pitch-distance changes.",
-    "The production JS chunk reported by Vite is about 644.59 kB minified after the pitch-distance helper and still triggers the known large chunk warning."
+    "The production JS chunk reported by Vite is about 644.59 kB minified after the pitch-distance helper and still triggers the known large chunk warning.",
+    "The mobile zoom guard adds non-passive event listeners and debug counters only; it adds no GPU resources or per-frame render work."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -38,7 +39,8 @@
     "Keep the body collision resolver because it scans only nearby tiles and runs during movement input.",
     "Keep the weapon wall-avoidance probes for now because they are map-sample based and low cost.",
     "Keep shared shot-effect pose and shot-distance math unit-testable rather than adding more scene graph probes.",
-    "Keep structural entry splitter validation in build/test tooling because it has no runtime frame cost."
+    "Keep structural entry splitter validation in build/test tooling because it has no runtime frame cost.",
+    "Keep zoom prevention out of the animation loop and assert it through debug counters in smoke QA."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
@@ -53,7 +55,8 @@
     "Future larger weapon sets should not all preload by default without level/load-group gating.",
     "The current 57 FPS dev smoke needs a production-preview comparison before increasing scene complexity.",
     "More complex future level geometry may require replacing the grid resolver with a navmesh, capsule/octree, or authored collision proxy system.",
-    "Future cache analysis should compare build ids to avoid mistaking intentional URL changes for duplicate asset leaks."
+    "Future cache analysis should compare build ids to avoid mistaking intentional URL changes for duplicate asset leaks.",
+    "Future mobile profiling should verify the zoom guard does not reduce simultaneous move, aim, and fire throughput on physical devices."
   ],
   "blockers": [],
   "artifacts": [
@@ -62,7 +65,8 @@
     "src/game/weapons/weaponViewPose.ts",
     "src/game/debug.ts",
     "scripts/validate-assets.mjs",
-    "e2e/foundation-smoke.spec.ts"
+    "e2e/foundation-smoke.spec.ts",
+    "src/game/mobileZoomGuard.ts"
   ],
   "jsonForAgents": {
     "visibleFpsTarget": 60,
@@ -93,6 +97,7 @@
     "productionJsChunkKb": 644.59,
     "publicAssetCacheParam": "assetBuild",
     "browserSmokeCommand": "npm run validate:browser",
+    "zoomGuardRuntimeCost": "event listeners only; no animation-loop work and no render resources",
     "foundationWalkableTiles": 1653,
     "structuralEntrySplitterValidation": true
   },

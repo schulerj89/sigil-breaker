@@ -4,6 +4,7 @@ import { createDebugApi, type DebugApi } from './debug';
 import { createFoundationLevelRuntime } from './foundationLevelRuntime';
 import { FpsControls } from './fpsControls';
 import { LEVEL_HEIGHT_TILES, LEVEL_WIDTH_TILES } from './levelMap';
+import { createMobileZoomGuard } from './mobileZoomGuard';
 import { WEAPON_DEFINITIONS, publicAssetUrl } from './weapons/weaponManifest';
 import { WeaponSystem } from './weapons/weaponSystem';
 
@@ -52,6 +53,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   };
 
   const levelRuntime = createFoundationLevelRuntime(scene, track);
+  const zoomGuard = track(createMobileZoomGuard(root));
   const controls = new FpsControls(root, camera);
   const weaponSystem = new WeaponSystem(root, camera);
   levelRuntime.update(controls.getSnapshot().player.position);
@@ -67,6 +69,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     () => controls.getSnapshot(),
     () => levelRuntime.getSnapshot(),
     () => weaponSystem.getSnapshot(),
+    () => zoomGuard.getSnapshot(),
   );
   window.__SIGILBREAKER_DEBUG__ = debug;
 
