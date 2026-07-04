@@ -23,6 +23,8 @@ body,
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 body {
@@ -181,7 +183,10 @@ canvas {
   line-height: 1;
   letter-spacing: 0;
   touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
   user-select: none;
+  appearance: none;
 }
 
 .weapon-button img {
@@ -288,7 +293,10 @@ canvas {
   letter-spacing: 0;
   pointer-events: auto;
   touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
   user-select: none;
+  appearance: none;
 }
 
 .action-button--fire {

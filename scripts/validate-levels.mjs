@@ -73,6 +73,8 @@ function validateLevel(levelData) {
   let exitCount = 0;
   let walkableTiles = 0;
   const narrowTiles = [];
+  const narrowSegments = [];
+  const diagonalCornerCuts = [];
 
   for (let row = 0; row < map.length; row++) {
     const line = map[row];
@@ -118,6 +120,8 @@ function validateLevel(levelData) {
   }
 
   errors.push(...validateBoundary(map, width, height));
+  narrowSegments.push(...findNarrowSegments(map, minimumOpenTiles));
+  diagonalCornerCuts.push(...findDiagonalCornerCuts(map));
 
   if (narrowTiles.length > 0) {
     const preview = narrowTiles
@@ -127,6 +131,26 @@ function validateLevel(levelData) {
     errors.push(
       `Found ${narrowTiles.length} walkable tile(s) below ${minimumOpenTiles} open tiles in either axis: ${preview}`,
     );
+  }
+
+  if (narrowSegments.length > 0) {
+    const preview = narrowSegments
+      .slice(0, 12)
+      .map((segment) =>
+        segment.axis === 'row'
+          ? `row ${segment.row} columns ${segment.start}-${segment.end} len ${segment.length}`
+          : `column ${segment.column} rows ${segment.start}-${segment.end} len ${segment.length}`,
+      )
+      .join(', ');
+    errors.push(`Found ${narrowSegments.length} bounded open segment(s) below ${minimumOpenTiles} tiles: ${preview}`);
+  }
+
+  if (diagonalCornerCuts.length > 0) {
+    const preview = diagonalCornerCuts
+      .slice(0, 12)
+      .map((cut) => `2x2 at row ${cut.row}, column ${cut.column} ${cut.pattern}`)
+      .join(', ');
+    errors.push(`Found ${diagonalCornerCuts.length} one-tile diagonal corner cut(s): ${preview}`);
   }
 
   if (spawnCount === 1 && exitCount === 1 && !spawnCanReachExit(map)) {
@@ -141,6 +165,74 @@ function validateLevel(levelData) {
     chunkColumns: Number.isInteger(chunkSizeTiles) ? Math.ceil(width / chunkSizeTiles) : 0,
     chunkRows: Number.isInteger(chunkSizeTiles) ? Math.ceil(height / chunkSizeTiles) : 0,
   };
+}
+
+function findNarrowSegments(map, minimumOpenTiles) {
+  const segments = [];
+  const height = map.length;
+  const width = map[0]?.length ?? 0;
+
+  for (let row = 0; row < height; row++) {
+    let start = null;
+    for (let column = 0; column <= width; column++) {
+      const isOpen = column < width && !SOLID_SYMBOLS.has(map[row][column]);
+      if (isOpen && start === null) {
+        start = column;
+      }
+      if ((!isOpen || column === width) && start !== null) {
+        const end = column - 1;
+        const isBounded = start > 0 && end < width - 1 && SOLID_SYMBOLS.has(map[row][start - 1]) && SOLID_SYMBOLS.has(map[row][end + 1]);
+        if (isBounded && end - start + 1 < minimumOpenTiles) {
+          segments.push({ axis: 'row', row, start, end, length: end - start + 1 });
+        }
+        start = null;
+      }
+    }
+  }
+
+  for (let column = 0; column < width; column++) {
+    let start = null;
+    for (let row = 0; row <= height; row++) {
+      const isOpen = row < height && !SOLID_SYMBOLS.has(map[row][column]);
+      if (isOpen && start === null) {
+        start = row;
+      }
+      if ((!isOpen || row === height) && start !== null) {
+        const end = row - 1;
+        const isBounded = start > 0 && end < height - 1 && SOLID_SYMBOLS.has(map[start - 1][column]) && SOLID_SYMBOLS.has(map[end + 1][column]);
+        if (isBounded && end - start + 1 < minimumOpenTiles) {
+          segments.push({ axis: 'column', column, start, end, length: end - start + 1 });
+        }
+        start = null;
+      }
+    }
+  }
+
+  return segments;
+}
+
+function findDiagonalCornerCuts(map) {
+  const cuts = [];
+  const height = map.length;
+  const width = map[0]?.length ?? 0;
+
+  for (let row = 0; row < height - 1; row++) {
+    for (let column = 0; column < width - 1; column++) {
+      const topLeftSolid = SOLID_SYMBOLS.has(map[row][column]);
+      const topRightSolid = SOLID_SYMBOLS.has(map[row][column + 1]);
+      const bottomLeftSolid = SOLID_SYMBOLS.has(map[row + 1][column]);
+      const bottomRightSolid = SOLID_SYMBOLS.has(map[row + 1][column + 1]);
+
+      if (topLeftSolid && bottomRightSolid && !topRightSolid && !bottomLeftSolid) {
+        cuts.push({ row, column, pattern: 'solid NW/SE' });
+      }
+      if (topRightSolid && bottomLeftSolid && !topLeftSolid && !bottomRightSolid) {
+        cuts.push({ row, column, pattern: 'solid NE/SW' });
+      }
+    }
+  }
+
+  return cuts;
 }
 
 function validateBoundary(map, width, height) {

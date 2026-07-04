@@ -12,6 +12,7 @@ export interface WeaponDefinition {
   fireIntervalMs: number;
   reloadMs: number;
   recoilKick: number;
+  rangeUnits: number;
   soundProfile: WeaponSoundProfile;
   view: {
     position: [number, number, number];
@@ -19,6 +20,8 @@ export interface WeaponDefinition {
     scale: number;
   };
 }
+
+const VIEW_FORWARD_YAW = Math.PI;
 
 export const WEAPON_ASSET_SOURCE = {
   sourceId: 'kenney.blaster-kit.2-1',
@@ -47,10 +50,11 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
     fireIntervalMs: 155,
     reloadMs: 620,
     recoilKick: 0.035,
+    rangeUnits: 28,
     soundProfile: 'sidearm',
     view: {
-      position: [0.34, -0.34, -0.82],
-      rotation: [-0.08, -1.52, 0.02],
+      position: [0.32, -0.34, -0.88],
+      rotation: [-0.08, VIEW_FORWARD_YAW, 0.02],
       scale: 0.68,
     },
   },
@@ -66,10 +70,11 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
     fireIntervalMs: 470,
     reloadMs: 880,
     recoilKick: 0.085,
+    rangeUnits: 18,
     soundProfile: 'scatter',
     view: {
-      position: [0.38, -0.36, -0.95],
-      rotation: [-0.1, -1.48, 0.02],
+      position: [0.36, -0.36, -0.98],
+      rotation: [-0.1, VIEW_FORWARD_YAW, 0.02],
       scale: 0.82,
     },
   },
@@ -85,10 +90,11 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
     fireIntervalMs: 285,
     reloadMs: 760,
     recoilKick: 0.065,
+    rangeUnits: 24,
     soundProfile: 'heavy',
     view: {
-      position: [0.42, -0.39, -1.04],
-      rotation: [-0.09, -1.5, 0.03],
+      position: [0.4, -0.39, -1.08],
+      rotation: [-0.09, VIEW_FORWARD_YAW, 0.03],
       scale: 0.72,
     },
   },

@@ -1,23 +1,32 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "touch-controls-agent",
-  "status": "not-started",
-  "updatedAt": "2026-07-04T00:00:00Z",
-  "summary": "Initial touch-controls scaffold only; no FPS touch layout exists.",
+  "status": "in-progress",
+  "updatedAt": "2026-07-04T04:45:00Z",
+  "summary": "Mobile touch controls exist and the fast-fire double-tap zoom path has been guarded.",
   "observations": [
-    "No future virtual-stick or touch-button implementation exists."
+    "The prototype has a left movement stick, right look zone, center weapon tray, and one right-side fire button.",
+    "Fast fire input now prevents default on pointerup, click, dblclick, and touchend for UI controls.",
+    "844 x 390 browser smoke kept visualViewport.scale at 1 after repeated fire input."
   ],
   "decisions": [
     "Left thumb zone owns movement.",
     "Right thumb zone owns look and aim.",
-    "Move, aim, and fire must work simultaneously."
+    "Move, aim, and fire must work simultaneously.",
+    "Weapon and fire controls should respond on pointerdown instead of waiting for synthetic click."
   ],
-  "caughtIssues": [],
+  "caughtIssues": [
+    "The viewport tag needed explicit minimum and maximum scale values to help prevent mobile double-tap zoom."
+  ],
   "risks": [
-    "Controls added late can force HUD and camera rewrites."
+    "Physical mobile Safari still needs direct device verification for double-tap zoom behavior."
   ],
   "blockers": [],
-  "artifacts": [],
+  "artifacts": [
+    "index.html",
+    "src/style.css",
+    "src/game/weapons/weaponSystem.ts"
+  ],
   "jsonForAgents": {
     "requiredButtons": [
       "fire",
@@ -35,7 +44,11 @@
       "932x430",
       "tablet-landscape"
     ],
-    "requiresStablePointerIds": true
+    "requiresStablePointerIds": true,
+    "latestSmoke": {
+      "viewport": "844x390",
+      "visualViewportScaleAfterFastFire": 1
+    }
   },
   "nextAgents": [
     "landscape-title-hud-agent",
@@ -43,4 +56,3 @@
     "smoke-qa-agent"
   ]
 }
-

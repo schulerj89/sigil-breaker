@@ -1,24 +1,40 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "level-kit-curator",
-  "status": "not-started",
-  "updatedAt": "2026-07-04T00:00:00Z",
-  "summary": "Initial level-kit scaffold only; no FPS levels have been planned.",
+  "status": "in-progress",
+  "updatedAt": "2026-07-04T04:45:00Z",
+  "summary": "Foundation layout QA now rejects one-tile diagonal corner cuts and the detected squeeze has been widened.",
   "observations": [
-    "No target level theme or arena layout exists yet."
+    "The 45 x 45 foundation map remains a placeholder layout.",
+    "validate-levels now checks bounded row/column segments below 3 tiles.",
+    "validate-levels now checks diagonal solid-corner cuts that create one-tile squeeze paths.",
+    "The detected diagonal squeeze at rows 29/30, columns 17/18 was widened by opening row 30 columns 16-17."
   ],
   "decisions": [
     "Use unique external kits per level.",
     "Avoid full-level monolithic GLBs.",
-    "Define level-relative anchors for powerups and encounters."
+    "Define level-relative anchors for powerups and encounters.",
+    "Keep the foundation level minimum passage gate at 3 tiles."
   ],
-  "caughtIssues": [],
+  "caughtIssues": [
+    "The previous lane QA could pass a diagonal wall-corner squeeze that still looked like a one-unit path."
+  ],
   "risks": [
-    "Weak scale references can make buildings, cover, and enemies feel wrong on mobile."
+    "Weak scale references can make buildings, cover, and enemies feel wrong on mobile.",
+    "Future prop placement can reintroduce narrow diagonal cuts if it bypasses validate-levels."
   ],
   "blockers": [],
-  "artifacts": [],
+  "artifacts": [
+    "src/game/foundationLevelMap.json",
+    "scripts/validate-levels.mjs",
+    "src/tests/fpsFoundation.test.ts"
+  ],
   "jsonForAgents": {
+    "foundationPassageRules": {
+      "minimumOpenTiles": 3,
+      "rejectBoundedSegmentsBelowMinimum": true,
+      "rejectDiagonalCornerCuts": true
+    },
     "requiredLevelKitSections": [
       "environmentIdentity",
       "buildings",
@@ -38,4 +54,3 @@
     "asset-playground-qa-agent"
   ]
 }
-

@@ -2,19 +2,24 @@
   "handoffVersion": "1.0.0",
   "agentId": "mobile-fps-game-feel-agent",
   "status": "in-progress",
-  "updatedAt": "2026-07-04T04:20:00Z",
-  "summary": "Basic mobile FPS weapon feel exists: selector, fire button, recoil, ammo, reload timing, and procedural gunshot profiles.",
+  "updatedAt": "2026-07-04T04:45:00Z",
+  "summary": "Basic mobile FPS weapon feel now includes faster movement, wall-shot detection, and double-tap-safe fire input.",
   "observations": [
     "The right-side fire button calls the weapon system without stealing aim drags elsewhere on the look zone.",
     "SPARK, BORE, and VAULT use different cadence and recoil values.",
-    "Ammo and reload state are exposed in the HUD and debug API."
+    "Ammo and reload state are exposed in the HUD and debug API.",
+    "Player movement speed is now 4.0625 units per second.",
+    "Last shot debug state reported a wall hit at tile [22, 1] from spawn-facing fire smoke."
   ],
   "decisions": [
     "Keep one fire button for now.",
     "Use Space and number keys only as desktop smoke-test helpers.",
-    "Keep procedural audio until ElevenLabs assets are intentionally generated."
+    "Keep procedural audio until ElevenLabs assets are intentionally generated.",
+    "Keep shot wall feedback lightweight until proper tracer and impact assets are sourced."
   ],
-  "caughtIssues": [],
+  "caughtIssues": [
+    "Fast repeated fire needed explicit double-tap zoom prevention."
+  ],
   "risks": [
     "Without hit detection or enemy response, weapon feel can only be judged on cadence, recoil, audio, and UI responsiveness."
   ],
@@ -27,6 +32,7 @@
   "jsonForAgents": {
     "inputLatencyTargetMs": 50,
     "frameBudgetMs": 16.7,
+    "movementSpeedUnitsPerSecond": 4.0625,
     "currentWeaponControls": {
       "touchFire": "data-fire-button",
       "touchSelect": "data-weapon-button",

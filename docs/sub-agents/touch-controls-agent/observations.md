@@ -1,24 +1,23 @@
 # Observations: touch-controls-agent
 
-Status: not run for implementation yet.
+Status: in progress after fire-button zoom fix.
 
 ## What It Saw
 
-- Initial scaffold pass only.
-- No FPS touch-control implementation exists yet.
-- Mobile landscape controls are central to the rewrite.
+- The FPS prototype has a left movement stick, right look zone, weapon tray, and one fire button.
+- Fast repeated fire taps could trigger browser zoom on mobile-style input.
+- Browser smoke at 844 x 390 kept `visualViewport.scale` at 1 after repeated fire clicks and a double-click path.
 
 ## Decisions
 
-- Use left zone for movement and right zone for look/aim.
-- Require simultaneous move, aim, and fire.
-- Test multiple phone landscape viewport sizes.
+- Keep fire and weapon-select controls on pointerdown so they do not depend on delayed synthetic clicks.
+- Prevent default on UI-control pointerup, click, double-click, and touchend paths to block double-tap zoom.
+- Keep document/control CSS locked to non-selectable, no touch callout, and no tap highlight.
 
 ## Caught Issues
 
-- No future touch safe-area system exists yet.
+- The viewport metadata needed explicit `maximum-scale=1.0` and `minimum-scale=1.0` in addition to `user-scalable=no`.
 
 ## Next Handoff Notes
 
-- First gameplay prototype should implement touch layout before advanced combat tuning.
-
+- Continue testing simultaneous move, aim, and fire on physical mobile Safari/Chrome when available.

@@ -14,8 +14,10 @@ import {
   getLevelTiles,
   getSpawnPosition,
   isSolidSymbol,
+  raycastLevel,
 } from '../game/levelMap';
 import { createLevelChunks, getActiveChunkIdsForTile } from '../game/levelStreaming';
+import { MOVE_SPEED_UNITS_PER_SECOND } from '../game/fpsControls';
 import { WEAPON_ASSET_SOURCE, WEAPON_DEFINITIONS } from '../game/weapons/weaponManifest';
 
 describe('FPS foundation config', () => {
@@ -25,6 +27,7 @@ describe('FPS foundation config', () => {
     expect(PERFORMANCE_BUDGETS.drawCallsMax).toBeLessThanOrEqual(90);
     expect(PERFORMANCE_BUDGETS.trianglesMax).toBeLessThanOrEqual(250_000);
     expect(PERFORMANCE_BUDGETS.initialScenePayloadMbMax).toBeLessThanOrEqual(40);
+    expect(MOVE_SPEED_UNITS_PER_SECOND).toBeCloseTo(4.0625);
   });
 
   it('tracks the required mobile landscape viewport set', () => {
@@ -92,6 +95,9 @@ describe('FPS foundation config', () => {
         );
       }
     }
+
+    expect(findNarrowBoundedSegments(minimumOpenTiles)).toEqual([]);
+    expect(findDiagonalCornerCuts()).toEqual([]);
   });
 
   it('keeps spawn open while treating boundaries as solid', () => {
@@ -100,6 +106,10 @@ describe('FPS foundation config', () => {
     expect(collidesWithLevel(spawn.x, spawn.z, 0.24)).toBe(false);
     expect(collidesWithLevel(-22.6, 0, 0.24)).toBe(true);
     expect(collidesWithLevel(22.6, 0, 0.24)).toBe(true);
+
+    const wallHit = raycastLevel(spawn.x, spawn.z, -1, 0, 8);
+    expect(wallHit?.tile).toMatchObject({ column: 0, row: 1, symbol: '#' });
+    expect(wallHit?.distance).toBeCloseTo(0.5);
   });
 
   it('uses a small CC0 external weapon set for the test level', () => {
@@ -118,6 +128,8 @@ describe('FPS foundation config', () => {
       expect(weapon.magazineSize).toBeGreaterThan(0);
       expect(weapon.fireIntervalMs).toBeGreaterThan(100);
       expect(weapon.recoilKick).toBeGreaterThan(0);
+      expect(weapon.rangeUnits).toBeGreaterThan(12);
+      expect(weapon.view.rotation[1]).toBeCloseTo(Math.PI);
     }
   });
 });
@@ -140,4 +152,78 @@ function countOpenRun(row: number, column: number, rowStep: number, columnStep: 
   }
 
   return openTiles;
+}
+
+function findNarrowBoundedSegments(minimumOpenTiles: number): Array<Record<string, number | string>> {
+  const segments: Array<Record<string, number | string>> = [];
+
+  for (let row = 0; row < LEVEL_HEIGHT_TILES; row++) {
+    let start: number | null = null;
+    for (let column = 0; column <= LEVEL_WIDTH_TILES; column++) {
+      const isOpen =
+        column < LEVEL_WIDTH_TILES && !isSolidSymbol(FOUNDATION_LEVEL_MAP[row][column] as LevelTileSymbol);
+      if (isOpen && start === null) {
+        start = column;
+      }
+      if ((!isOpen || column === LEVEL_WIDTH_TILES) && start !== null) {
+        const end = column - 1;
+        const bounded =
+          start > 0 &&
+          end < LEVEL_WIDTH_TILES - 1 &&
+          isSolidSymbol(FOUNDATION_LEVEL_MAP[row][start - 1] as LevelTileSymbol) &&
+          isSolidSymbol(FOUNDATION_LEVEL_MAP[row][end + 1] as LevelTileSymbol);
+        if (bounded && end - start + 1 < minimumOpenTiles) {
+          segments.push({ axis: 'row', row, start, end });
+        }
+        start = null;
+      }
+    }
+  }
+
+  for (let column = 0; column < LEVEL_WIDTH_TILES; column++) {
+    let start: number | null = null;
+    for (let row = 0; row <= LEVEL_HEIGHT_TILES; row++) {
+      const isOpen =
+        row < LEVEL_HEIGHT_TILES && !isSolidSymbol(FOUNDATION_LEVEL_MAP[row][column] as LevelTileSymbol);
+      if (isOpen && start === null) {
+        start = row;
+      }
+      if ((!isOpen || row === LEVEL_HEIGHT_TILES) && start !== null) {
+        const end = row - 1;
+        const bounded =
+          start > 0 &&
+          end < LEVEL_HEIGHT_TILES - 1 &&
+          isSolidSymbol(FOUNDATION_LEVEL_MAP[start - 1][column] as LevelTileSymbol) &&
+          isSolidSymbol(FOUNDATION_LEVEL_MAP[end + 1][column] as LevelTileSymbol);
+        if (bounded && end - start + 1 < minimumOpenTiles) {
+          segments.push({ axis: 'column', column, start, end });
+        }
+        start = null;
+      }
+    }
+  }
+
+  return segments;
+}
+
+function findDiagonalCornerCuts(): Array<Record<string, number | string>> {
+  const cuts: Array<Record<string, number | string>> = [];
+
+  for (let row = 0; row < LEVEL_HEIGHT_TILES - 1; row++) {
+    for (let column = 0; column < LEVEL_WIDTH_TILES - 1; column++) {
+      const topLeftSolid = isSolidSymbol(FOUNDATION_LEVEL_MAP[row][column] as LevelTileSymbol);
+      const topRightSolid = isSolidSymbol(FOUNDATION_LEVEL_MAP[row][column + 1] as LevelTileSymbol);
+      const bottomLeftSolid = isSolidSymbol(FOUNDATION_LEVEL_MAP[row + 1][column] as LevelTileSymbol);
+      const bottomRightSolid = isSolidSymbol(FOUNDATION_LEVEL_MAP[row + 1][column + 1] as LevelTileSymbol);
+
+      if (topLeftSolid && bottomRightSolid && !topRightSolid && !bottomLeftSolid) {
+        cuts.push({ row, column, pattern: 'solid NW/SE' });
+      }
+      if (topRightSolid && bottomLeftSolid && !topLeftSolid && !bottomRightSolid) {
+        cuts.push({ row, column, pattern: 'solid NE/SW' });
+      }
+    }
+  }
+
+  return cuts;
 }

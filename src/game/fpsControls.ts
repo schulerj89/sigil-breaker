@@ -3,7 +3,7 @@ import { collidesWithLevel, getSpawnPosition } from './levelMap';
 
 const EYE_HEIGHT = 1.62;
 const PLAYER_RADIUS = 0.24;
-const MOVE_SPEED_UNITS_PER_SECOND = 3.25;
+export const MOVE_SPEED_UNITS_PER_SECOND = 4.0625;
 const LOOK_SENSITIVITY = 0.004;
 const MIN_PITCH = -1.15;
 const MAX_PITCH = 1.1;

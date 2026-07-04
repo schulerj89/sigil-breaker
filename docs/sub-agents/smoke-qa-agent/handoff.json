@@ -2,23 +2,27 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T04:30:00Z",
-  "summary": "Manual browser smoke passed for the first weapon selector/fire loop after fixing the missing shared GLB texture.",
+  "updatedAt": "2026-07-04T04:45:00Z",
+  "summary": "Manual browser smoke passed for the fast-fire zoom fix, wall-shot collision, and forward weapon framing.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
     "VAULT selector click updated active weapon state and HUD label.",
     "Fire button click changed VAULT ammo from 12 to 11 and incremented shotCount to 1.",
-    "Shared texture public URL returned 200 with image/png."
+    "Shared texture public URL returned 200 with image/png.",
+    "Repeated fire and a double-click path kept visualViewport.scale at 1.",
+    "SPARK lastShot reported blockedByWall true at tile [22, 1] with distance 20.5.",
+    "Fresh reload event check found no new Log.entryAdded or Runtime.exceptionThrown events."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
     "Automate smoke once browser test harness work starts.",
+    "Track visualViewport.scale for double-tap zoom regressions.",
     "Full playthrough QA remains a separate gate."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
-    "Dev-browser FPS hovered around 57 during smoke rather than a locked 60."
+    "Dev-browser FPS hovered around 57 during first weapon smoke and around 56 during the latest fast-fire smoke."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
@@ -44,6 +48,22 @@
       "weaponSwitchTested": "weapon.blaster.vault",
       "shotCountAfterFire": 1,
       "fpsObserved": 57
+    },
+    "latestFastFireSmoke": {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "visualViewportScale": 1,
+      "weaponTested": "weapon.blaster.spark",
+      "shotCountAfterFire": 3,
+      "lastShotBlockedByWall": true,
+      "lastShotTile": [
+        22,
+        1
+      ],
+      "lastShotDistanceUnits": 20.5,
+      "fpsObserved": 56
     },
     "requiredSmokeAssertions": [
       "appBoots",

@@ -1,7 +1,15 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { raycastLevel } from '../levelMap';
 import { WeaponAudio } from './weaponAudio';
 import { WEAPON_DEFINITIONS, publicAssetUrl, type WeaponDefinition } from './weaponManifest';
+
+export interface WeaponShotSnapshot {
+  sequence: number;
+  blockedByWall: boolean;
+  distanceUnits: number;
+  tile: [number, number] | null;
+}
 
 export interface WeaponSystemSnapshot {
   weaponIds: string[];
@@ -14,6 +22,7 @@ export interface WeaponSystemSnapshot {
   modelBytesLoaded: number;
   loadedAssetIds: string[];
   assetLoadErrors: string[];
+  lastShot: WeaponShotSnapshot | null;
 }
 
 interface LoadedWeapon {
@@ -27,6 +36,9 @@ export class WeaponSystem {
   private readonly viewRoot = new THREE.Group();
   private readonly modelSlot = new THREE.Group();
   private readonly muzzleFlash: THREE.Mesh;
+  private readonly shotFeedbackRoot = new THREE.Group();
+  private readonly shotTracer: THREE.Line;
+  private readonly wallImpact: THREE.Mesh;
   private readonly loadedWeapons = new Map<string, LoadedWeapon>();
   private readonly loadedAssetIds = new Set<string>();
   private readonly assetLoadErrors: string[] = [];
@@ -36,18 +48,24 @@ export class WeaponSystem {
   private nextShotAt = 0;
   private reloadCompleteAt = 0;
   private muzzleFlashUntil = 0;
+  private shotFeedbackUntil = 0;
   private recoil = 0;
   private shotCount = 0;
+  private lastShot: WeaponShotSnapshot | null = null;
 
   constructor(
     private readonly root: HTMLElement,
-    camera: THREE.PerspectiveCamera,
+    private readonly camera: THREE.PerspectiveCamera,
   ) {
     this.viewRoot.name = 'first-person-weapon-root';
     this.modelSlot.name = 'first-person-weapon-model-slot';
     this.muzzleFlash = createMuzzleFlash();
+    this.shotFeedbackRoot.name = 'first-person-shot-feedback-root';
+    this.shotTracer = createShotTracer();
+    this.wallImpact = createWallImpact();
     this.viewRoot.add(this.modelSlot, this.muzzleFlash);
-    camera.add(this.viewRoot);
+    this.shotFeedbackRoot.add(this.shotTracer, this.wallImpact);
+    this.camera.add(this.viewRoot, this.shotFeedbackRoot);
 
     for (const weapon of WEAPON_DEFINITIONS) {
       this.ammoByWeapon.set(weapon.id, weapon.magazineSize);
@@ -55,7 +73,10 @@ export class WeaponSystem {
 
     this.updateMenuState();
     this.root.addEventListener('pointerdown', this.onPointerDown);
+    this.root.addEventListener('pointerup', this.onPointerUp);
     this.root.addEventListener('click', this.onClick);
+    this.root.addEventListener('dblclick', this.onDoubleClick);
+    this.root.addEventListener('touchend', this.onTouchEnd, { passive: false });
     window.addEventListener('keydown', this.onKeyDown);
     void this.preloadWeapons();
   }
@@ -68,6 +89,9 @@ export class WeaponSystem {
 
     this.recoil = Math.max(0, this.recoil - deltaSeconds * 8);
     this.muzzleFlash.visible = now < this.muzzleFlashUntil;
+    const shotFeedbackVisible = now < this.shotFeedbackUntil;
+    this.shotTracer.visible = shotFeedbackVisible;
+    this.wallImpact.visible = shotFeedbackVisible && this.lastShot?.blockedByWall === true;
 
     const view = this.activeWeapon.view;
     this.viewRoot.position.set(view.position[0], view.position[1], view.position[2] + this.recoil);
@@ -94,12 +118,16 @@ export class WeaponSystem {
       ),
       loadedAssetIds: [...this.loadedAssetIds].sort(),
       assetLoadErrors: [...this.assetLoadErrors],
+      lastShot: this.lastShot,
     };
   }
 
   dispose(): void {
     this.root.removeEventListener('pointerdown', this.onPointerDown);
+    this.root.removeEventListener('pointerup', this.onPointerUp);
     this.root.removeEventListener('click', this.onClick);
+    this.root.removeEventListener('dblclick', this.onDoubleClick);
+    this.root.removeEventListener('touchend', this.onTouchEnd);
     window.removeEventListener('keydown', this.onKeyDown);
     this.audio.dispose();
     const disposedGeometries = new Set<THREE.BufferGeometry>();
@@ -108,7 +136,9 @@ export class WeaponSystem {
       disposeObject3D(loadedWeapon.object, disposedGeometries, disposedMaterials);
     }
     disposeObject3D(this.viewRoot, disposedGeometries, disposedMaterials);
+    disposeObject3D(this.shotFeedbackRoot, disposedGeometries, disposedMaterials);
     this.viewRoot.removeFromParent();
+    this.shotFeedbackRoot.removeFromParent();
     this.loadedWeapons.clear();
     this.loadedAssetIds.clear();
   }
@@ -176,7 +206,30 @@ export class WeaponSystem {
     this.muzzleFlashUntil = now + 70;
     this.recoil = Math.min(0.18, this.recoil + this.activeWeapon.recoilKick);
     this.shotCount++;
+    this.traceShot(now);
     this.audio.play(this.activeWeapon.soundProfile);
+  }
+
+  private traceShot(now: number): void {
+    const direction = new THREE.Vector3();
+    this.camera.getWorldDirection(direction);
+    const hit = raycastLevel(
+      this.camera.position.x,
+      this.camera.position.z,
+      direction.x,
+      direction.z,
+      this.activeWeapon.rangeUnits,
+    );
+    const distance = hit ? Math.max(0.35, hit.distance) : this.activeWeapon.rangeUnits;
+    this.lastShot = {
+      sequence: this.shotCount,
+      blockedByWall: Boolean(hit),
+      distanceUnits: roundMetric(distance),
+      tile: hit?.tile ? [hit.tile.column, hit.tile.row] : null,
+    };
+    this.shotFeedbackUntil = now + 95;
+    updateShotTracer(this.shotTracer, distance);
+    this.wallImpact.position.set(0, 0, -distance + 0.035);
   }
 
   private attachLoadedWeapon(loadedWeapon: LoadedWeapon): void {
@@ -213,9 +266,23 @@ export class WeaponSystem {
       return;
     }
 
+    const weaponButton = target.closest<HTMLElement>('[data-weapon-button]');
+    if (weaponButton?.dataset.weaponId) {
+      event.preventDefault();
+      this.switchWeapon(weaponButton.dataset.weaponId);
+      return;
+    }
+
     if (target.closest('[data-fire-button]')) {
       event.preventDefault();
       this.shoot(performance.now());
+    }
+  };
+
+  private readonly onPointerUp = (event: PointerEvent): void => {
+    const target = event.target;
+    if (target instanceof Element && target.closest('[data-ui-control]')) {
+      event.preventDefault();
     }
   };
 
@@ -226,11 +293,29 @@ export class WeaponSystem {
     }
 
     const weaponButton = target.closest<HTMLElement>('[data-weapon-button]');
+    if (target.closest('[data-ui-control]')) {
+      event.preventDefault();
+    }
+
     if (!weaponButton?.dataset.weaponId) {
       return;
     }
 
     this.switchWeapon(weaponButton.dataset.weaponId);
+  };
+
+  private readonly onDoubleClick = (event: MouseEvent): void => {
+    const target = event.target;
+    if (target instanceof Element && target.closest('[data-ui-control]')) {
+      event.preventDefault();
+    }
+  };
+
+  private readonly onTouchEnd = (event: TouchEvent): void => {
+    const target = event.target;
+    if (target instanceof Element && target.closest('[data-ui-control]')) {
+      event.preventDefault();
+    }
   };
 
   private readonly onKeyDown = (event: KeyboardEvent): void => {
@@ -268,6 +353,44 @@ function createMuzzleFlash(): THREE.Mesh {
   return mesh;
 }
 
+function createShotTracer(): THREE.Line {
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+  const material = new THREE.LineBasicMaterial({
+    color: 0x7dd3fc,
+    transparent: true,
+    opacity: 0.82,
+    depthWrite: false,
+  });
+  const line = new THREE.Line(geometry, material);
+  line.name = 'weapon-shot-tracer';
+  line.visible = false;
+  return line;
+}
+
+function createWallImpact(): THREE.Mesh {
+  const geometry = new THREE.RingGeometry(0.035, 0.07, 16);
+  const material = new THREE.MeshBasicMaterial({
+    color: 0xffe28a,
+    transparent: true,
+    opacity: 0.9,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.name = 'weapon-wall-impact';
+  mesh.visible = false;
+  return mesh;
+}
+
+function updateShotTracer(tracer: THREE.Line, distance: number): void {
+  const position = tracer.geometry.getAttribute('position');
+  position.setXYZ(0, 0.07, -0.06, -0.62);
+  position.setXYZ(1, 0, 0, -Math.max(0.7, distance));
+  position.needsUpdate = true;
+  tracer.geometry.computeBoundingSphere();
+}
+
 function createFallbackWeapon(name: string): THREE.Group {
   const group = new THREE.Group();
   group.name = `${name}-fallback`;
@@ -291,7 +414,7 @@ function disposeObject3D(
   disposedMaterials = new Set<THREE.Material>(),
 ): void {
   object.traverse((child) => {
-    if (child instanceof THREE.Mesh) {
+    if (child instanceof THREE.Mesh || child instanceof THREE.Line) {
       if (!disposedGeometries.has(child.geometry)) {
         child.geometry.dispose();
         disposedGeometries.add(child.geometry);
@@ -320,4 +443,8 @@ function disposeMaterial(material: THREE.Material | THREE.Material[], disposedMa
   }
   material.dispose();
   disposedMaterials.add(material);
+}
+
+function roundMetric(value: number): number {
+  return Math.round(value * 100) / 100;
 }

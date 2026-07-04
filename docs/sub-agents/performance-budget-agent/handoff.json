@@ -2,18 +2,20 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-04T04:30:00Z",
-  "summary": "Weapon asset budget instrumentation is wired; manual dev-browser smoke passed asset checks but observed about 57 FPS.",
+  "updatedAt": "2026-07-04T04:45:00Z",
+  "summary": "Weapon and shot-feedback budget instrumentation is wired; manual dev-browser smoke passes but remains below 60 FPS.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
     "Debug asset metrics now include weapon loadedAssetIds and assetLoadErrors.",
-    "Manual browser smoke at 844 x 390 observed about 57 FPS with VAULT active."
+    "Manual browser smoke at 844 x 390 observed about 57 FPS with VAULT active.",
+    "Latest 844 x 390 smoke observed about 56 FPS with SPARK active after shot feedback was added."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
     "Use npm run validate:assets to catch missing files, size drift, and hash drift.",
-    "Do a production-preview FPS comparison before importing heavier enemy or building assets."
+    "Do a production-preview FPS comparison before importing heavier enemy or building assets.",
+    "Keep shot collision as tile raycast until enemies/projectiles justify a broader collision system."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
@@ -32,7 +34,7 @@
   ],
   "jsonForAgents": {
     "visibleFpsTarget": 60,
-    "visibleFpsObservedDev": 57,
+    "visibleFpsObservedDev": 56,
     "weaponSourcePayloadBytes": 164055,
     "weaponLoadGroup": "level-01-weapons",
     "budgets": {
