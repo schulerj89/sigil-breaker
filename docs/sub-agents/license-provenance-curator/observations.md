@@ -6,7 +6,7 @@ Status: not run for implementation yet.
 
 - Initial scaffold pass only.
 - No FPS candidate asset has been submitted for license review yet.
-- The current project includes existing Kenney-related docs for the MVP.
+- The old Kenney Sokoban MVP docs and assets have been removed.
 
 ## Decisions
 
@@ -20,4 +20,3 @@ Status: not run for implementation yet.
 ## Next Handoff Notes
 
 - First implementation slice should create a credits/source ledger before binary asset imports.
-

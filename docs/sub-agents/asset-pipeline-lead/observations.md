@@ -5,8 +5,8 @@ Status: not run for implementation yet.
 ## What It Saw
 
 - Initial scaffold pass only.
-- Current repo has simple MVP asset docs for Phaser placeholder and Kenney assets.
-- Future Three.js FPS assets need stronger source, license, registry, and mobile budget records.
+- The old Phaser MVP asset docs and Kenney Sokoban assets have been removed.
+- Future Three.js FPS assets need source, license, registry, and mobile budget records.
 
 ## Decisions
 
@@ -17,8 +17,8 @@ Status: not run for implementation yet.
 ## Caught Issues
 
 - No FPS asset registry exists yet.
+- No external FPS assets have been imported yet.
 
 ## Next Handoff Notes
 
 - The scout and license agents should run before any external asset is imported.
-

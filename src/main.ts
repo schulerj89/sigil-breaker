@@ -1,25 +1,10 @@
-import Phaser from 'phaser';
-import { BootScene } from './scenes/BootScene';
-import { CreditsScene } from './scenes/CreditsScene';
-import { LevelScene } from './scenes/LevelScene';
-import { LevelSelectScene } from './scenes/LevelSelectScene';
-import { TitleScene } from './scenes/TitleScene';
-import { initializeCacheBuster } from './systems/cacheBuster';
+import { createGame } from './game/createGame';
 import './style.css';
 
-initializeCacheBuster();
+const root = document.querySelector<HTMLElement>('#game');
 
-const config: Phaser.Types.Core.GameConfig = {
-  type: Phaser.AUTO,
-  parent: 'game',
-  backgroundColor: '#101418',
-  scale: {
-    mode: Phaser.Scale.RESIZE,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: window.innerWidth,
-    height: window.innerHeight,
-  },
-  scene: [BootScene, TitleScene, LevelSelectScene, CreditsScene, LevelScene],
-};
+if (!root) {
+  throw new Error('Missing #game root element.');
+}
 
-new Phaser.Game(config);
+createGame(root);

@@ -1,26 +1,31 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "mobile-fps-coordinator",
-  "status": "not-started",
+  "status": "complete",
   "updatedAt": "2026-07-04T00:00:00Z",
-  "summary": "Initial coordinator scaffold only; no implementation slice has run.",
+  "summary": "Three.js FPS foundation setup completed; old Phaser MVP code and assets were removed.",
   "observations": [
-    "The repo is currently a Phaser MVP.",
-    "Future work should start with a bounded mobile FPS vertical-slice plan."
+    "The old Phaser MVP source, puzzle docs, Sokoban assets, and screenshots were removed.",
+    "Three.js is installed and the app boots into a mobile landscape debug arena.",
+    "The app exposes a debug snapshot API for future smoke and performance QA."
   ],
   "decisions": [
     "Use docs/sub-agents as the sub-agent source of truth.",
     "Require per-agent observations and handoff JSON.",
-    "Close spawned agents after final output is captured."
+    "Close spawned agents after final output is captured.",
+    "The current Three.js scene is a debug placeholder only, not final game art."
   ],
   "caughtIssues": [],
   "risks": [
-    "A rewrite can sprawl unless each slice has an owner, gate, and stop condition."
+    "A rewrite can sprawl unless each slice has an owner, gate, and stop condition.",
+    "External FPS assets have not been sourced, licensed, optimized, or tested yet."
   ],
   "blockers": [],
   "artifacts": [],
   "jsonForAgents": {
-    "firstSliceRecommendation": "mobile-fps-vertical-slice",
+    "firstSliceRecommendation": "asset-playground-or-mobile-fps-vertical-slice",
+    "threeDependency": "three",
+    "debugApi": "window.__SIGILBREAKER_DEBUG__.getSnapshot()",
     "requiredFirstAgents": [
       "asset-pipeline-lead",
       "touch-controls-agent",
@@ -34,4 +39,3 @@
     "landscape-title-hud-agent"
   ]
 }
-

@@ -5,8 +5,8 @@ Status: not run for implementation yet.
 ## What It Saw
 
 - Initial scaffold pass only.
-- Current repo has `src/assets/assetManifest.ts` for the Phaser MVP.
-- Future FPS registry needs richer metadata for Three.js assets, source records, and streaming.
+- The old Phaser asset manifest has been removed.
+- Future FPS registry needs metadata for Three.js assets, source records, and streaming.
 
 ## Decisions
 
@@ -19,5 +19,4 @@ Status: not run for implementation yet.
 
 ## Next Handoff Notes
 
-- Do not retrofit the current Phaser asset manifest until the rewrite slice begins.
-
+- Build a new FPS asset registry when the first external asset slice begins.

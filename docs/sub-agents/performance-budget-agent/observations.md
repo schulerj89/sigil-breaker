@@ -5,8 +5,8 @@ Status: not run for implementation yet.
 ## What It Saw
 
 - Initial scaffold pass only.
-- The current MVP is Phaser and has no Three.js renderer metrics API.
-- Future FPS work needs explicit visible-browser 60 FPS validation.
+- The repo now has a Three.js foundation scene and debug metrics API.
+- Future FPS work still needs explicit visible-browser 60 FPS validation as real assets and gameplay are added.
 
 ## Decisions
 
@@ -15,9 +15,8 @@ Status: not run for implementation yet.
 
 ## Caught Issues
 
-- No FPS debug metrics API exists yet.
+- The bootstrap debug metrics API exists, but no asset-heavy scene has been measured yet.
 
 ## Next Handoff Notes
 
-- First Three.js slice should expose renderer metrics before adding asset-heavy scenes.
-
+- Keep renderer metrics available before adding asset-heavy scenes.

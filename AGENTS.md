@@ -2,9 +2,15 @@
 
 ## Project Context
 
-This repo is currently the Sigilbreaker Phaser MVP. The planned mobile-first landscape Three.js FPS rewrite is documented under `docs/sub-agents/`.
+This repo is the Sigilbreaker mobile-first landscape Three.js FPS rewrite. The sub-agent planning and QA system is documented under `docs/sub-agents/`.
 
 When working on the FPS rewrite, read `docs/sub-agents/README.md`, `docs/sub-agents/game-vision.md`, and `docs/sub-agents/gates.md` before changing code.
+
+## Completion Workflow
+
+Unless the user explicitly says not to, finish every code or documentation change request by running the relevant validation, committing the completed work, and pushing it to `origin/main`.
+
+Do not commit broken work just to satisfy this rule. If validation fails and cannot be fixed in the same turn, report the failure and leave the work uncommitted unless the user explicitly asks for a commit anyway.
 
 ## Credentials And Secrets
 
@@ -53,4 +59,3 @@ agent-secret doctor
 ```
 
 Do not use `agent-secret get --reveal` unless the user explicitly asks for manual plaintext retrieval. Prefer `agent-secret with ... -- <command>` for build scripts, asset generation, ElevenLabs calls, Meshy calls, OpenAI calls, or any other credentialed workflow.
-

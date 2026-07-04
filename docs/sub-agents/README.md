@@ -1,8 +1,8 @@
 # Sub-Agent System
 
-This scaffold defines the short-lived Codex sub-agents for the planned Sigilbreaker rewrite into a mobile-first landscape Three.js FPS. It is intentionally docs-only: no runtime game code changes are part of this setup pass.
+This scaffold defines the short-lived Codex sub-agents for the Sigilbreaker mobile-first landscape Three.js FPS rewrite.
 
-The current repo is still the Phaser MVP. These sub-agents are the planning, asset, review, and QA structure that must be used before the rewrite starts.
+The repo now has a clean Three.js/Vite foundation. These sub-agents are the planning, asset, review, and QA structure that must be used as gameplay, external assets, audio, and level systems are added.
 
 ## Operating Rules
 
@@ -48,4 +48,3 @@ Each sub-agent owns:
 - `handoff.json`: machine-readable facts for other agents.
 
 Shared schemas live in `shared/`. Example handoffs live in `examples/`.
-

@@ -5,7 +5,7 @@
   "updatedAt": "2026-07-03T00:00:00Z",
   "summary": "Example handoff for a future mobile FPS vertical slice.",
   "observations": [
-    "The current repo is a Phaser MVP; Three.js FPS work has not started.",
+    "The repo has a clean Three.js FPS foundation, but the first gameplay vertical slice has not started.",
     "The first slice should prove mobile landscape controls, nonblank WebGL canvas, one arena, one enemy, one weapon, and one reward choice."
   ],
   "decisions": [
@@ -44,4 +44,3 @@
     "performance-budget-agent"
   ]
 }
-
