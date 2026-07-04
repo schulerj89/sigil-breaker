@@ -10,23 +10,24 @@ The source of truth is `src/game/foundationLevelMap.json`. Runtime collision rea
 - `.`: walkable floor.
 - `S`: player spawn.
 - `C`: low cover collision.
-- `E`: endpoint marker.
+- `E`: enemy spawn marker.
+- `X`: endpoint marker.
 
 ## Map
 
 ```text
 #############################################
-#S....................#....................E#
+#S....E...............#....................X#
 #.....................#.....................#
 #.....................#.....................#
-#...........................................#
+#................................E..........#
 #....C..............................C.......#
 #...........................................#
 #...........................................#
 #...........................................#
 #.....................#.....................#
 ################.....########################
-#.........#......................#..........#
+#....E....#...........E..........#....E.....#
 #.........#......................#..........#
 #.........#......................#..........#
 #.........#......................#..........#
@@ -36,7 +37,7 @@ The source of truth is `src/game/foundationLevelMap.json`. Runtime collision rea
 #.........#......................#..........#
 #.........#......................#..........#
 #####.....##################.....############
-#.................#................#........#
+#.......E.........#........E.......#...E....#
 #.................#................#........#
 #.................#................#........#
 #.................#................#........#
@@ -46,7 +47,7 @@ The source of truth is `src/game/foundationLevelMap.json`. Runtime collision rea
 #.................#................#........#
 #.................#................#........#
 ###############........#############.....####
-#..........#.................#..............#
+#.....E....#........E........#......E.......#
 #..........#.................#..............#
 #..........#.................#..............#
 #..........#.................#..............#
@@ -55,11 +56,11 @@ The source of truth is `src/game/foundationLevelMap.json`. Runtime collision rea
 #..........#.................#..............#
 #..........#.................#..............#
 ########.......###########.......############
-#...........................................#
+#.....................E.....................#
 #...........................................#
 #...........................................#
 #...........................................#
 #############################################
 ```
 
-Run `npm run validate:levels` before changing this map. The checker fails unsupported symbols, broken boundaries, multiple spawn or exit tiles, unreachable exits, any walkable tile that falls below the configured 3-unit lane width in either axis, structural wall-band entries below 5 units, structural entry splitters below 3 units per side or 6 units combined, diagonal corner cuts, and one-tile corner pinches.
+Run `npm run validate:levels` before changing this map. The checker fails unsupported symbols, broken boundaries, multiple spawn tiles, missing enemy markers, multiple `X` exit tiles, unreachable exits, any walkable tile that falls below the configured 3-unit lane width in either axis, structural wall-band entries below 5 units, structural entry splitters below 3 units per side or 6 units combined, diagonal corner cuts, and one-tile corner pinches.

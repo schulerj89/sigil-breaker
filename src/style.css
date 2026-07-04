@@ -606,6 +606,11 @@ canvas {
     height: 28px;
   }
 
+  .hud__icon-button--debug {
+    width: 44px;
+    height: 32px;
+  }
+
   .stick {
     width: 112px;
     height: 112px;

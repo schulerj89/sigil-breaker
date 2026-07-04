@@ -3,6 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 test.setTimeout(240_000);
 
 const FULL_INTERACTION_PROJECT = 'chromium-modern-phone-landscape';
+const EXPECTED_ENEMY_COUNT = 12;
 const EXPECTED_LOADED_ASSET_IDS = [
   'audio.music.foundation.elevenlabs',
   'audio.weapon.bore.elevenlabs',
@@ -115,6 +116,7 @@ interface DebugSnapshot {
     total: number;
     alive: number;
     destroyed: number;
+    enemyMarkerCount: number;
     modelBytesLoaded: number;
     loadedAssetIds: string[];
     assetLoadErrors: string[];
@@ -122,8 +124,19 @@ interface DebugSnapshot {
       id: string;
       assetId: string;
       label: string;
+      marker: {
+        column: number;
+        row: number;
+      };
       position: [number, number, number];
+      origin: [number, number, number];
       assetLoaded: boolean;
+      state: 'patrolling' | 'tracking' | 'returning';
+      behavior: string;
+      facingYawRadians: number;
+      detectRadiusUnits: number;
+      loseRadiusUnits: number;
+      debugVisible: boolean;
       health: {
         current: number;
         max: number;
@@ -206,6 +219,8 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     widthUnits: 45,
     depthUnits: 45,
   });
+  expect(countMapSymbol(debugSnapshot.level.map, 'E')).toBe(EXPECTED_ENEMY_COUNT);
+  expect(countMapSymbol(debugSnapshot.level.map, 'X')).toBe(1);
   expect(debugSnapshot.assetLoadErrors).toEqual([]);
   expect(debugSnapshot.memoryMetrics.loadedAssetIds).toEqual([...EXPECTED_LOADED_ASSET_IDS]);
   expect(debugSnapshot.level.streaming.loadedTextureAssetIds).toEqual([
@@ -241,9 +256,10 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     isAlive: true,
   });
   expect(debugSnapshot.enemies).toMatchObject({
-    total: 3,
-    alive: 3,
+    total: EXPECTED_ENEMY_COUNT,
+    alive: EXPECTED_ENEMY_COUNT,
     destroyed: 0,
+    enemyMarkerCount: EXPECTED_ENEMY_COUNT,
     modelBytesLoaded: 347_884,
     loadedAssetIds: ['enemy.monster.goleling', 'enemy.monster.mushnub', 'enemy.monster.pink-slime'],
     assetLoadErrors: [],
@@ -252,6 +268,8 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     id: 'enemy.monster.mushnub.vanguard',
     assetId: 'enemy.monster.mushnub',
     label: 'MUSHNUB',
+    marker: { row: 1, column: 6 },
+    origin: [-16, 0, -21],
     assetLoaded: true,
     health: {
       current: 68,
@@ -260,6 +278,14 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
       isAlive: true,
     },
   });
+  expect(debugSnapshot.enemies.enemies[0].state).toBe('tracking');
+  expect(debugSnapshot.enemies.enemies[0].debugVisible).toBe(true);
+  expect(debugSnapshot.enemies.enemies[0].detectRadiusUnits).toBeGreaterThan(5);
+  for (const enemy of debugSnapshot.enemies.enemies) {
+    expect(tileSymbolAt(debugSnapshot, enemy.marker.column, enemy.marker.row)).toBe('E');
+    expect(enemy.assetLoaded).toBe(true);
+    expect(enemy.loseRadiusUnits).toBeGreaterThan(enemy.detectRadiusUnits);
+  }
   expect(debugSnapshot.ui.debugVisible).toBe(true);
   expect(debugSnapshot.weapon.audio.loadedAssetIds).toEqual([
     'audio.music.foundation.elevenlabs',
@@ -281,14 +307,16 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   await expect(page.locator('[data-health-fill]')).toHaveCSS('width', /.+px/);
   await expectHudToFit(page);
   await expectControlsToFit(page);
-  await page.locator('[data-debug-toggle]').click();
+  await page.locator('[data-debug-toggle]').tap();
   await expect.poll(async () => (await readDebugSnapshot(page)).ui.debugVisible).toBe(false);
+  await expect.poll(async () => (await readDebugSnapshot(page)).enemies.enemies.some((enemy) => enemy.debugVisible)).toBe(false);
   await expect(page.locator('[data-debug-fps]')).toBeHidden();
   await expect(page.locator('[data-weapon-label]')).toBeHidden();
   await expect(page.locator('[data-weapon-ammo]')).toBeHidden();
   await expect(page.locator('[data-health-meter]')).toBeVisible();
-  await page.locator('[data-debug-toggle]').click();
+  await page.locator('[data-debug-toggle]').tap();
   await expect.poll(async () => (await readDebugSnapshot(page)).ui.debugVisible).toBe(true);
+  await expect.poll(async () => (await readDebugSnapshot(page)).enemies.enemies.some((enemy) => enemy.debugVisible)).toBe(true);
   await expect(page.locator('[data-debug-fps]')).toBeVisible();
   await expect(page.locator('[data-fire-button]')).not.toHaveText(/F/);
   await expect(page.locator('[data-fire-button] .reticle-icon')).toBeVisible();
@@ -438,6 +466,14 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
 
 function formatCoordinates(position: readonly [number, number, number]): string {
   return `XYZ ${position[0].toFixed(1)} ${position[1].toFixed(1)} ${position[2].toFixed(1)}`;
+}
+
+function countMapSymbol(map: readonly string[], symbol: string): number {
+  return map.reduce((total, row) => total + [...row].filter((tile) => tile === symbol).length, 0);
+}
+
+function tileSymbolAt(snapshot: DebugSnapshot, column: number, row: number): string {
+  return snapshot.level.map[row]?.[column] ?? '';
 }
 
 function readCanvasSamples(): { supported: boolean; nonBlankSamples: number } {

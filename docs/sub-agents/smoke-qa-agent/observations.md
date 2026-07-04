@@ -76,6 +76,8 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Keep rotate-prompt animation checks lightweight by reading the phone's computed animation name rather than relying on pixel timing.
 - Keep heavy browser smoke out of the Pages workflow unless the deploy gate strategy is intentionally revisited.
 - Use deterministic synthetic DOM events for zoom-guard assertions when browser chrome or input emulation is not the thing being tested.
+- Use Playwright `tap()` for mobile-only UI controls when click suppression is the bug class being tested.
+- Keep enemy movement smoke state-based rather than frame-exact; positions are animated and should not be asserted to exact frame values after boot.
 
 ## Caught Issues
 
@@ -95,6 +97,7 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - The old rotate arrow made the portrait prompt look noisy; smoke should keep checking that only the phone animation remains.
 - Timed flash screenshots are unreliable in headless capture, so per-weapon effect color is asserted through `snapshot.weapon.effectStyle`.
 - For this pass, only the rotate-prompt screenshot was kept because held-fire headless frames did not capture readable weapon flashes.
+- `Dbg` looked clickable under Playwright `click()`, but mobile touch could suppress the synthetic click; smoke now covers the real tap path.
 
 ## Next Handoff Notes
 
@@ -115,3 +118,8 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Browser smoke now checks RIFT and TORCH in the weapon cycle, including effect colors and active weapon stat fields.
 - Browser smoke now confirms enemy GLB URLs are cache-busted and that hiding debug also hides weapon/ammo/debug badges while health, mute, controls, and d-pad remain visible.
 - Latest `npm run validate:browser` passed all five landscape viewports after the enemy GLB, five-gun, longer music, and debug-hide updates.
+- Future screenshot QA should capture debug-on and debug-off enemy radius/front-cone views from deterministic camera poses.
+- Browser smoke now verifies 12 `E` enemy markers in the map, one `X` endpoint marker, and 12 runtime enemies spawned from marker coordinates.
+- Browser smoke now uses mobile `tap()` for the debug toggle, verifies the debug UI snapshot changes, and checks scene enemy debug radius/front-cone visuals hide and show with the toggle.
+- Browser smoke now expects the first enemy to be tracking from the spawn lane and verifies each enemy reports marker, origin, behavior, detect radius, lose radius, facing yaw, and debug visibility fields.
+- Latest `npm run validate:browser` passed all five landscape viewports after adding map-authored enemies, movement/tracking, return-home patrol behavior, and touch-safe debug toggling.

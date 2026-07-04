@@ -52,6 +52,8 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Keep hold-fire pose/FOV math in scalar helpers and existing objects instead of adding extra scene graph probes.
 - Use the existing renderer budget counters as the MVP gate until visible-device FPS profiling is repeated.
 - Keep the roof as one shared plane and keep floor/wall/roof textures shared by material to avoid per-chunk texture duplication.
+- Keep repeated enemies cloned from shared GLB templates until level streaming or LOD requires a stronger enemy pooling system.
+- Keep enemy steering direct and room-local for MVP; revisit navmesh/A* only when levels need pathing around multi-room obstacles.
 
 ## Caught Issues
 
@@ -64,6 +66,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - The production JS chunk is now about 644.59 kB minified after adding the pitch-distance helper.
 - The earlier all-viewport full interaction smoke repeated the same route and gesture work five times, which was disproportionate for MVP CI.
 - Continuous fire increases audio/effect churn by cadence, but the current visible primitives are reused and not recreated per shot.
+- Scene debug enemy lines add draw calls while debug is visible; keep them hidden with `Dbg` for normal play and avoid adding heavier debug meshes.
 
 ## Next Handoff Notes
 
@@ -86,3 +89,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Adding RIFT and TORCH increases the level-01 weapon payload to 261443B, still under the 1 MB MVP weapon budget.
 - Replacing the music loop and adding two SFX brings foundation audio payload to 858752B, still under the 5 MB MVP audio budget.
 - Latest production JS chunk reported by Vite is about 667.68 kB minified after enemy GLB loading and five-gun manifest changes.
+- Enemy placement now expands to 12 map-authored `E` markers, but repeated enemy visuals clone three shared GLB templates and keep model payload at 347884B.
+- Enemy AI is kinematic and transform-only: squared-distance tracking, simple seek/return/patrol movement, and tile collision resolution. It does not add navmesh, physics, or per-frame mesh raycasts.
+- Debug enemy radius/front-cone visuals are prebuilt `LineSegments` and toggle with debug mode; latest browser smoke stayed within renderer budgets.
+- Latest `npm run validate:browser` passed all five landscape viewports after adding map enemy markers, enemy movement/tracking, scene debug visuals, and touch-safe debug toggling; production JS chunk reported about 673.35 kB minified.

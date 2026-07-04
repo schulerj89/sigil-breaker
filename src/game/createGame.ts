@@ -98,12 +98,12 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       debugToggle.textContent = debugVisible ? 'DBG' : 'HUD';
     }
   };
-  const onDebugToggleClick = (event: MouseEvent): void => {
+  const onDebugTogglePointerDown = (event: PointerEvent): void => {
     event.preventDefault();
     debugVisible = !debugVisible;
     updateDebugVisibility();
   };
-  debugToggle?.addEventListener('click', onDebugToggleClick);
+  debugToggle?.addEventListener('pointerdown', onDebugTogglePointerDown);
   updateDebugVisibility();
 
   const resize = (): void => {
@@ -121,6 +121,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     fps = fps * 0.9 + (1 / Math.max(deltaSeconds, 0.001)) * 0.1;
 
     controls.update(deltaSeconds);
+    enemySystem.update(deltaSeconds, controls.getSnapshot().player.position, debugVisible);
     weaponSystem.update(deltaSeconds, now);
     levelRuntime.update(controls.getSnapshot().player.position);
     renderer.render(scene, camera);
@@ -147,7 +148,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       weaponSystem.dispose();
       enemySystem.dispose();
       levelRuntime.dispose();
-      debugToggle?.removeEventListener('click', onDebugToggleClick);
+      debugToggle?.removeEventListener('pointerdown', onDebugTogglePointerDown);
       resizeObserver.disconnect();
       window.removeEventListener('orientationchange', resize);
       scene.traverse((object) => {

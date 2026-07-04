@@ -76,7 +76,7 @@ export function createLevelChunks(tiles: readonly LevelTile[]): LevelChunk[] {
       chunk.wallTiles.push(tile);
     } else if (tile.symbol === 'C') {
       chunk.coverTiles.push(tile);
-    } else if (tile.symbol === 'E') {
+    } else if (tile.symbol === 'X') {
       chunk.exitTiles.push(tile);
     }
   }

@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const ALLOWED_SYMBOLS = new Set(['#', '.', 'S', 'E', 'C']);
+const ALLOWED_SYMBOLS = new Set(['#', '.', 'S', 'E', 'C', 'X']);
 const SOLID_SYMBOLS = new Set(['#', 'C']);
 const STRUCTURAL_WALL_SYMBOL = '#';
 
@@ -32,6 +32,7 @@ if (result.errors.length > 0) {
       `min entry ${level.minEntryUnits ?? level.minPassageUnits}u`,
       `${result.chunkColumns}x${result.chunkRows} chunks`,
       `${result.walkableTiles} walkable tiles`,
+      `${result.enemyMarkerCount} enemy markers`,
       'spawn can reach exit',
     ].join(' | '),
   );
@@ -103,6 +104,7 @@ function validateLevel(levelData) {
 
   let spawnCount = 0;
   let exitCount = 0;
+  let enemyMarkerCount = 0;
   let walkableTiles = 0;
   const narrowTiles = [];
   const narrowSegments = [];
@@ -132,6 +134,8 @@ function validateLevel(levelData) {
       if (symbol === 'S') {
         spawnCount++;
       } else if (symbol === 'E') {
+        enemyMarkerCount++;
+      } else if (symbol === 'X') {
         exitCount++;
       }
 
@@ -151,7 +155,11 @@ function validateLevel(levelData) {
   }
 
   if (exitCount !== 1) {
-    errors.push(`Expected exactly one exit tile; found ${exitCount}.`);
+    errors.push(`Expected exactly one exit tile marked X; found ${exitCount}.`);
+  }
+
+  if (enemyMarkerCount <= 0) {
+    errors.push('Expected at least one enemy marker tile marked E.');
   }
 
   errors.push(...validateBoundary(map, width, height));
@@ -240,6 +248,7 @@ function validateLevel(levelData) {
     width,
     height,
     walkableTiles,
+    enemyMarkerCount,
     chunkColumns: Number.isInteger(chunkSizeTiles) ? Math.ceil(width / chunkSizeTiles) : 0,
     chunkRows: Number.isInteger(chunkSizeTiles) ? Math.ceil(height / chunkSizeTiles) : 0,
   };
@@ -710,7 +719,7 @@ function countOpenRun(map, row, column, rowStep, columnStep) {
 
 function spawnCanReachExit(map) {
   const spawn = findSymbol(map, 'S');
-  const exit = findSymbol(map, 'E');
+  const exit = findSymbol(map, 'X');
   if (!spawn || !exit) {
     return false;
   }

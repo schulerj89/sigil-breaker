@@ -18,6 +18,7 @@ import {
   MIN_FOUNDATION_ENTRY_SPLIT_SIDE_UNITS,
   MIN_FOUNDATION_PASSAGE_UNITS,
   collidesWithLevel,
+  getEnemySpawnTiles,
   getLevelTiles,
   getSpawnPosition,
   isSolidSymbol,
@@ -97,9 +98,12 @@ describe('FPS foundation config', () => {
     }
 
     const tiles = getLevelTiles();
+    const enemySpawnTiles = getEnemySpawnTiles();
     expect(tiles).toHaveLength(LEVEL_WIDTH_TILES * LEVEL_HEIGHT_TILES);
     expect(tiles.filter((tile) => tile.symbol === 'S')).toHaveLength(1);
-    expect(tiles.filter((tile) => tile.symbol === 'E')).toHaveLength(1);
+    expect(tiles.filter((tile) => tile.symbol === 'X')).toHaveLength(1);
+    expect(enemySpawnTiles).toHaveLength(12);
+    expect(enemySpawnTiles[0]).toMatchObject({ row: 1, column: 6, symbol: 'E' });
 
     for (let index = 0; index < LEVEL_WIDTH_TILES; index++) {
       expect(FOUNDATION_LEVEL_MAP[0][index]).toBe('#');
@@ -116,6 +120,7 @@ describe('FPS foundation config', () => {
     expect(LEVEL_CHUNK_SIZE_TILES).toBe(9);
     expect(LEVEL_CHUNK_LOAD_RADIUS).toBe(2);
     expect(chunks).toHaveLength(25);
+    expect(chunks.reduce((total, chunk) => total + chunk.exitTiles.length, 0)).toBe(1);
     expect(spawnActiveChunkIds).toContain('0:0');
     expect(spawnActiveChunkIds).toHaveLength(9);
     expect(spawnActiveChunkIds.length).toBeLessThan(chunks.length);
@@ -265,6 +270,7 @@ describe('FPS foundation config', () => {
   it('lets weapon rays damage and destroy external enemy placeholders before a wall hit', () => {
     const scene = new THREE.Scene();
     const enemies = new EnemySystem(scene);
+    const enemyCount = getEnemySpawnTiles().length;
     const origin = new THREE.Vector3(-21, 1.62, -21);
     const direction = new THREE.Vector3(1, 0, 0);
 
@@ -292,10 +298,53 @@ describe('FPS foundation config', () => {
       },
     });
     expect(enemies.getSnapshot()).toMatchObject({
-      total: 3,
-      alive: 2,
+      total: enemyCount,
+      alive: enemyCount - 1,
       destroyed: 1,
     });
+
+    enemies.dispose();
+  });
+
+  it('spawns enemies from E markers and updates patrol, tracking, return, and debug state', () => {
+    const scene = new THREE.Scene();
+    const enemies = new EnemySystem(scene);
+    const spawns = getEnemySpawnTiles();
+    const initialSnapshot = enemies.getSnapshot();
+    const first = initialSnapshot.enemies[0];
+    const firstOrigin = tileToWorld(spawns[0].column, spawns[0].row);
+
+    expect(initialSnapshot.total).toBe(spawns.length);
+    expect(initialSnapshot.enemyMarkerCount).toBe(spawns.length);
+    expect(first).toMatchObject({
+      id: 'enemy.monster.mushnub.vanguard',
+      marker: { row: spawns[0].row, column: spawns[0].column },
+      origin: [firstOrigin.worldX, 0, firstOrigin.worldZ],
+      position: [firstOrigin.worldX, 0, firstOrigin.worldZ],
+      state: 'patrolling',
+      debugVisible: false,
+    });
+
+    enemies.update(0.2, [first.origin[0] - 3, 1.62, first.origin[2]], true);
+    const trackingSnapshot = enemies.getSnapshot().enemies[0];
+    expect(trackingSnapshot.state).toBe('tracking');
+    expect(trackingSnapshot.debugVisible).toBe(true);
+    expect(trackingSnapshot.position[0]).toBeLessThan(first.position[0]);
+    expect(Math.abs(trackingSnapshot.facingYawRadians)).toBeGreaterThan(0.01);
+
+    for (let frame = 0; frame < 140; frame++) {
+      enemies.update(0.05, [22, 1.62, 21], false);
+    }
+
+    const returnedSnapshot = enemies.getSnapshot().enemies[0];
+    expect(returnedSnapshot.state).not.toBe('tracking');
+    expect(returnedSnapshot.debugVisible).toBe(false);
+    expect(
+      Math.hypot(
+        returnedSnapshot.position[0] - returnedSnapshot.origin[0],
+        returnedSnapshot.position[2] - returnedSnapshot.origin[2],
+      ),
+    ).toBeLessThanOrEqual(1.1);
 
     enemies.dispose();
   });

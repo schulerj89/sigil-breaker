@@ -12,6 +12,8 @@ Status: complete after full-surface mobile zoom guard and hold-fire combat contr
 - The held fire button can also own a look pointer at reduced sensitivity so one right thumb can aim and fire.
 - The smaller gun-icon weapon-cycle button sits beside the fire button; the bottom weapon tray remains removed.
 - Browser smoke now asserts the reticle icon and weapon-cycle icon are visible, the bottom tray is absent, controls fit the viewport, and hold-fire state releases.
+- The debug toggle was not reliable on mobile because `click` could be suppressed after UI-control touch prevention.
+- `Dbg` now toggles on `pointerdown`, browser smoke uses Playwright `tap()`, and the small-landscape CSS keeps the debug button at a more practical 44 x 32 touch target.
 
 ## Decisions
 
@@ -24,15 +26,18 @@ Status: complete after full-surface mobile zoom guard and hold-fire combat contr
 - Let the fire button participate in look only when no other look pointer is active.
 - Keep fire-drag look sensitivity lower than the normal right-side look zone.
 - Keep weapon switching on the dedicated cycle button beside fire so holding fire never changes weapons.
+- Keep debug HUD toggling on pointerdown, matching the other mobile-first controls instead of relying on synthetic click.
 
 ## Caught Issues
 
 - The viewport metadata needed explicit `maximum-scale=1.0` and `minimum-scale=1.0` in addition to `user-scalable=no`.
 - Full-surface look taps were not covered by the UI-control-only double-tap prevention path.
 - Single-tap fire was too easy to spam and did not support the mobile FPS hold-to-aim pattern.
+- Playwright `click()` was not enough coverage for the debug toggle because it did not reproduce the mobile tap/click suppression path.
 
 ## Next Handoff Notes
 
 - Continue testing simultaneous move, aim, and fire on physical mobile Safari/Chrome when available.
 - Physical iOS Safari should specifically retry two-finger pinch while one finger is on the movement stick and another finger is in the look zone.
 - Physical-device smoke should also hold the fire button, drag to track a target, release, and then switch weapons with the right-thumb cycle button.
+- Physical-device smoke should also tap `Dbg` repeatedly while firing/moving to verify it never steals the move/look/fire pointer owners.

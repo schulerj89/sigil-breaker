@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T20:42:06Z",
-  "summary": "Local Playwright smoke covers five weapons, three external enemy GLBs, longer ElevenLabs music, cache-busting, debug hiding, and enemy destruction.",
+  "updatedAt": "2026-07-04T21:52:17Z",
+  "summary": "Local Playwright smoke covers five weapons, 12 map-authored enemies using three external GLBs, enemy movement/tracking/debug visuals, longer ElevenLabs music, cache-busting, touch-safe debug hiding, and enemy destruction.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -64,7 +64,13 @@
     "Browser smoke now waits for 17 loaded asset IDs including enemy GLBs and the two new weapon models.",
     "Weapon cycle smoke checks SPARK, BORE, VAULT, RIFT, and TORCH effect styles.",
     "Debug-hide smoke verifies weapon/ammo/debug badges are hidden while health, mute, touch buttons, and d-pad remain visible.",
-    "Latest npm run validate:browser passed all five landscape viewport projects in about 140 seconds."
+    "Latest npm run validate:browser passed all five landscape viewport projects in about 140 seconds.",
+    "Browser smoke now verifies 12 E enemy markers in the level map and one X endpoint marker.",
+    "Browser smoke now verifies runtime enemy total and marker count match the map-authored enemy markers.",
+    "Browser smoke now uses Playwright tap() for the debug toggle instead of click().",
+    "Browser smoke verifies scene enemy debug radius/front-cone visuals hide and show with the debug toggle.",
+    "Browser smoke verifies enemy marker, origin, behavior, detect radius, lose radius, facing yaw, and debugVisible snapshot fields.",
+    "Latest npm run validate:browser passed after adding map-authored enemy markers, enemy movement/tracking, return-home patrol behavior, and touch-safe debug toggling."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -87,7 +93,9 @@
     "Keep rotate-prompt animation checks lightweight by reading the phone's computed animation name.",
     "Use deterministic synthetic DOM events for zoom-guard assertions when browser chrome or input emulation is not the thing being tested.",
     "Keep health HUD and cube destruction checks in browser smoke because they cover player-readable combat state and the weapon damage path.",
-    "Keep enemy GLB cache-busting and five-weapon cycle checks in the MVP smoke gate."
+    "Keep enemy GLB cache-busting and five-weapon cycle checks in the MVP smoke gate.",
+    "Use Playwright tap() for mobile-only controls when click suppression is the bug class being tested.",
+    "Keep enemy movement smoke state-based rather than frame-exact because positions are animated after boot."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
@@ -104,7 +112,8 @@
     "GitHub Actions caught that page.mouse.wheel plus Control could wait too long under mobile emulation; direct WheelEvent dispatch now tests the same zoom-guard handler without depending on that input path.",
     "The old rotate arrow made the portrait prompt look noisy; smoke should keep checking that only the phone animation remains.",
     "Timed flash screenshots are unreliable in headless capture, so per-weapon effect color is asserted through snapshot.weapon.effectStyle.",
-    "Enemy destruction smoke should avoid asserting lastShot after release because extra cadence shots can advance the final shot snapshot past the enemy hit."
+    "Enemy destruction smoke should avoid asserting lastShot after release because extra cadence shots can advance the final shot snapshot past the enemy hit.",
+    "The debug toggle looked fine under click-based smoke but failed under mobile touch semantics; tap smoke now covers this path."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
@@ -112,7 +121,8 @@
     "Physical mobile Safari should still be used for final double-tap and pinch confidence because headless Chromium cannot fully emulate browser chrome.",
     "Held-fire visual framing for SPARK, BORE, and VAULT still needs screenshot QA on real mobile or deterministic debug poses.",
     "Full-route coverage should be re-expanded per viewport before a larger release gate or when viewport-specific gameplay bugs appear.",
-    "Future enemy replacement can pass the current smoke while still feeling poor if hit/death feedback is not screenshot-tested."
+    "Future enemy replacement can pass the current smoke while still feeling poor if hit/death feedback is not screenshot-tested.",
+    "Future debug visual regressions may need deterministic screenshots in addition to snapshot booleans."
   ],
   "blockers": [],
   "artifacts": [
@@ -216,12 +226,18 @@
       "mvpFastViewportSplit": true,
       "visualViewportScaleAfterZoomGestures": 1,
       "assetLoadErrors": 0,
-      "latestDurationSeconds": 140,
+      "latestDurationSeconds": 157,
       "testTimeoutSeconds": 240,
       "loadedAssetIdCount": 17,
       "weaponCycleCount": 5,
       "enemyGlbCacheBustingChecked": true,
-      "debugHideCombatHudChecked": true
+      "debugHideCombatHudChecked": true,
+      "enemyMarkerSymbol": "E",
+      "exitMarkerSymbol": "X",
+      "enemyMarkerCount": 12,
+      "enemyMovementStateChecked": true,
+      "enemyDebugVisualToggleChecked": true,
+      "debugToggleTapChecked": true
     },
     "latestHealthEnemySmoke": {
       "playerHealth": {
@@ -229,7 +245,7 @@
         "max": 100
       },
       "debugToggleChecked": true,
-      "enemyCount": 3,
+      "enemyCount": 12,
       "destroyedByHoldFire": "enemy.monster.mushnub.vanguard"
     },
     "requiredSmokeAssertions": [

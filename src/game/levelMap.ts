@@ -22,7 +22,7 @@ const DEFAULT_COLLISION_RESOLUTION_ITERATIONS = 5;
 
 export const FOUNDATION_LEVEL_MAP: readonly string[] = foundationLevelData.map;
 
-export type LevelTileSymbol = '#' | '.' | 'S' | 'E' | 'C';
+export type LevelTileSymbol = '#' | '.' | 'S' | 'E' | 'C' | 'X';
 
 export interface LevelTile {
   column: number;
@@ -77,6 +77,10 @@ export function getSpawnPosition(): THREE.Vector3 {
   }
 
   return new THREE.Vector3(spawnTile.worldX, 0, spawnTile.worldZ);
+}
+
+export function getEnemySpawnTiles(): LevelTile[] {
+  return getLevelTiles().filter((tile) => tile.symbol === 'E');
 }
 
 export function collidesWithLevel(worldX: number, worldZ: number, radius: number): boolean {

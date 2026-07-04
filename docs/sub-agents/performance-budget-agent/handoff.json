@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-04T20:42:06Z",
-  "summary": "The five-gun and three-enemy-GLB slice stays within MVP payload budgets, with local browser smoke passing and the production JS chunk at about 667.68 kB minified.",
+  "updatedAt": "2026-07-04T21:52:17Z",
+  "summary": "The five-gun and 12-marker enemy movement slice stays within MVP payload and renderer budgets by cloning three shared enemy GLB templates, using kinematic movement, and keeping local browser smoke passing with the production JS chunk at about 673.35 kB minified.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -48,7 +48,13 @@
     "Enemy GLB payload is 347884B and uses invisible box hit proxies.",
     "Level-01 weapon payload is now 261443B after adding RIFT and TORCH.",
     "Foundation audio payload is now 858752B after adding two SFX and a 48 second music loop.",
-    "Latest production JS chunk is about 667.68 kB minified."
+    "Latest production JS chunk is about 667.68 kB minified.",
+    "Enemy placement now expands to 12 map-authored E markers, while repeated enemy visuals clone three shared GLB templates.",
+    "Enemy model source payload remains 347884B because the runtime loads one template per enemy asset definition.",
+    "Enemy AI is kinematic and transform-only: squared-distance tracking, simple seek/return/patrol movement, and tile collision resolution.",
+    "Debug enemy radius/front-cone visuals are prebuilt LineSegments and toggle with debug mode.",
+    "Latest npm run validate:browser passed all five landscape viewport gates after enemy movement and debug visuals were added.",
+    "Latest production JS chunk is about 673.35 kB minified."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -67,7 +73,10 @@
     "Use renderer budget counters as the MVP gate until visible-device FPS profiling is repeated.",
     "Keep the roof as one shared plane and keep floor, wall, and roof textures shared by material to avoid per-chunk texture duplication.",
     "Keep placeholder cube enemies as shared primitive geometry until external enemy assets require a source-ledger and streaming budget.",
-    "Keep enemy render meshes separate from hit proxies and avoid mesh raycast collision for this slice."
+    "Keep enemy render meshes separate from hit proxies and avoid mesh raycast collision for this slice.",
+    "Clone repeated enemies from shared GLB templates until level streaming or LOD requires a stronger pooling system.",
+    "Keep enemy steering direct and room-local for MVP; revisit navmesh/A* only when levels need pathing around multi-room obstacles.",
+    "Keep scene debug enemy visuals as lightweight lines and hide them with the debug toggle during normal play."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
@@ -90,7 +99,9 @@
     "Sustained held-fire profiling still needs a physical mobile device pass.",
     "Future profiling should compare visible FPS with the roof on/off if enclosure or texture fill-rate becomes a concern.",
     "Memory-lifecycle QA should still add a deeper heap/GPU leak pass; the current restart smoke only watches debug renderer counters.",
-    "External enemy assets can quickly exceed the current lightweight enemy budget if each enemy ships unique GLBs, textures, or animations."
+    "External enemy assets can quickly exceed the current lightweight enemy budget if each enemy ships unique GLBs, textures, or animations.",
+    "Debug enemy line visuals add draw calls while debug is visible; future debug geometry should stay lightweight.",
+    "Direct steering can fail in more complex multi-room layouts and may need a navmesh or A* path layer later."
   ],
   "blockers": [],
   "artifacts": [
@@ -130,7 +141,7 @@
     "movementCollisionCost": "nearby solid-tile circle resolver while movement input is active",
     "weaponClearanceCost": "one weapon wall ray/probe for visual viewmodel avoidance",
     "shotEffectPoseCost": "shot-time and short-lived visible-effect camera-local vector/scalar math",
-    "productionJsChunkKb": 667.68,
+    "productionJsChunkKb": 673.35,
     "publicAssetCacheParam": "assetBuild",
     "browserSmokeCommand": "npm run validate:browser",
     "browserSmokeWorkers": 2,
@@ -139,6 +150,7 @@
     "localBrowserSmokeSeconds": 44.5,
     "zoomGuardRuntimeCost": "event listeners only; no animation-loop work and no render resources",
     "foundationWalkableTiles": 1653,
+    "foundationEnemyMarkers": 12,
     "structuralEntrySplitterValidation": true,
     "holdFireAimCost": "camera FOV blend plus existing viewmodel pose blend while held; no new WebGL resources",
     "wallHeightUnits": 3.84,
@@ -170,7 +182,10 @@
     "reticleControlCost": "css-dom-only",
     "foundationAudioBytes": 858752,
     "foundationEnemyModelBytes": 347884,
-    "enemyCollisionCost": "one invisible box proxy raycast candidate per alive enemy during weapon shots only"
+    "enemyCollisionCost": "one invisible box proxy raycast candidate per alive enemy during weapon shots only",
+    "enemyMovementCost": "kinematic seek/patrol/return using squared-distance checks and tile collision resolution",
+    "enemyRenderReuse": "12 runtime enemies clone three shared loaded GLB templates",
+    "enemyDebugVisualCost": "one prebuilt LineSegments radius/front-cone object per enemy, visible only when debug UI is on"
   },
   "nextAgents": [
     "memory-lifecycle-agent",
