@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { DEBUG_SCENE_ID, GAME_TITLE, PERFORMANCE_BUDGETS } from './config';
 import { createDebugApi, type DebugApi } from './debug';
-import { CubeEnemySystem } from './enemies/cubeEnemySystem';
+import { EnemySystem } from './enemies/enemySystem';
 import { createFoundationLevelRuntime } from './foundationLevelRuntime';
 import { FpsControls } from './fpsControls';
 import { Health } from './health';
@@ -58,7 +58,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   const zoomGuard = track(createMobileZoomGuard(root));
   const controls = new FpsControls(root, camera);
   const playerHealth = new Health(100);
-  const enemySystem = new CubeEnemySystem(scene);
+  const enemySystem = new EnemySystem(scene);
   const weaponSystem = new WeaponSystem(root, camera, {
     resolveTargetHit: (request) => enemySystem.resolveShotHit(
       request.origin,
@@ -172,7 +172,7 @@ function createShellMarkup(): string {
       <div class="look-zone" aria-hidden="true"></div>
       <div class="hud">
         <div class="hud__left">
-          <span class="hud__badge">${LEVEL_WIDTH_TILES} x ${LEVEL_HEIGHT_TILES}</span>
+          <span class="hud__badge" data-debug-ui>${LEVEL_WIDTH_TILES} x ${LEVEL_HEIGHT_TILES}</span>
           <div class="health-meter" data-health-meter>
             <span class="health-meter__label" data-health-label>HP</span>
             <span class="health-meter__track" aria-hidden="true">
@@ -207,8 +207,8 @@ function createShellMarkup(): string {
           >
             <span class="music-icon" aria-hidden="true"></span>
           </button>
-          <span class="hud__badge hud__badge--weapon" data-weapon-label>${WEAPON_DEFINITIONS[0].label}</span>
-          <span class="hud__badge hud__badge--ammo" data-weapon-ammo>-- / --</span>
+          <span class="hud__badge hud__badge--weapon" data-debug-ui data-weapon-label>${WEAPON_DEFINITIONS[0].label}</span>
+          <span class="hud__badge hud__badge--ammo" data-debug-ui data-weapon-ammo>-- / --</span>
           <span class="hud__badge hud__badge--build" data-debug-ui>${__SIGILBREAKER_BUILD_ID__}</span>
         </div>
       </div>

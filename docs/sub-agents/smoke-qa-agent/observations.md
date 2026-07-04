@@ -111,3 +111,7 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Browser smoke now verifies player health is reported at 100/100, the health bar remains visible after hiding debug HUD badges, and `snapshot.ui.debugVisible` toggles.
 - Browser smoke now verifies three cube enemies exist at boot and the full interaction project destroys the spawn-lane cube through the normal hold-fire path.
 - `npm run validate:browser` passed all five landscape viewports after adding health, debug toggle, and cube enemy destruction checks.
+- Browser smoke now waits for 17 loaded asset IDs: 3 environment textures, 5 weapon models, 6 ElevenLabs audio assets, and 3 enemy GLBs.
+- Browser smoke now checks RIFT and TORCH in the weapon cycle, including effect colors and active weapon stat fields.
+- Browser smoke now confirms enemy GLB URLs are cache-busted and that hiding debug also hides weapon/ammo/debug badges while health, mute, controls, and d-pad remain visible.
+- Latest `npm run validate:browser` passed all five landscape viewports after the enemy GLB, five-gun, longer music, and debug-hide updates.

@@ -1,41 +1,41 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "enemy-asset-curator",
-  "status": "needs-review",
-  "updatedAt": "2026-07-04T18:53:00Z",
-  "summary": "Foundation level now has three primitive cube enemies wired to reusable health and weapon-ray damage; external enemy art is still pending.",
+  "status": "complete",
+  "updatedAt": "2026-07-04T20:42:06Z",
+  "summary": "Foundation enemies now use three Quaternius CC0 monster GLBs as static visuals with existing health, ray-hit damage, destruction, and debug reporting preserved.",
   "observations": [
     "The foundation level has three cube enemy placeholders.",
     "Each cube owns a shared Health instance and reports through the debug enemy snapshot.",
     "The spawn-lane cube is destroyable by normal hold-fire input in local browser smoke.",
-    "No level-specific external enemy brief has been created."
+    "No level-specific external enemy brief has been created.",
+    "Visible cube enemies were replaced by Mushnub, Pink Slime, and Goleling GLB visuals from Quaternius via Poly Pizza.",
+    "The runtime keeps invisible box hit proxies for weapon ray damage instead of raycasting render meshes.",
+    "Enemy asset IDs, byte sizes, hashes, source URLs, and CC0 license records are documented in the source ledger."
   ],
   "decisions": [
     "Enemy assets must be judged by silhouette, animation coverage, hit proxies, audio hooks, and mobile performance.",
     "Use recurring enemy types for recognition and unique variants for level identity.",
-    "Keep the cube enemy system as the first behavior contract until external enemy assets replace the placeholder meshes."
+    "Keep the cube enemy system as the first behavior contract until external enemy assets replace the placeholder meshes.",
+    "Keep GLB visuals separate from hit proxies for this no-movement enemy slice.",
+    "Do not add movement or animation playback until enemy behavior and mobile readability are reviewed."
   ],
   "caughtIssues": [
-    "Current cube enemies validate damage and destruction only; they do not block player movement or animate hit/death states."
+    "Current cube enemies validate damage and destruction only; they do not block player movement or animate hit/death states.",
+    "Enemy GLBs are static visual replacements only; movement, hit reactions, and death animations remain future work."
   ],
   "risks": [
     "Enemy assets without readable attack and hit states will make mobile combat feel unfair.",
-    "Replacing cubes with external assets can break ray-hit readability if hit proxies are not authored deliberately."
+    "Replacing cubes with external assets can break ray-hit readability if hit proxies are not authored deliberately.",
+    "Static enemy models may read as props without later animation, hit flash, or death feedback."
   ],
   "blockers": [],
-  "artifacts": [],
+  "artifacts": [
+    "public/assets/enemies/quaternius-monsters",
+    "src/game/enemies/enemyManifest.ts",
+    "src/game/enemies/enemySystem.ts"
+  ],
   "jsonForAgents": {
-    "currentPlaceholderEnemies": {
-      "count": 3,
-      "type": "primitive-cube",
-      "behavior": [
-        "health",
-        "weapon-ray-damage",
-        "destroy-on-zero-health",
-        "debug-snapshot-reporting"
-      ],
-      "firstSmokeTargetId": "enemy.cube.vanguard"
-    },
     "requiredAnimations": [
       "idle",
       "move",
@@ -47,7 +47,19 @@
       "capsule",
       "box",
       "projectile-blocker"
-    ]
+    ],
+    "currentEnemyAssets": {
+      "sourceId": "quaternius.ultimate-monsters.poly-pizza",
+      "count": 3,
+      "loadedAssetIds": [
+        "enemy.monster.goleling",
+        "enemy.monster.mushnub",
+        "enemy.monster.pink-slime"
+      ],
+      "firstSmokeTargetId": "enemy.monster.mushnub.vanguard",
+      "collisionMode": "invisible box hit proxies",
+      "movementEnabled": false
+    }
   },
   "nextAgents": [
     "external-asset-scout",

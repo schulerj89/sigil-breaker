@@ -28,6 +28,10 @@ Status: complete for current per-weapon muzzle, pitch shot-effect, collision, ca
 - `WeaponSystemSnapshot.effectStyle` exposes the active effect colors so smoke QA can validate them without timing a one-frame flash screenshot.
 - The old bottom weapon preview tray is gone; switching now happens through `[data-weapon-cycle-button]`.
 - Screenshot QA for this pass lives under `artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/`.
+- Added two more Kenney Blaster Kit weapons from the same CC0 source: RIFT (`blaster-q.glb`) and TORCH (`blaster-m.glb`).
+- Current weapon roster is SPARK fast sidearm, BORE close scatter, VAULT heavy pulse, RIFT precision rail, and TORCH burst carbine.
+- `WeaponSystemSnapshot.activeWeaponStats` now exposes damage, fire interval, reload, and range for the active gun.
+- RIFT uses green shot effects and high damage with slow cadence; TORCH uses red-pink effects and low damage with very fast cadence.
 
 ## Decisions
 
@@ -42,6 +46,7 @@ Status: complete for current per-weapon muzzle, pitch shot-effect, collision, ca
 - Use a centered flash primitive until an external muzzle-flash VFX asset is sourced.
 - Keep the per-weapon effect style in `WeaponDefinition.effects` so later external VFX replacement has a clear style target per weapon.
 - Keep weapon switching on the single mobile cycle button until a larger inventory UI exists.
+- Keep the five-gun cycle order stable for smoke: SPARK, BORE, VAULT, RIFT, TORCH.
 
 ## Caught Issues
 
@@ -52,6 +57,7 @@ Status: complete for current per-weapon muzzle, pitch shot-effect, collision, ca
 - The primitive tracer is brief in still screenshots, so debug `effectPose` remains the more reliable automated alignment signal.
 - The colored flash is easier to center as a disk, but it is still a placeholder and should not become the final VFX asset.
 - Procedural color/style variants make the three guns easier to distinguish, but final muzzle/tracer/impact art still needs external assets.
+- RIFT and TORCH share the same viewmodel assumptions as the first three weapons; their exact muzzle/framing should get screenshot QA before final tuning.
 
 ## Next Handoff Notes
 
@@ -59,4 +65,5 @@ Status: complete for current per-weapon muzzle, pitch shot-effect, collision, ca
 - Screenshot QA captures for this pass live under `artifacts/sub-agents/20260704-weapon-framing/smoke-qa-agent/`.
 - Latest weapon-cycle and flash alignment screenshots live under `artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/`.
 - Future screenshot QA should capture SPARK cyan, BORE orange, and VAULT violet shot effects from deterministic fire frames.
+- Future screenshot QA should also capture RIFT green and TORCH red-pink shot effects.
 - Smoke QA should use `snapshot.weapon.effectStyle` as the deterministic gate until flash-frame captures are stable.

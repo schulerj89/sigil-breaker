@@ -2,7 +2,7 @@ import type { WebGLRenderer } from 'three';
 import { DEBUG_SCENE_ID, PERFORMANCE_BUDGETS, type CameraMode } from './config';
 import { FOUNDATION_ENVIRONMENT_TEXTURE_DECODED_BYTES } from './foundationLevelRuntime';
 import type { FpsControllerSnapshot } from './fpsControls';
-import type { CubeEnemySystemSnapshot } from './enemies/cubeEnemySystem';
+import type { EnemySystemSnapshot } from './enemies/enemySystem';
 import type { HealthSnapshot } from './health';
 import {
   FOUNDATION_LEVEL_MAP,
@@ -55,6 +55,7 @@ export interface DebugSnapshot {
     levelRuntimeBytesEstimate: number;
     chunkInstanceMatrixBytes: number;
     weaponModelBytesLoaded: number;
+    enemyModelBytesLoaded: number;
     loadedAssetIds: string[];
     activeSceneRoots: number;
   };
@@ -63,7 +64,7 @@ export interface DebugSnapshot {
   player: {
     health: HealthSnapshot;
   };
-  enemies: CubeEnemySystemSnapshot;
+  enemies: EnemySystemSnapshot;
   controls: {
     orientationLock: 'landscape';
     primaryInput: 'touch';
@@ -98,7 +99,7 @@ export function createDebugApi(
   getLevelStreamingSnapshot: () => LevelStreamingSnapshot,
   getWeaponSnapshot: () => WeaponSystemSnapshot,
   getPlayerHealthSnapshot: () => HealthSnapshot,
-  getEnemySnapshot: () => CubeEnemySystemSnapshot,
+  getEnemySnapshot: () => EnemySystemSnapshot,
   getZoomGuardSnapshot: () => MobileZoomGuardSnapshot,
   getUiSnapshot: () => { debugVisible: boolean },
 ): DebugApi {
@@ -113,8 +114,16 @@ export function createDebugApi(
       const enemySnapshot = getEnemySnapshot();
       const zoomGuardSnapshot = getZoomGuardSnapshot();
       const uiSnapshot = getUiSnapshot();
-      const loadedAssetIds = [...levelStreamingSnapshot.loadedTextureAssetIds, ...weaponSnapshot.loadedAssetIds].sort();
-      const assetLoadErrors = [...levelStreamingSnapshot.assetLoadErrors, ...weaponSnapshot.assetLoadErrors];
+      const loadedAssetIds = [
+        ...levelStreamingSnapshot.loadedTextureAssetIds,
+        ...weaponSnapshot.loadedAssetIds,
+        ...enemySnapshot.loadedAssetIds,
+      ].sort();
+      const assetLoadErrors = [
+        ...levelStreamingSnapshot.assetLoadErrors,
+        ...weaponSnapshot.assetLoadErrors,
+        ...enemySnapshot.assetLoadErrors,
+      ];
 
       return {
         buildId: __SIGILBREAKER_BUILD_ID__,
@@ -156,6 +165,7 @@ export function createDebugApi(
           levelRuntimeBytesEstimate: levelStreamingSnapshot.runtimeBytesEstimate,
           chunkInstanceMatrixBytes: levelStreamingSnapshot.instanceMatrixBytes,
           weaponModelBytesLoaded: weaponSnapshot.modelBytesLoaded,
+          enemyModelBytesLoaded: enemySnapshot.modelBytesLoaded,
           loadedAssetIds,
           activeSceneRoots: 1 + levelStreamingSnapshot.activeChunks,
         },

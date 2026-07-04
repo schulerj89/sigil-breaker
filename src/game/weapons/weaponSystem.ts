@@ -42,6 +42,13 @@ export interface WeaponSystemSnapshot {
   weaponIds: string[];
   activeWeaponId: string;
   activeWeaponLabel: string;
+  activeWeaponRole: string;
+  activeWeaponStats: {
+    damage: number;
+    fireIntervalMs: number;
+    reloadMs: number;
+    rangeUnits: number;
+  };
   ammoInMagazine: number;
   magazineSize: number;
   isReloading: boolean;
@@ -204,6 +211,13 @@ export class WeaponSystem {
       weaponIds: WEAPON_DEFINITIONS.map((weapon) => weapon.id),
       activeWeaponId: this.activeWeapon.id,
       activeWeaponLabel: this.activeWeapon.label,
+      activeWeaponRole: this.activeWeapon.role,
+      activeWeaponStats: {
+        damage: this.activeWeapon.damage,
+        fireIntervalMs: this.activeWeapon.fireIntervalMs,
+        reloadMs: this.activeWeapon.reloadMs,
+        rangeUnits: this.activeWeapon.rangeUnits,
+      },
       ammoInMagazine: this.ammoByWeapon.get(this.activeWeapon.id) ?? 0,
       magazineSize: this.activeWeapon.magazineSize,
       isReloading: this.reloadCompleteAt > 0,

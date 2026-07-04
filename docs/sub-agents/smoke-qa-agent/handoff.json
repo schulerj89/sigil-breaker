@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T18:53:00Z",
-  "summary": "Manual smoke remains green, and MVP-fast local Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, smoothed hold-fire aim/zoom, effect-pose alignment, pitch-corrected shot math, entry-splitter validation, movement collision, browser zoom guards, right-side control layout, steel foundation texture loading/rendering, ElevenLabs audio loading, music mute, the weapon cycle button, phone-only animated portrait rotate prompt layout, player health HUD, debug HUD toggle, and cube enemy destruction.",
+  "updatedAt": "2026-07-04T20:42:06Z",
+  "summary": "Local Playwright smoke covers five weapons, three external enemy GLBs, longer ElevenLabs music, cache-busting, debug hiding, and enemy destruction.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -60,7 +60,11 @@
     "GitHub Pages deploy CI is intentionally lightweight now; local validation is the testing gate before commit/push.",
     "Browser smoke now verifies player health starts at 100/100 and the health meter stays visible after debug badges are hidden.",
     "Browser smoke now verifies snapshot.ui.debugVisible toggles through the debug HUD button.",
-    "Browser smoke now verifies three cube enemies exist at boot and the full interaction project destroys the spawn-lane cube through normal hold-fire input."
+    "Browser smoke now verifies three cube enemies exist at boot and the full interaction project destroys the spawn-lane cube through normal hold-fire input.",
+    "Browser smoke now waits for 17 loaded asset IDs including enemy GLBs and the two new weapon models.",
+    "Weapon cycle smoke checks SPARK, BORE, VAULT, RIFT, and TORCH effect styles.",
+    "Debug-hide smoke verifies weapon/ammo/debug badges are hidden while health, mute, touch buttons, and d-pad remain visible.",
+    "Latest npm run validate:browser passed all five landscape viewport projects in about 140 seconds."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -82,7 +86,8 @@
     "Treat the single weapon cycle button as the MVP weapon switching contract.",
     "Keep rotate-prompt animation checks lightweight by reading the phone's computed animation name.",
     "Use deterministic synthetic DOM events for zoom-guard assertions when browser chrome or input emulation is not the thing being tested.",
-    "Keep health HUD and cube destruction checks in browser smoke because they cover player-readable combat state and the weapon damage path."
+    "Keep health HUD and cube destruction checks in browser smoke because they cover player-readable combat state and the weapon damage path.",
+    "Keep enemy GLB cache-busting and five-weapon cycle checks in the MVP smoke gate."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
@@ -211,8 +216,12 @@
       "mvpFastViewportSplit": true,
       "visualViewportScaleAfterZoomGestures": 1,
       "assetLoadErrors": 0,
-      "latestDurationSeconds": 112,
-      "testTimeoutSeconds": 240
+      "latestDurationSeconds": 140,
+      "testTimeoutSeconds": 240,
+      "loadedAssetIdCount": 17,
+      "weaponCycleCount": 5,
+      "enemyGlbCacheBustingChecked": true,
+      "debugHideCombatHudChecked": true
     },
     "latestHealthEnemySmoke": {
       "playerHealth": {
@@ -221,7 +230,7 @@
       },
       "debugToggleChecked": true,
       "enemyCount": 3,
-      "destroyedByHoldFire": "enemy.cube.vanguard"
+      "destroyedByHoldFire": "enemy.monster.mushnub.vanguard"
     },
     "requiredSmokeAssertions": [
       "appBoots",

@@ -30,12 +30,26 @@ export const WEAPON_AUDIO_ASSETS: Record<WeaponSoundProfile, GameAudioAsset> = {
     volume: 1,
     kind: 'sfx',
   },
+  precision: {
+    id: 'audio.weapon.rift.elevenlabs',
+    path: 'assets/audio/elevenlabs-foundation/rift-precision.mp3',
+    bytes: 17_180,
+    volume: 0.92,
+    kind: 'sfx',
+  },
+  burst: {
+    id: 'audio.weapon.torch.elevenlabs',
+    path: 'assets/audio/elevenlabs-foundation/torch-burst.mp3',
+    bytes: 17_598,
+    volume: 0.88,
+    kind: 'sfx',
+  },
 };
 
 export const FOUNDATION_MUSIC_ASSET: GameAudioAsset = {
   id: 'audio.music.foundation.elevenlabs',
-  path: 'assets/audio/elevenlabs-foundation/foundation-combat-loop.mp3',
-  bytes: 384_149,
+  path: 'assets/audio/elevenlabs-foundation/foundation-combat-loop-long.mp3',
+  bytes: 768_254,
   volume: 0.34,
   kind: 'music',
 };
@@ -44,5 +58,7 @@ export const GAME_AUDIO_ASSETS = [
   WEAPON_AUDIO_ASSETS.sidearm,
   WEAPON_AUDIO_ASSETS.scatter,
   WEAPON_AUDIO_ASSETS.heavy,
+  WEAPON_AUDIO_ASSETS.precision,
+  WEAPON_AUDIO_ASSETS.burst,
   FOUNDATION_MUSIC_ASSET,
 ] as const;

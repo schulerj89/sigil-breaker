@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { DEBUG_SCENE_ID, MOBILE_VIEWPORTS, PERFORMANCE_BUDGETS } from '../game/config';
 import { FOUNDATION_MUSIC_ASSET, GAME_AUDIO_ASSETS, WEAPON_AUDIO_ASSETS } from '../game/audioManifest';
-import { CubeEnemySystem } from '../game/enemies/cubeEnemySystem';
+import { ENEMY_ASSET_DEFINITIONS, ENEMY_ASSET_SOURCE } from '../game/enemies/enemyManifest';
+import { EnemySystem } from '../game/enemies/enemySystem';
 import {
   FOUNDATION_LEVEL_MAP,
   FOUNDATION_LEVEL_ID,
@@ -188,7 +189,7 @@ describe('FPS foundation config', () => {
 
     expect(WEAPON_ASSET_SOURCE.license).toBe('Creative Commons Zero, CC0');
     expect(WEAPON_ASSET_SOURCE.attributionRequired).toBe(false);
-    expect(WEAPON_DEFINITIONS).toHaveLength(3);
+    expect(WEAPON_DEFINITIONS).toHaveLength(5);
     expect(new Set(weaponIds).size).toBe(WEAPON_DEFINITIONS.length);
     expect(totalModelBytes).toBeLessThan(1_000_000);
     expect(muzzleColors.size).toBe(WEAPON_DEFINITIONS.length);
@@ -220,6 +221,28 @@ describe('FPS foundation config', () => {
     }
   });
 
+  it('registers a small CC0 external enemy set for the foundation level', () => {
+    const enemyIds = ENEMY_ASSET_DEFINITIONS.map((enemy) => enemy.id);
+    const totalEnemyModelBytes = ENEMY_ASSET_DEFINITIONS.reduce((total, enemy) => total + enemy.modelBytes, 0);
+
+    expect(ENEMY_ASSET_SOURCE.license).toBe('Public Domain, CC0');
+    expect(ENEMY_ASSET_SOURCE.attributionRequired).toBe(false);
+    expect(ENEMY_ASSET_DEFINITIONS).toHaveLength(3);
+    expect(enemyIds).toEqual(['enemy.monster.mushnub', 'enemy.monster.pink-slime', 'enemy.monster.goleling']);
+    expect(new Set(enemyIds).size).toBe(ENEMY_ASSET_DEFINITIONS.length);
+    expect(totalEnemyModelBytes).toBe(347_884);
+    expect(totalEnemyModelBytes).toBeLessThan(1_000_000);
+
+    for (const enemy of ENEMY_ASSET_DEFINITIONS) {
+      expect(enemy.modelPath).toMatch(/^assets\/enemies\/quaternius-monsters\/models\/.+\.glb$/);
+      expect(enemy.modelSha256).toMatch(/^[a-f0-9]{64}$/);
+      expect(enemy.modelBytes).toBeGreaterThan(50_000);
+      expect(enemy.targetHeightUnits).toBeGreaterThan(1);
+      expect(enemy.targetHeightUnits).toBeLessThanOrEqual(1.8);
+      expect(enemy.sourceUrl).toMatch(/^https:\/\/poly\.pizza\/m\//);
+    }
+  });
+
   it('provides reusable clamped health for players and enemies', () => {
     const health = new Health(100);
     const changes: string[] = [];
@@ -239,15 +262,15 @@ describe('FPS foundation config', () => {
     expect(changes).toEqual(['damage:65', 'heal:85', 'damage:0', 'reset:100']);
   });
 
-  it('lets weapon rays damage and destroy cube enemies before a wall hit', () => {
+  it('lets weapon rays damage and destroy external enemy placeholders before a wall hit', () => {
     const scene = new THREE.Scene();
-    const enemies = new CubeEnemySystem(scene);
+    const enemies = new EnemySystem(scene);
     const origin = new THREE.Vector3(-21, 1.62, -21);
     const direction = new THREE.Vector3(1, 0, 0);
 
     const firstHit = enemies.resolveShotHit(origin, direction, 12, 34);
     expect(firstHit).toMatchObject({
-      enemyId: 'enemy.cube.vanguard',
+      enemyId: 'enemy.monster.mushnub.vanguard',
       destroyed: false,
       health: {
         current: 34,
@@ -259,7 +282,7 @@ describe('FPS foundation config', () => {
 
     const secondHit = enemies.resolveShotHit(origin, direction, 12, 34);
     expect(secondHit).toMatchObject({
-      enemyId: 'enemy.cube.vanguard',
+      enemyId: 'enemy.monster.mushnub.vanguard',
       destroyed: true,
       health: {
         current: 0,
@@ -284,18 +307,22 @@ describe('FPS foundation config', () => {
     expect(audioIds).toEqual([
       'audio.music.foundation.elevenlabs',
       'audio.weapon.bore.elevenlabs',
+      'audio.weapon.rift.elevenlabs',
       'audio.weapon.spark.elevenlabs',
+      'audio.weapon.torch.elevenlabs',
       'audio.weapon.vault.elevenlabs',
     ]);
     expect(WEAPON_AUDIO_ASSETS.sidearm.path).toBe('assets/audio/elevenlabs-foundation/spark-sidearm.mp3');
     expect(WEAPON_AUDIO_ASSETS.scatter.path).toBe('assets/audio/elevenlabs-foundation/bore-scatter.mp3');
     expect(WEAPON_AUDIO_ASSETS.heavy.path).toBe('assets/audio/elevenlabs-foundation/vault-heavy.mp3');
+    expect(WEAPON_AUDIO_ASSETS.precision.path).toBe('assets/audio/elevenlabs-foundation/rift-precision.mp3');
+    expect(WEAPON_AUDIO_ASSETS.burst.path).toBe('assets/audio/elevenlabs-foundation/torch-burst.mp3');
     expect(WEAPON_AUDIO_ASSETS.heavy.volume).toBe(1);
     expect(FOUNDATION_MUSIC_ASSET.path).toBe(
-      'assets/audio/elevenlabs-foundation/foundation-combat-loop.mp3',
+      'assets/audio/elevenlabs-foundation/foundation-combat-loop-long.mp3',
     );
     expect(FOUNDATION_MUSIC_ASSET.kind).toBe('music');
-    expect(totalAudioBytes).toBe(439_869);
+    expect(totalAudioBytes).toBe(858_752);
     expect(totalAudioBytes).toBeLessThan(5_000_000);
   });
 

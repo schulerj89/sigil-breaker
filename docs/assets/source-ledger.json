@@ -1,6 +1,6 @@
 {
   "ledgerVersion": "1.0.0",
-  "updatedAt": "2026-07-04T17:00:43Z",
+  "updatedAt": "2026-07-04T20:32:58Z",
   "sources": [
     {
       "sourceId": "kenney.blaster-kit.2-1",
@@ -64,6 +64,89 @@
           "previewSha256": "98b28473af3abfd4e96a3dc3e7a030205617e9745f8329f63284cf4304779dc3",
           "gameUse": "weapon",
           "loadGroup": "level-01-weapons"
+        },
+        {
+          "assetId": "weapon.blaster.rift",
+          "sourceFile": "Models/GLB format/blaster-q.glb",
+          "path": "public/assets/weapons/kenney-blaster-kit/models/blaster-q.glb",
+          "previewPath": "public/assets/weapons/kenney-blaster-kit/previews/blaster-q.png",
+          "bytes": 55856,
+          "sha256": "e2062bf76cf9ea7690acbb5ae18c9d92be5f7623ec3a2f4b363eb926d1017522",
+          "previewSha256": "cb8bd2cc9e906135179edc63ae34c18ec257333e99584b6654aacc61b5ea313f",
+          "gameUse": "weapon",
+          "loadGroup": "level-01-weapons"
+        },
+        {
+          "assetId": "weapon.blaster.torch",
+          "sourceFile": "Models/GLB format/blaster-m.glb",
+          "path": "public/assets/weapons/kenney-blaster-kit/models/blaster-m.glb",
+          "previewPath": "public/assets/weapons/kenney-blaster-kit/previews/blaster-m.png",
+          "bytes": 41532,
+          "sha256": "ff3f1196f2e9acabbdc44143dc3b93f79f4c5e8176e54514479bd2b788477c80",
+          "previewSha256": "6639cffff7feee23622276244669d8252388b3e1e9fe729fffd8953d6f86378a",
+          "gameUse": "weapon",
+          "loadGroup": "level-01-weapons"
+        }
+      ]
+    },
+    {
+      "sourceId": "quaternius.ultimate-monsters.poly-pizza",
+      "name": "Ultimate Monsters Bundle",
+      "author": "Quaternius",
+      "sourceUrl": "https://poly.pizza/bundle/Ultimate-Monsters-Bundle-5oyGWAmOB6",
+      "downloadUrl": "https://poly.pizza model pages with static GLB assets",
+      "downloadedAt": "2026-07-04T20:32:58Z",
+      "license": "Creative Commons Zero, CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseFile": "public/assets/enemies/quaternius-monsters/LICENSE.txt",
+      "commercialUseAllowed": true,
+      "redistributionAllowed": true,
+      "modificationAllowed": true,
+      "attributionRequired": false,
+      "notes": [
+        "Poly Pizza listing marks the bundle and selected model pages as Public Domain (CC0).",
+        "Selected GLB files are loaded at runtime; WebP thumbnails are committed only as source snapshots for QA."
+      ],
+      "sharedFiles": [],
+      "assets": [
+        {
+          "assetId": "enemy.monster.mushnub",
+          "assetType": "model",
+          "sourceFile": "Mushnub GLB from Poly Pizza static asset",
+          "sourceUrl": "https://poly.pizza/m/LWKmS30Xxl",
+          "path": "public/assets/enemies/quaternius-monsters/models/mushnub.glb",
+          "previewPath": "public/assets/enemies/quaternius-monsters/mushnub.webp",
+          "bytes": 67900,
+          "sha256": "04614a9d0db2a00d17cd85f4ef9c54e19cd3692530c0724b46809aa928e161e9",
+          "previewSha256": "0382043abc4f954443bd110145a447636d8747caaf145778d1d1aed8d6ab2480",
+          "gameUse": "enemy",
+          "loadGroup": "foundation-enemies"
+        },
+        {
+          "assetId": "enemy.monster.pink-slime",
+          "assetType": "model",
+          "sourceFile": "Pink Slime GLB from Poly Pizza static asset",
+          "sourceUrl": "https://poly.pizza/m/AyP8sQmDLh",
+          "path": "public/assets/enemies/quaternius-monsters/models/pink-slime.glb",
+          "previewPath": "public/assets/enemies/quaternius-monsters/pink-slime.webp",
+          "bytes": 62652,
+          "sha256": "34bb111a7931bb957f992e127d71fac321aaeea1bdcc7da56fa5aba55c83d783",
+          "previewSha256": "7799af9c3dc87466d578faa2e1002675bcd35eb342955ba3b9b260188cb0e917",
+          "gameUse": "enemy",
+          "loadGroup": "foundation-enemies"
+        },
+        {
+          "assetId": "enemy.monster.goleling",
+          "assetType": "model",
+          "sourceFile": "Goleling GLB from Poly Pizza static asset",
+          "sourceUrl": "https://poly.pizza/m/71gomWolax",
+          "path": "public/assets/enemies/quaternius-monsters/models/goleling.glb",
+          "previewPath": "public/assets/enemies/quaternius-monsters/goleling.webp",
+          "bytes": 217332,
+          "sha256": "fe6b5a04aef77aa9b38afee216802823b543d2409674bc86bd8bd152cb8cebce",
+          "previewSha256": "fd55cc151d254686cc916ce1ae8701b08caee19d2b9f8fbdb6f414a5478b8bab",
+          "gameUse": "enemy",
+          "loadGroup": "foundation-enemies"
         }
       ]
     },
@@ -134,9 +217,9 @@
       "provider": "ElevenLabs",
       "generated": true,
       "sourceUrl": "https://elevenlabs.io/docs/api-reference/text-to-sound-effects/convert",
-      "secondarySourceUrl": "https://elevenlabs.io/docs/api-reference/music/stream",
+      "secondarySourceUrl": "https://elevenlabs.io/docs/api-reference/music/compose",
       "downloadUrl": "build-time ElevenLabs API generation through local secret broker",
-      "downloadedAt": "2026-07-04T17:00:43Z",
+      "downloadedAt": "2026-07-04T20:32:58Z",
       "license": "ElevenLabs generated output terms",
       "licenseUrl": "https://elevenlabs.io/terms-of-use",
       "metadataFile": "public/assets/audio/elevenlabs-foundation/source-metadata.json",
@@ -154,8 +237,8 @@
           "assetType": "metadata",
           "sourceFile": "generated source metadata",
           "path": "public/assets/audio/elevenlabs-foundation/source-metadata.json",
-          "bytes": 3818,
-          "sha256": "953bc238875f57182058a4666cdb66824b88b3ec580229f913df95682f8d3d15",
+          "bytes": 5768,
+          "sha256": "d9fa456b31afe9652d0d53dba5953e2c7a0b616ad4f6883fe076e62a30493946",
           "gameUse": "metadata",
           "loadGroup": "foundation-audio"
         }
@@ -237,29 +320,78 @@
           "generatedAt": "2026-07-04T17:00:43.795Z"
         },
         {
-          "assetId": "audio.music.foundation.elevenlabs",
+          "assetId": "audio.weapon.rift.elevenlabs",
           "assetType": "audio",
-          "sourceFile": "ElevenLabs music-stream generated MP3",
-          "path": "public/assets/audio/elevenlabs-foundation/foundation-combat-loop.mp3",
-          "bytes": 384149,
-          "sha256": "c46a755455b53d2eeddfc2ca70fec47b43a9b7919caf861978b4e23f85768bb1",
+          "sourceFile": "ElevenLabs text-to-sound-effects generated MP3",
+          "path": "public/assets/audio/elevenlabs-foundation/rift-precision.mp3",
+          "bytes": 17180,
+          "sha256": "0e2abaac4899200f081a4388339d7183a293ab611cb98216f2ef056a727724c4",
           "gameUse": "audio",
           "loadGroup": "foundation-audio",
           "provider": "ElevenLabs",
-          "endpoint": "music-stream",
-          "modelId": "music_v1",
-          "prompt": "Instrumental loopable mobile sci-fi FPS combat track for a steel test arena, dark industrial pulse, tight drums, low synth bass, tense but uncluttered, no vocals, seamless game loop, 90 BPM.",
+          "endpoint": "text-to-sound-effects",
+          "modelId": "eleven_text_to_sound_v2",
+          "prompt": "Focused sci-fi precision blaster shot, bright green ion needle crack with tight snap, fast clean tail, dry, no ambience, mobile sci-fi FPS weapon SFX.",
           "settings": {
-            "music_length_ms": 24000,
-            "prompt_influence": 0.8,
+            "duration_seconds": 1,
+            "prompt_influence": 0.86,
+            "loop": false,
+            "output_format": "mp3_44100_128"
+          },
+          "intendedUse": "weapon-sfx",
+          "durationSeconds": 1,
+          "loopable": false,
+          "lufsTarget": -14,
+          "generatedAt": "2026-07-04T20:32:58.431Z"
+        },
+        {
+          "assetId": "audio.weapon.torch.elevenlabs",
+          "assetType": "audio",
+          "sourceFile": "ElevenLabs text-to-sound-effects generated MP3",
+          "path": "public/assets/audio/elevenlabs-foundation/torch-burst.mp3",
+          "bytes": 17598,
+          "sha256": "e6b1b66a6601c15f7069c2e472041936ad4aaeb429766f5a84d0119d9cc4a6e6",
+          "gameUse": "audio",
+          "loadGroup": "foundation-audio",
+          "provider": "ElevenLabs",
+          "endpoint": "text-to-sound-effects",
+          "modelId": "eleven_text_to_sound_v2",
+          "prompt": "Hot burst-fire plasma carbine shot, compact red-orange triple energy pop fused into one punchy blast, crisp transient, short aggressive tail, dry, no ambience, mobile sci-fi FPS weapon SFX.",
+          "settings": {
+            "duration_seconds": 1.05,
+            "prompt_influence": 0.84,
+            "loop": false,
+            "output_format": "mp3_44100_128"
+          },
+          "intendedUse": "weapon-sfx",
+          "durationSeconds": 1.05,
+          "loopable": false,
+          "lufsTarget": -14,
+          "generatedAt": "2026-07-04T20:32:58.431Z"
+        },
+        {
+          "assetId": "audio.music.foundation.elevenlabs",
+          "assetType": "audio",
+          "sourceFile": "ElevenLabs music generated MP3",
+          "path": "public/assets/audio/elevenlabs-foundation/foundation-combat-loop-long.mp3",
+          "bytes": 768254,
+          "sha256": "020d775bc431f021266fbcbd335801452dfa1cc04b5dd4aff208badaf6249e04",
+          "gameUse": "audio",
+          "loadGroup": "foundation-audio",
+          "provider": "ElevenLabs",
+          "endpoint": "music-compose",
+          "modelId": "music_v1",
+          "prompt": "Instrumental loopable mobile sci-fi FPS combat track for a steel arena with alien targets, longer 48 second structure, dark industrial groove, tight electronic drums, pulsing bass, metallic percussion, tense heroic synth motif, no vocals, uncluttered mix for gameplay, seamless loop ending.",
+          "settings": {
+            "music_length_ms": 48000,
             "force_instrumental": true,
             "output_format": "mp3_44100_128"
           },
           "intendedUse": "music-loop",
-          "durationSeconds": 24,
+          "durationSeconds": 48,
           "loopable": true,
           "lufsTarget": -18,
-          "generatedAt": "2026-07-04T17:00:43.795Z"
+          "generatedAt": "2026-07-04T20:32:58.431Z"
         }
       ]
     }

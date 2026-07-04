@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "asset-registry-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T16:13:24Z",
-  "summary": "Registered the first three external weapon assets, registered the foundation Kenney steel environment textures, and added runtime assetBuild cache invalidation for public assets.",
+  "updatedAt": "2026-07-04T20:42:06Z",
+  "summary": "Asset ledger now covers 4 sources and 17 selected assets: five weapons, three enemy GLBs, three environment textures, and six ElevenLabs audio assets.",
   "observations": [
     "docs/assets/source-ledger.json records source, license, hashes, byte counts, and load group.",
     "src/game/weapons/weaponManifest.ts exposes the runtime weapon definitions for the selector and loader.",
@@ -14,7 +14,10 @@
     "The active foundation environment texture payload is 22445B across steel floor, wall, and roof PNGs.",
     "publicAssetUrl and withAssetVersion now live in src/game/assetUrls.ts and are re-exported by the weapon manifest for compatibility.",
     "validate-assets checks git tracking with git ls-files --error-unmatch so ledger files cannot pass by existing only on local disk.",
-    "Foundation texture records include matching sourceSha256, optimizedSha256, and sha256 because the committed PNGs are unmodified source copies."
+    "Foundation texture records include matching sourceSha256, optimizedSha256, and sha256 because the committed PNGs are unmodified source copies.",
+    "Added weapon.blaster.rift and weapon.blaster.torch to level-01-weapons.",
+    "Added Quaternius monster GLBs to foundation-enemies.",
+    "Added RIFT, TORCH, and 48 second music records to generated audio metadata."
   ],
   "decisions": [
     "Use level-01-weapons as the first load group.",
@@ -69,7 +72,14 @@
       "weaponManifest.withAssetVersion",
       "weaponSystem.LoadingManager.setURLModifier",
       "foundationLevelRuntime.TextureLoader"
-    ]
+    ],
+    "selectedAssetCounts": {
+      "sources": 4,
+      "assets": 17,
+      "levelOneWeaponBytes": 261443,
+      "foundationAudioBytes": 858752,
+      "foundationEnemyModelBytes": 347884
+    }
   },
   "nextAgents": [
     "gltf-optimization-agent",

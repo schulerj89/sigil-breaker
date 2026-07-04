@@ -82,3 +82,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Health and enemy state add CPU/gameplay objects only; the player health bar is DOM HUD, and the cube enemies share one BoxGeometry with three small materials.
 - Weapon damage now reuses the existing shot cadence and adds an enemy raycast only when firing; no per-shot geometry or material is created.
 - Latest `npm run validate:browser` passed after adding three cube enemies, health HUD, and debug toggle checks; the production JS chunk reported about 662.88 kB minified.
+- Replacing cubes with three Quaternius GLBs adds 347884B of enemy model payload and keeps box hit proxies for raycast damage.
+- Adding RIFT and TORCH increases the level-01 weapon payload to 261443B, still under the 1 MB MVP weapon budget.
+- Replacing the music loop and adding two SFX brings foundation audio payload to 858752B, still under the 5 MB MVP audio budget.
+- Latest production JS chunk reported by Vite is about 667.68 kB minified after enemy GLB loading and five-gun manifest changes.

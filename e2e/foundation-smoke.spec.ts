@@ -6,13 +6,20 @@ const FULL_INTERACTION_PROJECT = 'chromium-modern-phone-landscape';
 const EXPECTED_LOADED_ASSET_IDS = [
   'audio.music.foundation.elevenlabs',
   'audio.weapon.bore.elevenlabs',
+  'audio.weapon.rift.elevenlabs',
   'audio.weapon.spark.elevenlabs',
+  'audio.weapon.torch.elevenlabs',
   'audio.weapon.vault.elevenlabs',
+  'enemy.monster.goleling',
+  'enemy.monster.mushnub',
+  'enemy.monster.pink-slime',
   'environment.foundation.floor-grid-steel',
   'environment.foundation.roof-flat-steel',
   'environment.foundation.wall-panel-steel',
   'weapon.blaster.bore',
+  'weapon.blaster.rift',
   'weapon.blaster.spark',
+  'weapon.blaster.torch',
   'weapon.blaster.vault',
 ] as const;
 
@@ -49,11 +56,19 @@ interface DebugSnapshot {
   memoryMetrics: {
     loadedAssetIds: string[];
     weaponModelBytesLoaded: number;
+    enemyModelBytesLoaded: number;
   };
   assetLoadErrors: string[];
   weapon: {
     activeWeaponId: string;
     activeWeaponLabel: string;
+    activeWeaponRole: string;
+    activeWeaponStats: {
+      damage: number;
+      fireIntervalMs: number;
+      reloadMs: number;
+      rangeUnits: number;
+    };
     ammoInMagazine: number;
     magazineSize: number;
     isFireHeld: boolean;
@@ -100,9 +115,15 @@ interface DebugSnapshot {
     total: number;
     alive: number;
     destroyed: number;
+    modelBytesLoaded: number;
+    loadedAssetIds: string[];
+    assetLoadErrors: string[];
     enemies: Array<{
       id: string;
+      assetId: string;
+      label: string;
       position: [number, number, number];
+      assetLoaded: boolean;
       health: {
         current: number;
         max: number;
@@ -159,17 +180,18 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     /^XYZ -?\d+\.\d -?\d+\.\d -?\d+\.\d$/,
   );
 
-  await page.waitForFunction(() => {
+  await page.waitForFunction((expectedAssetCount) => {
     const snapshot = window.__SIGILBREAKER_DEBUG__?.getSnapshot();
 
     return (
       snapshot !== undefined &&
       snapshot.assetLoadErrors.length === 0 &&
-      snapshot.memoryMetrics.loadedAssetIds.length === 10 &&
+      snapshot.memoryMetrics.loadedAssetIds.length === expectedAssetCount &&
       snapshot.rendererMetrics.textures >= 4 &&
-      snapshot.memoryMetrics.weaponModelBytesLoaded > 0
+      snapshot.memoryMetrics.weaponModelBytesLoaded > 0 &&
+      snapshot.memoryMetrics.enemyModelBytesLoaded > 0
     );
-  });
+  }, EXPECTED_LOADED_ASSET_IDS.length);
 
   const snapshot = await page.evaluate<DebugSnapshot | undefined>(() => window.__SIGILBREAKER_DEBUG__?.getSnapshot());
   expect(snapshot).toBeDefined();
@@ -201,6 +223,13 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(debugSnapshot.rendererMetrics.textures).toBeLessThanOrEqual(debugSnapshot.budgets.texturesMax);
   expect(debugSnapshot.weapon.activeWeaponId).toBe('weapon.blaster.spark');
   expect(debugSnapshot.weapon.activeWeaponLabel).toBe('SPARK');
+  expect(debugSnapshot.weapon.activeWeaponRole).toBe('fast sidearm');
+  expect(debugSnapshot.weapon.activeWeaponStats).toMatchObject({
+    damage: 34,
+    fireIntervalMs: 155,
+    reloadMs: 620,
+    rangeUnits: 28,
+  });
   expect(debugSnapshot.weapon.ammoInMagazine).toBe(debugSnapshot.weapon.magazineSize);
   expect(debugSnapshot.weapon.isFireHeld).toBe(false);
   expect(debugSnapshot.weapon.aimBlend).toBe(0);
@@ -215,9 +244,15 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     total: 3,
     alive: 3,
     destroyed: 0,
+    modelBytesLoaded: 347_884,
+    loadedAssetIds: ['enemy.monster.goleling', 'enemy.monster.mushnub', 'enemy.monster.pink-slime'],
+    assetLoadErrors: [],
   });
   expect(debugSnapshot.enemies.enemies[0]).toMatchObject({
-    id: 'enemy.cube.vanguard',
+    id: 'enemy.monster.mushnub.vanguard',
+    assetId: 'enemy.monster.mushnub',
+    label: 'MUSHNUB',
+    assetLoaded: true,
     health: {
       current: 68,
       max: 68,
@@ -229,11 +264,13 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(debugSnapshot.weapon.audio.loadedAssetIds).toEqual([
     'audio.music.foundation.elevenlabs',
     'audio.weapon.bore.elevenlabs',
+    'audio.weapon.rift.elevenlabs',
     'audio.weapon.spark.elevenlabs',
+    'audio.weapon.torch.elevenlabs',
     'audio.weapon.vault.elevenlabs',
   ]);
   expect(debugSnapshot.weapon.audio.assetLoadErrors).toEqual([]);
-  expect(debugSnapshot.weapon.audio.assetBytesLoaded).toBe(439_869);
+  expect(debugSnapshot.weapon.audio.assetBytesLoaded).toBe(858_752);
   expect(debugSnapshot.weapon.audio.musicMuted).toBe(false);
   expect(debugSnapshot.controls.viewportScale).toBe(1);
 
@@ -247,6 +284,8 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   await page.locator('[data-debug-toggle]').click();
   await expect.poll(async () => (await readDebugSnapshot(page)).ui.debugVisible).toBe(false);
   await expect(page.locator('[data-debug-fps]')).toBeHidden();
+  await expect(page.locator('[data-weapon-label]')).toBeHidden();
+  await expect(page.locator('[data-weapon-ammo]')).toBeHidden();
   await expect(page.locator('[data-health-meter]')).toBeVisible();
   await page.locator('[data-debug-toggle]').click();
   await expect.poll(async () => (await readDebugSnapshot(page)).ui.debugVisible).toBe(true);
@@ -286,9 +325,18 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
       .filter((url) => url.includes('/assets/environment/kenney-prototype-textures/textures/'))
       .sort(),
   );
+  const enemyModelUrls = await page.evaluate((buildId) =>
+    performance
+      .getEntriesByType('resource')
+      .map((entry) => entry.name)
+      .filter((url) => url.includes('/assets/enemies/quaternius-monsters/models/') && url.endsWith('.glb?assetBuild=' + buildId))
+      .sort(),
+    debugSnapshot.buildId,
+  );
 
   expect(previewUrls).toHaveLength(0);
-  expect(modelUrls).toHaveLength(3);
+  expect(modelUrls).toHaveLength(5);
+  expect(enemyModelUrls).toHaveLength(3);
   expect(textureUrls.length).toBeGreaterThanOrEqual(1);
   expect(environmentTextureUrls).toHaveLength(3);
 
@@ -303,12 +351,14 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   const audioFileNames = [...new Set(audioUrls.map((url) => new URL(url).pathname.split('/').pop() ?? ''))].sort();
   expect(audioFileNames).toEqual([
     'bore-scatter.mp3',
-    'foundation-combat-loop.mp3',
+    'foundation-combat-loop-long.mp3',
+    'rift-precision.mp3',
     'spark-sidearm.mp3',
+    'torch-burst.mp3',
     'vault-heavy.mp3',
   ]);
 
-  for (const url of [...previewUrls, ...modelUrls, ...textureUrls, ...environmentTextureUrls, ...audioUrls]) {
+  for (const url of [...previewUrls, ...modelUrls, ...enemyModelUrls, ...textureUrls, ...environmentTextureUrls, ...audioUrls]) {
     expect(new URL(url).searchParams.get('assetBuild')).toBe(debugSnapshot.buildId);
   }
 
@@ -452,6 +502,7 @@ async function waitForSceneAssets(page: Page): Promise<void> {
       snapshot.assetLoadErrors.length === 0 &&
       snapshot.memoryMetrics.loadedAssetIds.length === expectedAssetCount &&
       snapshot.memoryMetrics.weaponModelBytesLoaded > 0 &&
+      snapshot.memoryMetrics.enemyModelBytesLoaded > 0 &&
       snapshot.rendererMetrics.geometries > 0 &&
       snapshot.rendererMetrics.textures >= 4
     );
@@ -537,6 +588,30 @@ async function verifyWeaponCycleButton(page: Page): Promise<void> {
     tracerColor: '#e879f9',
     impactColor: '#a78bfa',
   });
+
+  await cycleButton.click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).weapon.activeWeaponId).toBe('weapon.blaster.rift');
+  snapshot = await readDebugSnapshot(page);
+  await expect(page.locator('[data-weapon-label]')).toHaveText('RIFT');
+  await expect(cycleButton).toHaveAttribute('data-active-weapon-id', 'weapon.blaster.rift');
+  expect(snapshot.weapon.effectStyle).toEqual({
+    muzzleColor: '#34d399',
+    tracerColor: '#86efac',
+    impactColor: '#22c55e',
+  });
+  expect(snapshot.weapon.activeWeaponStats.damage).toBe(92);
+
+  await cycleButton.click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).weapon.activeWeaponId).toBe('weapon.blaster.torch');
+  snapshot = await readDebugSnapshot(page);
+  await expect(page.locator('[data-weapon-label]')).toHaveText('TORCH');
+  await expect(cycleButton).toHaveAttribute('data-active-weapon-id', 'weapon.blaster.torch');
+  expect(snapshot.weapon.effectStyle).toEqual({
+    muzzleColor: '#fb7185',
+    tracerColor: '#fda4af',
+    impactColor: '#f43f5e',
+  });
+  expect(snapshot.weapon.activeWeaponStats.fireIntervalMs).toBe(105);
 
   await cycleButton.click();
   await expect.poll(async () => (await readDebugSnapshot(page)).weapon.activeWeaponId).toBe('weapon.blaster.spark');

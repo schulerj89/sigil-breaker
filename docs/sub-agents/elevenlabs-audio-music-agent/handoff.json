@@ -2,15 +2,18 @@
   "handoffVersion": "1.0.0",
   "agentId": "elevenlabs-audio-music-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T18:24:54Z",
-  "summary": "Foundation weapon SFX and music now use committed ElevenLabs-generated MP3 assets with cache-busted runtime playback, a louder VAULT runtime gain, and a landscape HUD mute toggle.",
+  "updatedAt": "2026-07-04T20:42:06Z",
+  "summary": "Five weapon SFX and a 48 second foundation combat loop are committed as ElevenLabs-generated MP3 assets with metadata and ledger hashes.",
   "observations": [
     "Previous gun sounds were procedural Web Audio and not ElevenLabs assets.",
     "Generated three weapon SFX assets with the ElevenLabs text-to-sound-effects endpoint.",
     "Generated one 24 second instrumental foundation loop with the ElevenLabs music stream endpoint.",
     "Runtime browser code loads committed public MP3 assets through publicAssetUrl and never receives an ElevenLabs API key.",
     "Audio asset prompts, endpoints, models, settings, bytes, hashes, LUFS targets, and intended use are recorded in docs/assets/source-ledger.json and source-metadata.json.",
-    "VAULT keeps the same generated MP3 file, but runtime playback gain and source metadata volume were raised to 1.0 because the heavy pulse sounded too quiet."
+    "VAULT keeps the same generated MP3 file, but runtime playback gain and source metadata volume were raised to 1.0 because the heavy pulse sounded too quiet.",
+    "Generated RIFT precision and TORCH burst SFX through the local secret broker.",
+    "Replaced the old 24 second music loop with foundation-combat-loop-long.mp3 at 48 seconds.",
+    "Runtime audio now preloads six committed MP3 assets."
   ],
   "decisions": [
     "Do not expose ElevenLabs API keys in browser code.",
@@ -18,7 +21,9 @@
     "Use committed MP3 assets for the MVP foundation audio payload.",
     "Unlock music and SFX from a user gesture, then let the player mute/unmute music from the HUD.",
     "Treat generated ElevenLabs audio as provider-generated output with metadata validation, not as CC0 external art.",
-    "Use runtime gain tweaks for small mix fixes when the source file, hash, and bytes do not change."
+    "Use runtime gain tweaks for small mix fixes when the source file, hash, and bytes do not change.",
+    "Use the 48 second music loop as the default foundation music asset.",
+    "Keep all ElevenLabs API use build-time/local only; browser runtime loads committed cache-busted MP3s."
   ],
   "caughtIssues": [
     "The current browser autoplay model means music must not be expected to play before a user gesture.",
@@ -37,7 +42,10 @@
     "public/assets/audio/elevenlabs-foundation/foundation-combat-loop.mp3",
     "public/assets/audio/elevenlabs-foundation/source-metadata.json",
     "src/game/audioManifest.ts",
-    "src/game/weapons/weaponAudio.ts"
+    "src/game/weapons/weaponAudio.ts",
+    "public/assets/audio/elevenlabs-foundation/rift-precision.mp3",
+    "public/assets/audio/elevenlabs-foundation/torch-burst.mp3",
+    "public/assets/audio/elevenlabs-foundation/foundation-combat-loop-long.mp3"
   ],
   "jsonForAgents": {
     "secretEnvVars": [
@@ -48,45 +56,33 @@
       {
         "assetId": "audio.weapon.spark.elevenlabs",
         "path": "assets/audio/elevenlabs-foundation/spark-sidearm.mp3",
-        "kind": "sfx",
-        "modelId": "eleven_text_to_sound_v2",
-        "durationSeconds": 1,
-        "loopable": false,
-        "lufsTarget": -14,
-        "runtimeVolume": 0.82,
-        "weaponProfile": "sidearm"
+        "kind": "sfx"
       },
       {
         "assetId": "audio.weapon.bore.elevenlabs",
         "path": "assets/audio/elevenlabs-foundation/bore-scatter.mp3",
-        "kind": "sfx",
-        "modelId": "eleven_text_to_sound_v2",
-        "durationSeconds": 1.2,
-        "loopable": false,
-        "lufsTarget": -14,
-        "runtimeVolume": 0.9,
-        "weaponProfile": "scatter"
+        "kind": "sfx"
       },
       {
         "assetId": "audio.weapon.vault.elevenlabs",
         "path": "assets/audio/elevenlabs-foundation/vault-heavy.mp3",
-        "kind": "sfx",
-        "modelId": "eleven_text_to_sound_v2",
-        "durationSeconds": 1.1,
-        "loopable": false,
-        "lufsTarget": -14,
-        "runtimeVolume": 1,
-        "weaponProfile": "heavy"
+        "kind": "sfx"
+      },
+      {
+        "assetId": "audio.weapon.rift.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/rift-precision.mp3",
+        "kind": "sfx"
+      },
+      {
+        "assetId": "audio.weapon.torch.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/torch-burst.mp3",
+        "kind": "sfx"
       },
       {
         "assetId": "audio.music.foundation.elevenlabs",
-        "path": "assets/audio/elevenlabs-foundation/foundation-combat-loop.mp3",
+        "path": "assets/audio/elevenlabs-foundation/foundation-combat-loop-long.mp3",
         "kind": "music",
-        "modelId": "music_v1",
-        "durationSeconds": 24,
-        "loopable": true,
-        "lufsTarget": -18,
-        "muteSelector": "[data-music-toggle]"
+        "durationSeconds": 48
       }
     ],
     "requiredAudioMetadata": [

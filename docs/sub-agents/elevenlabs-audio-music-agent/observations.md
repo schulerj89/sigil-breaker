@@ -12,6 +12,10 @@ Status: complete for foundation weapon SFX and music slice.
 - Runtime code uses cache-busted public MP3 files only; no ElevenLabs secret is present in browser code.
 - Music unlocks from a user gesture and has a compact mute toggle in the landscape HUD.
 - VAULT keeps the same generated MP3 file, but runtime playback gain and source metadata volume were raised to `1.0` because the heavy pulse sounded too quiet.
+- Generated two additional ElevenLabs weapon SFX for RIFT and TORCH through `agent-secret with ELEVENLABS_API_KEY -- ...`.
+- Replaced the 24 second foundation loop with a 48 second ElevenLabs instrumental combat loop at `foundation-combat-loop-long.mp3`.
+- Audio manifest now preloads six committed MP3 assets: five weapon SFX and one longer music loop.
+- Source metadata and the asset ledger were regenerated from actual hashes and bytes after audio generation.
 
 ## Decisions
 
@@ -20,16 +24,19 @@ Status: complete for foundation weapon SFX and music slice.
 - Keep weapon SFX dry and short so later enemy/impact sounds can layer without masking the fire cadence.
 - Use runtime gain tweaks for small mix fixes when the source file, hash, and bytes do not change.
 - Make the foundation music loop muted/unmuted through UI state and localStorage, while still starting only after user interaction.
+- Keep the longer music loop as the default foundation music asset and remove the old 24 second MP3 from the runtime set.
 
 ## Caught Issues
 
 - Existing sound effects were local synthesis and sounded thin because they had no authored audio assets.
 - Asset validation previously assumed every source must be CC0, which blocked generated audio provenance.
 - Browser autoplay policy requires unlock after a user gesture, so music cannot start reliably at boot.
+- The longer loop roughly doubles the foundation audio payload but stays well under the 5 MB MVP audio budget.
 
 ## Next Handoff Notes
 
 - Mobile game-feel and playthrough QA should check whether the 24 second loop feels too repetitive during longer routes.
 - Future weapon upgrades should add separate reload, impact, pickup, and UI SFX assets instead of reusing these firing sounds.
 - Audio QA should compare VAULT against SPARK and BORE after future SFX changes so heavy shots do not fall behind the mix again.
+- Audio QA should compare RIFT and TORCH against the original three weapons on device speakers because small MP3 SFX can sound similar at phone volume.
 - Any voice line must include captions before gameplay use.

@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-04T18:53:00Z",
-  "summary": "Weapon and shot-feedback budget instrumentation is wired; entry and splitter widening add no assets, body collision resolution is nearby-tile scoped, pitch-corrected shot math is CPU-only, zoom prevention is event-only, hold-fire aim reuses existing weapon objects, steel foundation textures add three shared textures plus one roof draw, cube enemies share one primitive geometry, MVP browser smoke is faster, and visible FPS still needs production profiling.",
+  "updatedAt": "2026-07-04T20:42:06Z",
+  "summary": "The five-gun and three-enemy-GLB slice stays within MVP payload budgets, with local browser smoke passing and the production JS chunk at about 667.68 kB minified.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -44,7 +44,11 @@
     "The current three cube enemies share one BoxGeometry with three small MeshStandardMaterials.",
     "Weapon damage reuses the existing shot cadence and adds an enemy raycast only while firing.",
     "Latest npm run validate:browser passed after adding three cube enemies, health HUD, and debug toggle checks.",
-    "Latest production JS chunk reported by Vite is about 662.88 kB minified."
+    "Latest production JS chunk reported by Vite is about 662.88 kB minified.",
+    "Enemy GLB payload is 347884B and uses invisible box hit proxies.",
+    "Level-01 weapon payload is now 261443B after adding RIFT and TORCH.",
+    "Foundation audio payload is now 858752B after adding two SFX and a 48 second music loop.",
+    "Latest production JS chunk is about 667.68 kB minified."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -62,7 +66,8 @@
     "Keep hold-fire pose and FOV math in scalar helpers and existing scene objects.",
     "Use renderer budget counters as the MVP gate until visible-device FPS profiling is repeated.",
     "Keep the roof as one shared plane and keep floor, wall, and roof textures shared by material to avoid per-chunk texture duplication.",
-    "Keep placeholder cube enemies as shared primitive geometry until external enemy assets require a source-ledger and streaming budget."
+    "Keep placeholder cube enemies as shared primitive geometry until external enemy assets require a source-ledger and streaming budget.",
+    "Keep enemy render meshes separate from hit proxies and avoid mesh raycast collision for this slice."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
@@ -102,7 +107,7 @@
   "jsonForAgents": {
     "visibleFpsTarget": 60,
     "visibleFpsObservedDev": 57,
-    "weaponSourcePayloadBytes": 164055,
+    "weaponSourcePayloadBytes": 261443,
     "weaponLoadGroup": "level-01-weapons",
     "budgets": {
       "drawCallsMax": 90,
@@ -125,7 +130,7 @@
     "movementCollisionCost": "nearby solid-tile circle resolver while movement input is active",
     "weaponClearanceCost": "one weapon wall ray/probe for visual viewmodel avoidance",
     "shotEffectPoseCost": "shot-time and short-lived visible-effect camera-local vector/scalar math",
-    "productionJsChunkKb": 662.88,
+    "productionJsChunkKb": 667.68,
     "publicAssetCacheParam": "assetBuild",
     "browserSmokeCommand": "npm run validate:browser",
     "browserSmokeWorkers": 2,
@@ -162,7 +167,10 @@
       ]
     },
     "gunScaleChange": "manifest-only",
-    "reticleControlCost": "css-dom-only"
+    "reticleControlCost": "css-dom-only",
+    "foundationAudioBytes": 858752,
+    "foundationEnemyModelBytes": 347884,
+    "enemyCollisionCost": "one invisible box proxy raycast candidate per alive enemy during weapon shots only"
   },
   "nextAgents": [
     "memory-lifecycle-agent",
