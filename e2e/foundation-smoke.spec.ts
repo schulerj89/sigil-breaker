@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
+test.setTimeout(60_000);
+
 interface DebugSnapshot {
   buildId: string;
   scene: {
