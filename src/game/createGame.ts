@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 import { DEBUG_SCENE_ID, GAME_TITLE, PERFORMANCE_BUDGETS } from './config';
 import { createDebugApi, type DebugApi } from './debug';
+import { CubeEnemySystem } from './enemies/cubeEnemySystem';
 import { createFoundationLevelRuntime } from './foundationLevelRuntime';
 import { FpsControls } from './fpsControls';
+import { Health } from './health';
 import { LEVEL_HEIGHT_TILES, LEVEL_WIDTH_TILES } from './levelMap';
 import { createMobileZoomGuard } from './mobileZoomGuard';
 import { WEAPON_DEFINITIONS } from './weapons/weaponManifest';
@@ -55,13 +57,23 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   const levelRuntime = createFoundationLevelRuntime(scene, track);
   const zoomGuard = track(createMobileZoomGuard(root));
   const controls = new FpsControls(root, camera);
-  const weaponSystem = new WeaponSystem(root, camera);
+  const playerHealth = new Health(100);
+  const enemySystem = new CubeEnemySystem(scene);
+  const weaponSystem = new WeaponSystem(root, camera, {
+    resolveTargetHit: (request) => enemySystem.resolveShotHit(
+      request.origin,
+      request.direction,
+      request.maxDistance,
+      request.damage,
+    ),
+  });
   levelRuntime.update(controls.getSnapshot().player.position);
 
   let animationFrame = 0;
   let lastTime = performance.now();
   let lastHudUpdate = 0;
   let fps = PERFORMANCE_BUDGETS.targetFps;
+  let debugVisible = true;
 
   const debug = createDebugApi(
     renderer,
@@ -69,9 +81,30 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     () => controls.getSnapshot(),
     () => levelRuntime.getSnapshot(),
     () => weaponSystem.getSnapshot(),
+    () => playerHealth.getSnapshot(),
+    () => enemySystem.getSnapshot(),
     () => zoomGuard.getSnapshot(),
+    () => ({ debugVisible }),
   );
   window.__SIGILBREAKER_DEBUG__ = debug;
+
+  const shell = root.querySelector<HTMLElement>('.game-shell');
+  const debugToggle = root.querySelector<HTMLButtonElement>('[data-debug-toggle]');
+  const updateDebugVisibility = (): void => {
+    shell?.classList.toggle('game-shell--debug-hidden', !debugVisible);
+    if (debugToggle) {
+      debugToggle.setAttribute('aria-pressed', String(!debugVisible));
+      debugToggle.setAttribute('aria-label', debugVisible ? 'Hide debug HUD' : 'Show debug HUD');
+      debugToggle.textContent = debugVisible ? 'DBG' : 'HUD';
+    }
+  };
+  const onDebugToggleClick = (event: MouseEvent): void => {
+    event.preventDefault();
+    debugVisible = !debugVisible;
+    updateDebugVisibility();
+  };
+  debugToggle?.addEventListener('click', onDebugToggleClick);
+  updateDebugVisibility();
 
   const resize = (): void => {
     const width = Math.max(1, root.clientWidth);
@@ -112,7 +145,9 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       window.cancelAnimationFrame(animationFrame);
       controls.dispose();
       weaponSystem.dispose();
+      enemySystem.dispose();
       levelRuntime.dispose();
+      debugToggle?.removeEventListener('click', onDebugToggleClick);
       resizeObserver.disconnect();
       window.removeEventListener('orientationchange', resize);
       scene.traverse((object) => {
@@ -138,16 +173,30 @@ function createShellMarkup(): string {
       <div class="hud">
         <div class="hud__left">
           <span class="hud__badge">${LEVEL_WIDTH_TILES} x ${LEVEL_HEIGHT_TILES}</span>
-          <span class="hud__badge hud__badge--hp">HP 100</span>
+          <div class="health-meter" data-health-meter>
+            <span class="health-meter__label" data-health-label>HP</span>
+            <span class="health-meter__track" aria-hidden="true">
+              <span class="health-meter__fill" data-health-fill></span>
+            </span>
+            <span class="health-meter__value" data-health-value>100 / 100</span>
+          </div>
         </div>
         <div class="hud__center">
-          <span class="hud__badge hud__badge--metric" data-debug-fps>FPS --</span>
-          <span class="hud__badge hud__badge--metric hud__badge--coords" data-debug-coordinates>XYZ -- -- --</span>
-          <span class="hud__badge hud__badge--metric" data-debug-memory>JS --</span>
-          <span class="hud__badge hud__badge--metric" data-debug-level-memory>LVL --</span>
-          <span class="hud__badge hud__badge--metric" data-debug-chunks>CH --</span>
+          <span class="hud__badge hud__badge--metric" data-debug-ui data-debug-fps>FPS --</span>
+          <span class="hud__badge hud__badge--metric hud__badge--coords" data-debug-ui data-debug-coordinates>XYZ -- -- --</span>
+          <span class="hud__badge hud__badge--metric" data-debug-ui data-debug-memory>JS --</span>
+          <span class="hud__badge hud__badge--metric" data-debug-ui data-debug-level-memory>LVL --</span>
+          <span class="hud__badge hud__badge--metric" data-debug-ui data-debug-chunks>CH --</span>
         </div>
         <div class="hud__right">
+          <button
+            class="hud__icon-button hud__icon-button--debug"
+            type="button"
+            data-ui-control
+            data-debug-toggle
+            aria-label="Hide debug HUD"
+            aria-pressed="false"
+          >DBG</button>
           <button
             class="hud__icon-button hud__icon-button--music"
             type="button"
@@ -160,7 +209,7 @@ function createShellMarkup(): string {
           </button>
           <span class="hud__badge hud__badge--weapon" data-weapon-label>${WEAPON_DEFINITIONS[0].label}</span>
           <span class="hud__badge hud__badge--ammo" data-weapon-ammo>-- / --</span>
-          <span class="hud__badge hud__badge--build">${__SIGILBREAKER_BUILD_ID__}</span>
+          <span class="hud__badge hud__badge--build" data-debug-ui>${__SIGILBREAKER_BUILD_ID__}</span>
         </div>
       </div>
       <div class="crosshair" aria-hidden="true"></div>
@@ -224,12 +273,25 @@ function updateDebugHud(root: HTMLElement, debug: DebugApi): void {
     '[data-debug-chunks]',
     `CH ${snapshot.level.streaming.activeChunks}/${snapshot.level.streaming.loadedChunks}`,
   );
+  setHudText(
+    root,
+    '[data-health-value]',
+    `${Math.round(snapshot.player.health.current)} / ${Math.round(snapshot.player.health.max)}`,
+  );
+  setHudWidth(root, '[data-health-fill]', `${Math.max(0, Math.min(1, snapshot.player.health.ratio)) * 100}%`);
 }
 
 function setHudText(root: HTMLElement, selector: string, text: string): void {
   const element = root.querySelector<HTMLElement>(selector);
   if (element) {
     element.textContent = text;
+  }
+}
+
+function setHudWidth(root: HTMLElement, selector: string, width: string): void {
+  const element = root.querySelector<HTMLElement>(selector);
+  if (element) {
+    element.style.width = width;
   }
 }
 

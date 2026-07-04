@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-04T16:13:24Z",
-  "summary": "Weapon and shot-feedback budget instrumentation is wired; entry and splitter widening add no assets, body collision resolution is nearby-tile scoped, pitch-corrected shot math is CPU-only, zoom prevention is event-only, hold-fire aim reuses existing weapon objects, steel foundation textures add three shared textures plus one roof draw, MVP browser smoke is faster, and visible FPS still needs production profiling.",
+  "updatedAt": "2026-07-04T18:53:00Z",
+  "summary": "Weapon and shot-feedback budget instrumentation is wired; entry and splitter widening add no assets, body collision resolution is nearby-tile scoped, pitch-corrected shot math is CPU-only, zoom prevention is event-only, hold-fire aim reuses existing weapon objects, steel foundation textures add three shared textures plus one roof draw, cube enemies share one primitive geometry, MVP browser smoke is faster, and visible FPS still needs production profiling.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -39,7 +39,12 @@
     "Browser smoke now asserts render calls, triangles, geometries, and textures against the debug budget object.",
     "The steel foundation texture pass uses three 1024 x 1024 PNG textures totaling 22445B source payload and about 12MB decoded RGBA estimate.",
     "The full-level roof adds one PlaneGeometry, one MeshBasicMaterial, and one draw call.",
-    "The heavy browser smoke project now restarts the app five times through the QA restart hook and rechecks loaded assets plus renderer budgets each time."
+    "The heavy browser smoke project now restarts the app five times through the QA restart hook and rechecks loaded assets plus renderer budgets each time.",
+    "Health and enemy state add CPU/gameplay objects only; the player health bar is DOM HUD.",
+    "The current three cube enemies share one BoxGeometry with three small MeshStandardMaterials.",
+    "Weapon damage reuses the existing shot cadence and adds an enemy raycast only while firing.",
+    "Latest npm run validate:browser passed after adding three cube enemies, health HUD, and debug toggle checks.",
+    "Latest production JS chunk reported by Vite is about 662.88 kB minified."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -56,7 +61,8 @@
     "Keep MVP smoke focused on one full interaction route plus all-viewport layout/boot checks until the game grows beyond prototype scope.",
     "Keep hold-fire pose and FOV math in scalar helpers and existing scene objects.",
     "Use renderer budget counters as the MVP gate until visible-device FPS profiling is repeated.",
-    "Keep the roof as one shared plane and keep floor, wall, and roof textures shared by material to avoid per-chunk texture duplication."
+    "Keep the roof as one shared plane and keep floor, wall, and roof textures shared by material to avoid per-chunk texture duplication.",
+    "Keep placeholder cube enemies as shared primitive geometry until external enemy assets require a source-ledger and streaming budget."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
@@ -78,7 +84,8 @@
     "Restore broader per-viewport interaction routes before beta/release gates or when a viewport-specific gameplay issue is suspected.",
     "Sustained held-fire profiling still needs a physical mobile device pass.",
     "Future profiling should compare visible FPS with the roof on/off if enclosure or texture fill-rate becomes a concern.",
-    "Memory-lifecycle QA should still add a deeper heap/GPU leak pass; the current restart smoke only watches debug renderer counters."
+    "Memory-lifecycle QA should still add a deeper heap/GPU leak pass; the current restart smoke only watches debug renderer counters.",
+    "External enemy assets can quickly exceed the current lightweight enemy budget if each enemy ships unique GLBs, textures, or animations."
   ],
   "blockers": [],
   "artifacts": [
@@ -88,7 +95,9 @@
     "src/game/debug.ts",
     "scripts/validate-assets.mjs",
     "e2e/foundation-smoke.spec.ts",
-    "src/game/mobileZoomGuard.ts"
+    "src/game/mobileZoomGuard.ts",
+    "src/game/health.ts",
+    "src/game/enemies/cubeEnemySystem.ts"
   ],
   "jsonForAgents": {
     "visibleFpsTarget": 60,
@@ -116,7 +125,7 @@
     "movementCollisionCost": "nearby solid-tile circle resolver while movement input is active",
     "weaponClearanceCost": "one weapon wall ray/probe for visual viewmodel avoidance",
     "shotEffectPoseCost": "shot-time and short-lived visible-effect camera-local vector/scalar math",
-    "productionJsChunkKb": 651.33,
+    "productionJsChunkKb": 662.88,
     "publicAssetCacheParam": "assetBuild",
     "browserSmokeCommand": "npm run validate:browser",
     "browserSmokeWorkers": 2,
@@ -132,6 +141,14 @@
     "foundationEnvironmentTextureSourceBytes": 22445,
     "foundationEnvironmentTextureDecodedBytesEstimate": 12582912,
     "foundationRoofCost": "one plane geometry, one mesh/material, one draw call",
+    "cubeEnemyCost": {
+      "count": 3,
+      "geometry": "one shared BoxGeometry",
+      "materials": 3,
+      "textures": 0,
+      "raycastTiming": "only while a weapon shot is traced"
+    },
+    "healthHudCost": "dom-only player health meter updated on the existing HUD cadence",
     "qaRestartLoop": {
       "iterations": 5,
       "project": "chromium-modern-phone-landscape",

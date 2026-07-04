@@ -79,3 +79,6 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Future profiling should measure sustained held fire on physical mobile hardware, not just one-shot smoke.
 - Future profiling should compare visible FPS with the roof on/off if enclosure or texture fill-rate becomes a concern.
 - Memory-lifecycle QA should still add a deeper heap/GPU leak pass; the current restart smoke only watches debug renderer counters.
+- Health and enemy state add CPU/gameplay objects only; the player health bar is DOM HUD, and the cube enemies share one BoxGeometry with three small materials.
+- Weapon damage now reuses the existing shot cadence and adds an enemy raycast only when firing; no per-shot geometry or material is created.
+- Latest `npm run validate:browser` passed after adding three cube enemies, health HUD, and debug toggle checks; the production JS chunk reported about 662.88 kB minified.

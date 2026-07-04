@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T18:24:54Z",
-  "summary": "Manual smoke remains green, and MVP-fast local Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, smoothed hold-fire aim/zoom, effect-pose alignment, pitch-corrected shot math, entry-splitter validation, movement collision, browser zoom guards, right-side control layout, steel foundation texture loading/rendering, ElevenLabs audio loading, music mute, the weapon cycle button, and phone-only animated portrait rotate prompt layout.",
+  "updatedAt": "2026-07-04T18:53:00Z",
+  "summary": "Manual smoke remains green, and MVP-fast local Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, smoothed hold-fire aim/zoom, effect-pose alignment, pitch-corrected shot math, entry-splitter validation, movement collision, browser zoom guards, right-side control layout, steel foundation texture loading/rendering, ElevenLabs audio loading, music mute, the weapon cycle button, phone-only animated portrait rotate prompt layout, player health HUD, debug HUD toggle, and cube enemy destruction.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -57,7 +57,10 @@
     "Latest screenshot artifacts live under artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/.",
     "CI smoke now uses a synthetic cancelable WheelEvent for the ctrl-wheel zoom guard because page.mouse.wheel was timing-sensitive under mobile emulation.",
     "The e2e per-test timeout is 240 seconds so the heavy modern-phone project has enough GitHub runner headroom.",
-    "GitHub Pages deploy CI is intentionally lightweight now; local validation is the testing gate before commit/push."
+    "GitHub Pages deploy CI is intentionally lightweight now; local validation is the testing gate before commit/push.",
+    "Browser smoke now verifies player health starts at 100/100 and the health meter stays visible after debug badges are hidden.",
+    "Browser smoke now verifies snapshot.ui.debugVisible toggles through the debug HUD button.",
+    "Browser smoke now verifies three cube enemies exist at boot and the full interaction project destroys the spawn-lane cube through normal hold-fire input."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -78,7 +81,8 @@
     "Keep portrait prompt smoke scoped to chromium-modern-phone-landscape until a specific portrait bug requires all-viewports coverage.",
     "Treat the single weapon cycle button as the MVP weapon switching contract.",
     "Keep rotate-prompt animation checks lightweight by reading the phone's computed animation name.",
-    "Use deterministic synthetic DOM events for zoom-guard assertions when browser chrome or input emulation is not the thing being tested."
+    "Use deterministic synthetic DOM events for zoom-guard assertions when browser chrome or input emulation is not the thing being tested.",
+    "Keep health HUD and cube destruction checks in browser smoke because they cover player-readable combat state and the weapon damage path."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
@@ -94,14 +98,16 @@
     "HTMLMediaElement MP3 fetches can emit net::ERR_ABORTED when the page closes after cycling/mute tests; the smoke filter is intentionally scoped to the ElevenLabs audio path only.",
     "GitHub Actions caught that page.mouse.wheel plus Control could wait too long under mobile emulation; direct WheelEvent dispatch now tests the same zoom-guard handler without depending on that input path.",
     "The old rotate arrow made the portrait prompt look noisy; smoke should keep checking that only the phone animation remains.",
-    "Timed flash screenshots are unreliable in headless capture, so per-weapon effect color is asserted through snapshot.weapon.effectStyle."
+    "Timed flash screenshots are unreliable in headless capture, so per-weapon effect color is asserted through snapshot.weapon.effectStyle.",
+    "Enemy destruction smoke should avoid asserting lastShot after release because extra cadence shots can advance the final shot snapshot past the enemy hit."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
     "FPS should be checked in production preview before heavier asset imports.",
     "Physical mobile Safari should still be used for final double-tap and pinch confidence because headless Chromium cannot fully emulate browser chrome.",
     "Held-fire visual framing for SPARK, BORE, and VAULT still needs screenshot QA on real mobile or deterministic debug poses.",
-    "Full-route coverage should be re-expanded per viewport before a larger release gate or when viewport-specific gameplay bugs appear."
+    "Full-route coverage should be re-expanded per viewport before a larger release gate or when viewport-specific gameplay bugs appear.",
+    "Future enemy replacement can pass the current smoke while still feeling poor if hit/death feedback is not screenshot-tested."
   ],
   "blockers": [],
   "artifacts": [
@@ -109,6 +115,8 @@
     "scripts/validate-assets.mjs",
     "e2e/foundation-smoke.spec.ts",
     "src/game/mobileZoomGuard.ts",
+    "src/game/health.ts",
+    "src/game/enemies/cubeEnemySystem.ts",
     "artifacts/sub-agents/20260704-weapon-framing/smoke-qa-agent",
     "artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent",
     "artifacts/sub-agents/20260704-weapon-effects-smoothing/smoke-qa-agent"
@@ -192,6 +200,10 @@
       "elevenLabsAudioChecked": true,
       "musicMuteChecked": true,
       "portraitRotatePromptChecked": true,
+      "playerHealthHudChecked": true,
+      "debugHudToggleChecked": true,
+      "cubeEnemyBootCountChecked": true,
+      "cubeEnemyDestructionChecked": true,
       "qaRestartLoopChecked": true,
       "rightSideControlFitChecked": true,
       "rendererBudgetChecked": true,
@@ -199,8 +211,17 @@
       "mvpFastViewportSplit": true,
       "visualViewportScaleAfterZoomGestures": 1,
       "assetLoadErrors": 0,
-      "latestDurationSeconds": 84,
+      "latestDurationSeconds": 112,
       "testTimeoutSeconds": 240
+    },
+    "latestHealthEnemySmoke": {
+      "playerHealth": {
+        "current": 100,
+        "max": 100
+      },
+      "debugToggleChecked": true,
+      "enemyCount": 3,
+      "destroyedByHoldFire": "enemy.cube.vanguard"
     },
     "requiredSmokeAssertions": [
       "appBoots",
@@ -223,7 +244,10 @@
       "musicMuteButtonToggles",
       "portraitRotatePromptVisible",
       "portraitRotatePromptAnimationActive",
-      "portraitRotatePromptArrowAbsent"
+      "portraitRotatePromptArrowAbsent",
+      "playerHealthHudVisible",
+      "debugHudToggleHidesDebugOnlyBadges",
+      "cubeEnemyDestroyedByHoldFire"
     ],
     "screenshotNames": [
       "boot-mobile-landscape.png",

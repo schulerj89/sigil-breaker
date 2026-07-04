@@ -119,9 +119,46 @@ canvas {
   letter-spacing: 0;
 }
 
-.hud__badge--hp {
-  border-color: rgb(74 222 128 / 0.55);
-  color: #9df2b6;
+.game-shell--debug-hidden [data-debug-ui] {
+  display: none;
+}
+
+.health-meter {
+  width: 152px;
+  height: 30px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgb(74 222 128 / 0.55);
+  background: rgb(13 16 18 / 0.62);
+  color: #d9ffe5;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.health-meter__label,
+.health-meter__value {
+  white-space: nowrap;
+}
+
+.health-meter__track {
+  position: relative;
+  height: 8px;
+  overflow: hidden;
+  border: 1px solid rgb(217 255 229 / 0.28);
+  background: rgb(6 12 10 / 0.86);
+}
+
+.health-meter__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100%;
+  background: linear-gradient(90deg, #22c55e, #baf7c8);
+  box-shadow: 0 0 12px rgb(34 197 94 / 0.38);
 }
 
 .hud__badge--ammo {
@@ -176,6 +213,12 @@ canvas {
 
 .hud__icon-button--music.hud__icon-button--muted {
   color: #ffb1a9;
+}
+
+.hud__icon-button--debug {
+  width: 38px;
+  font-size: 10px;
+  font-weight: 900;
 }
 
 .music-icon {

@@ -108,3 +108,6 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Reset-loop smoke now covers renderer debug counts, but full GPU/heap leak confidence still belongs to memory-lifecycle QA.
 - Future screenshot QA should capture the portrait rotate prompt and the held-fire muzzle flash for all three weapons once deterministic flash capture exists.
 - Future screenshot QA should capture the centered flash for SPARK, BORE, and VAULT once deterministic debug fire-frame controls exist.
+- Browser smoke now verifies player health is reported at 100/100, the health bar remains visible after hiding debug HUD badges, and `snapshot.ui.debugVisible` toggles.
+- Browser smoke now verifies three cube enemies exist at boot and the full interaction project destroys the spawn-lane cube through the normal hold-fire path.
+- `npm run validate:browser` passed all five landscape viewports after adding health, debug toggle, and cube enemy destruction checks.

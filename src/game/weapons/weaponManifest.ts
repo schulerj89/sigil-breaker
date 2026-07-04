@@ -10,6 +10,7 @@ export interface WeaponDefinition {
   modelBytes: number;
   modelSha256: string;
   magazineSize: number;
+  damage: number;
   fireIntervalMs: number;
   reloadMs: number;
   recoilKick: number;
@@ -62,6 +63,7 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
     modelBytes: 44_992,
     modelSha256: 'd6d6fe0ec5baf21d7717449220799d45b95d2d663ace7b22612b255dc1a8b308',
     magazineSize: 18,
+    damage: 34,
     fireIntervalMs: 155,
     reloadMs: 620,
     recoilKick: 0.035,
@@ -96,6 +98,7 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
     modelBytes: 28_380,
     modelSha256: 'f124a4ffd990a248e801aa451ab7ec4abde71a18c121b571f9bb52206609b36b',
     magazineSize: 8,
+    damage: 72,
     fireIntervalMs: 470,
     reloadMs: 880,
     recoilKick: 0.085,
@@ -130,6 +133,7 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
     modelBytes: 80_460,
     modelSha256: '2ffc94c6d8f12d45410012b13169988b70929c7e6ae7d4f868a188265210e49a',
     magazineSize: 12,
+    damage: 48,
     fireIntervalMs: 285,
     reloadMs: 760,
     recoilKick: 0.065,

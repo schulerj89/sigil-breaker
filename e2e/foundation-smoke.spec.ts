@@ -72,6 +72,10 @@ interface DebugSnapshot {
     };
     lastShot: {
       blockedByWall: boolean;
+      hitType: 'wall' | 'enemy' | null;
+      hitEnemyId: string | null;
+      damage: number;
+      destroyedEnemy: boolean;
       distanceUnits: number;
       tile: [number, number] | null;
     } | null;
@@ -84,6 +88,29 @@ interface DebugSnapshot {
       assetBytesLoaded: number;
     };
   };
+  player: {
+    health: {
+      current: number;
+      max: number;
+      ratio: number;
+      isAlive: boolean;
+    };
+  };
+  enemies: {
+    total: number;
+    alive: number;
+    destroyed: number;
+    enemies: Array<{
+      id: string;
+      position: [number, number, number];
+      health: {
+        current: number;
+        max: number;
+        ratio: number;
+        isAlive: boolean;
+      };
+    }>;
+  };
   controls: {
     viewportScale: number;
     preventedZoomGestures: number;
@@ -94,6 +121,9 @@ interface DebugSnapshot {
     lookActive: boolean;
     movePointerActive: boolean;
     moveVector: [number, number];
+  };
+  ui: {
+    debugVisible: boolean;
   };
   budgets: {
     drawCallsMax: number;
@@ -175,6 +205,27 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(debugSnapshot.weapon.isFireHeld).toBe(false);
   expect(debugSnapshot.weapon.aimBlend).toBe(0);
   expect(debugSnapshot.weapon.cameraFovDegrees).toBeCloseTo(70);
+  expect(debugSnapshot.player.health).toMatchObject({
+    current: 100,
+    max: 100,
+    ratio: 1,
+    isAlive: true,
+  });
+  expect(debugSnapshot.enemies).toMatchObject({
+    total: 3,
+    alive: 3,
+    destroyed: 0,
+  });
+  expect(debugSnapshot.enemies.enemies[0]).toMatchObject({
+    id: 'enemy.cube.vanguard',
+    health: {
+      current: 68,
+      max: 68,
+      ratio: 1,
+      isAlive: true,
+    },
+  });
+  expect(debugSnapshot.ui.debugVisible).toBe(true);
   expect(debugSnapshot.weapon.audio.loadedAssetIds).toEqual([
     'audio.music.foundation.elevenlabs',
     'audio.weapon.bore.elevenlabs',
@@ -188,8 +239,18 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
 
   const coordinateText = await page.locator('[data-debug-coordinates]').textContent();
   expect(coordinateText).toBe(formatCoordinates(debugSnapshot.scene.playerPosition));
+  await expect(page.locator('[data-health-meter]')).toBeVisible();
+  await expect(page.locator('[data-health-value]')).toHaveText('100 / 100');
+  await expect(page.locator('[data-health-fill]')).toHaveCSS('width', /.+px/);
   await expectHudToFit(page);
   await expectControlsToFit(page);
+  await page.locator('[data-debug-toggle]').click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).ui.debugVisible).toBe(false);
+  await expect(page.locator('[data-debug-fps]')).toBeHidden();
+  await expect(page.locator('[data-health-meter]')).toBeVisible();
+  await page.locator('[data-debug-toggle]').click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).ui.debugVisible).toBe(true);
+  await expect(page.locator('[data-debug-fps]')).toBeVisible();
   await expect(page.locator('[data-fire-button]')).not.toHaveText(/F/);
   await expect(page.locator('[data-fire-button] .reticle-icon')).toBeVisible();
   await expect(page.locator('[data-weapon-cycle-button] .gun-icon')).toBeVisible();
@@ -267,6 +328,8 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
 
   if (isFullInteractionProject) {
     expect(shotSnapshot.weapon.shotCount).toBeGreaterThan(preShotSnapshot.weapon.shotCount + 1);
+    expect(shotSnapshot.enemies.destroyed).toBeGreaterThan(preShotSnapshot.enemies.destroyed);
+    expect(shotSnapshot.enemies.alive).toBeLessThan(preShotSnapshot.enemies.alive);
     expect(shotSnapshot.weapon.aimBlend).toBeGreaterThan(0.75);
     expect(shotSnapshot.weapon.cameraFovDegrees).toBeLessThan(preShotSnapshot.weapon.cameraFovDegrees);
     expect(Math.abs(shotSnapshot.weapon.effectPose.muzzle[0])).toBeLessThan(0.16);

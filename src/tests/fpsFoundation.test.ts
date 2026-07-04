@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import * as THREE from 'three';
 import { DEBUG_SCENE_ID, MOBILE_VIEWPORTS, PERFORMANCE_BUDGETS } from '../game/config';
 import { FOUNDATION_MUSIC_ASSET, GAME_AUDIO_ASSETS, WEAPON_AUDIO_ASSETS } from '../game/audioManifest';
+import { CubeEnemySystem } from '../game/enemies/cubeEnemySystem';
 import {
   FOUNDATION_LEVEL_MAP,
   FOUNDATION_LEVEL_ID,
@@ -38,6 +40,7 @@ import {
   collidesWithWeaponFootprint,
   getWeaponCollisionCenter,
 } from '../game/fpsControls';
+import { Health } from '../game/health';
 import { getWeaponFootprintClearance } from '../game/weapons/weaponClearance';
 import {
   MIN_SHOT_TRACER_DISTANCE_UNITS,
@@ -195,6 +198,7 @@ describe('FPS foundation config', () => {
       expect(weapon.modelPath).toMatch(/^assets\/weapons\/kenney-blaster-kit\/models\/.+\.glb$/);
       expect(weapon.previewPath).toMatch(/^assets\/weapons\/kenney-blaster-kit\/previews\/.+\.png$/);
       expect(weapon.magazineSize).toBeGreaterThan(0);
+      expect(weapon.damage).toBeGreaterThan(0);
       expect(weapon.fireIntervalMs).toBeGreaterThan(100);
       expect(weapon.recoilKick).toBeGreaterThan(0);
       expect(weapon.rangeUnits).toBeGreaterThan(12);
@@ -214,6 +218,63 @@ describe('FPS foundation config', () => {
       expect(weapon.effects.flashMs).toBeGreaterThan(45);
       expect(weapon.effects.feedbackMs).toBeGreaterThan(75);
     }
+  });
+
+  it('provides reusable clamped health for players and enemies', () => {
+    const health = new Health(100);
+    const changes: string[] = [];
+    health.onChange((change) => changes.push(`${change.reason}:${change.current.current}`));
+
+    expect(health.getSnapshot()).toEqual({
+      current: 100,
+      max: 100,
+      ratio: 1,
+      isAlive: true,
+    });
+    expect(health.damage(35)).toMatchObject({ current: 65, ratio: 0.65, isAlive: true });
+    expect(health.heal(20)).toMatchObject({ current: 85, ratio: 0.85, isAlive: true });
+    expect(health.damage(200)).toMatchObject({ current: 0, ratio: 0, isAlive: false });
+    expect(health.heal(10)).toMatchObject({ current: 0, ratio: 0, isAlive: false });
+    expect(health.reset()).toMatchObject({ current: 100, ratio: 1, isAlive: true });
+    expect(changes).toEqual(['damage:65', 'heal:85', 'damage:0', 'reset:100']);
+  });
+
+  it('lets weapon rays damage and destroy cube enemies before a wall hit', () => {
+    const scene = new THREE.Scene();
+    const enemies = new CubeEnemySystem(scene);
+    const origin = new THREE.Vector3(-21, 1.62, -21);
+    const direction = new THREE.Vector3(1, 0, 0);
+
+    const firstHit = enemies.resolveShotHit(origin, direction, 12, 34);
+    expect(firstHit).toMatchObject({
+      enemyId: 'enemy.cube.vanguard',
+      destroyed: false,
+      health: {
+        current: 34,
+        max: 68,
+        ratio: 0.5,
+        isAlive: true,
+      },
+    });
+
+    const secondHit = enemies.resolveShotHit(origin, direction, 12, 34);
+    expect(secondHit).toMatchObject({
+      enemyId: 'enemy.cube.vanguard',
+      destroyed: true,
+      health: {
+        current: 0,
+        max: 68,
+        ratio: 0,
+        isAlive: false,
+      },
+    });
+    expect(enemies.getSnapshot()).toMatchObject({
+      total: 3,
+      alive: 2,
+      destroyed: 1,
+    });
+
+    enemies.dispose();
   });
 
   it('registers generated ElevenLabs audio for the foundation level', () => {

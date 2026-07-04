@@ -2,6 +2,8 @@ import type { WebGLRenderer } from 'three';
 import { DEBUG_SCENE_ID, PERFORMANCE_BUDGETS, type CameraMode } from './config';
 import { FOUNDATION_ENVIRONMENT_TEXTURE_DECODED_BYTES } from './foundationLevelRuntime';
 import type { FpsControllerSnapshot } from './fpsControls';
+import type { CubeEnemySystemSnapshot } from './enemies/cubeEnemySystem';
+import type { HealthSnapshot } from './health';
 import {
   FOUNDATION_LEVEL_MAP,
   FOUNDATION_LEVEL_ID,
@@ -58,6 +60,10 @@ export interface DebugSnapshot {
   };
   assetLoadErrors: string[];
   weapon: WeaponSystemSnapshot;
+  player: {
+    health: HealthSnapshot;
+  };
+  enemies: CubeEnemySystemSnapshot;
   controls: {
     orientationLock: 'landscape';
     primaryInput: 'touch';
@@ -75,6 +81,9 @@ export interface DebugSnapshot {
     keyboardVector: [number, number];
     buttons: string[];
   };
+  ui: {
+    debugVisible: boolean;
+  };
   budgets: typeof PERFORMANCE_BUDGETS;
 }
 
@@ -88,7 +97,10 @@ export function createDebugApi(
   getControllerSnapshot: () => FpsControllerSnapshot,
   getLevelStreamingSnapshot: () => LevelStreamingSnapshot,
   getWeaponSnapshot: () => WeaponSystemSnapshot,
+  getPlayerHealthSnapshot: () => HealthSnapshot,
+  getEnemySnapshot: () => CubeEnemySystemSnapshot,
   getZoomGuardSnapshot: () => MobileZoomGuardSnapshot,
+  getUiSnapshot: () => { debugVisible: boolean },
 ): DebugApi {
   return {
     getSnapshot: () => {
@@ -97,7 +109,10 @@ export function createDebugApi(
       const controllerSnapshot = getControllerSnapshot();
       const levelStreamingSnapshot = getLevelStreamingSnapshot();
       const weaponSnapshot = getWeaponSnapshot();
+      const playerHealthSnapshot = getPlayerHealthSnapshot();
+      const enemySnapshot = getEnemySnapshot();
       const zoomGuardSnapshot = getZoomGuardSnapshot();
+      const uiSnapshot = getUiSnapshot();
       const loadedAssetIds = [...levelStreamingSnapshot.loadedTextureAssetIds, ...weaponSnapshot.loadedAssetIds].sort();
       const assetLoadErrors = [...levelStreamingSnapshot.assetLoadErrors, ...weaponSnapshot.assetLoadErrors];
 
@@ -146,6 +161,10 @@ export function createDebugApi(
         },
         assetLoadErrors,
         weapon: weaponSnapshot,
+        player: {
+          health: playerHealthSnapshot,
+        },
+        enemies: enemySnapshot,
         controls: {
           orientationLock: 'landscape',
           primaryInput: 'touch',
@@ -161,8 +180,9 @@ export function createDebugApi(
           movePointerActive: controllerSnapshot.controls.movePointerActive,
           moveVector: controllerSnapshot.controls.moveVector,
           keyboardVector: controllerSnapshot.controls.keyboardVector,
-          buttons: ['hold-fire-aim', 'weapon-cycle', 'music-toggle'],
+          buttons: ['hold-fire-aim', 'weapon-cycle', 'music-toggle', 'debug-toggle'],
         },
+        ui: uiSnapshot,
         budgets: PERFORMANCE_BUDGETS,
       };
     },

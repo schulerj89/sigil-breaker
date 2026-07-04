@@ -30,6 +30,10 @@ const AIM_OUT_RESPONSE = 6;
 export interface WeaponShotSnapshot {
   sequence: number;
   blockedByWall: boolean;
+  hitType: 'wall' | 'enemy' | null;
+  hitEnemyId: string | null;
+  damage: number;
+  destroyedEnemy: boolean;
   distanceUnits: number;
   tile: [number, number] | null;
 }
@@ -62,6 +66,23 @@ export interface WeaponSystemSnapshot {
 interface LoadedWeapon {
   definition: WeaponDefinition;
   object: THREE.Object3D;
+}
+
+export interface WeaponTargetHitRequest {
+  origin: THREE.Vector3;
+  direction: THREE.Vector3;
+  maxDistance: number;
+  damage: number;
+}
+
+export interface WeaponTargetHitResult {
+  enemyId: string;
+  distanceUnits: number;
+  destroyed: boolean;
+}
+
+export interface WeaponSystemOptions {
+  resolveTargetHit?: (request: WeaponTargetHitRequest) => WeaponTargetHitResult | null;
 }
 
 export class WeaponSystem {
@@ -100,6 +121,7 @@ export class WeaponSystem {
   constructor(
     private readonly root: HTMLElement,
     private readonly camera: THREE.PerspectiveCamera,
+    private readonly options: WeaponSystemOptions = {},
   ) {
     this.baseCameraFov = camera.fov;
     this.aimCameraFov = Math.max(MIN_AIM_FOV_DEGREES, this.baseCameraFov - AIM_FOV_OFFSET_DEGREES);
@@ -331,17 +353,29 @@ export class WeaponSystem {
           maxHorizontalDistance,
         )
       : null;
-    const distance = hit
+    const wallDistance = hit
       ? Math.max(
           MIN_BLOCKED_SHOT_DISTANCE_UNITS,
           getCameraSpaceShotDistance(hit.distance, horizontalDirectionLength),
         )
       : this.activeWeapon.rangeUnits;
+    const enemyHit =
+      this.options.resolveTargetHit?.({
+        origin: this.camera.position.clone(),
+        direction: direction.clone(),
+        maxDistance: wallDistance,
+        damage: this.activeWeapon.damage,
+      }) ?? null;
+    const distance = enemyHit?.distanceUnits ?? wallDistance;
     this.lastShot = {
       sequence: this.shotCount,
-      blockedByWall: Boolean(hit),
+      blockedByWall: Boolean(hit && !enemyHit),
+      hitType: enemyHit ? 'enemy' : hit ? 'wall' : null,
+      hitEnemyId: enemyHit?.enemyId ?? null,
+      damage: enemyHit ? this.activeWeapon.damage : 0,
+      destroyedEnemy: enemyHit?.destroyed ?? false,
       distanceUnits: roundMetric(distance),
-      tile: hit?.tile ? [hit.tile.column, hit.tile.row] : null,
+      tile: hit && !enemyHit && hit.tile ? [hit.tile.column, hit.tile.row] : null,
     };
     this.shotFeedbackDistance = distance;
     this.shotFeedbackUntil = now + this.activeWeapon.effects.feedbackMs;
