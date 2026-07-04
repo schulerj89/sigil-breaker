@@ -31,7 +31,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Hold-fire aim adds one camera FOV blend, one viewmodel pose blend, and cadence-gated shooting while held.
 - The reticle icon is a CSS-only DOM control and adds no WebGL resources; the extra gun-cycle icon button was removed.
 - Latest production JS chunk is about 651.34 kB minified and still triggers the known Vite large chunk warning.
-- Latest `npm run validate:browser` passed all five landscape viewports in 41.9 seconds with two workers and the QA restart loop.
+- Latest `npm run validate:browser` passed all five landscape viewports in 40.5 seconds with two workers and the QA restart loop.
 - Browser smoke now asserts render calls, triangles, geometries, and textures against the debug budget object.
 - The foundation texture pass adds three 1024 x 1024 PNG textures totaling 16588B source payload and about 12MB decoded RGBA estimate.
 - The full-level roof adds one PlaneGeometry, one MeshBasicMaterial, and one draw call.

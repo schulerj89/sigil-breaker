@@ -36,6 +36,7 @@
     "Browser smoke now holds fire long enough to verify multiple shots, ammo reduction, isFireHeld, positive aimBlend, and reduced cameraFovDegrees.",
     "Browser smoke now waits for debug shot count cadence before releasing hold-fire, instead of relying on a fixed short hold duration.",
     "Browser smoke verifies release cleanup by checking isFireHeld clears and shotCount stops increasing after release.",
+    "All viewports still prove the fire control produces a shot; multi-shot cadence, FOV/aim blend, and effect-pose detail checks stay scoped to chromium-modern-phone-landscape.",
     "Browser smoke checks the fire button has no F text, the reticle icon is visible, the removed gun-cycle selector is absent, controls fit the viewport, touch targets are at least 44 px, and fire/stick controls do not overlap.",
     "Browser smoke now expects three environment texture asset IDs and verifies their assetBuild URLs.",
     "Browser smoke now waits for renderer texture count before validating the initial frame so colored foundation textures are uploaded, not just downloaded.",
@@ -147,6 +148,7 @@
       "browserZoomGuardChecked": true,
       "simultaneousMoveAimFireChecked": true,
       "holdFireAimChecked": true,
+      "holdFireAimFullViewportOnly": true,
       "holdFireReleaseChecked": true,
       "weaponCycleButtonRemovedChecked": true,
       "foundationEnvironmentTexturesChecked": true,
@@ -158,7 +160,7 @@
       "mvpFastViewportSplit": true,
       "visualViewportScaleAfterZoomGestures": 1,
       "assetLoadErrors": 0,
-      "latestDurationSeconds": 41.9
+      "latestDurationSeconds": 40.5
     },
     "requiredSmokeAssertions": [
       "appBoots",

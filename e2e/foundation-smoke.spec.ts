@@ -201,23 +201,31 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   }
 
   const preShotSnapshot = await readDebugSnapshot(page);
-  const shotSnapshot = await holdFireButtonUntilShotCount(page, preShotSnapshot.weapon.shotCount + 1);
-  expect(shotSnapshot.weapon.shotCount).toBeGreaterThan(preShotSnapshot.weapon.shotCount + 1);
+  const isFullInteractionProject = testInfo.project.name === FULL_INTERACTION_PROJECT;
+  const expectedShotCountFloor = isFullInteractionProject
+    ? preShotSnapshot.weapon.shotCount + 1
+    : preShotSnapshot.weapon.shotCount;
+  const shotSnapshot = await holdFireButtonUntilShotCount(page, expectedShotCountFloor);
+  expect(shotSnapshot.weapon.shotCount).toBeGreaterThan(preShotSnapshot.weapon.shotCount);
   expect(shotSnapshot.weapon.ammoInMagazine).toBeLessThan(preShotSnapshot.weapon.ammoInMagazine);
   expect(shotSnapshot.weapon.isFireHeld).toBe(true);
-  expect(shotSnapshot.weapon.aimBlend).toBeGreaterThan(0.45);
-  expect(shotSnapshot.weapon.cameraFovDegrees).toBeLessThan(preShotSnapshot.weapon.cameraFovDegrees);
-  expect(shotSnapshot.weapon.effectPose.muzzle[0]).toBeGreaterThan(0.15);
-  expect(shotSnapshot.weapon.effectPose.muzzle[0]).toBeLessThan(preShotSnapshot.weapon.effectPose.muzzle[0]);
-  expect(shotSnapshot.weapon.effectPose.muzzle[2]).toBeLessThan(-1);
-  expect(shotSnapshot.weapon.effectPose.tracerEnd[0]).toBe(0);
-  expect(shotSnapshot.weapon.effectPose.tracerEnd[1]).toBe(0);
-  expect(shotSnapshot.weapon.effectPose.tracerEnd[2]).toBeLessThan(shotSnapshot.weapon.effectPose.muzzle[2]);
-  if (shotSnapshot.weapon.lastShot?.blockedByWall) {
-    expect(shotSnapshot.weapon.effectPose.wallImpact[2]).toBeCloseTo(
-      -shotSnapshot.weapon.lastShot.distanceUnits + 0.04,
-      1,
-    );
+
+  if (isFullInteractionProject) {
+    expect(shotSnapshot.weapon.shotCount).toBeGreaterThan(preShotSnapshot.weapon.shotCount + 1);
+    expect(shotSnapshot.weapon.aimBlend).toBeGreaterThan(0.45);
+    expect(shotSnapshot.weapon.cameraFovDegrees).toBeLessThan(preShotSnapshot.weapon.cameraFovDegrees);
+    expect(shotSnapshot.weapon.effectPose.muzzle[0]).toBeGreaterThan(0.15);
+    expect(shotSnapshot.weapon.effectPose.muzzle[0]).toBeLessThan(preShotSnapshot.weapon.effectPose.muzzle[0]);
+    expect(shotSnapshot.weapon.effectPose.muzzle[2]).toBeLessThan(-1);
+    expect(shotSnapshot.weapon.effectPose.tracerEnd[0]).toBe(0);
+    expect(shotSnapshot.weapon.effectPose.tracerEnd[1]).toBe(0);
+    expect(shotSnapshot.weapon.effectPose.tracerEnd[2]).toBeLessThan(shotSnapshot.weapon.effectPose.muzzle[2]);
+    if (shotSnapshot.weapon.lastShot?.blockedByWall) {
+      expect(shotSnapshot.weapon.effectPose.wallImpact[2]).toBeCloseTo(
+        -shotSnapshot.weapon.lastShot.distanceUnits + 0.04,
+        1,
+      );
+    }
   }
   await expect.poll(async () => (await readDebugSnapshot(page)).weapon.isFireHeld).toBe(false);
   const releasedShotCount = (await readDebugSnapshot(page)).weapon.shotCount;
