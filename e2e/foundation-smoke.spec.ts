@@ -201,7 +201,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   }
 
   const preShotSnapshot = await readDebugSnapshot(page);
-  const shotSnapshot = await holdFireButton(page, 380);
+  const shotSnapshot = await holdFireButtonUntilShotCount(page, preShotSnapshot.weapon.shotCount + 1);
   expect(shotSnapshot.weapon.shotCount).toBeGreaterThan(preShotSnapshot.weapon.shotCount + 1);
   expect(shotSnapshot.weapon.ammoInMagazine).toBeLessThan(preShotSnapshot.weapon.ammoInMagazine);
   expect(shotSnapshot.weapon.isFireHeld).toBe(true);
@@ -325,7 +325,7 @@ async function waitForSceneAssets(page: Page): Promise<void> {
   });
 }
 
-async function holdFireButton(page: Page, durationMs: number): Promise<DebugSnapshot> {
+async function holdFireButtonUntilShotCount(page: Page, expectedShotCountFloor: number): Promise<DebugSnapshot> {
   const point = await readElementCenter(page, '[data-fire-button]');
   const client = await page.context().newCDPSession(page);
   let snapshot: DebugSnapshot | null = null;
@@ -335,7 +335,15 @@ async function holdFireButton(page: Page, durationMs: number): Promise<DebugSnap
       type: 'touchStart',
       touchPoints: [{ x: point.x, y: point.y, radiusX: 5, radiusY: 5, id: 31 }],
     });
-    await page.waitForTimeout(durationMs);
+    await expect
+      .poll(
+        async () => {
+          snapshot = await readDebugSnapshot(page);
+          return snapshot.weapon.shotCount;
+        },
+        { timeout: 1500, intervals: [50, 80, 100] },
+      )
+      .toBeGreaterThan(expectedShotCountFloor);
     snapshot = await readDebugSnapshot(page);
   } finally {
     await client.send('Input.dispatchTouchEvent', {

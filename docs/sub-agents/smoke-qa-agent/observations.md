@@ -32,6 +32,7 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Local `npm run test:e2e` measured about 19 seconds after the MVP split and two-worker Playwright config.
 - Latest `npm run validate:browser` passed all five landscape viewports after taller walls, larger guns, hold-fire aim zoom, and reticle fire icon changes.
 - Browser smoke now holds the fire button long enough to verify multiple shots, ammo reduction, `weapon.isFireHeld`, positive `weapon.aimBlend`, and reduced `weapon.cameraFovDegrees`.
+- Browser smoke now waits for the debug shot count to prove held-fire cadence before releasing, instead of relying on a fixed short hold duration.
 - Browser smoke verifies hold release stops further shots and clears `weapon.isFireHeld`.
 - Browser smoke checks the fire button has no `F` text, the reticle icon is visible, the removed gun-cycle selector is absent, touch controls fit the viewport, touch targets are at least 44 px, and fire/stick controls do not overlap.
 - Browser smoke now expects three environment texture asset IDs, verifies the Kenney environment texture URLs are cache-busted, and includes level texture load errors in the top-level asset error check.
