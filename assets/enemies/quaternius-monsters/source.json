@@ -1,0 +1,44 @@
+{
+  "sourceId": "quaternius.ultimate-monsters.poly-pizza",
+  "name": "Ultimate Monsters Bundle",
+  "author": "Quaternius",
+  "sourceUrl": "https://poly.pizza/bundle/Ultimate-Monsters-Bundle-5oyGWAmOB6",
+  "license": "Creative Commons Zero, CC0",
+  "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "licenseFile": "public/assets/enemies/quaternius-monsters/LICENSE.txt",
+  "attributionRequired": false,
+  "commercialUseAllowed": true,
+  "redistributionAllowed": true,
+  "models": [
+    {
+      "id": "enemy.monster.mushnub",
+      "name": "Mushnub",
+      "sourceUrl": "https://poly.pizza/m/LWKmS30Xxl",
+      "modelPath": "public/assets/enemies/quaternius-monsters/models/mushnub.glb",
+      "previewPath": "public/assets/enemies/quaternius-monsters/mushnub.webp",
+      "bytes": 67900,
+      "sha256": "04614a9d0db2a00d17cd85f4ef9c54e19cd3692530c0724b46809aa928e161e9",
+      "previewSha256": "0382043abc4f954443bd110145a447636d8747caaf145778d1d1aed8d6ab2480"
+    },
+    {
+      "id": "enemy.monster.pink-slime",
+      "name": "Pink Slime",
+      "sourceUrl": "https://poly.pizza/m/AyP8sQmDLh",
+      "modelPath": "public/assets/enemies/quaternius-monsters/models/pink-slime.glb",
+      "previewPath": "public/assets/enemies/quaternius-monsters/pink-slime.webp",
+      "bytes": 62652,
+      "sha256": "34bb111a7931bb957f992e127d71fac321aaeea1bdcc7da56fa5aba55c83d783",
+      "previewSha256": "7799af9c3dc87466d578faa2e1002675bcd35eb342955ba3b9b260188cb0e917"
+    },
+    {
+      "id": "enemy.monster.goleling",
+      "name": "Goleling",
+      "sourceUrl": "https://poly.pizza/m/71gomWolax",
+      "modelPath": "public/assets/enemies/quaternius-monsters/models/goleling.glb",
+      "previewPath": "public/assets/enemies/quaternius-monsters/goleling.webp",
+      "bytes": 217332,
+      "sha256": "fe6b5a04aef77aa9b38afee216802823b543d2409674bc86bd8bd152cb8cebce",
+      "previewSha256": "fd55cc151d254686cc916ce1ae8701b08caee19d2b9f8fbdb6f414a5478b8bab"
+    }
+  ]
+}
