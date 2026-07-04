@@ -2,6 +2,8 @@ import { expect, test, type Page } from '@playwright/test';
 
 test.setTimeout(120_000);
 
+const FULL_INTERACTION_PROJECT = 'chromium-modern-phone-landscape';
+
 interface DebugSnapshot {
   buildId: string;
   scene: {
@@ -61,7 +63,7 @@ interface DebugSnapshot {
   };
 }
 
-test('mobile landscape foundation exposes QA metrics and cache-busted weapon assets', async ({ page }) => {
+test('mobile landscape foundation exposes QA metrics and cache-busted weapon assets', async ({ page }, testInfo) => {
   const consoleErrors: string[] = [];
   const failedRequests: string[] = [];
 
@@ -149,25 +151,6 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     expect(new URL(url).searchParams.get('assetBuild')).toBe(debugSnapshot.buildId);
   }
 
-  await page.locator('.game-canvas').click({ position: { x: 12, y: 12 } });
-  await driveUntil(page, 'KeyA', (routeSnapshot) => routeSnapshot.scene.playerPosition[2] < -21.15, 2500);
-  const wallPushStart = await readDebugSnapshot(page);
-  await page.keyboard.down('KeyA');
-  await page.waitForTimeout(350);
-  await page.keyboard.up('KeyA');
-  const wallPushEnd = await readDebugSnapshot(page);
-  expectPlayerFootprintClear(wallPushEnd);
-  expect(wallPushEnd.scene.playerPosition[2]).toBeLessThan(-21.1);
-  expect(wallPushEnd.scene.playerPosition[2]).toBeGreaterThanOrEqual(wallPushStart.scene.playerPosition[2] - 0.05);
-
-  await driveUntil(page, 'KeyD', (routeSnapshot) => routeSnapshot.scene.playerPosition[2] > -20.6, 2500);
-  await driveUntil(page, 'KeyW', (routeSnapshot) => routeSnapshot.scene.playerPosition[0] > -19.8, 3000);
-  const routeSnapshot = await readDebugSnapshot(page);
-  expectPlayerFootprintClear(routeSnapshot);
-  expect(routeSnapshot.scene.playerPosition[0]).toBeGreaterThan(-19.8);
-  expect(routeSnapshot.scene.playerPosition[2]).toBeGreaterThan(-20.6);
-  await verifyZoomGesturesAreBlocked(page);
-
   const preShotSnapshot = await readDebugSnapshot(page);
   await page.locator('[data-fire-button]').click();
   await expect
@@ -188,6 +171,31 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
       1,
     );
   }
+
+  if (testInfo.project.name !== FULL_INTERACTION_PROJECT) {
+    expect(consoleErrors).toEqual([]);
+    expect(failedRequests).toEqual([]);
+    return;
+  }
+
+  await page.locator('.game-canvas').click({ position: { x: 12, y: 12 } });
+  await driveUntil(page, 'KeyA', (routeSnapshot) => routeSnapshot.scene.playerPosition[2] < -21.15, 2500);
+  const wallPushStart = await readDebugSnapshot(page);
+  await page.keyboard.down('KeyA');
+  await page.waitForTimeout(350);
+  await page.keyboard.up('KeyA');
+  const wallPushEnd = await readDebugSnapshot(page);
+  expectPlayerFootprintClear(wallPushEnd);
+  expect(wallPushEnd.scene.playerPosition[2]).toBeLessThan(-21.1);
+  expect(wallPushEnd.scene.playerPosition[2]).toBeGreaterThanOrEqual(wallPushStart.scene.playerPosition[2] - 0.05);
+
+  await driveUntil(page, 'KeyD', (routeSnapshot) => routeSnapshot.scene.playerPosition[2] > -20.6, 2500);
+  await driveUntil(page, 'KeyW', (routeSnapshot) => routeSnapshot.scene.playerPosition[0] > -19.8, 3000);
+  const routeSnapshot = await readDebugSnapshot(page);
+  expectPlayerFootprintClear(routeSnapshot);
+  expect(routeSnapshot.scene.playerPosition[0]).toBeGreaterThan(-19.8);
+  expect(routeSnapshot.scene.playerPosition[2]).toBeGreaterThan(-20.6);
+  await verifyZoomGesturesAreBlocked(page);
 
   expect(consoleErrors).toEqual([]);
   expect(failedRequests).toEqual([]);

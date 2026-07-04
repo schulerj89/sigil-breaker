@@ -1,6 +1,6 @@
 # Observations: performance-budget-agent
 
-Status: needs review after input/collision/effect-pose/entry-splitter, body-collision resolver, pitch shot math, zoom guard, and browser-smoke pass.
+Status: needs review after input/collision/effect-pose/entry-splitter, body-collision resolver, pitch shot math, zoom guard, and MVP browser-smoke pass.
 
 ## What It Saw
 
@@ -24,6 +24,8 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Pitch-corrected shot math adds CPU-only scalar conversion between flat X/Z wall raycast distance and camera-space tracer distance.
 - Latest production-preview Playwright smoke passed all five landscape viewports after per-weapon muzzle and pitch-distance changes.
 - The mobile zoom guard adds non-passive event listeners and debug counters only; it adds no scene objects, textures, geometries, or per-frame render work.
+- Browser smoke now uses two Playwright workers and limits full movement/gesture interaction coverage to `chromium-modern-phone-landscape`; all five viewports still run boot, HUD, asset, canvas, cache, viewport-scale, and one-shot checks.
+- Local `npm run test:e2e` measured about 19 seconds after the MVP split.
 
 ## Decisions
 
@@ -35,6 +37,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Keep the tile-based body resolver and weapon wall-avoidance probes while the level is grid-backed; revisit if collision becomes per-mesh.
 - Keep the shared shot-effect pose helper; it avoids extra scene objects and keeps placement math unit-testable.
 - Keep zoom prevention out of the animation loop; smoke should verify counters through the existing debug snapshot.
+- Keep MVP smoke focused on one full interaction route plus all-viewport layout/boot checks until the game grows beyond prototype scope.
 
 ## Caught Issues
 
@@ -45,6 +48,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - The build still emits Vite's large chunk warning around the Three.js bundle.
 - The build JS chunk increased slightly after adding the shared weapon clearance module and wall-avoidance debug field.
 - The production JS chunk is now about 644.59 kB minified after adding the pitch-distance helper.
+- The earlier all-viewport full interaction smoke repeated the same route and gesture work five times, which was disproportionate for MVP CI.
 
 ## Next Handoff Notes
 
@@ -56,3 +60,4 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Future performance profiling should measure repeated firing with effect-pose updates visible, although the current helper is lightweight.
 - Entry-splitter validation is build/test-time only and should not affect runtime frame budget.
 - Future mobile profiling should check that pinch/double-tap guard listeners do not interfere with simultaneous move/look/fire pointer throughput.
+- Restore broader per-viewport interaction routes before beta/release gates or when a viewport-specific gameplay issue is suspected.

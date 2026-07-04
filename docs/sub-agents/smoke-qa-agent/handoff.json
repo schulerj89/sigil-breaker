@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T13:15:00Z",
-  "summary": "Manual smoke remains green, and Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, one-shot firing, effect-pose alignment, pitch-corrected shot math, entry-splitter validation, movement collision, and browser zoom guards.",
+  "updatedAt": "2026-07-04T14:25:00Z",
+  "summary": "Manual smoke remains green, and MVP-fast Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, one-shot firing, effect-pose alignment, pitch-corrected shot math, entry-splitter validation, movement collision, and browser zoom guards.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -29,7 +29,9 @@
     "Captured SPARK, BORE, and VAULT level/fire screenshots plus SPARK pitch-up/pitch-down firing screenshots under artifacts/sub-agents/20260704-weapon-framing/smoke-qa-agent.",
     "Browser smoke now simulates a full-canvas double tap, a two-finger pinch gesture, WebKit-style gesture events, and a ctrl-wheel zoom gesture, then asserts visualViewport.scale stays at 1.",
     "The debug API reports zoom-guard counters for double taps, multi-touch starts/movement, WebKit gestures, and wheel zoom.",
-    "Browser smoke holds move/look touches while firing to check that active pointer ownership remains stable."
+    "Browser smoke holds move/look touches while firing to check that active pointer ownership remains stable.",
+    "MVP browser smoke still boots all five required landscape viewports, but only chromium-modern-phone-landscape runs the heavier movement route and active zoom/multitouch gesture checks.",
+    "Local npm run test:e2e measured about 19 seconds after the MVP split and two-worker Playwright config."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -42,7 +44,8 @@
     "Add deterministic close-wall pose/input coverage for snapshot.weapon.wallAvoidance in a later smoke slice.",
     "Add weapon switching and fast-fire/no-zoom assertions in a later smoke slice.",
     "Use snapshot.weapon.effectPose as the automated tracer alignment signal because the primitive tracer is brief in screenshots.",
-    "Keep an initial viewport-scale assertion before movement-route smoke, then run active gesture smoke after deterministic movement so look-zone drags cannot rotate the route setup."
+    "Keep an initial viewport-scale assertion before movement-route smoke, then run active gesture smoke after deterministic movement so look-zone drags cannot rotate the route setup.",
+    "Use two Playwright workers for MVP browser smoke while keeping the heavier route on one viewport to avoid repeating the same WebGL interaction path five times."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
@@ -51,12 +54,14 @@
     "Headless Chromium can emit empty Three shader validation messages after multiple WebGL contexts; the smoke filters only that known empty-log validation noise.",
     "Close-wall viewmodel retraction is currently unit/debug-state visible but not yet asserted by Playwright look interaction.",
     "Pitch-up and pitch-down screenshot QA currently uses pointer-drag approximation because deterministic debug look poses do not exist yet.",
-    "Previous double-tap smoke covered repeated fire/UI controls but not the full look surface or pinch gestures."
+    "Previous double-tap smoke covered repeated fire/UI controls but not the full look surface or pinch gestures.",
+    "Repeating full movement/gesture smoke across all five viewports made the Pages workflow slow for MVP-level coverage."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
     "FPS should be checked in production preview before heavier asset imports.",
-    "Physical mobile Safari should still be used for final double-tap and pinch confidence because headless Chromium cannot fully emulate browser chrome."
+    "Physical mobile Safari should still be used for final double-tap and pinch confidence because headless Chromium cannot fully emulate browser chrome.",
+    "Full-route coverage should be re-expanded per viewport before a larger release gate or when viewport-specific gameplay bugs appear."
   ],
   "blockers": [],
   "artifacts": [
@@ -100,6 +105,7 @@
     },
     "latestPlaywrightSmoke": {
       "command": "npm run validate:browser",
+      "workers": 2,
       "viewports": [
         "667x375",
         "740x360",
@@ -123,6 +129,8 @@
       "pitchCorrectedShotMathChecked": true,
       "browserZoomGuardChecked": true,
       "simultaneousMoveAimFireChecked": true,
+      "fullInteractionProject": "chromium-modern-phone-landscape",
+      "mvpFastViewportSplit": true,
       "visualViewportScaleAfterZoomGestures": 1,
       "assetLoadErrors": 0
     },

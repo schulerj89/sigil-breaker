@@ -1,8 +1,14 @@
 import { defineConfig } from '@playwright/test';
 
+const env = readEnvironment();
+const isCi = env.CI === 'true';
+const configuredWorkers = Number.parseInt(env.PLAYWRIGHT_WORKERS ?? '2', 10);
+const workerCount = Number.isFinite(configuredWorkers) && configuredWorkers > 0 ? configuredWorkers : 2;
+const keepHeavyArtifacts = env.PLAYWRIGHT_HEAVY_ARTIFACTS === '1';
+
 export default defineConfig({
   testDir: './e2e',
-  workers: 1,
+  workers: workerCount,
   timeout: 30_000,
   expect: {
     timeout: 10_000,
@@ -10,9 +16,9 @@ export default defineConfig({
   reporter: 'list',
   use: {
     baseURL: 'http://127.0.0.1:4173',
-    trace: 'retain-on-failure',
+    trace: isCi && !keepHeavyArtifacts ? 'off' : 'retain-on-failure',
     screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    video: keepHeavyArtifacts ? 'retain-on-failure' : 'off',
   },
   webServer: {
     command: 'npm run preview:pages',
@@ -42,3 +48,13 @@ export default defineConfig({
     })),
   ],
 });
+
+function readEnvironment(): Record<string, string | undefined> {
+  const globalWithProcess = globalThis as typeof globalThis & {
+    process?: {
+      env?: Record<string, string | undefined>;
+    };
+  };
+
+  return globalWithProcess.process?.env ?? {};
+}

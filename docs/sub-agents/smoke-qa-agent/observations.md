@@ -1,6 +1,6 @@
 # Observations: smoke-qa-agent
 
-Status: complete for input/collision/layout plus coordinate/cache/effect-pose, pitch-corrected tracer math, entry-splitter, movement-route, and browser zoom-guard smoke.
+Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effect-pose, pitch-corrected tracer math, entry-splitter, movement-route, and browser zoom-guard smoke.
 
 ## What It Saw
 
@@ -28,6 +28,8 @@ Status: complete for input/collision/layout plus coordinate/cache/effect-pose, p
 - Latest `npm run validate:browser` passed all five landscape viewports after per-weapon muzzle and pitch-distance changes.
 - Browser smoke now checks `visualViewport.scale`, simulates a full-canvas double tap, simulates a two-finger pinch with CDP touch events, dispatches WebKit-style gesture events, and sends a ctrl-wheel zoom gesture.
 - The smoke gate asserts the debug zoom-guard counters move while viewport scale remains locked at 1, then holds move/look touches while firing to check pointer stability.
+- MVP browser smoke still boots all five required landscape viewports, but only `chromium-modern-phone-landscape` runs the heavier movement route and active zoom/multitouch gesture checks.
+- Local `npm run test:e2e` measured about 19 seconds after the MVP split and two-worker Playwright config.
 
 ## Decisions
 
@@ -39,6 +41,7 @@ Status: complete for input/collision/layout plus coordinate/cache/effect-pose, p
 - Use Playwright as the automated browser smoke harness for production preview and Pages path validation.
 - Use the `qaCapture=1` query only for capture/readback reliability; normal production users keep `preserveDrawingBuffer` off.
 - Use `snapshot.weapon.effectPose` as the automated source for tracer alignment because the primitive tracer can disappear between screenshots.
+- Use two Playwright workers for MVP browser smoke while keeping the heavier route on one viewport to avoid repeating the same WebGL interaction path five times.
 
 ## Caught Issues
 
@@ -51,6 +54,7 @@ Status: complete for input/collision/layout plus coordinate/cache/effect-pose, p
 - Weapon wall avoidance is exposed as `snapshot.weapon.wallAvoidance`; the browser route now covers movement near a wall, while close-wall look rotation remains future work.
 - Still screenshots confirmed BORE and VAULT sit lower in the landscape frame, but visual tuning remains approximate until final first-person weapon assets exist.
 - Existing UI-control-only no-zoom coverage missed the full look/canvas surface and pinch paths.
+- Repeating full movement/gesture smoke across all five viewports made the Pages workflow slow for MVP-level coverage.
 
 ## Next Handoff Notes
 
@@ -58,3 +62,4 @@ Status: complete for input/collision/layout plus coordinate/cache/effect-pose, p
 - Add automated close-wall turn/retract coverage once debug pose controls or deterministic input routes exist.
 - Future screenshot QA should use deterministic debug look poses for pitch-up and pitch-down firing rather than pointer-drag approximation.
 - Physical-device smoke should retry two-finger pinch and double tap on mobile Safari because headless Chromium cannot fully represent every browser chrome behavior.
+- Re-expand full-route coverage per viewport when viewport-specific gameplay bugs appear or before a larger release gate.
