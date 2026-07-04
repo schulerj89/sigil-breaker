@@ -57,15 +57,6 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v6
 
-      - name: Configure Pages branch source
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api --method PUT "repos/${GITHUB_REPOSITORY}/pages" \
-            --field build_type=legacy \
-            --field source[branch]=gh-pages \
-            --field source[path]=/
-
       - name: Publish to gh-pages branch
         env:
           GITHUB_TOKEN: ${{ github.token }}
