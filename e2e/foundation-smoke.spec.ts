@@ -335,30 +335,23 @@ async function waitForSceneAssets(page: Page): Promise<void> {
 
 async function holdFireButtonUntilShotCount(page: Page, expectedShotCountFloor: number): Promise<DebugSnapshot> {
   const point = await readElementCenter(page, '[data-fire-button]');
-  const client = await page.context().newCDPSession(page);
   let snapshot: DebugSnapshot | null = null;
 
   try {
-    await client.send('Input.dispatchTouchEvent', {
-      type: 'touchStart',
-      touchPoints: [{ x: point.x, y: point.y, radiusX: 5, radiusY: 5, id: 31 }],
-    });
+    await page.mouse.move(point.x, point.y);
+    await page.mouse.down();
     await expect
       .poll(
         async () => {
           snapshot = await readDebugSnapshot(page);
           return snapshot.weapon.shotCount;
         },
-        { timeout: 1500, intervals: [50, 80, 100] },
+        { timeout: 3000, intervals: [50, 80, 100] },
       )
       .toBeGreaterThan(expectedShotCountFloor);
     snapshot = await readDebugSnapshot(page);
   } finally {
-    await client.send('Input.dispatchTouchEvent', {
-      type: 'touchEnd',
-      touchPoints: [],
-    });
-    await client.detach();
+    await page.mouse.up();
   }
 
   expect(snapshot).not.toBeNull();

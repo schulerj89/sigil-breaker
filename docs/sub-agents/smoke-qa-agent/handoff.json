@@ -34,7 +34,7 @@
     "Local npm run test:e2e measured about 19 seconds after the MVP split and two-worker Playwright config.",
     "Latest npm run validate:browser passed all five landscape viewports after taller walls, larger guns, hold-fire aim zoom, and reticle fire icon changes.",
     "Browser smoke now holds fire long enough to verify multiple shots, ammo reduction, isFireHeld, positive aimBlend, and reduced cameraFovDegrees.",
-    "Browser smoke now waits for debug shot count cadence before releasing hold-fire, instead of relying on a fixed short hold duration.",
+    "Browser smoke now uses Playwright pointer down/up on the fire button and waits for debug shot count cadence before releasing hold-fire, instead of relying on a fixed short hold duration or CDP touch delivery.",
     "Browser smoke verifies release cleanup by checking isFireHeld clears and shotCount stops increasing after release.",
     "All viewports still prove the fire control produces a shot; multi-shot cadence, FOV/aim blend, and effect-pose detail checks stay scoped to chromium-modern-phone-landscape.",
     "Browser smoke checks the fire button has no F text, the reticle icon is visible, the removed gun-cycle selector is absent, controls fit the viewport, touch targets are at least 44 px, and fire/stick controls do not overlap.",
@@ -160,7 +160,7 @@
       "mvpFastViewportSplit": true,
       "visualViewportScaleAfterZoomGestures": 1,
       "assetLoadErrors": 0,
-      "latestDurationSeconds": 40.5
+      "latestDurationSeconds": 40.4
     },
     "requiredSmokeAssertions": [
       "appBoots",
