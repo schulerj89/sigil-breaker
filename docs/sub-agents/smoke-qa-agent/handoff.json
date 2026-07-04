@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T21:52:17Z",
-  "summary": "Local Playwright smoke covers five weapons, 12 map-authored enemies using three external GLBs, enemy movement/tracking/debug visuals, longer ElevenLabs music, cache-busting, touch-safe debug hiding, and enemy destruction.",
+  "updatedAt": "2026-07-04T22:10:00Z",
+  "summary": "Local Playwright smoke covers five weapons, 12 spaced map-authored enemies using three external GLBs, enemy movement/tracking/debug visuals, hit flash, enemy separation, longer ElevenLabs music, cache-busting, touch-safe debug hiding, and enemy destruction.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -60,7 +60,7 @@
     "GitHub Pages deploy CI is intentionally lightweight now; local validation is the testing gate before commit/push.",
     "Browser smoke now verifies player health starts at 100/100 and the health meter stays visible after debug badges are hidden.",
     "Browser smoke now verifies snapshot.ui.debugVisible toggles through the debug HUD button.",
-    "Browser smoke now verifies three cube enemies exist at boot and the full interaction project destroys the spawn-lane cube through normal hold-fire input.",
+    "Browser smoke now verifies 12 external GLB enemies exist at boot and the full interaction project destroys the first GLB target through normal hold-fire input.",
     "Browser smoke now waits for 17 loaded asset IDs including enemy GLBs and the two new weapon models.",
     "Weapon cycle smoke checks SPARK, BORE, VAULT, RIFT, and TORCH effect styles.",
     "Debug-hide smoke verifies weapon/ammo/debug badges are hidden while health, mute, touch buttons, and d-pad remain visible.",
@@ -70,7 +70,10 @@
     "Browser smoke now uses Playwright tap() for the debug toggle instead of click().",
     "Browser smoke verifies scene enemy debug radius/front-cone visuals hide and show with the debug toggle.",
     "Browser smoke verifies enemy marker, origin, behavior, detect radius, lose radius, facing yaw, and debugVisible snapshot fields.",
-    "Latest npm run validate:browser passed after adding map-authored enemy markers, enemy movement/tracking, return-home patrol behavior, and touch-safe debug toggling."
+    "Latest npm run validate:browser passed after adding map-authored enemy markers, enemy movement/tracking, return-home patrol behavior, and touch-safe debug toggling.",
+    "Browser smoke now expects the first enemy marker at row 1, column 12 with state patrolling from spawn.",
+    "Latest npm run validate:browser passed after the enemy spacing, larger hit proxy, hit flash, and enemy separation fixes.",
+    "Focused Pages-preview QA at 844x390 reported the first two enemies 18.09 units apart and confirmed hold-fire destroyed enemy.monster.mushnub.vanguard."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -95,7 +98,8 @@
     "Keep health HUD and cube destruction checks in browser smoke because they cover player-readable combat state and the weapon damage path.",
     "Keep enemy GLB cache-busting and five-weapon cycle checks in the MVP smoke gate.",
     "Use Playwright tap() for mobile-only controls when click suppression is the bug class being tested.",
-    "Keep enemy movement smoke state-based rather than frame-exact because positions are animated after boot."
+    "Keep enemy movement smoke state-based rather than frame-exact because positions are animated after boot.",
+    "Keep first-target smoke aimed at an enemy that starts outside detection range, then prove destruction through hold-fire rather than relying on immediate tracking."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
@@ -113,7 +117,9 @@
     "The old rotate arrow made the portrait prompt look noisy; smoke should keep checking that only the phone animation remains.",
     "Timed flash screenshots are unreliable in headless capture, so per-weapon effect color is asserted through snapshot.weapon.effectStyle.",
     "Enemy destruction smoke should avoid asserting lastShot after release because extra cadence shots can advance the final shot snapshot past the enemy hit.",
-    "The debug toggle looked fine under click-based smoke but failed under mobile touch semantics; tap smoke now covers this path."
+    "The debug toggle looked fine under click-based smoke but failed under mobile touch semantics; tap smoke now covers this path.",
+    "The first enemy marker was too close to spawn and made the opening read as enemy overlap or stuck behavior.",
+    "Tight enemy ray proxies let visible hits feel like misses; unit smoke now checks the hit flash turns visible on a landed shot."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
@@ -122,7 +128,8 @@
     "Held-fire visual framing for SPARK, BORE, and VAULT still needs screenshot QA on real mobile or deterministic debug poses.",
     "Full-route coverage should be re-expanded per viewport before a larger release gate or when viewport-specific gameplay bugs appear.",
     "Future enemy replacement can pass the current smoke while still feeling poor if hit/death feedback is not screenshot-tested.",
-    "Future debug visual regressions may need deterministic screenshots in addition to snapshot booleans."
+    "Future debug visual regressions may need deterministic screenshots in addition to snapshot booleans.",
+    "Future screenshot QA should use deterministic camera poses for enemy hit/death frames; the latest focused pass used debug snapshots for placement and destruction confidence."
   ],
   "blockers": [],
   "artifacts": [
@@ -131,10 +138,11 @@
     "e2e/foundation-smoke.spec.ts",
     "src/game/mobileZoomGuard.ts",
     "src/game/health.ts",
-    "src/game/enemies/cubeEnemySystem.ts",
+    "src/game/enemies/enemySystem.ts",
     "artifacts/sub-agents/20260704-weapon-framing/smoke-qa-agent",
     "artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent",
-    "artifacts/sub-agents/20260704-weapon-effects-smoothing/smoke-qa-agent"
+    "artifacts/sub-agents/20260704-weapon-effects-smoothing/smoke-qa-agent",
+    "artifacts/sub-agents/20260704-enemy-spacing/smoke-qa-agent"
   ],
   "jsonForAgents": {
     "latestManualSmoke": {
@@ -217,8 +225,8 @@
       "portraitRotatePromptChecked": true,
       "playerHealthHudChecked": true,
       "debugHudToggleChecked": true,
-      "cubeEnemyBootCountChecked": true,
-      "cubeEnemyDestructionChecked": true,
+      "enemyBootCountChecked": true,
+      "enemyDestructionChecked": true,
       "qaRestartLoopChecked": true,
       "rightSideControlFitChecked": true,
       "rendererBudgetChecked": true,
@@ -226,7 +234,7 @@
       "mvpFastViewportSplit": true,
       "visualViewportScaleAfterZoomGestures": 1,
       "assetLoadErrors": 0,
-      "latestDurationSeconds": 157,
+      "latestDurationSeconds": 148,
       "testTimeoutSeconds": 240,
       "loadedAssetIdCount": 17,
       "weaponCycleCount": 5,
@@ -235,9 +243,16 @@
       "enemyMarkerSymbol": "E",
       "exitMarkerSymbol": "X",
       "enemyMarkerCount": 12,
+      "enemyMarkerSpacingChecked": true,
       "enemyMovementStateChecked": true,
       "enemyDebugVisualToggleChecked": true,
-      "debugToggleTapChecked": true
+      "debugToggleTapChecked": true,
+      "firstEnemyMarker": {
+        "column": 12,
+        "row": 1
+      },
+      "firstEnemyStartsPatrolling": true,
+      "enemyHitFlashUnitChecked": true
     },
     "latestHealthEnemySmoke": {
       "playerHealth": {
@@ -247,6 +262,21 @@
       "debugToggleChecked": true,
       "enemyCount": 12,
       "destroyedByHoldFire": "enemy.monster.mushnub.vanguard"
+    },
+    "latestEnemySpacingSmoke": {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "firstEnemyMarker": {
+        "column": 12,
+        "row": 1
+      },
+      "firstEnemyState": "patrolling",
+      "firstSecondDistanceUnits": 18.09,
+      "destroyedAfterHoldFire": 1,
+      "lastShotHitType": "enemy",
+      "lastShotDestroyedEnemy": true
     },
     "requiredSmokeAssertions": [
       "appBoots",
@@ -272,7 +302,10 @@
       "portraitRotatePromptArrowAbsent",
       "playerHealthHudVisible",
       "debugHudToggleHidesDebugOnlyBadges",
-      "cubeEnemyDestroyedByHoldFire"
+      "enemyDestroyedByHoldFire",
+      "firstEnemyStartsPatrollingAwayFromSpawn",
+      "enemyMarkerSpacing",
+      "enemyDestroyedByHoldFire"
     ],
     "screenshotNames": [
       "boot-mobile-landscape.png",
@@ -286,7 +319,8 @@
       "weapon-cycle-button-landscape.png",
       "rotate-prompt-motion-frame.png",
       "spark-fire-frame-03.png",
-      "rotate-prompt-phone-only.png"
+      "rotate-prompt-phone-only.png",
+      "enemy-spawn-lane.png"
     ]
   },
   "nextAgents": [

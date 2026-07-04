@@ -86,6 +86,7 @@ interface RuntimeEnemy {
   visualSlot: THREE.Group;
   debugGroup: THREE.Group;
   debugLines: THREE.LineSegments<THREE.BufferGeometry, THREE.LineBasicMaterial>;
+  hitFlash: THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial>;
   proxy: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial>;
   origin: THREE.Vector3;
   position: THREE.Vector3;
@@ -93,13 +94,17 @@ interface RuntimeEnemy {
   patrolIndex: number;
   facingYawRadians: number;
   time: number;
+  hitFlashSeconds: number;
   assetLoaded: boolean;
 }
 
-const ENEMY_HEIGHT_UNITS = 1.8;
 const ENEMY_WIDTH_UNITS = 0.86;
+const ENEMY_HIT_HEIGHT_UNITS = 2.35;
+const ENEMY_HIT_WIDTH_UNITS = 2.15;
 const ENEMY_COLLISION_RADIUS = ENEMY_WIDTH_UNITS / 2;
+const ENEMY_SEPARATION_UNITS = 1.25;
 const ENEMY_RETURN_REACHED_UNITS = 0.16;
+const ENEMY_HIT_FLASH_SECONDS = 0.16;
 const DEBUG_RING_SEGMENTS = 40;
 const DEBUG_FRONT_CONE_RADIANS = Math.PI / 7;
 const ROLE_NAMES = [
@@ -120,49 +125,49 @@ const ROLE_NAMES = [
 
 const MUSHROOM_BEHAVIOR: EnemyBehaviorDefinition = {
   id: 'mushroom-hop-square',
-  speedUnitsPerSecond: 0.86,
+  speedUnitsPerSecond: 1.28,
   turnResponse: 7,
   detectRadiusUnits: 6.2,
   loseRadiusUnits: 8,
-  stopDistanceUnits: 1.18,
-  patrolReachUnits: 0.14,
+  stopDistanceUnits: 0.82,
+  patrolReachUnits: 0.18,
   patrolOffsets: [
-    [-0.55, -0.55],
-    [0.55, -0.55],
-    [0.55, 0.55],
-    [-0.55, 0.55],
+    [-1.2, -0.95],
+    [1.2, -0.95],
+    [1.2, 0.95],
+    [-1.2, 0.95],
   ],
   motionStyle: 'mushroom-hop',
 };
 
 const SLIME_BEHAVIOR: EnemyBehaviorDefinition = {
   id: 'slime-side-sway',
-  speedUnitsPerSecond: 1.08,
+  speedUnitsPerSecond: 1.42,
   turnResponse: 8,
   detectRadiusUnits: 5.8,
   loseRadiusUnits: 7.4,
-  stopDistanceUnits: 1.02,
-  patrolReachUnits: 0.12,
+  stopDistanceUnits: 0.78,
+  patrolReachUnits: 0.16,
   patrolOffsets: [
-    [-0.9, 0],
-    [0.9, 0],
+    [-1.45, 0],
+    [1.45, 0],
   ],
   motionStyle: 'slime-sway',
 };
 
 const GOLEM_BEHAVIOR: EnemyBehaviorDefinition = {
   id: 'goleling-heavy-square',
-  speedUnitsPerSecond: 0.68,
+  speedUnitsPerSecond: 1.02,
   turnResponse: 5.6,
   detectRadiusUnits: 6.8,
   loseRadiusUnits: 8.6,
-  stopDistanceUnits: 1.34,
-  patrolReachUnits: 0.18,
+  stopDistanceUnits: 0.95,
+  patrolReachUnits: 0.22,
   patrolOffsets: [
-    [-0.75, -0.75],
-    [0.75, -0.75],
-    [0.75, 0.75],
-    [-0.75, 0.75],
+    [-1.15, -1.15],
+    [1.15, -1.15],
+    [1.15, 1.15],
+    [-1.15, 1.15],
   ],
   motionStyle: 'golem-stomp',
 };
@@ -190,7 +195,8 @@ export class EnemySystem {
   private readonly loader = new GLTFLoader(this.loadingManager);
   private readonly root = new THREE.Group();
   private readonly raycaster = new THREE.Raycaster();
-  private readonly geometry = new THREE.BoxGeometry(ENEMY_WIDTH_UNITS, ENEMY_HEIGHT_UNITS, ENEMY_WIDTH_UNITS);
+  private readonly hitGeometry = new THREE.BoxGeometry(ENEMY_HIT_WIDTH_UNITS, ENEMY_HIT_HEIGHT_UNITS, ENEMY_HIT_WIDTH_UNITS);
+  private readonly hitFlashGeometry = new THREE.SphereGeometry(0.92, 16, 8);
   private readonly enemies: RuntimeEnemy[] = [];
   private readonly modelTemplates = new Map<string, THREE.Object3D>();
   private readonly loadedAssetIds = new Set<string>();
@@ -228,8 +234,11 @@ export class EnemySystem {
         this.faceEnemyToward(enemy, target.x, target.z, cappedDelta);
       }
       this.applyVisualMotion(enemy);
+      this.updateHitFlash(enemy, cappedDelta);
       this.updateDebugVisuals(enemy, debugVisible);
     }
+
+    this.separateLivingEnemies();
   }
 
   resolveShotHit(origin: THREE.Vector3, direction: THREE.Vector3, maxDistance: number, damage: number): EnemyShotHit | null {
@@ -258,6 +267,8 @@ export class EnemySystem {
     }
 
     const health = enemy.health.damage(damage);
+    enemy.hitFlashSeconds = ENEMY_HIT_FLASH_SECONDS;
+    enemy.hitFlash.visible = true;
     const destroyed = !health.isAlive;
     if (destroyed) {
       enemy.group.visible = false;
@@ -340,14 +351,15 @@ export class EnemySystem {
       transparent: true,
       opacity: 0.34,
     });
-    const proxy = new THREE.Mesh(this.geometry, material);
+    const proxy = new THREE.Mesh(this.hitGeometry, material);
     proxy.name = `${definition.id}-hit-proxy`;
     proxy.userData.enemyId = definition.id;
-    proxy.position.y = ENEMY_HEIGHT_UNITS / 2;
+    proxy.position.y = ENEMY_HIT_HEIGHT_UNITS / 2;
 
     const visualSlot = new THREE.Group();
     visualSlot.name = `${definition.id}-visual-slot`;
 
+    const hitFlash = createHitFlash(this.hitFlashGeometry, definition.id);
     const debug = createDebugVisuals(definition.id, definition.behavior);
     debug.group.visible = false;
 
@@ -355,7 +367,7 @@ export class EnemySystem {
     group.name = definition.id;
     const position = new THREE.Vector3(worldX, 0, worldZ);
     group.position.copy(position);
-    group.add(proxy, visualSlot, debug.group);
+    group.add(proxy, visualSlot, hitFlash, debug.group);
     this.root.add(group);
 
     return {
@@ -371,6 +383,7 @@ export class EnemySystem {
       visualSlot,
       debugGroup: debug.group,
       debugLines: debug.lines,
+      hitFlash,
       proxy,
       origin: position.clone(),
       position,
@@ -378,6 +391,7 @@ export class EnemySystem {
       patrolIndex: 0,
       facingYawRadians: 0,
       time: 0,
+      hitFlashSeconds: 0,
       assetLoaded: false,
     };
   }
@@ -543,6 +557,61 @@ export class EnemySystem {
     enemy.debugLines.material.color.setHex(enemy.state === 'tracking' ? 0xef4444 : 0x22c55e);
     enemy.debugLines.material.opacity = enemy.state === 'returning' ? 0.56 : 0.84;
   }
+
+  private updateHitFlash(enemy: RuntimeEnemy, deltaSeconds: number): void {
+    if (enemy.hitFlashSeconds <= 0) {
+      enemy.hitFlash.visible = false;
+      return;
+    }
+
+    enemy.hitFlashSeconds = Math.max(0, enemy.hitFlashSeconds - deltaSeconds);
+    const ratio = enemy.hitFlashSeconds / ENEMY_HIT_FLASH_SECONDS;
+    enemy.hitFlash.visible = ratio > 0;
+    enemy.hitFlash.material.opacity = 0.46 * ratio;
+    enemy.hitFlash.scale.setScalar(0.75 + (1 - ratio) * 0.36);
+  }
+
+  private separateLivingEnemies(): void {
+    for (let firstIndex = 0; firstIndex < this.enemies.length; firstIndex++) {
+      const first = this.enemies[firstIndex];
+      if (!first.health.isAlive) {
+        continue;
+      }
+
+      for (let secondIndex = firstIndex + 1; secondIndex < this.enemies.length; secondIndex++) {
+        const second = this.enemies[secondIndex];
+        if (!second.health.isAlive) {
+          continue;
+        }
+
+        const deltaX = second.position.x - first.position.x;
+        const deltaZ = second.position.z - first.position.z;
+        const distance = Math.hypot(deltaX, deltaZ);
+        if (distance >= ENEMY_SEPARATION_UNITS) {
+          continue;
+        }
+
+        const fallbackAngle = (firstIndex * 1.73 + secondIndex * 0.91) % (Math.PI * 2);
+        const normalX = distance > 0.001 ? deltaX / distance : Math.cos(fallbackAngle);
+        const normalZ = distance > 0.001 ? deltaZ / distance : Math.sin(fallbackAngle);
+        const push = (ENEMY_SEPARATION_UNITS - distance) * 0.5;
+        this.tryMoveEnemyForSeparation(first, -normalX * push, -normalZ * push);
+        this.tryMoveEnemyForSeparation(second, normalX * push, normalZ * push);
+      }
+    }
+  }
+
+  private tryMoveEnemyForSeparation(enemy: RuntimeEnemy, deltaX: number, deltaZ: number): void {
+    const targetX = enemy.position.x + deltaX;
+    const targetZ = enemy.position.z + deltaZ;
+    const resolved = resolveLevelCollision(targetX, targetZ, ENEMY_COLLISION_RADIUS, 2);
+    if (collidesWithLevel(resolved.x, resolved.z, ENEMY_COLLISION_RADIUS)) {
+      return;
+    }
+
+    enemy.position.set(resolved.x, 0, resolved.z);
+    enemy.group.position.copy(enemy.position);
+  }
 }
 
 function createEnemyDefinitions(): EnemyDefinition[] {
@@ -631,6 +700,26 @@ function createDebugVisuals(
   group.add(lines);
 
   return { group, lines };
+}
+
+function createHitFlash(
+  geometry: THREE.SphereGeometry,
+  enemyId: string,
+): THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial> {
+  const material = new THREE.MeshBasicMaterial({
+    color: 0xfff3a3,
+    transparent: true,
+    opacity: 0,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.name = `${enemyId}-hit-flash`;
+  mesh.position.y = ENEMY_HIT_HEIGHT_UNITS * 0.48;
+  mesh.visible = false;
+  mesh.renderOrder = 6;
+
+  return mesh;
 }
 
 function roundMetric(value: number): number {

@@ -1,0 +1,44 @@
+{
+  "runId": "20260704-enemy-spacing",
+  "agentId": "smoke-qa-agent",
+  "viewport": {
+    "width": 844,
+    "height": 390
+  },
+  "target": "http://127.0.0.1:4174/sigil-breaker/?qaCapture=1",
+  "screenshot": "enemy-spawn-lane.png",
+  "firstEnemy": {
+    "id": "enemy.monster.mushnub.vanguard",
+    "marker": {
+      "column": 12,
+      "row": 1
+    },
+    "origin": [-10, 0, -21],
+    "position": [-8.849, 0, -20.089],
+    "state": "patrolling",
+    "health": 68
+  },
+  "secondEnemy": {
+    "id": "enemy.monster.pink-slime.lane-anchor",
+    "marker": {
+      "column": 32,
+      "row": 5
+    },
+    "origin": [10, 0, -17],
+    "position": [8.978, 0, -17],
+    "state": "patrolling",
+    "health": 70
+  },
+  "firstSecondDistanceUnits": 18.09,
+  "destroyedAfterHoldFire": 1,
+  "lastShot": {
+    "sequence": 2,
+    "blockedByWall": false,
+    "hitType": "enemy",
+    "hitEnemyId": "enemy.monster.mushnub.vanguard",
+    "damage": 34,
+    "destroyedEnemy": true,
+    "distanceUnits": 9.99,
+    "tile": null
+  }
+}

@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-04T21:52:17Z",
-  "summary": "The five-gun and 12-marker enemy movement slice stays within MVP payload and renderer budgets by cloning three shared enemy GLB templates, using kinematic movement, and keeping local browser smoke passing with the production JS chunk at about 673.35 kB minified.",
+  "updatedAt": "2026-07-04T22:10:00Z",
+  "summary": "The five-gun and 12-marker enemy movement slice stays within MVP payload and renderer budgets by cloning three shared enemy GLB templates, using kinematic movement plus lightweight separation, and keeping local browser smoke passing with the production JS chunk at about 675.88 kB minified.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -41,9 +41,9 @@
     "The full-level roof adds one PlaneGeometry, one MeshBasicMaterial, and one draw call.",
     "The heavy browser smoke project now restarts the app five times through the QA restart hook and rechecks loaded assets plus renderer budgets each time.",
     "Health and enemy state add CPU/gameplay objects only; the player health bar is DOM HUD.",
-    "The current three cube enemies share one BoxGeometry with three small MeshStandardMaterials.",
+    "The current external enemies share one hit-proxy BoxGeometry and clone three loaded GLB templates.",
     "Weapon damage reuses the existing shot cadence and adds an enemy raycast only while firing.",
-    "Latest npm run validate:browser passed after adding three cube enemies, health HUD, and debug toggle checks.",
+    "Latest npm run validate:browser passed after adding enemy health HUD integration and debug toggle checks.",
     "Latest production JS chunk reported by Vite is about 662.88 kB minified.",
     "Enemy GLB payload is 347884B and uses invisible box hit proxies.",
     "Level-01 weapon payload is now 261443B after adding RIFT and TORCH.",
@@ -54,7 +54,12 @@
     "Enemy AI is kinematic and transform-only: squared-distance tracking, simple seek/return/patrol movement, and tile collision resolution.",
     "Debug enemy radius/front-cone visuals are prebuilt LineSegments and toggle with debug mode.",
     "Latest npm run validate:browser passed all five landscape viewport gates after enemy movement and debug visuals were added.",
-    "Latest production JS chunk is about 673.35 kB minified."
+    "Latest production JS chunk is about 673.35 kB minified.",
+    "Enemy hit proxies are now a shared 2.15 x 2.35 x 2.15 box so weapon rays better match the external monster silhouettes.",
+    "Enemy hit feedback adds one shared small sphere geometry and per-enemy additive material that only becomes visible briefly on damage.",
+    "Enemy overlap handling adds an O(n^2) separation pass across 12 living enemies; this remains acceptable for the MVP marker count.",
+    "Latest npm run validate:browser passed all five landscape viewport gates after enemy spacing, hit-proxy, hit-flash, and separation fixes.",
+    "Latest production JS chunk is about 675.88 kB minified."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -72,11 +77,12 @@
     "Keep hold-fire pose and FOV math in scalar helpers and existing scene objects.",
     "Use renderer budget counters as the MVP gate until visible-device FPS profiling is repeated.",
     "Keep the roof as one shared plane and keep floor, wall, and roof textures shared by material to avoid per-chunk texture duplication.",
-    "Keep placeholder cube enemies as shared primitive geometry until external enemy assets require a source-ledger and streaming budget.",
+    "Keep external enemy render meshes separate from simple shared hit proxies.",
     "Keep enemy render meshes separate from hit proxies and avoid mesh raycast collision for this slice.",
     "Clone repeated enemies from shared GLB templates until level streaming or LOD requires a stronger pooling system.",
     "Keep enemy steering direct and room-local for MVP; revisit navmesh/A* only when levels need pathing around multi-room obstacles.",
-    "Keep scene debug enemy visuals as lightweight lines and hide them with the debug toggle during normal play."
+    "Keep scene debug enemy visuals as lightweight lines and hide them with the debug toggle during normal play.",
+    "Keep enemy separation as a tiny runtime steering correction while the enemy count is low; revisit broader avoidance only when rooms contain larger groups."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
@@ -87,7 +93,8 @@
     "Weapon avoidance is approximate and should be profiled if close-wall checks expand beyond map samples.",
     "Vite's large chunk warning still needs a future code-splitting review before the asset roster grows.",
     "The earlier all-viewport full interaction smoke repeated the same route and gesture work five times, which was disproportionate for MVP CI.",
-    "Continuous fire increases audio/effect churn by cadence, but current visible primitives are reused instead of recreated per shot."
+    "Continuous fire increases audio/effect churn by cadence, but current visible primitives are reused instead of recreated per shot.",
+    "The wider enemy hit proxy slightly increases raycast intersection volume, but candidate count is still limited to living enemies and only evaluated when firing."
   ],
   "risks": [
     "Future larger weapon sets should not all preload by default without level/load-group gating.",
@@ -101,7 +108,8 @@
     "Memory-lifecycle QA should still add a deeper heap/GPU leak pass; the current restart smoke only watches debug renderer counters.",
     "External enemy assets can quickly exceed the current lightweight enemy budget if each enemy ships unique GLBs, textures, or animations.",
     "Debug enemy line visuals add draw calls while debug is visible; future debug geometry should stay lightweight.",
-    "Direct steering can fail in more complex multi-room layouts and may need a navmesh or A* path layer later."
+    "Direct steering can fail in more complex multi-room layouts and may need a navmesh or A* path layer later.",
+    "The O(n^2) separation pass should be revisited if the level grows beyond a few dozen active enemies."
   ],
   "blockers": [],
   "artifacts": [
@@ -113,7 +121,7 @@
     "e2e/foundation-smoke.spec.ts",
     "src/game/mobileZoomGuard.ts",
     "src/game/health.ts",
-    "src/game/enemies/cubeEnemySystem.ts"
+    "src/game/enemies/enemySystem.ts"
   ],
   "jsonForAgents": {
     "visibleFpsTarget": 60,
@@ -141,7 +149,7 @@
     "movementCollisionCost": "nearby solid-tile circle resolver while movement input is active",
     "weaponClearanceCost": "one weapon wall ray/probe for visual viewmodel avoidance",
     "shotEffectPoseCost": "shot-time and short-lived visible-effect camera-local vector/scalar math",
-    "productionJsChunkKb": 673.35,
+    "productionJsChunkKb": 675.88,
     "publicAssetCacheParam": "assetBuild",
     "browserSmokeCommand": "npm run validate:browser",
     "browserSmokeWorkers": 2,
@@ -158,10 +166,10 @@
     "foundationEnvironmentTextureSourceBytes": 22445,
     "foundationEnvironmentTextureDecodedBytesEstimate": 12582912,
     "foundationRoofCost": "one plane geometry, one mesh/material, one draw call",
-    "cubeEnemyCost": {
-      "count": 3,
-      "geometry": "one shared BoxGeometry",
-      "materials": 3,
+    "enemyProxyCost": {
+      "count": 12,
+      "geometry": "one shared 2.15 x 2.35 x 2.15 BoxGeometry hit proxy",
+      "materials": "one small proxy material per enemy plus one additive hit-flash material per enemy",
       "textures": 0,
       "raycastTiming": "only while a weapon shot is traced"
     },
@@ -182,10 +190,11 @@
     "reticleControlCost": "css-dom-only",
     "foundationAudioBytes": 858752,
     "foundationEnemyModelBytes": 347884,
-    "enemyCollisionCost": "one invisible box proxy raycast candidate per alive enemy during weapon shots only",
-    "enemyMovementCost": "kinematic seek/patrol/return using squared-distance checks and tile collision resolution",
+    "enemyCollisionCost": "one 2.15 x 2.35 x 2.15 invisible box proxy raycast candidate per alive enemy during weapon shots only",
+    "enemyMovementCost": "kinematic seek/patrol/return using squared-distance checks, tile collision resolution, and low-count O(n^2) enemy separation",
     "enemyRenderReuse": "12 runtime enemies clone three shared loaded GLB templates",
-    "enemyDebugVisualCost": "one prebuilt LineSegments radius/front-cone object per enemy, visible only when debug UI is on"
+    "enemyDebugVisualCost": "one prebuilt LineSegments radius/front-cone object per enemy, visible only when debug UI is on",
+    "enemyHitFeedbackCost": "one shared sphere geometry plus one small additive material per enemy, visible briefly only on hit"
   },
   "nextAgents": [
     "memory-lifecycle-agent",

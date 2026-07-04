@@ -54,6 +54,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Keep the roof as one shared plane and keep floor/wall/roof textures shared by material to avoid per-chunk texture duplication.
 - Keep repeated enemies cloned from shared GLB templates until level streaming or LOD requires a stronger enemy pooling system.
 - Keep enemy steering direct and room-local for MVP; revisit navmesh/A* only when levels need pathing around multi-room obstacles.
+- Keep enemy separation as a tiny runtime steering correction while the enemy count is low; revisit broader avoidance only when rooms contain larger groups.
 
 ## Caught Issues
 
@@ -67,6 +68,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - The earlier all-viewport full interaction smoke repeated the same route and gesture work five times, which was disproportionate for MVP CI.
 - Continuous fire increases audio/effect churn by cadence, but the current visible primitives are reused and not recreated per shot.
 - Scene debug enemy lines add draw calls while debug is visible; keep them hidden with `Dbg` for normal play and avoid adding heavier debug meshes.
+- The wider enemy hit proxy slightly increases raycast intersection volume, but candidate count is still limited to living enemies and only evaluated when firing.
 
 ## Next Handoff Notes
 
@@ -82,9 +84,9 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Future profiling should measure sustained held fire on physical mobile hardware, not just one-shot smoke.
 - Future profiling should compare visible FPS with the roof on/off if enclosure or texture fill-rate becomes a concern.
 - Memory-lifecycle QA should still add a deeper heap/GPU leak pass; the current restart smoke only watches debug renderer counters.
-- Health and enemy state add CPU/gameplay objects only; the player health bar is DOM HUD, and the cube enemies share one BoxGeometry with three small materials.
+- Health and enemy state add CPU/gameplay objects only; the player health bar is DOM HUD, and external enemies share one hit-proxy BoxGeometry.
 - Weapon damage now reuses the existing shot cadence and adds an enemy raycast only when firing; no per-shot geometry or material is created.
-- Latest `npm run validate:browser` passed after adding three cube enemies, health HUD, and debug toggle checks; the production JS chunk reported about 662.88 kB minified.
+- Latest `npm run validate:browser` passed after adding enemy health HUD integration and debug toggle checks; the production JS chunk reported about 662.88 kB minified.
 - Replacing cubes with three Quaternius GLBs adds 347884B of enemy model payload and keeps box hit proxies for raycast damage.
 - Adding RIFT and TORCH increases the level-01 weapon payload to 261443B, still under the 1 MB MVP weapon budget.
 - Replacing the music loop and adding two SFX brings foundation audio payload to 858752B, still under the 5 MB MVP audio budget.
@@ -93,3 +95,8 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Enemy AI is kinematic and transform-only: squared-distance tracking, simple seek/return/patrol movement, and tile collision resolution. It does not add navmesh, physics, or per-frame mesh raycasts.
 - Debug enemy radius/front-cone visuals are prebuilt `LineSegments` and toggle with debug mode; latest browser smoke stayed within renderer budgets.
 - Latest `npm run validate:browser` passed all five landscape viewports after adding map enemy markers, enemy movement/tracking, scene debug visuals, and touch-safe debug toggling; production JS chunk reported about 673.35 kB minified.
+- The enemy hit proxy is now a shared 2.15 x 2.35 x 2.15 box so raycasts better match the external monster silhouettes without mesh raycasting.
+- Enemy hit feedback adds one shared small sphere geometry with per-enemy additive material and only becomes visible briefly on damage.
+- Enemy overlap handling adds an O(n^2) separation pass across 12 living enemies; this is acceptable for the MVP marker count and avoids a navmesh/physics dependency.
+- Latest `npm run validate:browser` passed all five landscape viewports after the enemy spacing and hit-proxy fixes; production JS chunk reported about 675.88 kB minified.
+- Future profiling should watch the O(n^2) separation pass if the level grows beyond a few dozen active enemies.

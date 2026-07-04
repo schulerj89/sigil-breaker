@@ -103,7 +103,19 @@ describe('FPS foundation config', () => {
     expect(tiles.filter((tile) => tile.symbol === 'S')).toHaveLength(1);
     expect(tiles.filter((tile) => tile.symbol === 'X')).toHaveLength(1);
     expect(enemySpawnTiles).toHaveLength(12);
-    expect(enemySpawnTiles[0]).toMatchObject({ row: 1, column: 6, symbol: 'E' });
+    expect(enemySpawnTiles[0]).toMatchObject({ row: 1, column: 12, symbol: 'E' });
+    expect(enemySpawnTiles.slice(0, 3).map((tile) => `${tile.row}:${tile.column}`)).toEqual([
+      '1:12',
+      '5:32',
+      '13:22',
+    ]);
+    for (let firstIndex = 0; firstIndex < enemySpawnTiles.length; firstIndex++) {
+      for (let secondIndex = firstIndex + 1; secondIndex < enemySpawnTiles.length; secondIndex++) {
+        const first = enemySpawnTiles[firstIndex];
+        const second = enemySpawnTiles[secondIndex];
+        expect(Math.hypot(first.column - second.column, first.row - second.row)).toBeGreaterThanOrEqual(5);
+      }
+    }
 
     for (let index = 0; index < LEVEL_WIDTH_TILES; index++) {
       expect(FOUNDATION_LEVEL_MAP[0][index]).toBe('#');
@@ -267,12 +279,12 @@ describe('FPS foundation config', () => {
     expect(changes).toEqual(['damage:65', 'heal:85', 'damage:0', 'reset:100']);
   });
 
-  it('lets weapon rays damage and destroy external enemy placeholders before a wall hit', () => {
+  it('lets weapon rays damage and destroy visible external enemies before a wall hit', () => {
     const scene = new THREE.Scene();
     const enemies = new EnemySystem(scene);
     const enemyCount = getEnemySpawnTiles().length;
     const origin = new THREE.Vector3(-21, 1.62, -21);
-    const direction = new THREE.Vector3(1, 0, 0);
+    const direction = new THREE.Vector3(1, 0.035, 0);
 
     const firstHit = enemies.resolveShotHit(origin, direction, 12, 34);
     expect(firstHit).toMatchObject({
@@ -285,6 +297,7 @@ describe('FPS foundation config', () => {
         isAlive: true,
       },
     });
+    expect(scene.getObjectByName('enemy.monster.mushnub.vanguard-hit-flash')?.visible).toBe(true);
 
     const secondHit = enemies.resolveShotHit(origin, direction, 12, 34);
     expect(secondHit).toMatchObject({
@@ -324,12 +337,24 @@ describe('FPS foundation config', () => {
       state: 'patrolling',
       debugVisible: false,
     });
+    expect(Math.hypot(first.origin[0] + 21, first.origin[2] + 21)).toBeGreaterThan(9);
+
+    for (let frame = 0; frame < 20; frame++) {
+      enemies.update(0.05, [22, 1.62, 21], true);
+    }
+
+    const patrolSnapshot = enemies.getSnapshot().enemies[0];
+    expect(patrolSnapshot.state).toBe('patrolling');
+    expect(patrolSnapshot.debugVisible).toBe(true);
+    expect(
+      Math.hypot(patrolSnapshot.position[0] - first.position[0], patrolSnapshot.position[2] - first.position[2]),
+    ).toBeGreaterThan(0.45);
 
     enemies.update(0.2, [first.origin[0] - 3, 1.62, first.origin[2]], true);
     const trackingSnapshot = enemies.getSnapshot().enemies[0];
     expect(trackingSnapshot.state).toBe('tracking');
     expect(trackingSnapshot.debugVisible).toBe(true);
-    expect(trackingSnapshot.position[0]).toBeLessThan(first.position[0]);
+    expect(trackingSnapshot.position[0]).toBeLessThan(patrolSnapshot.position[0]);
     expect(Math.abs(trackingSnapshot.facingYawRadians)).toBeGreaterThan(0.01);
 
     for (let frame = 0; frame < 140; frame++) {
@@ -337,14 +362,14 @@ describe('FPS foundation config', () => {
     }
 
     const returnedSnapshot = enemies.getSnapshot().enemies[0];
-    expect(returnedSnapshot.state).not.toBe('tracking');
+    expect(returnedSnapshot.state).toBe('patrolling');
     expect(returnedSnapshot.debugVisible).toBe(false);
     expect(
       Math.hypot(
         returnedSnapshot.position[0] - returnedSnapshot.origin[0],
         returnedSnapshot.position[2] - returnedSnapshot.origin[2],
       ),
-    ).toBeLessThanOrEqual(1.1);
+    ).toBeLessThanOrEqual(1.7);
 
     enemies.dispose();
   });

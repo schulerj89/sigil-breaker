@@ -268,8 +268,8 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     id: 'enemy.monster.mushnub.vanguard',
     assetId: 'enemy.monster.mushnub',
     label: 'MUSHNUB',
-    marker: { row: 1, column: 6 },
-    origin: [-16, 0, -21],
+    marker: { row: 1, column: 12 },
+    origin: [-10, 0, -21],
     assetLoaded: true,
     health: {
       current: 68,
@@ -278,7 +278,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
       isAlive: true,
     },
   });
-  expect(debugSnapshot.enemies.enemies[0].state).toBe('tracking');
+  expect(debugSnapshot.enemies.enemies[0].state).toBe('patrolling');
   expect(debugSnapshot.enemies.enemies[0].debugVisible).toBe(true);
   expect(debugSnapshot.enemies.enemies[0].detectRadiusUnits).toBeGreaterThan(5);
   for (const enemy of debugSnapshot.enemies.enemies) {

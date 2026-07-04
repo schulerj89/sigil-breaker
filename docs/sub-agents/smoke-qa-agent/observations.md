@@ -98,6 +98,8 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Timed flash screenshots are unreliable in headless capture, so per-weapon effect color is asserted through `snapshot.weapon.effectStyle`.
 - For this pass, only the rotate-prompt screenshot was kept because held-fire headless frames did not capture readable weapon flashes.
 - `Dbg` looked clickable under Playwright `click()`, but mobile touch could suppress the synthetic click; smoke now covers the real tap path.
+- The first enemy marker was too close to spawn and made the opening read as enemy overlap or stuck behavior.
+- Tight enemy ray proxies let visible hits feel like misses; unit smoke now checks the hit flash turns visible on a landed shot.
 
 ## Next Handoff Notes
 
@@ -112,8 +114,8 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Future screenshot QA should capture the portrait rotate prompt and the held-fire muzzle flash for all three weapons once deterministic flash capture exists.
 - Future screenshot QA should capture the centered flash for SPARK, BORE, and VAULT once deterministic debug fire-frame controls exist.
 - Browser smoke now verifies player health is reported at 100/100, the health bar remains visible after hiding debug HUD badges, and `snapshot.ui.debugVisible` toggles.
-- Browser smoke now verifies three cube enemies exist at boot and the full interaction project destroys the spawn-lane cube through the normal hold-fire path.
-- `npm run validate:browser` passed all five landscape viewports after adding health, debug toggle, and cube enemy destruction checks.
+- Browser smoke now verifies 12 external GLB enemies exist at boot and the full interaction project destroys the first GLB target through the normal hold-fire path.
+- `npm run validate:browser` passed all five landscape viewports after adding health, debug toggle, and enemy destruction checks.
 - Browser smoke now waits for 17 loaded asset IDs: 3 environment textures, 5 weapon models, 6 ElevenLabs audio assets, and 3 enemy GLBs.
 - Browser smoke now checks RIFT and TORCH in the weapon cycle, including effect colors and active weapon stat fields.
 - Browser smoke now confirms enemy GLB URLs are cache-busted and that hiding debug also hides weapon/ammo/debug badges while health, mute, controls, and d-pad remain visible.
@@ -121,5 +123,9 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Future screenshot QA should capture debug-on and debug-off enemy radius/front-cone views from deterministic camera poses.
 - Browser smoke now verifies 12 `E` enemy markers in the map, one `X` endpoint marker, and 12 runtime enemies spawned from marker coordinates.
 - Browser smoke now uses mobile `tap()` for the debug toggle, verifies the debug UI snapshot changes, and checks scene enemy debug radius/front-cone visuals hide and show with the toggle.
-- Browser smoke now expects the first enemy to be tracking from the spawn lane and verifies each enemy reports marker, origin, behavior, detect radius, lose radius, facing yaw, and debug visibility fields.
+- Browser smoke verifies each enemy reports marker, origin, behavior, detect radius, lose radius, facing yaw, and debug visibility fields.
 - Latest `npm run validate:browser` passed all five landscape viewports after adding map-authored enemies, movement/tracking, return-home patrol behavior, and touch-safe debug toggling.
+- Future screenshot QA should use deterministic camera poses for enemy hit/death frames; the latest focused pass used debug snapshots for placement and destruction confidence.
+- Browser smoke now expects the first enemy marker at row 1, column 12 with state `patrolling` from spawn, so enemy placement does not immediately cluster beside the player.
+- Latest `npm run validate:browser` passed all five landscape viewports after the enemy spacing, larger hit proxy, hit flash, and enemy separation fixes.
+- Focused Pages-preview QA at 844 x 390 reported the first two enemies 18.09 units apart and confirmed hold-fire destroyed `enemy.monster.mushnub.vanguard` through the normal fire button path.

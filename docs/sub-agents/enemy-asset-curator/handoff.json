@@ -2,12 +2,12 @@
   "handoffVersion": "1.0.0",
   "agentId": "enemy-asset-curator",
   "status": "complete",
-  "updatedAt": "2026-07-04T21:52:17Z",
-  "summary": "Foundation enemies now use three Quaternius CC0 monster GLBs across 12 map-authored enemy markers with kinematic patrol, tracking, return-home behavior, debug radius/front cones, health, ray-hit damage, and destruction preserved.",
+  "updatedAt": "2026-07-04T22:10:00Z",
+  "summary": "Foundation enemies now use three Quaternius CC0 monster GLBs across 12 spaced map-authored enemy markers with kinematic patrol, tracking, return-home behavior, debug radius/front cones, larger silhouette hit proxies, visible hit flash, separation, health, ray-hit damage, and destruction preserved.",
   "observations": [
-    "The foundation level has three cube enemy placeholders.",
-    "Each cube owns a shared Health instance and reports through the debug enemy snapshot.",
-    "The spawn-lane cube is destroyable by normal hold-fire input in local browser smoke.",
+    "The earlier cube placeholder pass has been superseded by external GLB enemies.",
+    "Each external enemy owns a shared Health instance and reports through the debug enemy snapshot.",
+    "The first GLB smoke target is destroyable by normal hold-fire input in local browser smoke.",
     "No level-specific external enemy brief has been created.",
     "Visible cube enemies were replaced by Mushnub, Pink Slime, and Goleling GLB visuals from Quaternius via Poly Pizza.",
     "The runtime keeps invisible box hit proxies for weapon ray damage instead of raycasting render meshes.",
@@ -16,26 +16,33 @@
     "The enemy runtime derives 12 placements from E markers and cycles the current three monster assets across them.",
     "Repeated enemy visuals clone shared loaded GLB templates, so enemy model payload remains 347884B.",
     "Enemies now patrol, detect the player by radius, face the player while tracking, and return to their marker origin after losing range.",
-    "Debug mode draws a detection radius and front cone on each living enemy, using red while tracking and green otherwise."
+    "Debug mode draws a detection radius and front cone on each living enemy, using red while tracking and green otherwise.",
+    "The first smoke target moved to marker row 1, column 12 so it starts patrolling at range instead of instantly clustering beside the player.",
+    "Weapon rays now hit a 2.15 x 2.35 x 2.15 invisible enemy proxy and briefly show an additive hit flash on damage.",
+    "Living enemies now get a lightweight separation correction so multiple trackers do not stack on the same player-adjacent spot."
   ],
   "decisions": [
     "Enemy assets must be judged by silhouette, animation coverage, hit proxies, audio hooks, and mobile performance.",
     "Use recurring enemy types for recognition and unique variants for level identity.",
-    "Keep the cube enemy system as the first behavior contract until external enemy assets replace the placeholder meshes.",
-    "Keep GLB visuals separate from hit proxies for this no-movement enemy slice.",
+    "Keep the current enemy system as the behavior contract for external enemy assets.",
+    "Keep GLB visuals separate from hit proxies for this MVP enemy slice.",
     "Use procedural transform motion for MVP enemy readability until authored animation clips are sourced.",
     "Keep enemy behavior data in runtime code for now; keep enemyManifest.ts as source/license/model metadata only.",
-    "Use map-authored E markers as the source of truth for exact enemy spawn coordinates."
+    "Use map-authored E markers as the source of truth for exact enemy spawn coordinates.",
+    "Keep enemy-to-enemy overlap handling as a lightweight runtime separation pass until authored navigation or avoidance is needed."
   ],
   "caughtIssues": [
-    "Current cube enemies validate damage and destruction only; they do not block player movement or animate hit/death states.",
+    "Current external enemies validate damage and destruction only; they do not block player movement or animate authored hit/death states.",
     "Enemy GLBs still lack authored attack, hit, and death animations; current motion is procedural transform animation only.",
-    "Future asset imports must preserve separate hit proxies so combat does not depend on mesh raycasts."
+    "Future asset imports must preserve separate hit proxies so combat does not depend on mesh raycasts.",
+    "The earlier first marker was too close to spawn and made the opening read as enemy overlap or stuck behavior.",
+    "The original hit proxy was too narrow for the external silhouettes, making some player-visible shots feel like misses."
   ],
   "risks": [
     "Enemy assets without readable attack and hit states will make mobile combat feel unfair.",
     "Replacing cubes with external assets can break ray-hit readability if hit proxies are not authored deliberately.",
-    "Static enemy models may read as props without later animation, hit flash, or death feedback."
+    "Static enemy models may read as props without later animation, hit flash, or death feedback.",
+    "Shrinking the current enemy hit proxy can reintroduce visible-hit misses on mobile."
   ],
   "blockers": [],
   "artifacts": [
@@ -66,12 +73,23 @@
         "enemy.monster.pink-slime"
       ],
       "firstSmokeTargetId": "enemy.monster.mushnub.vanguard",
+      "firstSmokeTargetMarker": {
+        "column": 12,
+        "row": 1
+      },
       "collisionMode": "invisible box hit proxies",
+      "hitProxySizeUnits": [
+        2.15,
+        2.35,
+        2.15
+      ],
       "spawnMarkerSymbol": "E",
       "exitMarkerSymbol": "X",
       "movementEnabled": true,
       "movementModel": "kinematic patrol/tracking/return-home with transform-only visual motion",
-      "debugVisuals": "detection radius plus front cone, red while tracking and green otherwise"
+      "separationEnabled": true,
+      "debugVisuals": "detection radius plus front cone, red while tracking and green otherwise",
+      "hitFeedback": "brief additive sphere flash on successful damage"
     }
   },
   "nextAgents": [
