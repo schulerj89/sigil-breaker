@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "weapon-upgrade-asset-curator",
   "status": "in-progress",
-  "updatedAt": "2026-07-04T05:05:00Z",
-  "summary": "Three-gun slice now uses yaw 0 viewmodels, per-weapon ranges, wall collision feedback, and cache-busted public asset URLs.",
+  "updatedAt": "2026-07-04T05:20:00Z",
+  "summary": "Three-gun slice now uses yaw 0, right-shifted viewmodels, manifest-derived wall clearance, wall collision feedback, and cache-busted public asset URLs.",
   "observations": [
     "SPARK is a fast sidearm using blaster-a.glb.",
     "BORE is a close scatter weapon using blaster-h.glb.",
@@ -11,21 +11,27 @@
     "Each weapon has a procedural Web Audio firing profile until ElevenLabs audio is added.",
     "All three viewmodels use Y rotation 0 after the user requested the guns face the other way.",
     "Shots raycast against the tile level and report lastShot wall hit details through debug state.",
-    "Weapon preview/model paths use runtime assetBuild cache invalidation through the manifest helper."
+    "Weapon preview/model paths use runtime assetBuild cache invalidation through the manifest helper.",
+    "SPARK, BORE, and VAULT view offsets moved to x 0.52, 0.56, and 0.60.",
+    "Weapon movement collision footprint is derived from WEAPON_DEFINITIONS through weaponClearance.ts.",
+    "WeaponSystem retracts and lowers the viewmodel when the forward ray or weapon probe nears a wall.",
+    "Shot tracer origin now uses the active weapon right-side offset instead of a near-center hardcoded start."
   ],
   "decisions": [
     "Expose the three weapons through a clickable landscape selector.",
     "Use one fire button for this slice.",
     "Leave upgrades, reload button, enemy/projectile behavior, and final hit impact assets for later iterations.",
     "Use primitive tracer and wall impact only as temporary gameplay feedback.",
-    "Keep yaw 0 until camera/game-feel review proves a better first-person framing."
+    "Keep yaw 0 until camera/game-feel review proves a better first-person framing.",
+    "Keep collision clearance tied to manifest view offsets to avoid future drift."
   ],
   "caughtIssues": [
     "Current assets are prop-scale GLB models, not dedicated animated first-person weapon rigs.",
-    "Wall hit feedback currently uses code primitives rather than external assets."
+    "Wall hit feedback currently uses code primitives rather than external assets.",
+    "Wall avoidance uses a simplified probe and ray rather than final mesh collision."
   ],
   "risks": [
-    "Model offsets and yaw 0 presentation may need per-device adjustment once gameplay camera tuning starts."
+    "Model offsets, right-shifted placement, and yaw 0 presentation may need per-device adjustment once gameplay camera tuning starts."
   ],
   "blockers": [],
   "artifacts": [
@@ -67,6 +73,13 @@
       }
     ],
     "viewModelYawRadians": 0,
+    "viewModelXOffsets": {
+      "weapon.blaster.spark": 0.52,
+      "weapon.blaster.bore": 0.56,
+      "weapon.blaster.vault": 0.6
+    },
+    "wallAvoidanceDebugField": "snapshot.weapon.wallAvoidance",
+    "clearanceSource": "src/game/weapons/weaponClearance.ts",
     "requiresCameraReview": true
   },
   "nextAgents": [

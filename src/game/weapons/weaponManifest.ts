@@ -54,7 +54,7 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
     rangeUnits: 28,
     soundProfile: 'sidearm',
     view: {
-      position: [0.32, -0.34, -0.88],
+      position: [0.52, -0.34, -0.88],
       rotation: [-0.08, VIEW_FORWARD_YAW, 0.02],
       scale: 0.68,
     },
@@ -74,7 +74,7 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
     rangeUnits: 18,
     soundProfile: 'scatter',
     view: {
-      position: [0.36, -0.36, -0.98],
+      position: [0.56, -0.36, -0.98],
       rotation: [-0.1, VIEW_FORWARD_YAW, 0.02],
       scale: 0.82,
     },
@@ -94,7 +94,7 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
     rangeUnits: 24,
     soundProfile: 'heavy',
     view: {
-      position: [0.4, -0.39, -1.08],
+      position: [0.6, -0.39, -1.08],
       rotation: [-0.09, VIEW_FORWARD_YAW, 0.03],
       scale: 0.72,
     },

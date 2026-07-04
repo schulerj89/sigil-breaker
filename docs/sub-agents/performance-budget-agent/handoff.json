@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-04T05:05:00Z",
-  "summary": "Weapon and shot-feedback budget instrumentation is wired; coordinate HUD, assetBuild URL rewriting, and Playwright smoke add negligible normal runtime cost, but dev smoke remains near the 60 FPS line.",
+  "updatedAt": "2026-07-04T05:20:00Z",
+  "summary": "Weapon and shot-feedback budget instrumentation is wired; coordinate HUD, assetBuild URL rewriting, Playwright smoke, and weapon clearance probes add limited cost, but visible FPS still needs production profiling.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -13,7 +13,10 @@
     "Coordinate HUD is DOM text updated on the existing 250ms HUD cadence.",
     "assetBuild query rewriting changes public asset URLs but does not add GPU resources.",
     "Playwright browser smoke passed all five viewport gates with serial workers.",
-    "qaCapture=1 enables preserveDrawingBuffer for QA readback only."
+    "qaCapture=1 enables preserveDrawingBuffer for QA readback only.",
+    "Weapon-aware movement adds a manifest-derived footprint probe.",
+    "WeaponSystem wall avoidance adds one close-wall ray/probe path during update.",
+    "The level pinch fix removed six walkable cells and added no render payload."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -21,14 +24,16 @@
     "Do a production-preview FPS comparison before importing heavier enemy or building assets.",
     "Keep shot collision as tile raycast until enemies/projectiles justify a broader collision system.",
     "Keep coordinate reporting in the lightweight DOM debug HUD.",
-    "Use Playwright for correctness smoke, not as the final performance benchmark while qaCapture is enabled."
+    "Use Playwright for correctness smoke, not as the final performance benchmark while qaCapture is enabled.",
+    "Keep the weapon clearance probes for now because they are map-sample based and low cost."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
     "Initial weapon asset package missed the shared GLB texture dependency.",
     "Dev-server smoke did not show a locked 60 FPS.",
     "Cache-busted URLs can create separate browser-cache entries across builds.",
-    "Vite still reports the large chunk warning for the Three.js-heavy bundle."
+    "Vite still reports the large chunk warning for the Three.js-heavy bundle.",
+    "Weapon avoidance is approximate and should be profiled if close-wall checks expand beyond map samples."
   ],
   "risks": [
     "Future larger weapon sets should not all preload by default without level/load-group gating.",
@@ -64,6 +69,7 @@
     ],
     "coordinateHudCost": "dom-text-only",
     "qaCapturePreserveDrawingBuffer": true,
+    "weaponClearanceCost": "one movement footprint probe plus one weapon wall ray/probe",
     "publicAssetCacheParam": "assetBuild",
     "browserSmokeCommand": "npm run validate:browser"
   },

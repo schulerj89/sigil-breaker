@@ -12,6 +12,8 @@ Status: needs review after input/collision and browser-smoke pass.
 - Coordinate HUD text and URL query rewriting add no meaningful render geometry or asset payload.
 - Playwright production-preview smoke now runs the five landscape viewport gates serially to avoid headless WebGL contention.
 - `qaCapture=1` enables `preserveDrawingBuffer` only for QA readback/screenshots; normal production users keep it off.
+- Weapon-aware collision adds one extra level-footprint probe for movement and one wall-avoidance ray/probe per weapon update.
+- The level pinch fix removes six walkable cells and does not add render assets.
 
 ## Decisions
 
@@ -20,6 +22,7 @@ Status: needs review after input/collision and browser-smoke pass.
 - The new shot feedback primitives are short-lived and add minimal geometry, but FPS still needs production-preview comparison.
 - Query-based cache invalidation should not change GPU memory, but it can create duplicate browser-cache entries across builds.
 - Do not use Playwright QA-capture FPS as the final gameplay performance number because preserveDrawingBuffer can reduce FPS.
+- Keep the weapon wall-avoidance probes while the weapon set is small; revisit if weapon logic becomes per-projectile or per-mesh.
 
 ## Caught Issues
 
@@ -28,6 +31,7 @@ Status: needs review after input/collision and browser-smoke pass.
 - Shot collision is CPU tile raycast only; it does not introduce physics or extra asset payload.
 - Coordinate HUD is DOM text only and should remain in debug metrics rather than the final combat HUD.
 - The build still emits Vite's large chunk warning around the Three.js bundle.
+- The build JS chunk increased slightly after adding the shared weapon clearance module and wall-avoidance debug field.
 
 ## Next Handoff Notes
 
@@ -35,3 +39,4 @@ Status: needs review after input/collision and browser-smoke pass.
 - Next performance pass should compare production preview FPS against dev-server FPS.
 - Watch FPS before adding enemies because dev smoke is still below the 60 target.
 - Future asset streaming should account for cache-busted URLs when comparing network/cache behavior between builds.
+- Future performance profiling should measure close-wall movement with weapon avoidance active.

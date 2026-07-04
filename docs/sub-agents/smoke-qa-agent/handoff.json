@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T05:05:00Z",
-  "summary": "Manual smoke remains green, and Playwright production-preview smoke now covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, and Pages base-path routing.",
+  "updatedAt": "2026-07-04T05:20:00Z",
+  "summary": "Manual smoke remains green, and Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, and the latest level/weapon-clearance changes.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -16,20 +16,24 @@
     "Playwright smoke passed at 667x375, 740x360, 844x390, 932x430, and 1024x768.",
     "Coordinate HUD text matched the debug player position format.",
     "Weapon preview, GLB model, and shared texture resource URLs included the production build id as assetBuild.",
-    "The Playwright gate checks HUD group overlap and badge text overflow."
+    "The Playwright gate checks HUD group overlap and badge text overflow.",
+    "Latest validate:browser passed after closing six corner pinch tiles and adding weapon wall avoidance.",
+    "Unit coverage now checks the reported world coordinates and a weapon-footprint near-wall collision case."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
     "Automate smoke once browser test harness work starts.",
     "Track visualViewport.scale for double-tap zoom regressions.",
     "Full playthrough QA remains a separate gate.",
-    "Keep Playwright running against the Pages preview path rather than the dev root path."
+    "Keep Playwright running against the Pages preview path rather than the dev root path.",
+    "Add deterministic close-wall pose/input coverage for snapshot.weapon.wallAvoidance in a later smoke slice."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
     "Dev-browser FPS hovered around 57 during first weapon smoke and around 56 during the latest fast-fire smoke.",
     "Plain vite preview did not emulate the GitHub Pages project base path for built asset URLs.",
-    "Headless Chromium can emit empty Three shader validation messages after multiple WebGL contexts; the smoke filters only that known empty-log validation noise."
+    "Headless Chromium can emit empty Three shader validation messages after multiple WebGL contexts; the smoke filters only that known empty-log validation noise.",
+    "Close-wall viewmodel retraction is currently unit/debug-state visible but not yet asserted by Playwright interaction."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
@@ -85,6 +89,8 @@
       "hudFitChecked": true,
       "canvasNonBlank": true,
       "assetBuildChecked": true,
+      "levelCornerPinchesChecked": true,
+      "weaponFootprintUnitChecked": true,
       "assetLoadErrors": 0
     },
     "requiredSmokeAssertions": [

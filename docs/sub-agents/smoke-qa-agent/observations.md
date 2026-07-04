@@ -15,6 +15,8 @@ Status: complete for input/collision/layout plus coordinate/cache browser smoke.
 - Latest Playwright smoke passed at 667 x 375, 740 x 360, 844 x 390, 932 x 430, and 1024 x 768.
 - The browser smoke checks the coordinate HUD, nonblank WebGL canvas, debug API state, asset load errors, HUD fit, and cache-busted weapon resources.
 - Weapon previews, GLB models, and the GLB shared texture are asserted to carry the current `assetBuild` query.
+- Latest Playwright smoke after level pinch and weapon-clearance fixes passed all five landscape viewports.
+- Unit tests now pin the reported pinch coordinates and the weapon footprint collision case.
 
 ## Decisions
 
@@ -31,8 +33,11 @@ Status: complete for input/collision/layout plus coordinate/cache browser smoke.
 - Visible dev-browser FPS reported around 56 FPS during the latest 844 x 390 smoke.
 - Playwright initially caught that plain `vite preview` did not serve the production `/sigil-breaker/` base path like GitHub Pages; a Pages preview server now covers that path.
 - Playwright/HUD review caught the coordinate badge crowding risk on 667 px landscape; HUD fit assertions and CSS wrapping now cover it.
+- Level QA caught no remaining corner pinches after the six tile closures.
+- Weapon wall avoidance is exposed as `snapshot.weapon.wallAvoidance`, but a browser interaction assertion for close-wall turning is still future work.
 
 ## Next Handoff Notes
 
 - Next smoke slice should add interaction coverage for weapon switching, fire, no zoom, and wall hit checks.
 - Add automated fast-fire/no-zoom and wall-hit assertions when browser smoke becomes scripted.
+- Add automated close-wall turn/retract coverage once debug pose controls or deterministic input routes exist.

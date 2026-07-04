@@ -1,8 +1,15 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { raycastLevel } from '../levelMap';
+import { collidesWithLevel, raycastLevel } from '../levelMap';
+import { WEAPON_COLLISION_RADIUS, getWeaponWallProbeLocalPosition } from './weaponClearance';
 import { WeaponAudio } from './weaponAudio';
 import { WEAPON_DEFINITIONS, publicAssetUrl, withAssetVersion, type WeaponDefinition } from './weaponManifest';
+
+const WALL_AVOIDANCE_DISTANCE = 1.12;
+const WALL_AVOIDANCE_START_DISTANCE = 0.34;
+const WALL_AVOIDANCE_RETRACT_UNITS = 0.46;
+const WALL_AVOIDANCE_LOWER_UNITS = 0.09;
+const WALL_AVOIDANCE_TILT_RADIANS = 0.12;
 
 export interface WeaponShotSnapshot {
   sequence: number;
@@ -19,6 +26,7 @@ export interface WeaponSystemSnapshot {
   magazineSize: number;
   isReloading: boolean;
   shotCount: number;
+  wallAvoidance: number;
   modelBytesLoaded: number;
   loadedAssetIds: string[];
   assetLoadErrors: string[];
@@ -40,6 +48,8 @@ export class WeaponSystem {
   private readonly shotFeedbackRoot = new THREE.Group();
   private readonly shotTracer: THREE.Line;
   private readonly wallImpact: THREE.Mesh;
+  private readonly wallAvoidanceDirection = new THREE.Vector3();
+  private readonly wallAvoidanceProbe = new THREE.Vector3();
   private readonly loadedWeapons = new Map<string, LoadedWeapon>();
   private readonly loadedAssetIds = new Set<string>();
   private readonly assetLoadErrors: string[] = [];
@@ -51,6 +61,7 @@ export class WeaponSystem {
   private muzzleFlashUntil = 0;
   private shotFeedbackUntil = 0;
   private recoil = 0;
+  private wallAvoidance = 0;
   private shotCount = 0;
   private lastShot: WeaponShotSnapshot | null = null;
 
@@ -90,6 +101,7 @@ export class WeaponSystem {
     }
 
     this.recoil = Math.max(0, this.recoil - deltaSeconds * 8);
+    this.wallAvoidance = this.getWallAvoidance(this.activeWeapon.view);
     this.muzzleFlash.visible = now < this.muzzleFlashUntil;
     const shotFeedbackVisible = now < this.shotFeedbackUntil;
     this.shotTracer.visible = shotFeedbackVisible;
@@ -97,8 +109,10 @@ export class WeaponSystem {
 
     const view = this.activeWeapon.view;
     this.viewRoot.position.set(view.position[0], view.position[1], view.position[2] + this.recoil);
+    this.viewRoot.position.z += this.wallAvoidance * WALL_AVOIDANCE_RETRACT_UNITS;
+    this.viewRoot.position.y -= this.wallAvoidance * WALL_AVOIDANCE_LOWER_UNITS;
     this.viewRoot.rotation.set(
-      view.rotation[0] - this.recoil * 1.4,
+      view.rotation[0] - this.recoil * 1.4 - this.wallAvoidance * WALL_AVOIDANCE_TILT_RADIANS,
       view.rotation[1],
       view.rotation[2] + this.recoil * 0.55,
     );
@@ -114,6 +128,7 @@ export class WeaponSystem {
       magazineSize: this.activeWeapon.magazineSize,
       isReloading: this.reloadCompleteAt > 0,
       shotCount: this.shotCount,
+      wallAvoidance: roundMetric(this.wallAvoidance),
       modelBytesLoaded: [...this.loadedWeapons.values()].reduce(
         (total, weapon) => total + weapon.definition.modelBytes,
         0,
@@ -230,8 +245,38 @@ export class WeaponSystem {
       tile: hit?.tile ? [hit.tile.column, hit.tile.row] : null,
     };
     this.shotFeedbackUntil = now + 95;
-    updateShotTracer(this.shotTracer, distance);
+    updateShotTracer(this.shotTracer, distance, this.activeWeapon.view.position[0] + 0.06);
     this.wallImpact.position.set(0, 0, -distance + 0.035);
+  }
+
+  private getWallAvoidance(view: WeaponDefinition['view']): number {
+    this.camera.updateMatrixWorld();
+    this.camera.getWorldDirection(this.wallAvoidanceDirection);
+    const hit = raycastLevel(
+      this.camera.position.x,
+      this.camera.position.z,
+      this.wallAvoidanceDirection.x,
+      this.wallAvoidanceDirection.z,
+      WALL_AVOIDANCE_DISTANCE,
+    );
+    const rayAvoidance = hit
+      ? 1 -
+        clamp01(
+          (hit.distance - WALL_AVOIDANCE_START_DISTANCE) /
+            (WALL_AVOIDANCE_DISTANCE - WALL_AVOIDANCE_START_DISTANCE),
+        )
+      : 0;
+
+    this.wallAvoidanceProbe.set(...getWeaponWallProbeLocalPosition(view)).applyMatrix4(this.camera.matrixWorld);
+    const probeAvoidance = collidesWithLevel(
+      this.wallAvoidanceProbe.x,
+      this.wallAvoidanceProbe.z,
+      WEAPON_COLLISION_RADIUS,
+    )
+      ? 1
+      : 0;
+
+    return Math.max(rayAvoidance, probeAvoidance);
   }
 
   private attachLoadedWeapon(loadedWeapon: LoadedWeapon): void {
@@ -385,9 +430,9 @@ function createWallImpact(): THREE.Mesh {
   return mesh;
 }
 
-function updateShotTracer(tracer: THREE.Line, distance: number): void {
+function updateShotTracer(tracer: THREE.Line, distance: number, muzzleX: number): void {
   const position = tracer.geometry.getAttribute('position');
-  position.setXYZ(0, 0.07, -0.06, -0.62);
+  position.setXYZ(0, muzzleX, -0.06, -0.62);
   position.setXYZ(1, 0, 0, -Math.max(0.7, distance));
   position.needsUpdate = true;
   tracer.geometry.computeBoundingSphere();
@@ -449,4 +494,8 @@ function disposeMaterial(material: THREE.Material | THREE.Material[], disposedMa
 
 function roundMetric(value: number): number {
   return Math.round(value * 100) / 100;
+}
+
+function clamp01(value: number): number {
+  return Math.min(1, Math.max(0, value));
 }

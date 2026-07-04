@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import { collidesWithLevel, getSpawnPosition } from './levelMap';
+import { getWeaponFootprintClearance } from './weapons/weaponClearance';
 
 const EYE_HEIGHT = 1.62;
-const PLAYER_RADIUS = 0.24;
+export const PLAYER_COLLISION_RADIUS = 0.3;
 export const MOVE_SPEED_UNITS_PER_SECOND = 4.0625;
 const LOOK_SENSITIVITY = 0.004;
 const MIN_PITCH = -1.15;
@@ -229,12 +230,12 @@ export class FpsControls {
 
   private tryMove(deltaX: number, deltaZ: number): void {
     const nextX = this.player.x + deltaX;
-    if (!collidesWithLevel(nextX, this.player.z, PLAYER_RADIUS)) {
+    if (!collidesWithPlayerFootprint(nextX, this.player.z, this.yaw)) {
       this.player.x = nextX;
     }
 
     const nextZ = this.player.z + deltaZ;
-    if (!collidesWithLevel(this.player.x, nextZ, PLAYER_RADIUS)) {
+    if (!collidesWithPlayerFootprint(this.player.x, nextZ, this.yaw)) {
       this.player.z = nextZ;
     }
   }
@@ -264,6 +265,32 @@ function mapKey(code: string): KeyName | null {
     default:
       return null;
   }
+}
+
+export function collidesWithPlayerFootprint(worldX: number, worldZ: number, yawRadians: number): boolean {
+  if (collidesWithLevel(worldX, worldZ, PLAYER_COLLISION_RADIUS)) {
+    return true;
+  }
+
+  const weaponCenter = getWeaponCollisionCenter(worldX, worldZ, yawRadians);
+  return collidesWithLevel(weaponCenter.x, weaponCenter.z, getWeaponFootprintClearance().radius);
+}
+
+export function getWeaponCollisionCenter(
+  worldX: number,
+  worldZ: number,
+  yawRadians: number,
+): { x: number; z: number } {
+  const forwardX = -Math.sin(yawRadians);
+  const forwardZ = -Math.cos(yawRadians);
+  const rightX = Math.cos(yawRadians);
+  const rightZ = -Math.sin(yawRadians);
+  const clearance = getWeaponFootprintClearance();
+
+  return {
+    x: worldX + forwardX * clearance.forwardOffset + rightX * clearance.rightOffset,
+    z: worldZ + forwardZ * clearance.forwardOffset + rightZ * clearance.rightOffset,
+  };
 }
 
 function clamp(value: number, min: number, max: number): number {

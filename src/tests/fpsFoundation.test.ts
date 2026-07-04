@@ -15,9 +15,16 @@ import {
   getSpawnPosition,
   isSolidSymbol,
   raycastLevel,
+  worldToTile,
 } from '../game/levelMap';
 import { createLevelChunks, getActiveChunkIdsForTile } from '../game/levelStreaming';
-import { MOVE_SPEED_UNITS_PER_SECOND } from '../game/fpsControls';
+import {
+  MOVE_SPEED_UNITS_PER_SECOND,
+  PLAYER_COLLISION_RADIUS,
+  collidesWithPlayerFootprint,
+  getWeaponCollisionCenter,
+} from '../game/fpsControls';
+import { getWeaponFootprintClearance } from '../game/weapons/weaponClearance';
 import { WEAPON_ASSET_SOURCE, WEAPON_DEFINITIONS, publicAssetUrl, withAssetVersion } from '../game/weapons/weaponManifest';
 
 describe('FPS foundation config', () => {
@@ -98,6 +105,9 @@ describe('FPS foundation config', () => {
 
     expect(findNarrowBoundedSegments(minimumOpenTiles)).toEqual([]);
     expect(findDiagonalCornerCuts()).toEqual([]);
+    expect(findCornerPinches()).toEqual([]);
+    expect(worldToTile(12.1, -2.1)?.symbol).toBe('#');
+    expect(worldToTile(12.2, 7.6)?.symbol).toBe('#');
   });
 
   it('keeps spawn open while treating boundaries as solid', () => {
@@ -115,6 +125,7 @@ describe('FPS foundation config', () => {
   it('uses a small CC0 external weapon set for the test level', () => {
     const weaponIds = WEAPON_DEFINITIONS.map((weapon) => weapon.id);
     const totalModelBytes = WEAPON_DEFINITIONS.reduce((total, weapon) => total + weapon.modelBytes, 0);
+    const clearance = getWeaponFootprintClearance();
 
     expect(WEAPON_ASSET_SOURCE.license).toBe('Creative Commons Zero, CC0');
     expect(WEAPON_ASSET_SOURCE.attributionRequired).toBe(false);
@@ -129,8 +140,22 @@ describe('FPS foundation config', () => {
       expect(weapon.fireIntervalMs).toBeGreaterThan(100);
       expect(weapon.recoilKick).toBeGreaterThan(0);
       expect(weapon.rangeUnits).toBeGreaterThan(12);
+      expect(weapon.view.position[0]).toBeGreaterThanOrEqual(0.52);
+      expect(clearance.rightOffset).toBeGreaterThanOrEqual(weapon.view.position[0]);
+      expect(clearance.forwardOffset).toBeGreaterThanOrEqual(Math.abs(weapon.view.position[2]));
       expect(weapon.view.rotation[1]).toBeCloseTo(0);
     }
+  });
+
+  it('extends player collision with a right-handed weapon footprint', () => {
+    const yawFacingEast = -Math.PI / 2;
+    const nearEastBoundaryX = 20.4;
+    const topLaneZ = -21;
+    const weaponCenter = getWeaponCollisionCenter(nearEastBoundaryX, topLaneZ, yawFacingEast);
+
+    expect(collidesWithLevel(nearEastBoundaryX, topLaneZ, PLAYER_COLLISION_RADIUS)).toBe(false);
+    expect(weaponCenter.x).toBeGreaterThan(nearEastBoundaryX);
+    expect(collidesWithPlayerFootprint(nearEastBoundaryX, topLaneZ, yawFacingEast)).toBe(true);
   });
 
   it('cache-busts public asset URLs with the current build id', () => {
@@ -239,4 +264,92 @@ function findDiagonalCornerCuts(): Array<Record<string, number | string>> {
   }
 
   return cuts;
+}
+
+function findCornerPinches(): Array<Record<string, number | string>> {
+  const pinches: Array<Record<string, number | string>> = [];
+  const patterns = [
+    {
+      pattern: 'east wall plus northwest corner',
+      cardinal: [0, 1],
+      diagonal: [-1, -1],
+      openA: [-1, 0],
+      openB: [0, -1],
+    },
+    {
+      pattern: 'east wall plus southwest corner',
+      cardinal: [0, 1],
+      diagonal: [1, -1],
+      openA: [1, 0],
+      openB: [0, -1],
+    },
+    {
+      pattern: 'west wall plus northeast corner',
+      cardinal: [0, -1],
+      diagonal: [-1, 1],
+      openA: [-1, 0],
+      openB: [0, 1],
+    },
+    {
+      pattern: 'west wall plus southeast corner',
+      cardinal: [0, -1],
+      diagonal: [1, 1],
+      openA: [1, 0],
+      openB: [0, 1],
+    },
+    {
+      pattern: 'north wall plus southeast corner',
+      cardinal: [-1, 0],
+      diagonal: [1, 1],
+      openA: [0, 1],
+      openB: [1, 0],
+    },
+    {
+      pattern: 'north wall plus southwest corner',
+      cardinal: [-1, 0],
+      diagonal: [1, -1],
+      openA: [0, -1],
+      openB: [1, 0],
+    },
+    {
+      pattern: 'south wall plus northeast corner',
+      cardinal: [1, 0],
+      diagonal: [-1, 1],
+      openA: [0, 1],
+      openB: [-1, 0],
+    },
+    {
+      pattern: 'south wall plus northwest corner',
+      cardinal: [1, 0],
+      diagonal: [-1, -1],
+      openA: [0, -1],
+      openB: [-1, 0],
+    },
+  ] as const;
+
+  for (let row = 1; row < LEVEL_HEIGHT_TILES - 1; row++) {
+    for (let column = 1; column < LEVEL_WIDTH_TILES - 1; column++) {
+      const symbol = FOUNDATION_LEVEL_MAP[row][column] as LevelTileSymbol;
+      if (isSolidSymbol(symbol)) {
+        continue;
+      }
+
+      for (const pattern of patterns) {
+        if (
+          isSolidAtOffset(row, column, pattern.cardinal) &&
+          isSolidAtOffset(row, column, pattern.diagonal) &&
+          !isSolidAtOffset(row, column, pattern.openA) &&
+          !isSolidAtOffset(row, column, pattern.openB)
+        ) {
+          pinches.push({ row, column, pattern: pattern.pattern });
+        }
+      }
+    }
+  }
+
+  return pinches;
+}
+
+function isSolidAtOffset(row: number, column: number, offset: readonly [number, number]): boolean {
+  return isSolidSymbol(FOUNDATION_LEVEL_MAP[row + offset[0]][column + offset[1]] as LevelTileSymbol);
 }

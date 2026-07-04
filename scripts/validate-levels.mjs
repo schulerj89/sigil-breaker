@@ -75,6 +75,7 @@ function validateLevel(levelData) {
   const narrowTiles = [];
   const narrowSegments = [];
   const diagonalCornerCuts = [];
+  const cornerPinches = [];
 
   for (let row = 0; row < map.length; row++) {
     const line = map[row];
@@ -122,6 +123,7 @@ function validateLevel(levelData) {
   errors.push(...validateBoundary(map, width, height));
   narrowSegments.push(...findNarrowSegments(map, minimumOpenTiles));
   diagonalCornerCuts.push(...findDiagonalCornerCuts(map));
+  cornerPinches.push(...findCornerPinches(map));
 
   if (narrowTiles.length > 0) {
     const preview = narrowTiles
@@ -151,6 +153,14 @@ function validateLevel(levelData) {
       .map((cut) => `2x2 at row ${cut.row}, column ${cut.column} ${cut.pattern}`)
       .join(', ');
     errors.push(`Found ${diagonalCornerCuts.length} one-tile diagonal corner cut(s): ${preview}`);
+  }
+
+  if (cornerPinches.length > 0) {
+    const preview = cornerPinches
+      .slice(0, 12)
+      .map((pinch) => `row ${pinch.row}, column ${pinch.column} ${pinch.pattern}`)
+      .join(', ');
+    errors.push(`Found ${cornerPinches.length} one-tile corner pinch point(s): ${preview}`);
   }
 
   if (spawnCount === 1 && exitCount === 1 && !spawnCanReachExit(map)) {
@@ -233,6 +243,95 @@ function findDiagonalCornerCuts(map) {
   }
 
   return cuts;
+}
+
+function findCornerPinches(map) {
+  const pinches = [];
+  const height = map.length;
+  const width = map[0]?.length ?? 0;
+  const patterns = [
+    {
+      pattern: 'east wall plus northwest corner',
+      cardinal: [0, 1],
+      diagonal: [-1, -1],
+      openA: [-1, 0],
+      openB: [0, -1],
+    },
+    {
+      pattern: 'east wall plus southwest corner',
+      cardinal: [0, 1],
+      diagonal: [1, -1],
+      openA: [1, 0],
+      openB: [0, -1],
+    },
+    {
+      pattern: 'west wall plus northeast corner',
+      cardinal: [0, -1],
+      diagonal: [-1, 1],
+      openA: [-1, 0],
+      openB: [0, 1],
+    },
+    {
+      pattern: 'west wall plus southeast corner',
+      cardinal: [0, -1],
+      diagonal: [1, 1],
+      openA: [1, 0],
+      openB: [0, 1],
+    },
+    {
+      pattern: 'north wall plus southeast corner',
+      cardinal: [-1, 0],
+      diagonal: [1, 1],
+      openA: [0, 1],
+      openB: [1, 0],
+    },
+    {
+      pattern: 'north wall plus southwest corner',
+      cardinal: [-1, 0],
+      diagonal: [1, -1],
+      openA: [0, -1],
+      openB: [1, 0],
+    },
+    {
+      pattern: 'south wall plus northeast corner',
+      cardinal: [1, 0],
+      diagonal: [-1, 1],
+      openA: [0, 1],
+      openB: [-1, 0],
+    },
+    {
+      pattern: 'south wall plus northwest corner',
+      cardinal: [1, 0],
+      diagonal: [-1, -1],
+      openA: [0, -1],
+      openB: [-1, 0],
+    },
+  ];
+
+  for (let row = 1; row < height - 1; row++) {
+    for (let column = 1; column < width - 1; column++) {
+      if (SOLID_SYMBOLS.has(map[row][column])) {
+        continue;
+      }
+
+      for (const pattern of patterns) {
+        const [cardinalRow, cardinalColumn] = pattern.cardinal;
+        const [diagonalRow, diagonalColumn] = pattern.diagonal;
+        const [openARow, openAColumn] = pattern.openA;
+        const [openBRow, openBColumn] = pattern.openB;
+        if (
+          SOLID_SYMBOLS.has(map[row + cardinalRow][column + cardinalColumn]) &&
+          SOLID_SYMBOLS.has(map[row + diagonalRow][column + diagonalColumn]) &&
+          !SOLID_SYMBOLS.has(map[row + openARow][column + openAColumn]) &&
+          !SOLID_SYMBOLS.has(map[row + openBRow][column + openBColumn])
+        ) {
+          pinches.push({ row, column, pattern: pattern.pattern });
+        }
+      }
+    }
+  }
+
+  return pinches;
 }
 
 function validateBoundary(map, width, height) {
