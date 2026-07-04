@@ -195,7 +195,6 @@ function createShellMarkup(): string {
         <div class="rotate-prompt__content">
           <div class="rotate-prompt__icon" aria-hidden="true">
             <span class="rotate-prompt__phone"></span>
-            <span class="rotate-prompt__arrow"></span>
           </div>
           <div class="rotate-prompt__label">ROTATE TO LANDSCAPE</div>
         </div>

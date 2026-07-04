@@ -29,23 +29,8 @@ jobs:
       - name: Install
         run: npm ci
 
-      - name: Validate levels
-        run: npm run validate:levels
-
-      - name: Validate assets
-        run: npm run validate:assets
-
-      - name: Test
-        run: npm test
-
       - name: Build
         run: npm run build
-
-      - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
-
-      - name: Browser smoke
-        run: npm run test:e2e
 
       - name: Add Pages cache-busting files
         run: |

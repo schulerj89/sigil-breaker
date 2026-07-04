@@ -66,7 +66,7 @@
       "intendedUse": "weapon-sfx",
       "durationSeconds": 1.1,
       "loopable": false,
-      "volume": 0.88,
+      "volume": 1,
       "lufsTarget": -14,
       "generatedAt": "2026-07-04T17:00:43.795Z"
     },

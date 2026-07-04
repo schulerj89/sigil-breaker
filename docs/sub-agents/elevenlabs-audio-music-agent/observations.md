@@ -11,12 +11,14 @@ Status: complete for foundation weapon SFX and music slice.
 - Source prompts, endpoint names, model IDs, output format, bytes, hashes, LUFS targets, loopability, and intended use are recorded in `source-metadata.json` and `docs/assets/source-ledger.json`.
 - Runtime code uses cache-busted public MP3 files only; no ElevenLabs secret is present in browser code.
 - Music unlocks from a user gesture and has a compact mute toggle in the landscape HUD.
+- VAULT keeps the same generated MP3 file, but runtime playback gain and source metadata volume were raised to `1.0` because the heavy pulse sounded too quiet.
 
 ## Decisions
 
 - Treat this audio as generated provider output, not CC0 external art; the asset validator now has a generated-audio metadata gate.
 - Use MP3 44.1 kHz 128 kbps output to keep the MVP foundation payload small.
 - Keep weapon SFX dry and short so later enemy/impact sounds can layer without masking the fire cadence.
+- Use runtime gain tweaks for small mix fixes when the source file, hash, and bytes do not change.
 - Make the foundation music loop muted/unmuted through UI state and localStorage, while still starting only after user interaction.
 
 ## Caught Issues
@@ -29,4 +31,5 @@ Status: complete for foundation weapon SFX and music slice.
 
 - Mobile game-feel and playthrough QA should check whether the 24 second loop feels too repetitive during longer routes.
 - Future weapon upgrades should add separate reload, impact, pickup, and UI SFX assets instead of reusing these firing sounds.
+- Audio QA should compare VAULT against SPARK and BORE after future SFX changes so heavy shots do not fall behind the mix again.
 - Any voice line must include captions before gameplay use.

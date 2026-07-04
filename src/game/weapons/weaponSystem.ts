@@ -24,8 +24,8 @@ const WALL_AVOIDANCE_START_DISTANCE = 0.34;
 const MIN_BLOCKED_SHOT_DISTANCE_UNITS = 0.35;
 const AIM_FOV_OFFSET_DEGREES = 8;
 const MIN_AIM_FOV_DEGREES = 58;
-const AIM_IN_SPEED = 12;
-const AIM_OUT_SPEED = 7;
+const AIM_IN_RESPONSE = 8;
+const AIM_OUT_RESPONSE = 6;
 
 export interface WeaponShotSnapshot {
   sequence: number;
@@ -51,6 +51,11 @@ export interface WeaponSystemSnapshot {
   assetLoadErrors: string[];
   audio: WeaponAudioSnapshot;
   effectPose: WeaponShotEffectPositions;
+  effectStyle: {
+    muzzleColor: string;
+    tracerColor: string;
+    impactColor: string;
+  };
   lastShot: WeaponShotSnapshot | null;
 }
 
@@ -65,10 +70,10 @@ export class WeaponSystem {
   private readonly audio = new WeaponAudio();
   private readonly viewRoot = new THREE.Group();
   private readonly modelSlot = new THREE.Group();
-  private readonly muzzleFlash: THREE.Mesh;
+  private readonly muzzleFlash: THREE.Mesh<THREE.CircleGeometry, THREE.MeshBasicMaterial>;
   private readonly shotFeedbackRoot = new THREE.Group();
-  private readonly shotTracer: THREE.Line;
-  private readonly wallImpact: THREE.Mesh;
+  private readonly shotTracer: THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>;
+  private readonly wallImpact: THREE.Mesh<THREE.RingGeometry, THREE.MeshBasicMaterial>;
   private readonly wallAvoidanceDirection = new THREE.Vector3();
   private readonly wallAvoidanceProbe = new THREE.Vector3();
   private readonly baseCameraFov: number;
@@ -105,6 +110,7 @@ export class WeaponSystem {
     this.shotFeedbackRoot.name = 'first-person-shot-feedback-root';
     this.shotTracer = createShotTracer();
     this.wallImpact = createWallImpact();
+    this.updateEffectStyle();
     this.viewRoot.add(this.modelSlot);
     this.shotFeedbackRoot.add(this.muzzleFlash, this.shotTracer, this.wallImpact);
     this.camera.add(this.viewRoot, this.shotFeedbackRoot);
@@ -133,10 +139,11 @@ export class WeaponSystem {
       this.reloadCompleteAt = 0;
     }
 
-    this.aimBlend = approach(
+    this.aimBlend = damp(
       this.aimBlend,
       this.isFiringHeld() ? 1 : 0,
-      deltaSeconds * (this.isFiringHeld() ? AIM_IN_SPEED : AIM_OUT_SPEED),
+      deltaSeconds,
+      this.isFiringHeld() ? AIM_IN_RESPONSE : AIM_OUT_RESPONSE,
     );
     this.updateCameraFov();
 
@@ -179,7 +186,7 @@ export class WeaponSystem {
       magazineSize: this.activeWeapon.magazineSize,
       isReloading: this.reloadCompleteAt > 0,
       isFireHeld: this.isFiringHeld(),
-      aimBlend: roundMetric(this.aimBlend),
+      aimBlend: roundMetric(this.getEasedAimBlend()),
       cameraFovDegrees: roundMetric(this.camera.fov),
       shotCount: this.shotCount,
       wallAvoidance: roundMetric(this.wallAvoidance),
@@ -197,6 +204,11 @@ export class WeaponSystem {
           this.getViewPose(),
         ),
       ),
+      effectStyle: {
+        muzzleColor: toHexColor(this.activeWeapon.effects.muzzleColor),
+        tracerColor: toHexColor(this.activeWeapon.effects.tracerColor),
+        impactColor: toHexColor(this.activeWeapon.effects.impactColor),
+      },
       lastShot: this.lastShot,
     };
   }
@@ -265,6 +277,7 @@ export class WeaponSystem {
 
     this.activeWeapon = nextWeapon;
     this.reloadCompleteAt = 0;
+    this.updateEffectStyle();
     const loadedWeapon = this.loadedWeapons.get(nextWeapon.id);
     if (loadedWeapon) {
       this.attachLoadedWeapon(loadedWeapon);
@@ -294,7 +307,7 @@ export class WeaponSystem {
     this.ammoByWeapon.set(this.activeWeapon.id, ammo - 1);
     this.nextShotAt = now + this.activeWeapon.fireIntervalMs;
     this.reloadCompleteAt = ammo - 1 <= 0 ? now + this.activeWeapon.reloadMs : 0;
-    this.muzzleFlashUntil = now + 70;
+    this.muzzleFlashUntil = now + this.activeWeapon.effects.flashMs;
     this.recoil = Math.min(0.18, this.recoil + this.activeWeapon.recoilKick);
     this.shotCount++;
     this.traceShot(now);
@@ -331,7 +344,7 @@ export class WeaponSystem {
       tile: hit?.tile ? [hit.tile.column, hit.tile.row] : null,
     };
     this.shotFeedbackDistance = distance;
-    this.shotFeedbackUntil = now + 95;
+    this.shotFeedbackUntil = now + this.activeWeapon.effects.feedbackMs;
     this.updateShotFeedback(distance);
   }
 
@@ -380,8 +393,22 @@ export class WeaponSystem {
     return {
       recoil: this.recoil,
       wallAvoidance: this.wallAvoidance,
-      aimBlend: this.aimBlend,
+      aimBlend: this.getEasedAimBlend(),
     };
+  }
+
+  private getEasedAimBlend(): number {
+    return smoothstep(this.aimBlend);
+  }
+
+  private updateEffectStyle(): void {
+    const { effects } = this.activeWeapon;
+    this.muzzleFlash.material.color.setHex(effects.muzzleColor);
+    this.muzzleFlash.scale.setScalar(effects.muzzleScale);
+    this.shotTracer.material.color.setHex(effects.tracerColor);
+    this.shotTracer.material.opacity = effects.tracerOpacity;
+    this.wallImpact.material.color.setHex(effects.impactColor);
+    this.wallImpact.scale.setScalar(effects.impactScale);
   }
 
   private attachLoadedWeapon(loadedWeapon: LoadedWeapon): void {
@@ -586,7 +613,7 @@ export class WeaponSystem {
   }
 }
 
-function createMuzzleFlash(): THREE.Mesh {
+function createMuzzleFlash(): THREE.Mesh<THREE.CircleGeometry, THREE.MeshBasicMaterial> {
   const geometry = new THREE.CircleGeometry(0.11, 18);
   const material = new THREE.MeshBasicMaterial({
     color: 0xffd06a,
@@ -602,7 +629,7 @@ function createMuzzleFlash(): THREE.Mesh {
   return mesh;
 }
 
-function createShotTracer(): THREE.Line {
+function createShotTracer(): THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial> {
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
   const material = new THREE.LineBasicMaterial({
@@ -617,7 +644,7 @@ function createShotTracer(): THREE.Line {
   return line;
 }
 
-function createWallImpact(): THREE.Mesh {
+function createWallImpact(): THREE.Mesh<THREE.RingGeometry, THREE.MeshBasicMaterial> {
   const geometry = new THREE.RingGeometry(0.035, 0.07, 16);
   const material = new THREE.MeshBasicMaterial({
     color: 0xffe28a,
@@ -633,7 +660,7 @@ function createWallImpact(): THREE.Mesh {
 }
 
 function updateShotTracer(
-  tracer: THREE.Line,
+  tracer: THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>,
   muzzle: readonly [number, number, number],
   tracerEnd: readonly [number, number, number],
 ): void {
@@ -718,14 +745,20 @@ function clamp01(value: number): number {
   return Math.min(1, Math.max(0, value));
 }
 
-function approach(current: number, target: number, delta: number): number {
-  if (current < target) {
-    return Math.min(target, current + delta);
-  }
-
-  return Math.max(target, current - delta);
-}
-
 function lerp(start: number, end: number, amount: number): number {
   return start + (end - start) * amount;
+}
+
+function damp(current: number, target: number, deltaSeconds: number, response: number): number {
+  const amount = 1 - Math.exp(-response * Math.min(deltaSeconds, 0.05));
+  return current + (target - current) * amount;
+}
+
+function smoothstep(value: number): number {
+  const clamped = clamp01(value);
+  return clamped * clamped * (3 - 2 * clamped);
+}
+
+function toHexColor(value: number): string {
+  return `#${value.toString(16).padStart(6, '0')}`;
 }

@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T18:02:30Z",
-  "summary": "Manual smoke remains green, and MVP-fast Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, hold-fire aim/zoom, effect-pose alignment, pitch-corrected shot math, entry-splitter validation, movement collision, browser zoom guards, right-side control layout, steel foundation texture loading/rendering, ElevenLabs audio loading, music mute, the weapon cycle button, and animated portrait rotate prompt layout.",
+  "updatedAt": "2026-07-04T18:24:54Z",
+  "summary": "Manual smoke remains green, and MVP-fast local Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, smoothed hold-fire aim/zoom, effect-pose alignment, pitch-corrected shot math, entry-splitter validation, movement collision, browser zoom guards, right-side control layout, steel foundation texture loading/rendering, ElevenLabs audio loading, music mute, the weapon cycle button, and phone-only animated portrait rotate prompt layout.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -50,11 +50,14 @@
     "Browser smoke verifies the bottom weapon tray and [data-weapon-button] elements are absent.",
     "Browser smoke verifies [data-weapon-cycle-button] is visible, then cycles SPARK to BORE to VAULT and back to SPARK while checking HUD label and data-active-weapon-id.",
     "Browser smoke expects zero runtime weapon preview resource URLs because the preview tray has been removed.",
-    "Browser smoke checks the rotate prompt phone and arrow have active CSS animation names.",
+    "Browser smoke checks the rotate prompt phone has an active CSS animation name.",
+    "Browser smoke now expects the rotate prompt arrow to be absent.",
+    "Browser smoke now checks snapshot.weapon.effectStyle while cycling weapons so SPARK, BORE, and VAULT keep distinct effect colors.",
     "The Playwright request-failed filter narrowly ignores only Chromium net::ERR_ABORTED audio request shutdowns for the ElevenLabs audio path.",
     "Latest screenshot artifacts live under artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/.",
     "CI smoke now uses a synthetic cancelable WheelEvent for the ctrl-wheel zoom guard because page.mouse.wheel was timing-sensitive under mobile emulation.",
-    "The e2e per-test timeout is 240 seconds so the heavy modern-phone project has enough GitHub runner headroom."
+    "The e2e per-test timeout is 240 seconds so the heavy modern-phone project has enough GitHub runner headroom.",
+    "GitHub Pages deploy CI is intentionally lightweight now; local validation is the testing gate before commit/push."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -74,7 +77,7 @@
     "Keep audio asset cache-busting and music mute state in browser smoke.",
     "Keep portrait prompt smoke scoped to chromium-modern-phone-landscape until a specific portrait bug requires all-viewports coverage.",
     "Treat the single weapon cycle button as the MVP weapon switching contract.",
-    "Keep rotate-prompt animation checks lightweight by reading computed animation names.",
+    "Keep rotate-prompt animation checks lightweight by reading the phone's computed animation name.",
     "Use deterministic synthetic DOM events for zoom-guard assertions when browser chrome or input emulation is not the thing being tested."
   ],
   "caughtIssues": [
@@ -89,7 +92,9 @@
     "Earlier fire smoke only proved one shot and did not catch hold cadence, release cleanup, FOV zoom, or weapon-centering state.",
     "Existing smoke validates the debug effect pose for firing alignment, but it still cannot reliably freeze the short visible flash in a deterministic frame.",
     "HTMLMediaElement MP3 fetches can emit net::ERR_ABORTED when the page closes after cycling/mute tests; the smoke filter is intentionally scoped to the ElevenLabs audio path only.",
-    "GitHub Actions caught that page.mouse.wheel plus Control could wait too long under mobile emulation; direct WheelEvent dispatch now tests the same zoom-guard handler without depending on that input path."
+    "GitHub Actions caught that page.mouse.wheel plus Control could wait too long under mobile emulation; direct WheelEvent dispatch now tests the same zoom-guard handler without depending on that input path.",
+    "The old rotate arrow made the portrait prompt look noisy; smoke should keep checking that only the phone animation remains.",
+    "Timed flash screenshots are unreliable in headless capture, so per-weapon effect color is asserted through snapshot.weapon.effectStyle."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
@@ -105,7 +110,8 @@
     "e2e/foundation-smoke.spec.ts",
     "src/game/mobileZoomGuard.ts",
     "artifacts/sub-agents/20260704-weapon-framing/smoke-qa-agent",
-    "artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent"
+    "artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent",
+    "artifacts/sub-agents/20260704-weapon-effects-smoothing/smoke-qa-agent"
   ],
   "jsonForAgents": {
     "latestManualSmoke": {
@@ -177,8 +183,10 @@
       "holdFireAimFullViewportOnly": true,
       "holdFireReleaseChecked": true,
       "weaponCycleButtonChecked": true,
+      "weaponEffectStyleChecked": true,
       "bottomWeaponTrayAbsentChecked": true,
       "rotatePromptAnimationChecked": true,
+      "rotatePromptArrowAbsentChecked": true,
       "foundationEnvironmentTexturesChecked": true,
       "foundationEnvironmentTexturesRenderedChecked": true,
       "elevenLabsAudioChecked": true,
@@ -214,7 +222,8 @@
       "elevenLabsAudioCacheBusted",
       "musicMuteButtonToggles",
       "portraitRotatePromptVisible",
-      "portraitRotatePromptAnimationActive"
+      "portraitRotatePromptAnimationActive",
+      "portraitRotatePromptArrowAbsent"
     ],
     "screenshotNames": [
       "boot-mobile-landscape.png",
@@ -227,7 +236,8 @@
       "tracer-spark-pitch-down.png",
       "weapon-cycle-button-landscape.png",
       "rotate-prompt-motion-frame.png",
-      "spark-fire-frame-03.png"
+      "spark-fire-frame-03.png",
+      "rotate-prompt-phone-only.png"
     ]
   },
   "nextAgents": [

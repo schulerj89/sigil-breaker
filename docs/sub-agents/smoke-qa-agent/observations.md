@@ -1,6 +1,6 @@
 # Observations: smoke-qa-agent
 
-Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effect-pose, pitch-corrected tracer math, entry-splitter, movement-route, browser zoom-guard, hold-fire smoke, foundation texture smoke, ElevenLabs audio smoke, weapon cycle button smoke, and animated portrait rotate prompt smoke.
+Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effect-pose, pitch-corrected tracer math, entry-splitter, movement-route, browser zoom-guard, smoothed hold-fire smoke, foundation texture smoke, ElevenLabs audio smoke, weapon cycle button smoke, and phone-only animated portrait rotate prompt smoke.
 
 ## What It Saw
 
@@ -48,9 +48,13 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Browser smoke verifies `[data-weapon-cycle-button]` is visible, then cycles SPARK to BORE to VAULT and back to SPARK while checking HUD label and `data-active-weapon-id`.
 - Browser smoke expects zero runtime weapon preview resource URLs because the preview tray has been removed.
 - Browser smoke checks the rotate prompt phone and arrow have active CSS animation names.
+- Browser smoke now expects the rotate prompt arrow to be absent and the phone animation to be active.
+- Browser smoke now checks `snapshot.weapon.effectStyle` while cycling weapons so SPARK, BORE, and VAULT keep distinct effect colors.
 - The Playwright request-failed filter now narrowly ignores only Chromium `net::ERR_ABORTED` audio request shutdowns for the ElevenLabs audio path.
 - CI smoke now uses a synthetic cancelable `WheelEvent` for the ctrl-wheel zoom guard because `page.mouse.wheel` was timing-sensitive under mobile emulation.
 - The e2e per-test timeout is 240 seconds so the heavy modern-phone project has enough GitHub runner headroom.
+- GitHub Pages deploy CI is intentionally lightweight now; local validation is the testing gate before commit/push.
+- Phone-only rotate prompt screenshot is stored under `artifacts/sub-agents/20260704-weapon-effects-smoothing/smoke-qa-agent/`.
 - Latest screenshot artifacts live under `artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/`.
 
 ## Decisions
@@ -69,7 +73,8 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Keep audio URL cache-busting in the smoke gate because stale Pages audio can otherwise survive deploys.
 - Keep the portrait rotate prompt coverage scoped to the heavy viewport until portrait-specific regressions appear.
 - Treat the single weapon cycle button as the MVP weapon switching contract; do not expect preview thumbnail buttons in browser smoke.
-- Keep rotate-prompt animation checks lightweight by reading computed animation names rather than relying on pixel timing.
+- Keep rotate-prompt animation checks lightweight by reading the phone's computed animation name rather than relying on pixel timing.
+- Keep heavy browser smoke out of the Pages workflow unless the deploy gate strategy is intentionally revisited.
 - Use deterministic synthetic DOM events for zoom-guard assertions when browser chrome or input emulation is not the thing being tested.
 
 ## Caught Issues
@@ -87,6 +92,9 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Earlier fire smoke only proved one shot; it did not catch hold cadence, release cleanup, FOV zoom, or weapon-centering state.
 - HTMLMediaElement MP3 fetches can emit `net::ERR_ABORTED` when the page closes after cycling/mute tests; the smoke filter is intentionally scoped to that ElevenLabs audio path only.
 - GitHub Actions caught that `page.mouse.wheel` plus Control could wait too long under mobile emulation; direct `WheelEvent` dispatch now tests the same zoom-guard handler without depending on that input path.
+- The old rotate arrow made the portrait prompt look noisy; smoke should keep checking that only the phone animation remains.
+- Timed flash screenshots are unreliable in headless capture, so per-weapon effect color is asserted through `snapshot.weapon.effectStyle`.
+- For this pass, only the rotate-prompt screenshot was kept because held-fire headless frames did not capture readable weapon flashes.
 
 ## Next Handoff Notes
 

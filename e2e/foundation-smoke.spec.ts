@@ -65,6 +65,11 @@ interface DebugSnapshot {
       tracerEnd: [number, number, number];
       wallImpact: [number, number, number];
     };
+    effectStyle: {
+      muzzleColor: string;
+      tracerColor: string;
+      impactColor: string;
+    };
     lastShot: {
       blockedByWall: boolean;
       distanceUnits: number;
@@ -400,13 +405,14 @@ async function verifyPortraitRotatePrompt(page: Page): Promise<void> {
     const phone = document.querySelector<HTMLElement>('.rotate-prompt__phone');
     const arrow = document.querySelector<HTMLElement>('.rotate-prompt__arrow');
 
-    if (!prompt || !icon || !label || !phone || !arrow) {
+    if (!prompt || !icon || !label || !phone) {
       return {
         present: false,
         coversViewport: false,
         iconVisible: false,
         labelFits: false,
         animationActive: false,
+        arrowAbsent: false,
       };
     }
 
@@ -422,9 +428,8 @@ async function verifyPortraitRotatePrompt(page: Page): Promise<void> {
         promptRect.bottom >= window.innerHeight,
       iconVisible: iconRect.width >= 100 && iconRect.height >= 80,
       labelFits: label.scrollWidth <= label.clientWidth + 1 && label.scrollHeight <= label.clientHeight + 1,
-      animationActive:
-        getComputedStyle(phone).animationName !== 'none' &&
-        getComputedStyle(arrow).animationName !== 'none',
+      animationActive: getComputedStyle(phone).animationName !== 'none',
+      arrowAbsent: arrow === null,
     };
   });
 
@@ -433,6 +438,7 @@ async function verifyPortraitRotatePrompt(page: Page): Promise<void> {
   expect(promptFit.iconVisible).toBe(true);
   expect(promptFit.labelFits).toBe(true);
   expect(promptFit.animationActive).toBe(true);
+  expect(promptFit.arrowAbsent).toBe(true);
 
   await page.setViewportSize({ width: 844, height: 390 });
   await expect(page.locator('.rotate-prompt')).toBeHidden();
@@ -440,20 +446,45 @@ async function verifyPortraitRotatePrompt(page: Page): Promise<void> {
 
 async function verifyWeaponCycleButton(page: Page): Promise<void> {
   const cycleButton = page.locator('[data-weapon-cycle-button]');
+  let snapshot = await readDebugSnapshot(page);
+  expect(snapshot.weapon.effectStyle).toEqual({
+    muzzleColor: '#8df7ff',
+    tracerColor: '#7dd3fc',
+    impactColor: '#b7f3ff',
+  });
+
   await cycleButton.click();
   await expect.poll(async () => (await readDebugSnapshot(page)).weapon.activeWeaponId).toBe('weapon.blaster.bore');
+  snapshot = await readDebugSnapshot(page);
   await expect(page.locator('[data-weapon-label]')).toHaveText('BORE');
   await expect(cycleButton).toHaveAttribute('data-active-weapon-id', 'weapon.blaster.bore');
+  expect(snapshot.weapon.effectStyle).toEqual({
+    muzzleColor: '#ff8a3d',
+    tracerColor: '#ffc45c',
+    impactColor: '#ff7a3c',
+  });
 
   await cycleButton.click();
   await expect.poll(async () => (await readDebugSnapshot(page)).weapon.activeWeaponId).toBe('weapon.blaster.vault');
+  snapshot = await readDebugSnapshot(page);
   await expect(page.locator('[data-weapon-label]')).toHaveText('VAULT');
   await expect(cycleButton).toHaveAttribute('data-active-weapon-id', 'weapon.blaster.vault');
+  expect(snapshot.weapon.effectStyle).toEqual({
+    muzzleColor: '#c084fc',
+    tracerColor: '#e879f9',
+    impactColor: '#a78bfa',
+  });
 
   await cycleButton.click();
   await expect.poll(async () => (await readDebugSnapshot(page)).weapon.activeWeaponId).toBe('weapon.blaster.spark');
+  snapshot = await readDebugSnapshot(page);
   await expect(page.locator('[data-weapon-label]')).toHaveText('SPARK');
   await expect(cycleButton).toHaveAttribute('data-active-weapon-id', 'weapon.blaster.spark');
+  expect(snapshot.weapon.effectStyle).toEqual({
+    muzzleColor: '#8df7ff',
+    tracerColor: '#7dd3fc',
+    impactColor: '#b7f3ff',
+  });
 }
 
 async function holdFireButtonUntilShotCount(page: Page, expectedShotCountFloor: number): Promise<DebugSnapshot> {

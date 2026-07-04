@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "mobile-fps-game-feel-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T16:13:24Z",
-  "summary": "Basic mobile FPS weapon feel now includes faster movement, body-only resolved player collision, wall-shot detection, full-surface zoom-safe touch input, visual weapon wall clearance, wider structural entries, splitter-post clearance, shared shot-effect pose alignment, hold-fire ADS-style zoom/centering, larger centered guns, and steel foundation room surfaces.",
+  "updatedAt": "2026-07-04T18:24:54Z",
+  "summary": "Basic mobile FPS weapon feel now includes faster movement, body-only resolved player collision, wall-shot detection, full-surface zoom-safe touch input, visual weapon wall clearance, wider structural entries, splitter-post clearance, shared shot-effect pose alignment, smoothed hold-fire ADS-style zoom/centering, distinct per-weapon shot colors, larger centered guns, and steel foundation room surfaces.",
   "observations": [
     "The right-side fire button calls the weapon system without stealing aim drags elsewhere on the look zone.",
     "SPARK, BORE, and VAULT use different cadence and recoil values.",
@@ -22,8 +22,10 @@
     "Foundation walls now render at 3.84 units tall with a 3.92-unit roof.",
     "Starter weapon view scales were increased again by about 22% and each weapon now has a right-handed hip pose plus a scope-like centered hold-fire aim pose.",
     "Holding the fire button immediately fires, continues firing by cadence, zooms the camera from 70 to 62 degrees, and blends the gun toward a centered aim pose.",
+    "Hold-fire aim now uses eased damping before applying FOV and viewmodel pose so the zoom-in/zoom-out transition feels less jerky.",
     "The fire button can drive reduced-sensitivity look while held so the right thumb can aim and fire together.",
-    "The fire button is represented by a reticle icon; the smaller gun-icon cycle button was removed and weapon switching remains in the bottom tray.",
+    "The fire button is represented by a reticle icon; weapon switching uses the smaller right-thumb gun-icon cycle button beside it.",
+    "SPARK, BORE, and VAULT now have distinct placeholder shot colors and effect sizes for readability while final external VFX assets are pending.",
     "Weapon debug state now includes isFireHeld, aimBlend, and cameraFovDegrees.",
     "The foundation level now uses steel-toned Kenney CC0 prototype textures for floor, walls, and roof.",
     "A full-level roof plane sits above the wall height."
@@ -38,13 +40,15 @@
     "Do not center continuing wall posts inside structural entries unless both resulting branches meet the splitter clearance rule.",
     "Do not allow later non-UI touches to overwrite active move/look pointer IDs.",
     "Treat the fire button as the current mobile ADS-plus-trigger hold for MVP.",
+    "Use eased aim blend for camera FOV and weapon pose rather than a linear step.",
     "Keep fire-button drag aiming slower than the main look zone.",
     "Keep per-weapon aim poses in the manifest because starter gun silhouettes differ."
   ],
   "caughtIssues": [
     "Fast repeated fire and full-canvas look taps needed explicit double-tap zoom prevention.",
     "Weapon-only movement blocking caused unrecoverable stuck states when the player turned near entries.",
-    "Tap-only fire did not provide enough FPS feel; the fire action needed continuous cadence, aim zoom, and centered weapon framing."
+    "Tap-only fire did not provide enough FPS feel; the fire action needed continuous cadence, aim zoom, and centered weapon framing.",
+    "The first hold-fire zoom response felt too abrupt; future changes should keep the eased damping behavior or replace it with a better measured transition."
   ],
   "risks": [
     "Without hit detection or enemy response, weapon feel can only be judged on cadence, recoil, audio, and UI responsiveness.",
@@ -88,7 +92,8 @@
       "fireLookSensitivityMultiplier": 0.72,
       "fireLookDeadZonePx": 3,
       "continuousCadence": true,
-      "immediateFirstShot": true
+      "immediateFirstShot": true,
+      "aimBlendUsesEasedDamping": true
     },
     "viewmodel": {
       "wallHeightUnits": 3.84,
@@ -135,6 +140,11 @@
       "followsViewOffset": true,
       "followsRecoil": true,
       "followsWallAvoidance": true
+    },
+    "shotEffectStyles": {
+      "weapon.blaster.spark": "cyan",
+      "weapon.blaster.bore": "orange",
+      "weapon.blaster.vault": "violet"
     },
     "reviewFocus": [
       "movement",

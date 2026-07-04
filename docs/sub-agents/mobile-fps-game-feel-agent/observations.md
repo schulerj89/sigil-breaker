@@ -1,6 +1,6 @@
 # Observations: mobile-fps-game-feel-agent
 
-Status: complete after body-only movement collision, wall-shot, entry-width, splitter, weapon-effect tuning, touch zoom-guard, hold-fire aim, speed, and steel foundation pass.
+Status: complete after body-only movement collision, wall-shot, entry-width, splitter, weapon-effect tuning, touch zoom-guard, smoothed hold-fire aim, speed, and steel foundation pass.
 
 ## What It Saw
 
@@ -21,8 +21,10 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - Foundation walls now render at 3.84 units tall with the roof raised to 3.92 units so the first-person space reads more enclosed on mobile.
 - First-person gun view scales were increased again by about 22%, and each weapon now has a right-handed hip pose plus a scope-like centered hold-fire aim pose.
 - Holding the fire button immediately fires, continues firing by weapon cadence, zooms the camera from 70 to 62 degrees, and blends the gun toward a centered aim pose.
+- Hold-fire aim now uses eased damping before applying FOV and viewmodel pose so the zoom-in/zoom-out transition feels less jerky.
 - The fire button can also drive right-thumb look at reduced sensitivity while held, with a small dead zone to prevent accidental camera jumps.
-- The fire button is now a reticle icon; the smaller gun-icon cycle button was removed, and weapon switching remains in the bottom tray.
+- The fire button is a reticle icon; weapon switching uses the smaller right-thumb gun-icon cycle button beside it.
+- SPARK, BORE, and VAULT now have distinct placeholder shot colors and effect sizes for readability while final external VFX assets are pending.
 - The foundation level now uses steel-toned Kenney CC0 prototype textures for floor, walls, and roof, with a full-level roof plane above the wall height.
 - Debug state now exposes `weapon.isFireHeld`, `weapon.aimBlend`, and `weapon.cameraFovDegrees` for QA and tuning.
 
@@ -36,6 +38,7 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - Keep door-like structural entries wider than ordinary lanes so right-shifted weapon presentation stays readable.
 - Keep wall posts out of the center of structural entries unless both resulting branches satisfy the splitter clearance rule.
 - Treat the fire button as the current mobile ADS-plus-trigger hold for MVP, not a single-tap fire action.
+- Use eased aim blend for camera FOV and weapon pose rather than a linear step.
 - Keep fire-button drag aiming slower than the main right-side look zone for controllability.
 - Keep per-weapon aim poses in the manifest because the three starter guns have different silhouettes.
 
@@ -46,6 +49,7 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - Weapon-only overlap used to hard-block movement and could trap the player after turning near an entry; future changes must keep weapon collision recoverable.
 - A 5-tile entry can still feel like two 2-tile branches when a continuing divider post sits just inside the opening.
 - Tap-only fire did not give enough FPS feel; the hold action needed aim zoom, continuous cadence, and centered weapon framing.
+- The first hold-fire zoom response felt too abrupt; future changes should keep the eased damping behavior or replace it with a better measured transition.
 
 ## Next Handoff Notes
 
@@ -53,3 +57,4 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - Do not reintroduce the weapon footprint as a hard movement collider unless escape movement and yaw recovery are explicitly handled.
 - Do not let future gesture recognizers replace active move/look pointer IDs; multi-touch combat depends on stable pointer ownership.
 - Playthrough QA should re-check hold-fire while turning and moving because fire now owns aim, cadence, FOV, and pose state.
+- Playthrough QA should re-check SPARK cyan, BORE orange, and VAULT violet shot readability in landscape phone view.

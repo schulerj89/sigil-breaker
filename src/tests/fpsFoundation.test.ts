@@ -180,12 +180,16 @@ describe('FPS foundation config', () => {
     const weaponIds = WEAPON_DEFINITIONS.map((weapon) => weapon.id);
     const totalModelBytes = WEAPON_DEFINITIONS.reduce((total, weapon) => total + weapon.modelBytes, 0);
     const clearance = getWeaponFootprintClearance();
+    const muzzleColors = new Set(WEAPON_DEFINITIONS.map((weapon) => weapon.effects.muzzleColor));
+    const tracerColors = new Set(WEAPON_DEFINITIONS.map((weapon) => weapon.effects.tracerColor));
 
     expect(WEAPON_ASSET_SOURCE.license).toBe('Creative Commons Zero, CC0');
     expect(WEAPON_ASSET_SOURCE.attributionRequired).toBe(false);
     expect(WEAPON_DEFINITIONS).toHaveLength(3);
     expect(new Set(weaponIds).size).toBe(WEAPON_DEFINITIONS.length);
     expect(totalModelBytes).toBeLessThan(1_000_000);
+    expect(muzzleColors.size).toBe(WEAPON_DEFINITIONS.length);
+    expect(tracerColors.size).toBe(WEAPON_DEFINITIONS.length);
 
     for (const weapon of WEAPON_DEFINITIONS) {
       expect(weapon.modelPath).toMatch(/^assets\/weapons\/kenney-blaster-kit\/models\/.+\.glb$/);
@@ -204,6 +208,11 @@ describe('FPS foundation config', () => {
       expect(getWeaponMuzzleLocalOffset(weapon.view)).toHaveLength(3);
       expect(weapon.view.muzzleLocalOffset[2]).toBeGreaterThan(-0.65);
       expect(weapon.view.muzzleLocalOffset[2]).toBeLessThan(-0.35);
+      expect(weapon.effects.muzzleScale).toBeGreaterThan(0.8);
+      expect(weapon.effects.impactScale).toBeGreaterThan(0.8);
+      expect(weapon.effects.tracerOpacity).toBeGreaterThan(0.75);
+      expect(weapon.effects.flashMs).toBeGreaterThan(45);
+      expect(weapon.effects.feedbackMs).toBeGreaterThan(75);
     }
   });
 
@@ -220,6 +229,7 @@ describe('FPS foundation config', () => {
     expect(WEAPON_AUDIO_ASSETS.sidearm.path).toBe('assets/audio/elevenlabs-foundation/spark-sidearm.mp3');
     expect(WEAPON_AUDIO_ASSETS.scatter.path).toBe('assets/audio/elevenlabs-foundation/bore-scatter.mp3');
     expect(WEAPON_AUDIO_ASSETS.heavy.path).toBe('assets/audio/elevenlabs-foundation/vault-heavy.mp3');
+    expect(WEAPON_AUDIO_ASSETS.heavy.volume).toBe(1);
     expect(FOUNDATION_MUSIC_ASSET.path).toBe(
       'assets/audio/elevenlabs-foundation/foundation-combat-loop.mp3',
     );
@@ -236,16 +246,23 @@ describe('FPS foundation config', () => {
     const spark = getWeaponById('weapon.blaster.spark');
     const bore = getWeaponById('weapon.blaster.bore');
     const vault = getWeaponById('weapon.blaster.vault');
+    const sparkRoot = getWeaponRootCameraPosition(spark.view, neutralPose);
+    const boreRoot = getWeaponRootCameraPosition(bore.view, neutralPose);
+    const vaultRoot = getWeaponRootCameraPosition(vault.view, neutralPose);
+    const sparkMuzzle = getWeaponMuzzleCameraPosition(spark.view, neutralPose);
+    const boreMuzzle = getWeaponMuzzleCameraPosition(bore.view, neutralPose);
+    const vaultMuzzle = getWeaponMuzzleCameraPosition(vault.view, neutralPose);
 
     expect(muzzleOffsets.size).toBe(WEAPON_DEFINITIONS.length);
     expect(bore.view.position[1]).toBeLessThan(spark.view.position[1]);
     expect(vault.view.position[1]).toBeLessThan(bore.view.position[1]);
-    expect(getWeaponMuzzleCameraPosition(bore.view, neutralPose)[1]).toBeLessThan(
-      getWeaponMuzzleCameraPosition(spark.view, neutralPose)[1],
-    );
-    expect(getWeaponMuzzleCameraPosition(vault.view, neutralPose)[1]).toBeLessThan(
-      getWeaponMuzzleCameraPosition(bore.view, neutralPose)[1],
-    );
+    expect(spark.view.muzzleLocalOffset[0]).toBeGreaterThan(0);
+    expect(bore.view.muzzleLocalOffset[0]).toBeLessThan(spark.view.muzzleLocalOffset[0]);
+    expect(vault.view.muzzleLocalOffset[0]).toBeLessThan(spark.view.muzzleLocalOffset[0]);
+    expect(boreMuzzle[0]).toBeLessThan(boreRoot[0]);
+    expect(vaultMuzzle[0]).toBeLessThan(vaultRoot[0]);
+    expect(boreMuzzle[1] - boreRoot[1]).toBeGreaterThan(sparkMuzzle[1] - sparkRoot[1]);
+    expect(vaultMuzzle[1] - vaultRoot[1]).toBeGreaterThan(sparkMuzzle[1] - sparkRoot[1]);
 
     for (const weapon of WEAPON_DEFINITIONS) {
       const root = getWeaponRootCameraPosition(weapon.view, neutralPose);
@@ -264,7 +281,11 @@ describe('FPS foundation config', () => {
       const shiftedMuzzle = getWeaponMuzzleCameraPosition(shiftedView, neutralPose);
       const wallMuzzle = getWeaponMuzzleCameraPosition(weapon.view, wallPose);
 
-      expect(muzzle[0]).toBeGreaterThan(root[0]);
+      if (weapon.id === 'weapon.blaster.spark') {
+        expect(muzzle[0]).toBeGreaterThan(root[0]);
+      } else {
+        expect(muzzle[0]).toBeLessThan(root[0]);
+      }
       expect(muzzle[2]).toBeLessThan(root[2]);
       expect(aimRoot[0]).toBeLessThan(root[0]);
       expect(Math.abs(aimRoot[0])).toBeLessThanOrEqual(0.02);

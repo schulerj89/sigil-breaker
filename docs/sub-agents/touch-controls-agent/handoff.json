@@ -2,10 +2,10 @@
   "handoffVersion": "1.0.0",
   "agentId": "touch-controls-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T15:20:00Z",
-  "summary": "Mobile touch controls exist, the full game surface guards double-tap, pinch, WebKit gesture, and ctrl-wheel zoom paths, and the combat controls now support hold-fire aim/zoom with weapon switching through the bottom tray.",
+  "updatedAt": "2026-07-04T18:24:54Z",
+  "summary": "Mobile touch controls exist, the full game surface guards double-tap, pinch, WebKit gesture, and ctrl-wheel zoom paths, and the combat controls now support hold-fire aim/zoom with weapon switching through a right-thumb cycle button.",
   "observations": [
-    "The prototype has a left movement stick, right look zone, center weapon tray, and one right-side fire button.",
+    "The prototype has a left movement stick, right look zone, one right-side fire button, and one right-thumb weapon cycle button.",
     "Fast fire input now prevents default on pointerup, click, dblclick, and touchend for UI controls.",
     "844 x 390 browser smoke kept visualViewport.scale at 1 after repeated fire input.",
     "The game now has a document/root mobile zoom guard for full-canvas double taps, two-finger touch starts/movement, WebKit gesture events, and ctrl-wheel zoom emulation.",
@@ -13,8 +13,8 @@
     "The debug API reports viewportScale plus prevented zoom gesture, multi-touch start/move, wheel zoom, and double-tap counters.",
     "The fire button is now a reticle icon that holds to fire, zoom, and center the weapon.",
     "The held fire button can own a reduced-sensitivity look pointer when no other look pointer is active.",
-    "The smaller gun-icon weapon-cycle button was removed; weapon switching remains through the bottom weapon tray.",
-    "Browser smoke asserts control fit, reticle visibility, absence of the removed weapon-cycle selector, and hold-fire release."
+    "The smaller gun-icon weapon-cycle button sits beside the fire button; the bottom weapon tray remains removed.",
+    "Browser smoke asserts control fit, reticle visibility, weapon-cycle icon visibility, bottom-tray absence, and hold-fire release."
   ],
   "decisions": [
     "Left thumb zone owns movement.",
@@ -58,7 +58,7 @@
     ],
     "combatSelectors": {
       "fire": "data-fire-button",
-      "weaponSelect": "data-weapon-button",
+      "weaponCycle": "data-weapon-cycle-button",
       "moveStick": "data-move-stick"
     },
     "holdFireAim": {

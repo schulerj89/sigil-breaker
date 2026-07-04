@@ -2,15 +2,16 @@
   "handoffVersion": "1.0.0",
   "agentId": "landscape-title-hud-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T17:46:32Z",
-  "summary": "Landscape debug HUD now includes compact player coordinates, a music mute icon, a right-thumb weapon cycle button, and animated portrait rotate prompt coverage.",
+  "updatedAt": "2026-07-04T18:24:54Z",
+  "summary": "Landscape debug HUD now includes compact player coordinates, a music mute icon, a right-thumb weapon cycle button, and phone-only animated portrait rotate prompt coverage.",
   "observations": [
     "Center metrics HUD includes FPS, XYZ coordinates, JS heap, level triangle count, and chunk count.",
     "Coordinates use the player's debug scene position with one decimal precision.",
     "Playwright smoke checks HUD group overlap and badge text overflow across the declared mobile landscape viewport set.",
     "A compact top-right music mute button is exposed at [data-music-toggle].",
     "The portrait-only rotate prompt now includes a CSS-built phone and rotation icon.",
-    "The rotate prompt phone sweeps toward landscape with CSS motion while the arrow pulses.",
+    "The rotate prompt phone sweeps toward landscape with CSS motion.",
+    "The rotate prompt arrow was removed; the phone animation is the only orientation visual.",
     "The bottom weapon preview tray was removed and replaced by a single [data-weapon-cycle-button] beside the fire button.",
     "The weapon cycle button exposes the active weapon through data-active-weapon-id and an updated ARIA label.",
     "Screenshot QA for this pass is stored under artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/."
@@ -24,7 +25,8 @@
     "Music mute should stay an icon-sized HUD control rather than a full text badge.",
     "Portrait prompt must cover the viewport because portrait is not playable.",
     "Weapon switching should stay in the right thumb zone beside held-fire so the bottom center remains clear for the first-person viewmodel.",
-    "The rotate prompt should remain CSS-driven and respect prefers-reduced-motion."
+    "The rotate prompt should remain CSS-driven and respect prefers-reduced-motion.",
+    "The rotate prompt should stay phone-only unless a future screenshot review proves another cue is needed."
   ],
   "caughtIssues": [
     "Initial coordinate badge sizing risked crowding the 667 px landscape HUD; CSS now uses auto/minmax/auto grid columns and wrapped center metrics.",
@@ -40,7 +42,8 @@
     "src/game/createGame.ts",
     "src/style.css",
     "e2e/foundation-smoke.spec.ts",
-    "artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent"
+    "artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent",
+    "artifacts/sub-agents/20260704-weapon-effects-smoothing/smoke-qa-agent"
   ],
   "jsonForAgents": {
     "hudElements": [
@@ -69,7 +72,7 @@
       "selector": ".rotate-prompt",
       "iconSelector": ".rotate-prompt__icon",
       "phoneAnimation": "rotate-phone-sweep",
-      "arrowAnimation": "rotate-arrow-pulse",
+      "arrowSelectorAllowed": false,
       "visibleWhen": "viewport width is less than height",
       "copy": "ROTATE TO LANDSCAPE"
     },
@@ -96,7 +99,7 @@
         "1024x768"
       ]
     },
-    "screenshotArtifacts": "artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent",
+    "screenshotArtifacts": "artifacts/sub-agents/20260704-weapon-effects-smoothing/smoke-qa-agent",
     "portraitPlayable": false
   },
   "nextAgents": [

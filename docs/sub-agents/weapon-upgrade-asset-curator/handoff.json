@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "weapon-upgrade-asset-curator",
   "status": "complete",
-  "updatedAt": "2026-07-04T17:46:32Z",
-  "summary": "Three-gun slice now uses yaw 0, right-shifted and per-weapon lowered viewmodels, manifest-derived wall clearance, retuned per-weapon muzzle anchors, pitch-corrected wall collision feedback, cache-busted public asset URLs, shared shot-effect pose math, centered visible muzzle flash, a mobile weapon cycle button, and ElevenLabs firing SFX.",
+  "updatedAt": "2026-07-04T18:24:54Z",
+  "summary": "Three-gun slice now uses yaw 0, right-shifted and per-weapon lowered viewmodels, manifest-derived wall clearance, retuned up-left BORE/VAULT muzzle anchors, pitch-corrected wall collision feedback, cache-busted public asset URLs, shared shot-effect pose math, per-weapon flash/tracer/impact styling, a mobile weapon cycle button, and ElevenLabs firing SFX.",
   "observations": [
     "SPARK is a fast sidearm using blaster-a.glb.",
     "BORE is a close scatter weapon using blaster-h.glb.",
@@ -22,10 +22,13 @@
     "SPARK keeps its previous first-person framing while BORE and VAULT were lowered for their different silhouettes.",
     "Each weapon now declares view.muzzleLocalOffset in the manifest.",
     "weaponShotMath.ts converts flat X/Z wall raycast distances to camera-space tracer distances so pitch up/down shots still terminate at the reticle.",
-    "The visible yellow muzzle flash now sits in shotFeedbackRoot and uses the same camera-local muzzle position as the tracer start.",
+    "The visible muzzle flash now sits in shotFeedbackRoot and uses the same camera-local muzzle position as the tracer start.",
     "WeaponAudio now plays committed cache-busted MP3 SFX assets rather than procedural oscillator/noise bursts.",
     "SPARK, BORE, and VAULT muzzle anchors were retuned closer to the visible GLB muzzle fronts.",
     "The visible muzzle flash is now a centered camera-facing CircleGeometry disk attached to shotFeedbackRoot.",
+    "BORE and VAULT muzzle anchors were moved up and left relative to their models after visual review.",
+    "SPARK, BORE, and VAULT now carry per-weapon muzzle flash, tracer, and wall-impact colors plus scale/timing values in the manifest.",
+    "WeaponSystemSnapshot.effectStyle exposes the active effect colors so smoke QA can validate them without timing a one-frame flash screenshot.",
     "The bottom weapon preview tray was removed; weapon switching now happens through [data-weapon-cycle-button].",
     "Latest weapon-cycle and flash screenshots are stored under artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/."
   ],
@@ -38,7 +41,8 @@
     "Keep viewmodel wall clearance tied to manifest view offsets to avoid future drift.",
     "Route future muzzle flash, tracer, projectile, and impact placement through getWeaponShotEffectPositions.",
     "Keep shape-specific muzzle tuning in each WeaponDefinition.view.muzzleLocalOffset.",
-    "Use a centered placeholder flash disk until an external muzzle-flash VFX asset is sourced."
+    "Use a centered placeholder flash disk until an external muzzle-flash VFX asset is sourced.",
+    "Keep the per-weapon effect style in WeaponDefinition.effects so later external VFX replacement has a clear style target per weapon."
   ],
   "caughtIssues": [
     "Current assets are prop-scale GLB models, not dedicated animated first-person weapon rigs.",
@@ -46,7 +50,8 @@
     "Wall avoidance uses a simplified probe and ray rather than final mesh collision.",
     "Current muzzle flash, tracer, and wall impact visuals are procedural placeholders until external VFX assets are sourced.",
     "The primitive tracer is short-lived and can be hard to inspect in still screenshots; prefer effectPose assertions for automated alignment.",
-    "The centered yellow disk improves flash alignment but is still a procedural placeholder."
+    "The centered colored disk improves flash alignment but is still a procedural placeholder.",
+    "Procedural color/style variants make the three guns easier to distinguish, but final muzzle/tracer/impact art still needs external assets."
   ],
   "risks": [
     "Model offsets, right-shifted placement, and yaw 0 presentation may need per-device adjustment once gameplay camera tuning starts."
@@ -116,6 +121,7 @@
     },
     "wallAvoidanceDebugField": "snapshot.weapon.wallAvoidance",
     "effectPoseDebugField": "snapshot.weapon.effectPose",
+    "effectStyleDebugField": "snapshot.weapon.effectStyle",
     "clearanceSource": "src/game/weapons/weaponClearance.ts",
     "weaponFootprintBlocksMovement": false,
     "shotEffectPoseSource": "src/game/weapons/weaponViewPose.ts",
@@ -123,8 +129,25 @@
     "visibleMuzzleFlashParent": "shotFeedbackRoot",
     "muzzleLocalOffsets": {
       "weapon.blaster.spark": [0.02, 0.03, -0.46],
-      "weapon.blaster.bore": [0.02, 0, -0.4],
-      "weapon.blaster.vault": [0.02, -0.01, -0.52]
+      "weapon.blaster.bore": [-0.05, 0.08, -0.4],
+      "weapon.blaster.vault": [-0.06, 0.05, -0.52]
+    },
+    "effectStyles": {
+      "weapon.blaster.spark": {
+        "muzzleColor": "#8df7ff",
+        "tracerColor": "#7dd3fc",
+        "impactColor": "#b7f3ff"
+      },
+      "weapon.blaster.bore": {
+        "muzzleColor": "#ff8a3d",
+        "tracerColor": "#ffc45c",
+        "impactColor": "#ff7a3c"
+      },
+      "weapon.blaster.vault": {
+        "muzzleColor": "#c084fc",
+        "tracerColor": "#e879f9",
+        "impactColor": "#a78bfa"
+      }
     },
     "weaponSwitchControl": {
       "selector": "[data-weapon-cycle-button]",

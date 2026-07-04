@@ -2,21 +2,23 @@
   "handoffVersion": "1.0.0",
   "agentId": "elevenlabs-audio-music-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T17:00:43Z",
-  "summary": "Foundation weapon SFX and music now use committed ElevenLabs-generated MP3 assets with cache-busted runtime playback and a landscape HUD mute toggle.",
+  "updatedAt": "2026-07-04T18:24:54Z",
+  "summary": "Foundation weapon SFX and music now use committed ElevenLabs-generated MP3 assets with cache-busted runtime playback, a louder VAULT runtime gain, and a landscape HUD mute toggle.",
   "observations": [
     "Previous gun sounds were procedural Web Audio and not ElevenLabs assets.",
     "Generated three weapon SFX assets with the ElevenLabs text-to-sound-effects endpoint.",
     "Generated one 24 second instrumental foundation loop with the ElevenLabs music stream endpoint.",
     "Runtime browser code loads committed public MP3 assets through publicAssetUrl and never receives an ElevenLabs API key.",
-    "Audio asset prompts, endpoints, models, settings, bytes, hashes, LUFS targets, and intended use are recorded in docs/assets/source-ledger.json and source-metadata.json."
+    "Audio asset prompts, endpoints, models, settings, bytes, hashes, LUFS targets, and intended use are recorded in docs/assets/source-ledger.json and source-metadata.json.",
+    "VAULT keeps the same generated MP3 file, but runtime playback gain and source metadata volume were raised to 1.0 because the heavy pulse sounded too quiet."
   ],
   "decisions": [
     "Do not expose ElevenLabs API keys in browser code.",
     "Generate server-side or build-time and cache audio as assets.",
     "Use committed MP3 assets for the MVP foundation audio payload.",
     "Unlock music and SFX from a user gesture, then let the player mute/unmute music from the HUD.",
-    "Treat generated ElevenLabs audio as provider-generated output with metadata validation, not as CC0 external art."
+    "Treat generated ElevenLabs audio as provider-generated output with metadata validation, not as CC0 external art.",
+    "Use runtime gain tweaks for small mix fixes when the source file, hash, and bytes do not change."
   ],
   "caughtIssues": [
     "The current browser autoplay model means music must not be expected to play before a user gesture.",
@@ -51,6 +53,7 @@
         "durationSeconds": 1,
         "loopable": false,
         "lufsTarget": -14,
+        "runtimeVolume": 0.82,
         "weaponProfile": "sidearm"
       },
       {
@@ -61,6 +64,7 @@
         "durationSeconds": 1.2,
         "loopable": false,
         "lufsTarget": -14,
+        "runtimeVolume": 0.9,
         "weaponProfile": "scatter"
       },
       {
@@ -71,6 +75,7 @@
         "durationSeconds": 1.1,
         "loopable": false,
         "lufsTarget": -14,
+        "runtimeVolume": 1,
         "weaponProfile": "heavy"
       },
       {

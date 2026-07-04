@@ -1,6 +1,6 @@
 # Observations: weapon-upgrade-asset-curator
 
-Status: complete for current per-weapon muzzle, pitch shot-effect, collision, cache-busting, ElevenLabs audio, cycle button, and visible muzzle-flash alignment pass.
+Status: complete for current per-weapon muzzle, pitch shot-effect, collision, cache-busting, ElevenLabs audio, cycle button, and distinct visible weapon-effect pass.
 
 ## What It Saw
 
@@ -19,10 +19,13 @@ Status: complete for current per-weapon muzzle, pitch shot-effect, collision, ca
 - Added per-weapon `view.muzzleLocalOffset` anchors so SPARK, BORE, and VAULT no longer share one muzzle/tracer start point.
 - Lowered BORE and VAULT first-person view positions to account for their larger/different silhouettes while keeping SPARK's existing framing.
 - Shot feedback now converts flat X/Z wall raycast distance into camera-space distance so pitched shots still end at the reticle.
-- Moved the yellow muzzle flash under the camera-local shot feedback root so it uses the same `getWeaponShotEffectPositions` muzzle as the tracer and debug `effectPose`.
+- Moved the muzzle flash under the camera-local shot feedback root so it uses the same `getWeaponShotEffectPositions` muzzle as the tracer and debug `effectPose`.
 - Replaced procedural firing sounds with cache-busted ElevenLabs MP3 assets mapped by weapon sound profile.
 - Retuned SPARK, BORE, and VAULT muzzle anchors closer to the visible GLB muzzle fronts.
-- Replaced the asymmetric cone flash with a centered camera-facing yellow disk so the burst reads as centered on the manifest muzzle anchor.
+- Replaced the asymmetric cone flash with a centered camera-facing disk so the burst reads as centered on the manifest muzzle anchor.
+- BORE and VAULT muzzle anchors were moved up and left relative to their models after visual review.
+- SPARK, BORE, and VAULT now carry per-weapon muzzle flash, tracer, and wall-impact colors plus scale/timing values in the manifest.
+- `WeaponSystemSnapshot.effectStyle` exposes the active effect colors so smoke QA can validate them without timing a one-frame flash screenshot.
 - The old bottom weapon preview tray is gone; switching now happens through `[data-weapon-cycle-button]`.
 - Screenshot QA for this pass lives under `artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/`.
 
@@ -37,6 +40,7 @@ Status: complete for current per-weapon muzzle, pitch shot-effect, collision, ca
 - Keep `muzzleLocalOffset` in the weapon manifest next to each view pose; do not move shape-specific muzzle tuning back into a shared constant.
 - Treat `weaponShotMath.ts` as the pitch correction boundary between flat level raycasts and camera-local tracer rendering.
 - Use a centered flash primitive until an external muzzle-flash VFX asset is sourced.
+- Keep the per-weapon effect style in `WeaponDefinition.effects` so later external VFX replacement has a clear style target per weapon.
 - Keep weapon switching on the single mobile cycle button until a larger inventory UI exists.
 
 ## Caught Issues
@@ -46,10 +50,13 @@ Status: complete for current per-weapon muzzle, pitch shot-effect, collision, ca
 - Wall avoidance is a retraction/probe layer, not full mesh-vs-level collision for every weapon triangle.
 - The current muzzle flash, tracer, and wall impact are still procedural primitives; they should be replaced with external VFX assets once the source is chosen.
 - The primitive tracer is brief in still screenshots, so debug `effectPose` remains the more reliable automated alignment signal.
-- The yellow flash is easier to center as a disk, but it is still a placeholder and should not become the final VFX asset.
+- The colored flash is easier to center as a disk, but it is still a placeholder and should not become the final VFX asset.
+- Procedural color/style variants make the three guns easier to distinguish, but final muzzle/tracer/impact art still needs external assets.
 
 ## Next Handoff Notes
 
 - Camera and game-feel agents should review yaw `0`, right-offset model placement, wall retraction, muzzle flash placement, tracer readability, and SFX cadence in landscape phone view.
 - Screenshot QA captures for this pass live under `artifacts/sub-agents/20260704-weapon-framing/smoke-qa-agent/`.
 - Latest weapon-cycle and flash alignment screenshots live under `artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/`.
+- Future screenshot QA should capture SPARK cyan, BORE orange, and VAULT violet shot effects from deterministic fire frames.
+- Smoke QA should use `snapshot.weapon.effectStyle` as the deterministic gate until flash-frame captures are stable.

@@ -24,6 +24,16 @@ export interface WeaponDefinition {
     aimScaleMultiplier: number;
     muzzleLocalOffset: [number, number, number];
   };
+  effects: {
+    muzzleColor: number;
+    tracerColor: number;
+    impactColor: number;
+    muzzleScale: number;
+    impactScale: number;
+    tracerOpacity: number;
+    flashMs: number;
+    feedbackMs: number;
+  };
 }
 
 const VIEW_FORWARD_YAW = 0;
@@ -66,6 +76,16 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       aimScaleMultiplier: 1.04,
       muzzleLocalOffset: [0.02, 0.03, -0.46],
     },
+    effects: {
+      muzzleColor: 0x8df7ff,
+      tracerColor: 0x7dd3fc,
+      impactColor: 0xb7f3ff,
+      muzzleScale: 0.95,
+      impactScale: 0.9,
+      tracerOpacity: 0.82,
+      flashMs: 60,
+      feedbackMs: 90,
+    },
   },
   {
     id: 'weapon.blaster.bore',
@@ -88,7 +108,17 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       aimRotation: [-0.05, VIEW_FORWARD_YAW, 0],
       scale: 1.09,
       aimScaleMultiplier: 1.04,
-      muzzleLocalOffset: [0.02, 0, -0.4],
+      muzzleLocalOffset: [-0.05, 0.08, -0.4],
+    },
+    effects: {
+      muzzleColor: 0xff8a3d,
+      tracerColor: 0xffc45c,
+      impactColor: 0xff7a3c,
+      muzzleScale: 1.22,
+      impactScale: 1.16,
+      tracerOpacity: 0.88,
+      flashMs: 82,
+      feedbackMs: 112,
     },
   },
   {
@@ -112,7 +142,17 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       aimRotation: [-0.05, VIEW_FORWARD_YAW, 0],
       scale: 0.95,
       aimScaleMultiplier: 1.04,
-      muzzleLocalOffset: [0.02, -0.01, -0.52],
+      muzzleLocalOffset: [-0.06, 0.05, -0.52],
+    },
+    effects: {
+      muzzleColor: 0xc084fc,
+      tracerColor: 0xe879f9,
+      impactColor: 0xa78bfa,
+      muzzleScale: 1.34,
+      impactScale: 1.28,
+      tracerOpacity: 0.94,
+      flashMs: 96,
+      feedbackMs: 128,
     },
   },
 ];

@@ -1,6 +1,6 @@
 # Observations: landscape-title-hud-agent
 
-Status: complete for debug coordinate, music mute, weapon cycle, and rotate prompt motion pass.
+Status: complete for debug coordinate, music mute, weapon cycle, and rotate prompt phone-only motion pass.
 
 ## What It Saw
 
@@ -12,7 +12,7 @@ Status: complete for debug coordinate, music mute, weapon cycle, and rotate prom
 - Replaced the plain portrait text prompt with a phone-and-rotation icon plus concise landscape copy.
 - Replaced the bottom weapon preview tray with a single right-thumb weapon cycle button at `[data-weapon-cycle-button]`.
 - The cycle button carries `data-active-weapon-id` and updates its ARIA label with the current weapon.
-- The portrait prompt phone and arrow now use CSS motion so the phone sweeps toward landscape and the arrow pulses.
+- The portrait prompt now uses only the CSS-animated phone; the arrow was removed because it made the prompt look busy.
 - Screenshot QA for this pass lives under `artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/`.
 - Reward choice UI is a core part of the level loop.
 
@@ -26,12 +26,15 @@ Status: complete for debug coordinate, music mute, weapon cycle, and rotate prom
 - Keep the portrait prompt full-screen and above touch controls because portrait is not a playable orientation.
 - Keep weapon switching in the right thumb zone beside held-fire so the bottom center stays clear for the viewmodel.
 - Use CSS-only motion for the rotate prompt and honor `prefers-reduced-motion` by showing the final landscape phone pose.
+- Keep the rotate prompt icon phone-only unless a future screenshot review proves additional direction is needed.
 
 ## Caught Issues
 
 - Sub-agent review caught that the first coordinate badge width could crowd 667 px landscape layouts; the HUD grid now reserves side groups and wraps center metrics.
 - Future HUD work still needs safe-area rules for notches, home indicators, and reward choices.
 - Portrait prompt icon and mute button now need screenshot QA when visual style changes.
+- Smoke QA now checks the rotate arrow remains absent and the phone animation stays active.
+- Phone-only rotate prompt screenshot is stored under `artifacts/sub-agents/20260704-weapon-effects-smoothing/smoke-qa-agent/`.
 - The bottom weapon tray was competing with viewmodel framing and touch layout; future HUD work should not bring preview buttons back without a new layout review.
 
 ## Next Handoff Notes
