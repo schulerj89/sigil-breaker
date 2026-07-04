@@ -22,6 +22,12 @@ function createBuildId(): string {
 function versionManifestPlugin(id: string): Plugin {
   return {
     name: 'sigilbreaker-version-manifest',
+    transformIndexHtml(html): string {
+      return html.replace(
+        '<head>',
+        `<head>\n    <meta name="sigilbreaker-build-id" content="${id}" />`,
+      );
+    },
     generateBundle(): void {
       this.emitFile({
         type: 'asset',

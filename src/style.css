@@ -59,6 +59,13 @@ canvas {
   background: #0d1012;
 }
 
+.look-zone {
+  position: absolute;
+  inset: 0 0 0 42%;
+  z-index: 1;
+  touch-action: none;
+}
+
 .hud {
   position: absolute;
   inset:
@@ -71,6 +78,7 @@ canvas {
   align-items: start;
   gap: 12px;
   pointer-events: none;
+  z-index: 3;
 }
 
 .hud__left,
@@ -126,6 +134,7 @@ canvas {
   height: 28px;
   transform: translate(-50%, -50%);
   pointer-events: none;
+  z-index: 2;
 }
 
 .crosshair::before,
@@ -160,9 +169,11 @@ canvas {
   align-items: end;
   justify-content: space-between;
   pointer-events: none;
+  z-index: 4;
 }
 
 .stick {
+  position: relative;
   width: 132px;
   height: 132px;
   border: 2px solid rgb(238 243 240 / 0.28);
@@ -170,6 +181,20 @@ canvas {
   background:
     radial-gradient(circle at center, rgb(238 243 240 / 0.18) 0 22%, transparent 23%),
     rgb(13 16 18 / 0.38);
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.stick__knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgb(238 243 240 / 0.28);
+  border: 1px solid rgb(238 243 240 / 0.18);
+  transform: translate(-50%, -50%);
 }
 
 .action-pad {
@@ -195,6 +220,7 @@ canvas {
   line-height: 1;
   letter-spacing: 0;
   pointer-events: auto;
+  touch-action: none;
   user-select: none;
 }
 

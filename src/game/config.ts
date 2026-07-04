@@ -1,6 +1,6 @@
 export const GAME_TITLE = 'Sigilbreaker';
 
-export const DEBUG_SCENE_ID = 'fps-foundation';
+export const DEBUG_SCENE_ID = 'fps-level-foundation';
 
 export const MOBILE_VIEWPORTS = [
   { name: 'small-phone-landscape', width: 667, height: 375 },
@@ -21,4 +21,3 @@ export const PERFORMANCE_BUDGETS = {
 } as const;
 
 export type CameraMode = 'title' | 'gameplay' | 'aim' | 'sprint' | 'hit' | 'death' | 'cinematic';
-

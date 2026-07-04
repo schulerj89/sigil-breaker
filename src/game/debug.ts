@@ -1,13 +1,29 @@
-import type { PerspectiveCamera, WebGLRenderer } from 'three';
+import type { WebGLRenderer } from 'three';
 import { DEBUG_SCENE_ID, PERFORMANCE_BUDGETS, type CameraMode } from './config';
+import type { FpsControllerSnapshot } from './fpsControls';
+import {
+  FOUNDATION_LEVEL_MAP,
+  LEVEL_HEIGHT_TILES,
+  LEVEL_TILE_SIZE,
+  LEVEL_WIDTH_TILES,
+} from './levelMap';
 
 export interface DebugSnapshot {
   buildId: string;
   scene: {
     sceneId: string;
-    phase: 'bootstrap';
+    phase: 'gameplay';
     cameraMode: CameraMode;
     playerPosition: [number, number, number];
+    yawRadians: number;
+    pitchRadians: number;
+  };
+  level: {
+    id: string;
+    widthUnits: number;
+    depthUnits: number;
+    tileSize: number;
+    map: readonly string[];
   };
   device: {
     orientation: 'landscape' | 'portrait';
@@ -36,6 +52,10 @@ export interface DebugSnapshot {
     orientationLock: 'landscape';
     primaryInput: 'touch';
     touchShellReady: boolean;
+    lookActive: boolean;
+    movePointerActive: boolean;
+    moveVector: [number, number];
+    keyboardVector: [number, number];
     buttons: string[];
   };
   budgets: typeof PERFORMANCE_BUDGETS;
@@ -47,25 +67,31 @@ export interface DebugApi {
 
 export function createDebugApi(
   renderer: WebGLRenderer,
-  camera: PerspectiveCamera,
   getFps: () => number,
+  getControllerSnapshot: () => FpsControllerSnapshot,
 ): DebugApi {
   return {
     getSnapshot: () => {
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
+      const controllerSnapshot = getControllerSnapshot();
 
       return {
         buildId: __SIGILBREAKER_BUILD_ID__,
         scene: {
           sceneId: DEBUG_SCENE_ID,
-          phase: 'bootstrap',
+          phase: 'gameplay',
           cameraMode: 'gameplay',
-          playerPosition: [
-            roundMetric(camera.position.x),
-            roundMetric(camera.position.y),
-            roundMetric(camera.position.z),
-          ],
+          playerPosition: controllerSnapshot.player.position,
+          yawRadians: controllerSnapshot.player.yawRadians,
+          pitchRadians: controllerSnapshot.player.pitchRadians,
+        },
+        level: {
+          id: 'foundation-20x20',
+          widthUnits: LEVEL_WIDTH_TILES * LEVEL_TILE_SIZE,
+          depthUnits: LEVEL_HEIGHT_TILES * LEVEL_TILE_SIZE,
+          tileSize: LEVEL_TILE_SIZE,
+          map: FOUNDATION_LEVEL_MAP,
         },
         device: {
           orientation: viewportWidth >= viewportHeight ? 'landscape' : 'portrait',
@@ -94,6 +120,10 @@ export function createDebugApi(
           orientationLock: 'landscape',
           primaryInput: 'touch',
           touchShellReady: true,
+          lookActive: controllerSnapshot.controls.lookActive,
+          movePointerActive: controllerSnapshot.controls.movePointerActive,
+          moveVector: controllerSnapshot.controls.moveVector,
+          keyboardVector: controllerSnapshot.controls.keyboardVector,
           buttons: ['fire', 'reload', 'dash', 'interact', 'weapon-swap', 'pause'],
         },
         budgets: PERFORMANCE_BUDGETS,
@@ -119,4 +149,3 @@ function readHeapMb(): number | null {
 function roundMetric(value: number): number {
   return Math.round(value * 10) / 10;
 }
-

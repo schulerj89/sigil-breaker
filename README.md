@@ -6,6 +6,10 @@ Sigilbreaker is being rebuilt as a mobile-first landscape Three.js FPS. The curr
 
 The sub-agent system is scaffolded under `docs/sub-agents/`. That folder defines the asset pipeline, review, QA, mobile controls, audio, camera, and coordination agents to use while building the FPS.
 
+## Foundation Level
+
+The first playable foundation is a bare 20 x 20 unit FPS level built from a symbol map in `src/game/levelMap.ts`. A readable copy with the `#`, `.`, `S`, `C`, and `E` legend is in `docs/level-foundation.md`.
+
 ## Local Development
 
 ```bash
@@ -36,3 +40,5 @@ Deployment steps:
 4. The `Deploy GitHub Pages` workflow will run `npm ci`, `npm test`, and `npm run build`, then publish `dist/`.
 
 If this project is ever moved to a user or organization site repository named `USERNAME.github.io`, change the production Vite base path in `vite.config.ts` from `/sigil-breaker/` to `/`.
+
+The workflow also prepares `.nojekyll`, `404.html`, `version.json`, hashed Vite assets, and a build-id meta tag. Runtime cache checking fetches `version.json` with a cache-busting query and reloads with a build query when a newer deployed build is detected.
