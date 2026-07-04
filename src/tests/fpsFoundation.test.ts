@@ -3,10 +3,14 @@ import { DEBUG_SCENE_ID, MOBILE_VIEWPORTS, PERFORMANCE_BUDGETS } from '../game/c
 import {
   FOUNDATION_LEVEL_MAP,
   LEVEL_HEIGHT_TILES,
+  LEVEL_TILE_SIZE,
   LEVEL_WIDTH_TILES,
+  type LevelTileSymbol,
+  MIN_FOUNDATION_PASSAGE_UNITS,
   collidesWithLevel,
   getLevelTiles,
   getSpawnPosition,
+  isSolidSymbol,
 } from '../game/levelMap';
 
 describe('FPS foundation config', () => {
@@ -30,7 +34,7 @@ describe('FPS foundation config', () => {
     ]);
   });
 
-  it('uses a valid 20 x 20 symbol map with boundary collision', () => {
+  it('uses a valid 34 x 34 symbol map with boundary collision', () => {
     expect(FOUNDATION_LEVEL_MAP).toHaveLength(LEVEL_HEIGHT_TILES);
     for (const row of FOUNDATION_LEVEL_MAP) {
       expect(row).toHaveLength(LEVEL_WIDTH_TILES);
@@ -49,11 +53,51 @@ describe('FPS foundation config', () => {
     }
   });
 
+  it('keeps walkable lanes at least three units wide', () => {
+    const minimumOpenTiles = Math.ceil(MIN_FOUNDATION_PASSAGE_UNITS / LEVEL_TILE_SIZE);
+
+    for (let row = 0; row < LEVEL_HEIGHT_TILES; row++) {
+      for (let column = 0; column < LEVEL_WIDTH_TILES; column++) {
+        const symbol = FOUNDATION_LEVEL_MAP[row][column] as LevelTileSymbol;
+        if (isSolidSymbol(symbol)) {
+          continue;
+        }
+
+        expect(countOpenRun(row, column, 0, -1) + 1 + countOpenRun(row, column, 0, 1)).toBeGreaterThanOrEqual(
+          minimumOpenTiles,
+        );
+        expect(countOpenRun(row, column, -1, 0) + 1 + countOpenRun(row, column, 1, 0)).toBeGreaterThanOrEqual(
+          minimumOpenTiles,
+        );
+      }
+    }
+  });
+
   it('keeps spawn open while treating boundaries as solid', () => {
     const spawn = getSpawnPosition();
 
     expect(collidesWithLevel(spawn.x, spawn.z, 0.24)).toBe(false);
-    expect(collidesWithLevel(-10.1, 0, 0.24)).toBe(true);
-    expect(collidesWithLevel(10.1, 0, 0.24)).toBe(true);
+    expect(collidesWithLevel(-17.1, 0, 0.24)).toBe(true);
+    expect(collidesWithLevel(17.1, 0, 0.24)).toBe(true);
   });
 });
+
+function countOpenRun(row: number, column: number, rowStep: number, columnStep: number): number {
+  let openTiles = 0;
+  let nextRow = row + rowStep;
+  let nextColumn = column + columnStep;
+
+  while (
+    nextRow >= 0 &&
+    nextRow < LEVEL_HEIGHT_TILES &&
+    nextColumn >= 0 &&
+    nextColumn < LEVEL_WIDTH_TILES &&
+    !isSolidSymbol(FOUNDATION_LEVEL_MAP[nextRow][nextColumn] as LevelTileSymbol)
+  ) {
+    openTiles++;
+    nextRow += rowStep;
+    nextColumn += columnStep;
+  }
+
+  return openTiles;
+}

@@ -10,6 +10,7 @@ Status: not run for implementation yet.
 - 2026-07-04 setup pass removed the Phaser MVP source, puzzle docs, Sokoban assets, and old screenshots.
 - 2026-07-04 setup pass installed Three.js and added a mobile landscape renderer foundation with debug metrics.
 - 2026-07-04 first FPS slice added a 20 x 20 symbol-map level, first-person camera controls, camera-relative mobile movement, and Pages cache-busting workflow updates.
+- 2026-07-04 spacing pass expanded the foundation level to 34 x 34 units with at least 3-unit traversal lanes.
 
 ## Decisions
 
@@ -17,7 +18,7 @@ Status: not run for implementation yet.
 - Require each agent folder to maintain its own `observations.md` and `handoff.json`.
 - Require spawned agents to be closed after their final output is captured.
 - Treat the new Three.js arena as a debug placeholder only, not final authored game art.
-- Keep the 20 x 20 symbol map as the level source of truth until an asset-backed level pipeline replaces it.
+- Keep the 34 x 34 symbol map as the level source of truth until an asset-backed level pipeline replaces it.
 
 ## Caught Issues
 

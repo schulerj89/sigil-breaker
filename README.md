@@ -8,7 +8,7 @@ The sub-agent system is scaffolded under `docs/sub-agents/`. That folder defines
 
 ## Foundation Level
 
-The first playable foundation is a bare 20 x 20 unit FPS level built from a symbol map in `src/game/levelMap.ts`. A readable copy with the `#`, `.`, `S`, `C`, and `E` legend is in `docs/level-foundation.md`.
+The first playable foundation is a bare 34 x 34 unit FPS level built from a symbol map in `src/game/levelMap.ts`. A readable copy with the `#`, `.`, `S`, `C`, and `E` legend is in `docs/level-foundation.md`.
 
 ## Local Development
 

@@ -2,13 +2,14 @@
   "handoffVersion": "1.0.0",
   "agentId": "mobile-fps-coordinator",
   "status": "complete",
-  "updatedAt": "2026-07-04T00:00:00Z",
-  "summary": "First FPS foundation level is playable with camera-relative mobile movement and Pages cache-busting.",
+  "updatedAt": "2026-07-04T02:45:00Z",
+  "summary": "First FPS foundation level is playable with camera-relative mobile movement, Pages cache-busting, and a wider 34 x 34 placeholder layout.",
   "observations": [
     "The old Phaser MVP source, puzzle docs, Sokoban assets, and screenshots were removed.",
     "Three.js is installed and the app boots into a mobile landscape debug arena.",
     "The app exposes a debug snapshot API for future smoke and performance QA.",
-    "A 20 x 20 symbol-map level now drives placeholder walls, cover, endpoint marker, spawn, and collision.",
+    "A 34 x 34 symbol-map level now drives placeholder walls, cover, endpoint marker, spawn, and collision.",
+    "The foundation layout keeps walkable lanes at least 3 units wide for mobile movement.",
     "Mobile touch controls support left-stick movement and right-side drag look."
   ],
   "decisions": [
@@ -33,8 +34,8 @@
     "debugApi": "window.__SIGILBREAKER_DEBUG__.getSnapshot()",
     "levelMapDoc": "docs/level-foundation.md",
     "levelDimensionsUnits": {
-      "width": 20,
-      "depth": 20
+      "width": 34,
+      "depth": 34
     },
     "githubPagesWorkflow": ".github/workflows/deploy-pages.yml",
     "requiredFirstAgents": [

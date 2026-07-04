@@ -87,7 +87,7 @@ export function createDebugApi(
           pitchRadians: controllerSnapshot.player.pitchRadians,
         },
         level: {
-          id: 'foundation-20x20',
+          id: 'foundation-34x34',
           widthUnits: LEVEL_WIDTH_TILES * LEVEL_TILE_SIZE,
           depthUnits: LEVEL_HEIGHT_TILES * LEVEL_TILE_SIZE,
           tileSize: LEVEL_TILE_SIZE,

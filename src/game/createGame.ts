@@ -116,7 +116,7 @@ function createShellMarkup(): string {
       <div class="look-zone" aria-hidden="true"></div>
       <div class="hud" aria-hidden="true">
         <div class="hud__left">
-          <span class="hud__badge">20 x 20</span>
+          <span class="hud__badge">${LEVEL_WIDTH_TILES} x ${LEVEL_HEIGHT_TILES}</span>
           <span class="hud__badge hud__badge--hp">HP 100</span>
         </div>
         <div class="hud__center">
