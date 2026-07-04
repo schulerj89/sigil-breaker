@@ -1,6 +1,6 @@
 # Observations: smoke-qa-agent
 
-Status: complete for input/collision/layout plus coordinate/cache browser smoke.
+Status: complete for input/collision/layout plus coordinate/cache/effect-pose browser smoke.
 
 ## What It Saw
 
@@ -17,11 +17,14 @@ Status: complete for input/collision/layout plus coordinate/cache browser smoke.
 - Weapon previews, GLB models, and the GLB shared texture are asserted to carry the current `assetBuild` query.
 - Latest Playwright smoke after level pinch and weapon-clearance fixes passed all five landscape viewports.
 - Unit tests now pin the reported pinch coordinates and the weapon footprint collision case.
+- Latest Playwright smoke after entry-width and shot-effect alignment fixes passed all five landscape viewports.
+- Browser smoke now fires once, verifies ammo and shot count changed, and checks `snapshot.weapon.effectPose` for a right-offset muzzle plus aligned tracer/impact positions.
 
 ## Decisions
 
 - Keep manual browser smoke for exploratory checks that are not scripted yet.
 - Use Playwright browser smoke for production-preview boot, HUD, debug API, canvas, and asset-cache gates.
+- Use Playwright browser smoke for one-shot ammo/shot-count and effect-pose regressions.
 - Keep using `visualViewport.scale` as the smoke signal for double-tap zoom regressions.
 - Use Playwright as the automated browser smoke harness for production preview and Pages path validation.
 - Use the `qaCapture=1` query only for capture/readback reliability; normal production users keep `preserveDrawingBuffer` off.
@@ -38,6 +41,6 @@ Status: complete for input/collision/layout plus coordinate/cache browser smoke.
 
 ## Next Handoff Notes
 
-- Next smoke slice should add interaction coverage for weapon switching, fire, no zoom, and wall hit checks.
-- Add automated fast-fire/no-zoom and wall-hit assertions when browser smoke becomes scripted.
+- Next smoke slice should add weapon switching and fast-fire/no-zoom coverage.
+- Add automated wall-hit route assertions when deterministic debug poses exist.
 - Add automated close-wall turn/retract coverage once debug pose controls or deterministic input routes exist.

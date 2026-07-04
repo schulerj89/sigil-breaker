@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const ALLOWED_SYMBOLS = new Set(['#', '.', 'S', 'E', 'C']);
 const SOLID_SYMBOLS = new Set(['#', 'C']);
+const STRUCTURAL_WALL_SYMBOL = '#';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, '..');
@@ -28,6 +29,7 @@ if (result.errors.length > 0) {
       `Level QA passed for ${level.id}`,
       `${result.width}x${result.height}`,
       `min lane ${level.minPassageUnits}u`,
+      `min entry ${level.minEntryUnits ?? level.minPassageUnits}u`,
       `${result.chunkColumns}x${result.chunkRows} chunks`,
       `${result.walkableTiles} walkable tiles`,
       'spawn can reach exit',
@@ -42,8 +44,10 @@ function validateLevel(levelData) {
   const height = Number(levelData.dimensions?.height);
   const tileSize = Number(levelData.tileSize);
   const minPassageUnits = Number(levelData.minPassageUnits);
+  const minEntryUnits = Number(levelData.minEntryUnits ?? levelData.minPassageUnits);
   const chunkSizeTiles = Number(levelData.streaming?.chunkSizeTiles);
   const minimumOpenTiles = Math.ceil(minPassageUnits / tileSize);
+  const minimumEntryOpenTiles = Math.ceil(minEntryUnits / tileSize);
 
   if (!levelData.id || typeof levelData.id !== 'string') {
     errors.push('Level is missing a string id.');
@@ -61,6 +65,14 @@ function validateLevel(levelData) {
     errors.push('minPassageUnits must be a positive number.');
   }
 
+  if (!Number.isFinite(minEntryUnits) || minEntryUnits <= 0) {
+    errors.push('minEntryUnits must be a positive number when provided.');
+  }
+
+  if (Number.isFinite(minEntryUnits) && Number.isFinite(minPassageUnits) && minEntryUnits < minPassageUnits) {
+    errors.push('minEntryUnits must be greater than or equal to minPassageUnits.');
+  }
+
   if (!Number.isInteger(chunkSizeTiles) || chunkSizeTiles <= 0) {
     errors.push('streaming.chunkSizeTiles must be a positive integer.');
   }
@@ -74,6 +86,7 @@ function validateLevel(levelData) {
   let walkableTiles = 0;
   const narrowTiles = [];
   const narrowSegments = [];
+  const narrowWallBandEntries = [];
   const diagonalCornerCuts = [];
   const cornerPinches = [];
 
@@ -122,6 +135,7 @@ function validateLevel(levelData) {
 
   errors.push(...validateBoundary(map, width, height));
   narrowSegments.push(...findNarrowSegments(map, minimumOpenTiles));
+  narrowWallBandEntries.push(...findNarrowWallBandEntries(map, minimumEntryOpenTiles, minimumOpenTiles));
   diagonalCornerCuts.push(...findDiagonalCornerCuts(map));
   cornerPinches.push(...findCornerPinches(map));
 
@@ -145,6 +159,20 @@ function validateLevel(levelData) {
       )
       .join(', ');
     errors.push(`Found ${narrowSegments.length} bounded open segment(s) below ${minimumOpenTiles} tiles: ${preview}`);
+  }
+
+  if (narrowWallBandEntries.length > 0) {
+    const preview = narrowWallBandEntries
+      .slice(0, 12)
+      .map((entry) =>
+        entry.axis === 'row'
+          ? `row ${entry.row} columns ${entry.start}-${entry.end} len ${entry.length}`
+          : `column ${entry.column} rows ${entry.start}-${entry.end} len ${entry.length}`,
+      )
+      .join(', ');
+    errors.push(
+      `Found ${narrowWallBandEntries.length} structural wall-band entr${narrowWallBandEntries.length === 1 ? 'y' : 'ies'} below ${minimumEntryOpenTiles} tiles: ${preview}`,
+    );
   }
 
   if (diagonalCornerCuts.length > 0) {
@@ -219,6 +247,92 @@ function findNarrowSegments(map, minimumOpenTiles) {
   }
 
   return segments;
+}
+
+function findNarrowWallBandEntries(map, minimumEntryOpenTiles, minimumWallRunTiles) {
+  const entries = [];
+  const height = map.length;
+  const width = map[0]?.length ?? 0;
+
+  for (let row = 0; row < height; row++) {
+    let start = null;
+    for (let column = 0; column <= width; column++) {
+      const isWall = column < width && map[row][column] === STRUCTURAL_WALL_SYMBOL;
+      if (!isWall && column < width && start === null) {
+        start = column;
+      }
+      if ((isWall || column === width) && start !== null) {
+        const end = column - 1;
+        const isBoundedByWalls =
+          start > 0 &&
+          end < width - 1 &&
+          map[row][start - 1] === STRUCTURAL_WALL_SYMBOL &&
+          map[row][end + 1] === STRUCTURAL_WALL_SYMBOL;
+        const wallRunBefore = countStructuralWallRun(map, row, start - 1, 0, -1);
+        const wallRunAfter = countStructuralWallRun(map, row, end + 1, 0, 1);
+        if (
+          isBoundedByWalls &&
+          wallRunBefore >= minimumWallRunTiles &&
+          wallRunAfter >= minimumWallRunTiles &&
+          end - start + 1 < minimumEntryOpenTiles
+        ) {
+          entries.push({ axis: 'row', row, start, end, length: end - start + 1 });
+        }
+        start = null;
+      }
+    }
+  }
+
+  for (let column = 0; column < width; column++) {
+    let start = null;
+    for (let row = 0; row <= height; row++) {
+      const isWall = row < height && map[row][column] === STRUCTURAL_WALL_SYMBOL;
+      if (!isWall && row < height && start === null) {
+        start = row;
+      }
+      if ((isWall || row === height) && start !== null) {
+        const end = row - 1;
+        const isBoundedByWalls =
+          start > 0 &&
+          end < height - 1 &&
+          map[start - 1][column] === STRUCTURAL_WALL_SYMBOL &&
+          map[end + 1][column] === STRUCTURAL_WALL_SYMBOL;
+        const wallRunBefore = countStructuralWallRun(map, start - 1, column, -1, 0);
+        const wallRunAfter = countStructuralWallRun(map, end + 1, column, 1, 0);
+        if (
+          isBoundedByWalls &&
+          wallRunBefore >= minimumWallRunTiles &&
+          wallRunAfter >= minimumWallRunTiles &&
+          end - start + 1 < minimumEntryOpenTiles
+        ) {
+          entries.push({ axis: 'column', column, start, end, length: end - start + 1 });
+        }
+        start = null;
+      }
+    }
+  }
+
+  return entries;
+}
+
+function countStructuralWallRun(map, row, column, rowStep, columnStep) {
+  let count = 0;
+  let nextRow = row;
+  let nextColumn = column;
+
+  while (
+    nextRow >= 0 &&
+    nextRow < map.length &&
+    nextColumn >= 0 &&
+    nextColumn < map[nextRow].length &&
+    map[nextRow][nextColumn] === STRUCTURAL_WALL_SYMBOL
+  ) {
+    count++;
+    nextRow += rowStep;
+    nextColumn += columnStep;
+  }
+
+  return count;
 }
 
 function findDiagonalCornerCuts(map) {

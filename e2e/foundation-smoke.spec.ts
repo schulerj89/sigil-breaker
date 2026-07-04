@@ -32,6 +32,17 @@ interface DebugSnapshot {
     activeWeaponLabel: string;
     ammoInMagazine: number;
     magazineSize: number;
+    shotCount: number;
+    effectPose: {
+      muzzle: [number, number, number];
+      tracerEnd: [number, number, number];
+      wallImpact: [number, number, number];
+    };
+    lastShot: {
+      blockedByWall: boolean;
+      distanceUnits: number;
+      tile: [number, number] | null;
+    } | null;
   };
 }
 
@@ -119,6 +130,26 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
 
   for (const url of [...previewUrls, ...modelUrls, ...textureUrls]) {
     expect(new URL(url).searchParams.get('assetBuild')).toBe(debugSnapshot.buildId);
+  }
+
+  await page.locator('[data-fire-button]').click();
+  await expect
+    .poll(async () => (await page.evaluate(() => window.__SIGILBREAKER_DEBUG__?.getSnapshot().weapon.shotCount)) ?? 0)
+    .toBeGreaterThan(debugSnapshot.weapon.shotCount);
+  const shotSnapshot = (await page.evaluate<DebugSnapshot | undefined>(
+    () => window.__SIGILBREAKER_DEBUG__?.getSnapshot(),
+  )) as DebugSnapshot;
+  expect(shotSnapshot.weapon.ammoInMagazine).toBe(debugSnapshot.weapon.ammoInMagazine - 1);
+  expect(shotSnapshot.weapon.effectPose.muzzle[0]).toBeGreaterThan(0.5);
+  expect(shotSnapshot.weapon.effectPose.muzzle[2]).toBeLessThan(-1);
+  expect(shotSnapshot.weapon.effectPose.tracerEnd[0]).toBe(0);
+  expect(shotSnapshot.weapon.effectPose.tracerEnd[1]).toBe(0);
+  expect(shotSnapshot.weapon.effectPose.tracerEnd[2]).toBeLessThan(shotSnapshot.weapon.effectPose.muzzle[2]);
+  if (shotSnapshot.weapon.lastShot?.blockedByWall) {
+    expect(shotSnapshot.weapon.effectPose.wallImpact[2]).toBeCloseTo(
+      -shotSnapshot.weapon.lastShot.distanceUnits + 0.04,
+      1,
+    );
   }
 
   expect(consoleErrors).toEqual([]);

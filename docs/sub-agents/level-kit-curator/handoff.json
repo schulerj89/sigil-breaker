@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "level-kit-curator",
   "status": "in-progress",
-  "updatedAt": "2026-07-04T05:20:00Z",
-  "summary": "Foundation layout QA now rejects diagonal cuts, bounded narrow segments, and one-tile corner pinches; six reported pinch cells were closed.",
+  "updatedAt": "2026-07-04T05:40:00Z",
+  "summary": "Foundation layout QA now separates 3-unit lane validation from 5-unit structural entry validation, and the reported narrow entries were widened.",
   "observations": [
     "The 45 x 45 foundation map remains a placeholder layout.",
     "validate-levels now checks bounded row/column segments below 3 tiles.",
@@ -11,18 +11,25 @@
     "The detected diagonal squeeze at rows 29/30, columns 17/18 was widened by opening row 30 columns 16-17.",
     "User-reported world coordinates 12.1, -2.1 and 12.2, 7.6 now map to solid wall cells instead of open edge notches.",
     "validate-levels now checks cardinal-wall plus diagonal-corner pinch patterns.",
-    "The current foundation map has 1640 walkable tiles and remains spawn-to-exit reachable."
+    "The previous corner-pinch pass had 1640 walkable tiles and remained spawn-to-exit reachable.",
+    "Added minEntryUnits 5 to catch door-like structural wall-band breaks that are too narrow for the player plus weapon footprint.",
+    "Widened the top vertical divider entry at column 22 rows 4-8.",
+    "Widened row 20 entries at columns 5-9 and 28-32.",
+    "Widened the row 30 right entry at columns 36-40.",
+    "The current foundation map has 1648 walkable tiles and remains spawn-to-exit reachable."
   ],
   "decisions": [
     "Use unique external kits per level.",
     "Avoid full-level monolithic GLBs.",
     "Define level-relative anchors for powerups and encounters.",
     "Keep the foundation level minimum passage gate at 3 tiles.",
-    "Reject one-tile corner pinches even when long straight runs still pass."
+    "Reject one-tile corner pinches even when long straight runs still pass.",
+    "Keep general traversal lanes at 3 tiles but require structural wall-band entries to be at least 5 tiles."
   ],
   "caughtIssues": [
     "The previous lane QA could pass a diagonal wall-corner squeeze that still looked like a one-unit path.",
-    "The straight-run validator could pass L-shaped edge notches because their horizontal and vertical runs were both long."
+    "The straight-run validator could pass L-shaped edge notches because their horizontal and vertical runs were both long.",
+    "The corner-pinch validator could not catch straight 2- or 3-tile door-like entries with no diagonal pinch pattern."
   ],
   "risks": [
     "Weak scale references can make buildings, cover, and enemies feel wrong on mobile.",
@@ -32,19 +39,48 @@
   "artifacts": [
     "src/game/foundationLevelMap.json",
     "scripts/validate-levels.mjs",
-    "src/tests/fpsFoundation.test.ts"
+    "src/tests/fpsFoundation.test.ts",
+    "docs/level-foundation.md"
   ],
   "jsonForAgents": {
     "foundationPassageRules": {
       "minimumOpenTiles": 3,
+      "minimumEntryTiles": 5,
       "rejectBoundedSegmentsBelowMinimum": true,
+      "rejectStructuralWallBandEntriesBelowMinimum": true,
       "rejectDiagonalCornerCuts": true,
       "rejectCornerPinches": true,
+      "widenedStructuralEntries": [
+        {
+          "axis": "column",
+          "column": 22,
+          "start": 4,
+          "end": 8
+        },
+        {
+          "axis": "row",
+          "row": 20,
+          "start": 5,
+          "end": 9
+        },
+        {
+          "axis": "row",
+          "row": 20,
+          "start": 28,
+          "end": 32
+        },
+        {
+          "axis": "row",
+          "row": 30,
+          "start": 36,
+          "end": 40
+        }
+      ],
       "knownFixedPinchWorldCoordinates": [
         [12.1, 1.6, -2.1],
         [12.2, 1.6, 7.6]
       ],
-      "walkableTiles": 1640
+      "walkableTiles": 1648
     },
     "requiredLevelKitSections": [
       "environmentIdentity",

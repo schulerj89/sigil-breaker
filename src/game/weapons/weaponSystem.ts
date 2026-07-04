@@ -4,12 +4,16 @@ import { collidesWithLevel, raycastLevel } from '../levelMap';
 import { WEAPON_COLLISION_RADIUS, getWeaponWallProbeLocalPosition } from './weaponClearance';
 import { WeaponAudio } from './weaponAudio';
 import { WEAPON_DEFINITIONS, publicAssetUrl, withAssetVersion, type WeaponDefinition } from './weaponManifest';
+import {
+  WEAPON_MUZZLE_LOCAL_OFFSET,
+  getWeaponRootCameraPosition,
+  getWeaponRootCameraRotation,
+  getWeaponShotEffectPositions,
+  type WeaponShotEffectPositions,
+} from './weaponViewPose';
 
 const WALL_AVOIDANCE_DISTANCE = 1.12;
 const WALL_AVOIDANCE_START_DISTANCE = 0.34;
-const WALL_AVOIDANCE_RETRACT_UNITS = 0.46;
-const WALL_AVOIDANCE_LOWER_UNITS = 0.09;
-const WALL_AVOIDANCE_TILT_RADIANS = 0.12;
 
 export interface WeaponShotSnapshot {
   sequence: number;
@@ -30,6 +34,7 @@ export interface WeaponSystemSnapshot {
   modelBytesLoaded: number;
   loadedAssetIds: string[];
   assetLoadErrors: string[];
+  effectPose: WeaponShotEffectPositions;
   lastShot: WeaponShotSnapshot | null;
 }
 
@@ -62,6 +67,7 @@ export class WeaponSystem {
   private shotFeedbackUntil = 0;
   private recoil = 0;
   private wallAvoidance = 0;
+  private shotFeedbackDistance = 0;
   private shotCount = 0;
   private lastShot: WeaponShotSnapshot | null = null;
 
@@ -108,15 +114,14 @@ export class WeaponSystem {
     this.wallImpact.visible = shotFeedbackVisible && this.lastShot?.blockedByWall === true;
 
     const view = this.activeWeapon.view;
-    this.viewRoot.position.set(view.position[0], view.position[1], view.position[2] + this.recoil);
-    this.viewRoot.position.z += this.wallAvoidance * WALL_AVOIDANCE_RETRACT_UNITS;
-    this.viewRoot.position.y -= this.wallAvoidance * WALL_AVOIDANCE_LOWER_UNITS;
-    this.viewRoot.rotation.set(
-      view.rotation[0] - this.recoil * 1.4 - this.wallAvoidance * WALL_AVOIDANCE_TILT_RADIANS,
-      view.rotation[1],
-      view.rotation[2] + this.recoil * 0.55,
-    );
+    const pose = this.getViewPose();
+    this.viewRoot.position.set(...getWeaponRootCameraPosition(view, pose));
+    this.viewRoot.rotation.set(...getWeaponRootCameraRotation(view, pose));
     this.viewRoot.scale.setScalar(view.scale);
+
+    if (shotFeedbackVisible && this.shotFeedbackDistance > 0) {
+      this.updateShotFeedback(this.shotFeedbackDistance);
+    }
   }
 
   getSnapshot(): WeaponSystemSnapshot {
@@ -135,6 +140,13 @@ export class WeaponSystem {
       ),
       loadedAssetIds: [...this.loadedAssetIds].sort(),
       assetLoadErrors: [...this.assetLoadErrors],
+      effectPose: roundEffectPose(
+        getWeaponShotEffectPositions(
+          this.activeWeapon.view,
+          this.shotFeedbackDistance > 0 ? this.shotFeedbackDistance : this.activeWeapon.rangeUnits,
+          this.getViewPose(),
+        ),
+      ),
       lastShot: this.lastShot,
     };
   }
@@ -244,9 +256,15 @@ export class WeaponSystem {
       distanceUnits: roundMetric(distance),
       tile: hit?.tile ? [hit.tile.column, hit.tile.row] : null,
     };
+    this.shotFeedbackDistance = distance;
     this.shotFeedbackUntil = now + 95;
-    updateShotTracer(this.shotTracer, distance, this.activeWeapon.view.position[0] + 0.06);
-    this.wallImpact.position.set(0, 0, -distance + 0.035);
+    this.updateShotFeedback(distance);
+  }
+
+  private updateShotFeedback(distance: number): void {
+    const positions = getWeaponShotEffectPositions(this.activeWeapon.view, distance, this.getViewPose());
+    updateShotTracer(this.shotTracer, positions.muzzle, positions.tracerEnd);
+    this.wallImpact.position.set(...positions.wallImpact);
   }
 
   private getWallAvoidance(view: WeaponDefinition['view']): number {
@@ -277,6 +295,13 @@ export class WeaponSystem {
       : 0;
 
     return Math.max(rayAvoidance, probeAvoidance);
+  }
+
+  private getViewPose(): { recoil: number; wallAvoidance: number } {
+    return {
+      recoil: this.recoil,
+      wallAvoidance: this.wallAvoidance,
+    };
   }
 
   private attachLoadedWeapon(loadedWeapon: LoadedWeapon): void {
@@ -394,7 +419,7 @@ function createMuzzleFlash(): THREE.Mesh {
   });
   const mesh = new THREE.Mesh(geometry, material);
   mesh.name = 'weapon-muzzle-flash';
-  mesh.position.set(0.04, 0.04, -1.1);
+  mesh.position.set(...WEAPON_MUZZLE_LOCAL_OFFSET);
   mesh.rotation.x = Math.PI / 2;
   mesh.visible = false;
   return mesh;
@@ -430,10 +455,14 @@ function createWallImpact(): THREE.Mesh {
   return mesh;
 }
 
-function updateShotTracer(tracer: THREE.Line, distance: number, muzzleX: number): void {
+function updateShotTracer(
+  tracer: THREE.Line,
+  muzzle: readonly [number, number, number],
+  tracerEnd: readonly [number, number, number],
+): void {
   const position = tracer.geometry.getAttribute('position');
-  position.setXYZ(0, muzzleX, -0.06, -0.62);
-  position.setXYZ(1, 0, 0, -Math.max(0.7, distance));
+  position.setXYZ(0, ...muzzle);
+  position.setXYZ(1, ...tracerEnd);
   position.needsUpdate = true;
   tracer.geometry.computeBoundingSphere();
 }
@@ -494,6 +523,18 @@ function disposeMaterial(material: THREE.Material | THREE.Material[], disposedMa
 
 function roundMetric(value: number): number {
   return Math.round(value * 100) / 100;
+}
+
+function roundEffectPose(positions: WeaponShotEffectPositions): WeaponShotEffectPositions {
+  return {
+    muzzle: roundTuple(positions.muzzle),
+    tracerEnd: roundTuple(positions.tracerEnd),
+    wallImpact: roundTuple(positions.wallImpact),
+  };
+}
+
+function roundTuple(tuple: readonly [number, number, number]): [number, number, number] {
+  return [roundMetric(tuple[0]), roundMetric(tuple[1]), roundMetric(tuple[2])];
 }
 
 function clamp01(value: number): number {

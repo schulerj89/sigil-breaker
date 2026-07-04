@@ -2,10 +2,11 @@
   "handoffVersion": "1.0.0",
   "agentId": "playthrough-qa-agent",
   "status": "not-started",
-  "updatedAt": "2026-07-04T00:00:00Z",
-  "summary": "Initial playthrough QA scaffold only; no FPS route exists.",
+  "updatedAt": "2026-07-04T05:40:00Z",
+  "summary": "Initial playthrough QA scaffold only; no full FPS route exists, but the first route should cover widened structural entries and weapon-footprint traversal.",
   "observations": [
-    "No playable FPS route, reward choice, or transition exists yet."
+    "No playable FPS route, reward choice, or transition exists yet.",
+    "The foundation map now uses 5-tile structural entries for door-like breaks."
   ],
   "decisions": [
     "Playthrough QA must include combat, pause, death/recovery, objective, reward choice, and transition.",
@@ -13,7 +14,8 @@
   ],
   "caughtIssues": [],
   "risks": [
-    "Smoke tests can pass while the actual combat and reward loop feels broken."
+    "Smoke tests can pass while the actual combat and reward loop feels broken.",
+    "Door-like entries can still feel sticky if future props or enemies reduce usable width below the 5-tile structural-entry rule."
   ],
   "blockers": [],
   "artifacts": [],
@@ -31,6 +33,32 @@
       "choose-powerup",
       "transition"
     ],
+    "entryTraversalTargets": [
+      {
+        "axis": "column",
+        "column": 22,
+        "start": 4,
+        "end": 8
+      },
+      {
+        "axis": "row",
+        "row": 20,
+        "start": 5,
+        "end": 9
+      },
+      {
+        "axis": "row",
+        "row": 20,
+        "start": 28,
+        "end": 32
+      },
+      {
+        "axis": "row",
+        "row": 30,
+        "start": 36,
+        "end": 40
+      }
+    ],
     "failOn": [
       "inputLock",
       "unrecoverableDeathState",
@@ -46,4 +74,3 @@
     "memory-lifecycle-agent"
   ]
 }
-

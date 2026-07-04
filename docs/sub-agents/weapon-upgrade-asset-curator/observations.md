@@ -1,6 +1,6 @@
 # Observations: weapon-upgrade-asset-curator
 
-Status: in progress after weapon placement, collision, and cache-busting pass.
+Status: in progress after weapon placement, collision, cache-busting, and shot-effect alignment pass.
 
 ## What It Saw
 
@@ -13,6 +13,9 @@ Status: in progress after weapon placement, collision, and cache-busting pass.
 - Shifted all three first-person view offsets farther right so the active gun sits less over the bottom-center weapon choices.
 - Added manifest-derived weapon clearance for movement collision and viewmodel wall avoidance.
 - Shifted tracer origin to follow the right-offset weapon presentation.
+- Added `weaponViewPose.ts` so muzzle flash, tracer start, tracer endpoint, and wall impact positions are derived from one camera-local weapon pose helper.
+- The pose helper includes view offset, scale, view rotation, recoil, and wall-avoidance retraction/lowering.
+- `WeaponSystemSnapshot.effectPose` now exposes rounded shot-effect positions for browser QA and future sub-agent checks.
 
 ## Decisions
 
@@ -21,12 +24,14 @@ Status: in progress after weapon placement, collision, and cache-busting pass.
 - Treat current yaw `0` and right-shifted model offsets as prototype framing values pending camera/game-feel review.
 - Use temporary primitive tracer and impact feedback until external projectile/hit assets are sourced.
 - Derive movement footprint clearance from the current weapon manifest so later offset changes do not under-protect the gun.
+- Derive shot feedback from `getWeaponShotEffectPositions` so later viewmodel movement cannot desync muzzle flash and tracer placement.
 
 ## Caught Issues
 
 - The models are not authored specifically as hands/viewmodels, so first-person orientation and framing may need iteration.
 - Wall collision is level-tile based, not a final projectile or enemy hit system.
 - Wall avoidance is a retraction/probe layer, not full mesh-vs-level collision for every weapon triangle.
+- The current tracer and wall impact are still procedural primitives; they should be replaced with external assets once the weapon VFX source is chosen.
 
 ## Next Handoff Notes
 

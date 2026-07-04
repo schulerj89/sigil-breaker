@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "weapon-upgrade-asset-curator",
   "status": "in-progress",
-  "updatedAt": "2026-07-04T05:20:00Z",
-  "summary": "Three-gun slice now uses yaw 0, right-shifted viewmodels, manifest-derived wall clearance, wall collision feedback, and cache-busted public asset URLs.",
+  "updatedAt": "2026-07-04T05:40:00Z",
+  "summary": "Three-gun slice now uses yaw 0, right-shifted viewmodels, manifest-derived wall clearance, wall collision feedback, cache-busted public asset URLs, and shared shot-effect pose math.",
   "observations": [
     "SPARK is a fast sidearm using blaster-a.glb.",
     "BORE is a close scatter weapon using blaster-h.glb.",
@@ -15,7 +15,10 @@
     "SPARK, BORE, and VAULT view offsets moved to x 0.52, 0.56, and 0.60.",
     "Weapon movement collision footprint is derived from WEAPON_DEFINITIONS through weaponClearance.ts.",
     "WeaponSystem retracts and lowers the viewmodel when the forward ray or weapon probe nears a wall.",
-    "Shot tracer origin now uses the active weapon right-side offset instead of a near-center hardcoded start."
+    "Shot tracer origin now uses the active weapon right-side offset instead of a near-center hardcoded start.",
+    "Added weaponViewPose.ts so muzzle flash, tracer start, tracer endpoint, and wall impact positions are derived from one camera-local pose helper.",
+    "The shared pose helper accounts for weapon view offset, scale, rotation, recoil, and wall-avoidance retraction.",
+    "WeaponSystemSnapshot.effectPose exposes rounded shot-effect positions for QA automation."
   ],
   "decisions": [
     "Expose the three weapons through a clickable landscape selector.",
@@ -23,12 +26,14 @@
     "Leave upgrades, reload button, enemy/projectile behavior, and final hit impact assets for later iterations.",
     "Use primitive tracer and wall impact only as temporary gameplay feedback.",
     "Keep yaw 0 until camera/game-feel review proves a better first-person framing.",
-    "Keep collision clearance tied to manifest view offsets to avoid future drift."
+    "Keep collision clearance tied to manifest view offsets to avoid future drift.",
+    "Route future muzzle flash, tracer, projectile, and impact placement through getWeaponShotEffectPositions."
   ],
   "caughtIssues": [
     "Current assets are prop-scale GLB models, not dedicated animated first-person weapon rigs.",
     "Wall hit feedback currently uses code primitives rather than external assets.",
-    "Wall avoidance uses a simplified probe and ray rather than final mesh collision."
+    "Wall avoidance uses a simplified probe and ray rather than final mesh collision.",
+    "Current muzzle flash, tracer, and wall impact visuals are procedural placeholders until external VFX assets are sourced."
   ],
   "risks": [
     "Model offsets, right-shifted placement, and yaw 0 presentation may need per-device adjustment once gameplay camera tuning starts."
@@ -37,6 +42,7 @@
   "artifacts": [
     "src/game/weapons/weaponManifest.ts",
     "src/game/weapons/weaponSystem.ts",
+    "src/game/weapons/weaponViewPose.ts",
     "src/game/weapons/weaponAudio.ts",
     "public/assets/weapons/kenney-blaster-kit/models/blaster-a.glb",
     "public/assets/weapons/kenney-blaster-kit/models/blaster-h.glb",
@@ -79,7 +85,10 @@
       "weapon.blaster.vault": 0.6
     },
     "wallAvoidanceDebugField": "snapshot.weapon.wallAvoidance",
+    "effectPoseDebugField": "snapshot.weapon.effectPose",
     "clearanceSource": "src/game/weapons/weaponClearance.ts",
+    "shotEffectPoseSource": "src/game/weapons/weaponViewPose.ts",
+    "muzzleLocalOffset": [0.04, 0.04, -1.1],
     "requiresCameraReview": true
   },
   "nextAgents": [

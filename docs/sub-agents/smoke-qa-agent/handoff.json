@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T05:20:00Z",
-  "summary": "Manual smoke remains green, and Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, and the latest level/weapon-clearance changes.",
+  "updatedAt": "2026-07-04T05:40:00Z",
+  "summary": "Manual smoke remains green, and Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, one-shot firing, and effect-pose alignment.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -18,7 +18,9 @@
     "Weapon preview, GLB model, and shared texture resource URLs included the production build id as assetBuild.",
     "The Playwright gate checks HUD group overlap and badge text overflow.",
     "Latest validate:browser passed after closing six corner pinch tiles and adding weapon wall avoidance.",
-    "Unit coverage now checks the reported world coordinates and a weapon-footprint near-wall collision case."
+    "Unit coverage now checks the reported world coordinates and a weapon-footprint near-wall collision case.",
+    "Latest validate:browser passed after widening structural entries to 5 tiles and adding shared weapon shot-effect pose math.",
+    "Playwright now fires once and asserts ammo/shotCount changes plus right-offset muzzle and aligned tracer/impact effect pose."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -26,7 +28,9 @@
     "Track visualViewport.scale for double-tap zoom regressions.",
     "Full playthrough QA remains a separate gate.",
     "Keep Playwright running against the Pages preview path rather than the dev root path.",
-    "Add deterministic close-wall pose/input coverage for snapshot.weapon.wallAvoidance in a later smoke slice."
+    "Keep the one-shot effect-pose browser assertion as a regression gate.",
+    "Add deterministic close-wall pose/input coverage for snapshot.weapon.wallAvoidance in a later smoke slice.",
+    "Add weapon switching and fast-fire/no-zoom assertions in a later smoke slice."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
@@ -42,7 +46,8 @@
   "blockers": [],
   "artifacts": [
     "public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png",
-    "scripts/validate-assets.mjs"
+    "scripts/validate-assets.mjs",
+    "e2e/foundation-smoke.spec.ts"
   ],
   "jsonForAgents": {
     "latestManualSmoke": {
@@ -91,6 +96,8 @@
       "assetBuildChecked": true,
       "levelCornerPinchesChecked": true,
       "weaponFootprintUnitChecked": true,
+      "structuralEntryWidthChecked": true,
+      "shotEffectPoseChecked": true,
       "assetLoadErrors": 0
     },
     "requiredSmokeAssertions": [

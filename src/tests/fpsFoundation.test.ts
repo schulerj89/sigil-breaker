@@ -9,6 +9,7 @@ import {
   LEVEL_TILE_SIZE,
   LEVEL_WIDTH_TILES,
   type LevelTileSymbol,
+  MIN_FOUNDATION_ENTRY_UNITS,
   MIN_FOUNDATION_PASSAGE_UNITS,
   collidesWithLevel,
   getLevelTiles,
@@ -25,6 +26,13 @@ import {
   getWeaponCollisionCenter,
 } from '../game/fpsControls';
 import { getWeaponFootprintClearance } from '../game/weapons/weaponClearance';
+import {
+  MIN_SHOT_TRACER_DISTANCE_UNITS,
+  WEAPON_WALL_IMPACT_INSET_UNITS,
+  getWeaponMuzzleCameraPosition,
+  getWeaponRootCameraPosition,
+  getWeaponShotEffectPositions,
+} from '../game/weapons/weaponViewPose';
 import { WEAPON_ASSET_SOURCE, WEAPON_DEFINITIONS, publicAssetUrl, withAssetVersion } from '../game/weapons/weaponManifest';
 
 describe('FPS foundation config', () => {
@@ -86,6 +94,7 @@ describe('FPS foundation config', () => {
 
   it('keeps walkable lanes at least three units wide', () => {
     const minimumOpenTiles = Math.ceil(MIN_FOUNDATION_PASSAGE_UNITS / LEVEL_TILE_SIZE);
+    const minimumEntryOpenTiles = Math.ceil(MIN_FOUNDATION_ENTRY_UNITS / LEVEL_TILE_SIZE);
 
     for (let row = 0; row < LEVEL_HEIGHT_TILES; row++) {
       for (let column = 0; column < LEVEL_WIDTH_TILES; column++) {
@@ -103,7 +112,9 @@ describe('FPS foundation config', () => {
       }
     }
 
+    expect(minimumEntryOpenTiles).toBe(5);
     expect(findNarrowBoundedSegments(minimumOpenTiles)).toEqual([]);
+    expect(findNarrowBoundedWallEntries(minimumEntryOpenTiles, minimumOpenTiles)).toEqual([]);
     expect(findDiagonalCornerCuts()).toEqual([]);
     expect(findCornerPinches()).toEqual([]);
     expect(worldToTile(12.1, -2.1)?.symbol).toBe('#');
@@ -144,6 +155,38 @@ describe('FPS foundation config', () => {
       expect(clearance.rightOffset).toBeGreaterThanOrEqual(weapon.view.position[0]);
       expect(clearance.forwardOffset).toBeGreaterThanOrEqual(Math.abs(weapon.view.position[2]));
       expect(weapon.view.rotation[1]).toBeCloseTo(0);
+    }
+  });
+
+  it('derives shot effects from the weapon view pose', () => {
+    const neutralPose = { recoil: 0, wallAvoidance: 0 };
+    const wallPose = { recoil: 0.08, wallAvoidance: 0.65 };
+
+    for (const weapon of WEAPON_DEFINITIONS) {
+      const root = getWeaponRootCameraPosition(weapon.view, neutralPose);
+      const muzzle = getWeaponMuzzleCameraPosition(weapon.view, neutralPose);
+      const closeEffects = getWeaponShotEffectPositions(weapon.view, 0.35, neutralPose);
+      const shiftedView = {
+        ...weapon.view,
+        position: [
+          weapon.view.position[0] + 0.3,
+          weapon.view.position[1] - 0.1,
+          weapon.view.position[2] - 0.2,
+        ] satisfies [number, number, number],
+      };
+      const shiftedMuzzle = getWeaponMuzzleCameraPosition(shiftedView, neutralPose);
+      const wallMuzzle = getWeaponMuzzleCameraPosition(weapon.view, wallPose);
+
+      expect(muzzle[0]).toBeGreaterThan(root[0]);
+      expect(muzzle[2]).toBeLessThan(root[2]);
+      expectTupleClose(closeEffects.muzzle, muzzle);
+      expectTupleClose(closeEffects.tracerEnd, [0, 0, -MIN_SHOT_TRACER_DISTANCE_UNITS]);
+      expectTupleClose(closeEffects.wallImpact, [0, 0, -0.35 + WEAPON_WALL_IMPACT_INSET_UNITS]);
+      expect(shiftedMuzzle[0] - muzzle[0]).toBeCloseTo(0.3);
+      expect(shiftedMuzzle[1] - muzzle[1]).toBeCloseTo(-0.1);
+      expect(shiftedMuzzle[2] - muzzle[2]).toBeCloseTo(-0.2);
+      expect(wallMuzzle[1]).not.toBeCloseTo(muzzle[1]);
+      expect(wallMuzzle[2]).not.toBeCloseTo(muzzle[2]);
     }
   });
 
@@ -242,6 +285,89 @@ function findNarrowBoundedSegments(minimumOpenTiles: number): Array<Record<strin
   }
 
   return segments;
+}
+
+function findNarrowBoundedWallEntries(
+  minimumEntryOpenTiles: number,
+  minimumWallRunTiles: number,
+): Array<Record<string, number | string>> {
+  const entries: Array<Record<string, number | string>> = [];
+
+  for (let row = 0; row < LEVEL_HEIGHT_TILES; row++) {
+    let start: number | null = null;
+    for (let column = 0; column <= LEVEL_WIDTH_TILES; column++) {
+      const isWall = column < LEVEL_WIDTH_TILES && FOUNDATION_LEVEL_MAP[row][column] === '#';
+      if (!isWall && column < LEVEL_WIDTH_TILES && start === null) {
+        start = column;
+      }
+      if ((isWall || column === LEVEL_WIDTH_TILES) && start !== null) {
+        const end = column - 1;
+        const bounded =
+          start > 0 &&
+          end < LEVEL_WIDTH_TILES - 1 &&
+          FOUNDATION_LEVEL_MAP[row][start - 1] === '#' &&
+          FOUNDATION_LEVEL_MAP[row][end + 1] === '#';
+        if (
+          bounded &&
+          countStructuralWallRun(row, start - 1, 0, -1) >= minimumWallRunTiles &&
+          countStructuralWallRun(row, end + 1, 0, 1) >= minimumWallRunTiles &&
+          end - start + 1 < minimumEntryOpenTiles
+        ) {
+          entries.push({ axis: 'row', row, start, end });
+        }
+        start = null;
+      }
+    }
+  }
+
+  for (let column = 0; column < LEVEL_WIDTH_TILES; column++) {
+    let start: number | null = null;
+    for (let row = 0; row <= LEVEL_HEIGHT_TILES; row++) {
+      const isWall = row < LEVEL_HEIGHT_TILES && FOUNDATION_LEVEL_MAP[row][column] === '#';
+      if (!isWall && row < LEVEL_HEIGHT_TILES && start === null) {
+        start = row;
+      }
+      if ((isWall || row === LEVEL_HEIGHT_TILES) && start !== null) {
+        const end = row - 1;
+        const bounded =
+          start > 0 &&
+          end < LEVEL_HEIGHT_TILES - 1 &&
+          FOUNDATION_LEVEL_MAP[start - 1][column] === '#' &&
+          FOUNDATION_LEVEL_MAP[end + 1][column] === '#';
+        if (
+          bounded &&
+          countStructuralWallRun(start - 1, column, -1, 0) >= minimumWallRunTiles &&
+          countStructuralWallRun(end + 1, column, 1, 0) >= minimumWallRunTiles &&
+          end - start + 1 < minimumEntryOpenTiles
+        ) {
+          entries.push({ axis: 'column', column, start, end });
+        }
+        start = null;
+      }
+    }
+  }
+
+  return entries;
+}
+
+function countStructuralWallRun(row: number, column: number, rowStep: number, columnStep: number): number {
+  let count = 0;
+  let nextRow = row;
+  let nextColumn = column;
+
+  while (
+    nextRow >= 0 &&
+    nextRow < LEVEL_HEIGHT_TILES &&
+    nextColumn >= 0 &&
+    nextColumn < LEVEL_WIDTH_TILES &&
+    FOUNDATION_LEVEL_MAP[nextRow][nextColumn] === '#'
+  ) {
+    count++;
+    nextRow += rowStep;
+    nextColumn += columnStep;
+  }
+
+  return count;
 }
 
 function findDiagonalCornerCuts(): Array<Record<string, number | string>> {
@@ -352,4 +478,10 @@ function findCornerPinches(): Array<Record<string, number | string>> {
 
 function isSolidAtOffset(row: number, column: number, offset: readonly [number, number]): boolean {
   return isSolidSymbol(FOUNDATION_LEVEL_MAP[row + offset[0]][column + offset[1]] as LevelTileSymbol);
+}
+
+function expectTupleClose(actual: readonly [number, number, number], expected: readonly [number, number, number]): void {
+  expect(actual[0]).toBeCloseTo(expected[0]);
+  expect(actual[1]).toBeCloseTo(expected[1]);
+  expect(actual[2]).toBeCloseTo(expected[2]);
 }

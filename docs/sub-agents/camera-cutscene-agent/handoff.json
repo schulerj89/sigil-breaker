@@ -2,15 +2,17 @@
   "handoffVersion": "1.0.0",
   "agentId": "camera-cutscene-agent",
   "status": "not-started",
-  "updatedAt": "2026-07-04T00:00:00Z",
-  "summary": "Initial camera scaffold only; no FPS camera or cutscene system exists.",
+  "updatedAt": "2026-07-04T05:40:00Z",
+  "summary": "Initial camera scaffold only; no cutscene system exists, but weapon feedback now depends on shared camera-local view-pose math.",
   "observations": [
-    "No camera modes, viewmodel framing, or cutscene system exists yet."
+    "No camera modes, viewmodel framing, or cutscene system exists yet.",
+    "Weapon muzzle, tracer, and wall-impact positions are derived from src/game/weapons/weaponViewPose.ts."
   ],
   "decisions": [
     "Cutscenes must be skippable.",
     "Input state must be restored after cutscenes.",
-    "Camera shake and FOV shifts must remain readable on mobile."
+    "Camera shake and FOV shifts must remain readable on mobile.",
+    "Gameplay camera changes must preserve or explicitly suspend weapon shot-effect pose alignment."
   ],
   "caughtIssues": [],
   "risks": [
@@ -31,7 +33,12 @@
     "defaultFovDegrees": 70,
     "cutsceneSkippable": true,
     "restoreInputAfterCutscene": true,
-    "debugPoseRequired": true
+    "debugPoseRequired": true,
+    "weaponEffectPoseSource": "src/game/weapons/weaponViewPose.ts",
+    "requiredDebugPoses": [
+      "first-person-fire",
+      "close-wall-weapon-retract"
+    ]
   },
   "nextAgents": [
     "weapon-upgrade-asset-curator",
@@ -40,4 +47,3 @@
     "playthrough-qa-agent"
   ]
 }
-

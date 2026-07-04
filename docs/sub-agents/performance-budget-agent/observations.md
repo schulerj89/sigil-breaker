@@ -1,6 +1,6 @@
 # Observations: performance-budget-agent
 
-Status: needs review after input/collision and browser-smoke pass.
+Status: needs review after input/collision/effect-pose and browser-smoke pass.
 
 ## What It Saw
 
@@ -14,6 +14,9 @@ Status: needs review after input/collision and browser-smoke pass.
 - `qaCapture=1` enables `preserveDrawingBuffer` only for QA readback/screenshots; normal production users keep it off.
 - Weapon-aware collision adds one extra level-footprint probe for movement and one wall-avoidance ray/probe per weapon update.
 - The level pinch fix removes six walkable cells and does not add render assets.
+- The entry-width fix opens eight walkable cells and does not add render assets.
+- `weaponViewPose.ts` adds small shot-time/effect-visible camera-local math so tracer placement follows the same pose as the viewmodel.
+- Latest production-preview Playwright smoke passed all five landscape viewports after the entry-width and effect-pose changes.
 
 ## Decisions
 
@@ -23,6 +26,7 @@ Status: needs review after input/collision and browser-smoke pass.
 - Query-based cache invalidation should not change GPU memory, but it can create duplicate browser-cache entries across builds.
 - Do not use Playwright QA-capture FPS as the final gameplay performance number because preserveDrawingBuffer can reduce FPS.
 - Keep the weapon wall-avoidance probes while the weapon set is small; revisit if weapon logic becomes per-projectile or per-mesh.
+- Keep the shared shot-effect pose helper; it avoids extra scene objects and keeps placement math unit-testable.
 
 ## Caught Issues
 
@@ -32,6 +36,7 @@ Status: needs review after input/collision and browser-smoke pass.
 - Coordinate HUD is DOM text only and should remain in debug metrics rather than the final combat HUD.
 - The build still emits Vite's large chunk warning around the Three.js bundle.
 - The build JS chunk increased slightly after adding the shared weapon clearance module and wall-avoidance debug field.
+- The production JS chunk is now about 642.83 kB minified after adding the shot-pose helper and debug effect-pose field.
 
 ## Next Handoff Notes
 
@@ -40,3 +45,4 @@ Status: needs review after input/collision and browser-smoke pass.
 - Watch FPS before adding enemies because dev smoke is still below the 60 target.
 - Future asset streaming should account for cache-busted URLs when comparing network/cache behavior between builds.
 - Future performance profiling should measure close-wall movement with weapon avoidance active.
+- Future performance profiling should measure repeated firing with effect-pose updates visible, although the current helper is lightweight.
