@@ -13,6 +13,7 @@ const repoRoot = path.resolve(scriptDir, '..');
 const ledgerPath = path.join(repoRoot, 'docs', 'assets', 'source-ledger.json');
 const maxInitialWeaponPayloadBytes = 1_000_000;
 const maxInitialEnvironmentPayloadBytes = 1_000_000;
+const maxInitialAudioPayloadBytes = 5_000_000;
 const execFileAsync = promisify(execFile);
 
 const ledger = JSON.parse(await readFile(ledgerPath, 'utf8'));
@@ -32,6 +33,7 @@ if (result.errors.length > 0) {
       `${result.assets} asset(s)`,
       `${result.levelOneWeaponBytes}B level-01 weapon payload`,
       `${result.foundationEnvironmentBytes}B foundation environment payload`,
+      `${result.foundationAudioBytes}B foundation audio payload`,
     ].join(' | '),
   );
 }
@@ -42,6 +44,7 @@ async function validateAssetLedger(assetLedger) {
   let assetCount = 0;
   let levelOneWeaponBytes = 0;
   let foundationEnvironmentBytes = 0;
+  let foundationAudioBytes = 0;
 
   if (!Array.isArray(assetLedger.sources)) {
     return {
@@ -50,6 +53,7 @@ async function validateAssetLedger(assetLedger) {
       assets: 0,
       levelOneWeaponBytes: 0,
       foundationEnvironmentBytes: 0,
+      foundationAudioBytes: 0,
     };
   }
 
@@ -57,7 +61,8 @@ async function validateAssetLedger(assetLedger) {
     if (!source.sourceId || typeof source.sourceId !== 'string') {
       errors.push('Source is missing a sourceId.');
     }
-    if (source.license !== 'Creative Commons Zero, CC0') {
+    const isGeneratedElevenLabsSource = source.generated === true && source.provider === 'ElevenLabs';
+    if (!isGeneratedElevenLabsSource && source.license !== 'Creative Commons Zero, CC0') {
       errors.push(`${source.sourceId} must be CC0 for the current external asset intake gate.`);
     }
     if (source.attributionRequired !== false) {
@@ -66,8 +71,15 @@ async function validateAssetLedger(assetLedger) {
     if (source.commercialUseAllowed !== true || source.redistributionAllowed !== true) {
       errors.push(`${source.sourceId} must allow commercial use and redistribution.`);
     }
+    if (isGeneratedElevenLabsSource && (!source.licenseUrl || typeof source.licenseUrl !== 'string')) {
+      errors.push(`${source.sourceId} generated source must include an ElevenLabs terms URL.`);
+    }
 
-    await expectCommittedFile(source.licenseFile, errors, `${source.sourceId} license file`);
+    if (isGeneratedElevenLabsSource) {
+      await expectCommittedFile(source.metadataFile, errors, `${source.sourceId} metadata file`);
+    } else {
+      await expectCommittedFile(source.licenseFile, errors, `${source.sourceId} license file`);
+    }
 
     for (const sharedFile of source.sharedFiles ?? []) {
       if (sharedFile.gameUse === 'weapon' && sharedFile.loadGroup === 'level-01-weapons') {
@@ -75,6 +87,9 @@ async function validateAssetLedger(assetLedger) {
       }
       if (sharedFile.gameUse === 'environment' && sharedFile.loadGroup === 'foundation-environment') {
         foundationEnvironmentBytes += Number(sharedFile.bytes) || 0;
+      }
+      if (sharedFile.gameUse === 'audio' && sharedFile.loadGroup === 'foundation-audio') {
+        foundationAudioBytes += Number(sharedFile.bytes) || 0;
       }
 
       await expectCommittedFile(sharedFile.path, errors, `${source.sourceId} shared file`);
@@ -104,6 +119,9 @@ async function validateAssetLedger(assetLedger) {
       if (asset.gameUse === 'environment' && asset.loadGroup === 'foundation-environment') {
         foundationEnvironmentBytes += Number(asset.bytes) || 0;
       }
+      if (asset.gameUse === 'audio' && asset.loadGroup === 'foundation-audio') {
+        foundationAudioBytes += Number(asset.bytes) || 0;
+      }
 
       await expectCommittedFile(asset.path, errors, `${asset.assetId} file`);
       await expectHash(asset.path, asset.sha256, errors, `${asset.assetId} file`);
@@ -115,6 +133,34 @@ async function validateAssetLedger(assetLedger) {
         }
         if (asset.optimizedSha256 !== asset.sha256) {
           errors.push(`${asset.assetId} optimizedSha256 must match sha256 for the committed texture.`);
+        }
+        continue;
+      }
+
+      if (asset.assetType === 'audio') {
+        if (asset.provider !== 'ElevenLabs') {
+          errors.push(`${asset.assetId} audio provider must be ElevenLabs for generated MVP audio.`);
+        }
+        if (!asset.prompt || typeof asset.prompt !== 'string') {
+          errors.push(`${asset.assetId} must include the generation prompt.`);
+        }
+        if (!asset.modelId || typeof asset.modelId !== 'string') {
+          errors.push(`${asset.assetId} must include an ElevenLabs modelId.`);
+        }
+        if (!asset.settings || typeof asset.settings !== 'object') {
+          errors.push(`${asset.assetId} must include generation settings.`);
+        }
+        if (!asset.generatedAt || typeof asset.generatedAt !== 'string') {
+          errors.push(`${asset.assetId} must include generatedAt.`);
+        }
+        if (typeof asset.durationSeconds !== 'number' || asset.durationSeconds <= 0) {
+          errors.push(`${asset.assetId} must include a positive durationSeconds value.`);
+        }
+        if (typeof asset.loopable !== 'boolean') {
+          errors.push(`${asset.assetId} must include a loopable boolean.`);
+        }
+        if (typeof asset.lufsTarget !== 'number') {
+          errors.push(`${asset.assetId} must include a lufsTarget number.`);
         }
         continue;
       }
@@ -134,6 +180,9 @@ async function validateAssetLedger(assetLedger) {
       `foundation environment payload ${foundationEnvironmentBytes}B exceeds ${maxInitialEnvironmentPayloadBytes}B budget.`,
     );
   }
+  if (foundationAudioBytes > maxInitialAudioPayloadBytes) {
+    errors.push(`foundation audio payload ${foundationAudioBytes}B exceeds ${maxInitialAudioPayloadBytes}B budget.`);
+  }
 
   return {
     errors,
@@ -141,6 +190,7 @@ async function validateAssetLedger(assetLedger) {
     assets: assetCount,
     levelOneWeaponBytes,
     foundationEnvironmentBytes,
+    foundationAudioBytes,
   };
 }
 

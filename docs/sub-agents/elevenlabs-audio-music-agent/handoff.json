@@ -1,29 +1,89 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "elevenlabs-audio-music-agent",
-  "status": "not-started",
-  "updatedAt": "2026-07-04T00:00:00Z",
-  "summary": "Initial ElevenLabs audio scaffold only; no FPS audio workflow exists.",
+  "status": "complete",
+  "updatedAt": "2026-07-04T17:00:43Z",
+  "summary": "Foundation weapon SFX and music now use committed ElevenLabs-generated MP3 assets with cache-busted runtime playback and a landscape HUD mute toggle.",
   "observations": [
-    "No future FPS audio manifest, generation script, or mix policy exists yet."
+    "Previous gun sounds were procedural Web Audio and not ElevenLabs assets.",
+    "Generated three weapon SFX assets with the ElevenLabs text-to-sound-effects endpoint.",
+    "Generated one 24 second instrumental foundation loop with the ElevenLabs music stream endpoint.",
+    "Runtime browser code loads committed public MP3 assets through publicAssetUrl and never receives an ElevenLabs API key.",
+    "Audio asset prompts, endpoints, models, settings, bytes, hashes, LUFS targets, and intended use are recorded in docs/assets/source-ledger.json and source-metadata.json."
   ],
   "decisions": [
     "Do not expose ElevenLabs API keys in browser code.",
     "Generate server-side or build-time and cache audio as assets.",
-    "Record prompt and settings metadata for generated audio."
+    "Use committed MP3 assets for the MVP foundation audio payload.",
+    "Unlock music and SFX from a user gesture, then let the player mute/unmute music from the HUD.",
+    "Treat generated ElevenLabs audio as provider-generated output with metadata validation, not as CC0 external art."
   ],
-  "caughtIssues": [],
+  "caughtIssues": [
+    "The current browser autoplay model means music must not be expected to play before a user gesture.",
+    "The asset validator needed a generated-audio source path instead of a CC0-only source gate."
+  ],
   "risks": [
-    "Runtime secret usage would leak API keys in the web build.",
-    "Untracked generated audio cannot be reproduced or credited."
+    "The 24 second music loop may become repetitive during longer playthroughs.",
+    "Generated output usage must continue to follow the active ElevenLabs account and terms.",
+    "SFX loudness is metadata-targeted but not yet measured by an automated LUFS tool."
   ],
   "blockers": [],
-  "artifacts": [],
+  "artifacts": [
+    "public/assets/audio/elevenlabs-foundation/spark-sidearm.mp3",
+    "public/assets/audio/elevenlabs-foundation/bore-scatter.mp3",
+    "public/assets/audio/elevenlabs-foundation/vault-heavy.mp3",
+    "public/assets/audio/elevenlabs-foundation/foundation-combat-loop.mp3",
+    "public/assets/audio/elevenlabs-foundation/source-metadata.json",
+    "src/game/audioManifest.ts",
+    "src/game/weapons/weaponAudio.ts"
+  ],
   "jsonForAgents": {
     "secretEnvVars": [
       "ELEVENLABS_API_KEY"
     ],
     "runtimeGenerationAllowedInBrowser": false,
+    "audioAssets": [
+      {
+        "assetId": "audio.weapon.spark.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/spark-sidearm.mp3",
+        "kind": "sfx",
+        "modelId": "eleven_text_to_sound_v2",
+        "durationSeconds": 1,
+        "loopable": false,
+        "lufsTarget": -14,
+        "weaponProfile": "sidearm"
+      },
+      {
+        "assetId": "audio.weapon.bore.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/bore-scatter.mp3",
+        "kind": "sfx",
+        "modelId": "eleven_text_to_sound_v2",
+        "durationSeconds": 1.2,
+        "loopable": false,
+        "lufsTarget": -14,
+        "weaponProfile": "scatter"
+      },
+      {
+        "assetId": "audio.weapon.vault.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/vault-heavy.mp3",
+        "kind": "sfx",
+        "modelId": "eleven_text_to_sound_v2",
+        "durationSeconds": 1.1,
+        "loopable": false,
+        "lufsTarget": -14,
+        "weaponProfile": "heavy"
+      },
+      {
+        "assetId": "audio.music.foundation.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/foundation-combat-loop.mp3",
+        "kind": "music",
+        "modelId": "music_v1",
+        "durationSeconds": 24,
+        "loopable": true,
+        "lufsTarget": -18,
+        "muteSelector": "[data-music-toggle]"
+      }
+    ],
     "requiredAudioMetadata": [
       "assetId",
       "provider",
@@ -48,4 +108,3 @@
     "mobile-fps-game-feel-agent"
   ]
 }
-

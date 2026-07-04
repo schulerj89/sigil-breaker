@@ -135,7 +135,7 @@ function createShellMarkup(): string {
     <div class="game-shell">
       <canvas class="game-canvas" aria-label="${GAME_TITLE} prototype render"></canvas>
       <div class="look-zone" aria-hidden="true"></div>
-      <div class="hud" aria-hidden="true">
+      <div class="hud">
         <div class="hud__left">
           <span class="hud__badge">${LEVEL_WIDTH_TILES} x ${LEVEL_HEIGHT_TILES}</span>
           <span class="hud__badge hud__badge--hp">HP 100</span>
@@ -148,6 +148,16 @@ function createShellMarkup(): string {
           <span class="hud__badge hud__badge--metric" data-debug-chunks>CH --</span>
         </div>
         <div class="hud__right">
+          <button
+            class="hud__icon-button hud__icon-button--music"
+            type="button"
+            data-ui-control
+            data-music-toggle
+            aria-label="Mute music"
+            aria-pressed="false"
+          >
+            <span class="music-icon" aria-hidden="true"></span>
+          </button>
           <span class="hud__badge hud__badge--weapon" data-weapon-label>${WEAPON_DEFINITIONS[0].label}</span>
           <span class="hud__badge hud__badge--ammo" data-weapon-ammo>-- / --</span>
           <span class="hud__badge hud__badge--build">${__SIGILBREAKER_BUILD_ID__}</span>
@@ -189,7 +199,15 @@ function createShellMarkup(): string {
           </button>
         </div>
       </div>
-      <div class="rotate-prompt">ROTATE DEVICE</div>
+      <div class="rotate-prompt" role="status" aria-live="polite">
+        <div class="rotate-prompt__content">
+          <div class="rotate-prompt__icon" aria-hidden="true">
+            <span class="rotate-prompt__phone"></span>
+            <span class="rotate-prompt__arrow"></span>
+          </div>
+          <div class="rotate-prompt__label">ROTATE TO LANDSCAPE</div>
+        </div>
+      </div>
     </div>
   `;
 }

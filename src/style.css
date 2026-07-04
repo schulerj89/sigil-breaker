@@ -153,6 +153,82 @@ canvas {
   font-variant-numeric: tabular-nums;
 }
 
+.hud__icon-button {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgb(238 243 240 / 0.28);
+  background: rgb(13 16 18 / 0.58);
+  color: #dbe7ef;
+  padding: 0;
+  pointer-events: auto;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  appearance: none;
+}
+
+.hud__icon-button--music {
+  color: #9df2b6;
+}
+
+.hud__icon-button--music.hud__icon-button--muted {
+  color: #ffb1a9;
+}
+
+.music-icon {
+  position: relative;
+  width: 16px;
+  height: 18px;
+  display: block;
+}
+
+.music-icon::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 1px;
+  width: 7px;
+  height: 12px;
+  border-right: 2px solid currentColor;
+  border-top: 2px solid currentColor;
+  transform: skewY(-8deg);
+}
+
+.music-icon::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 1px;
+  width: 8px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 9px -2px 0 -1px currentColor;
+}
+
+.hud__icon-button--muted .music-icon {
+  opacity: 0.9;
+}
+
+.hud__icon-button--muted .music-icon::before {
+  box-shadow: 8px 7px 0 -7px currentColor;
+}
+
+.hud__icon-button--muted .music-icon::after {
+  box-shadow:
+    9px -2px 0 -1px currentColor,
+    8px -7px 0 -7px currentColor;
+}
+
+.hud__icon-button--muted .music-icon {
+  background:
+    linear-gradient(45deg, transparent 42%, currentColor 44% 56%, transparent 58%)
+    center / 18px 18px no-repeat;
+}
+
 .crosshair {
   position: absolute;
   left: 50%;
@@ -363,13 +439,98 @@ canvas {
   display: none;
   place-items: center;
   padding: 24px;
-  background: #0d1012;
+  background:
+    linear-gradient(180deg, rgb(13 16 18 / 0.98), rgb(21 27 31 / 0.98)),
+    #0d1012;
   color: #eef3f0;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 900;
   letter-spacing: 0;
   text-align: center;
   z-index: 5;
+}
+
+.rotate-prompt__content {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+}
+
+.rotate-prompt__icon {
+  position: relative;
+  width: 126px;
+  height: 104px;
+}
+
+.rotate-prompt__phone {
+  position: absolute;
+  left: 38px;
+  top: 24px;
+  width: 50px;
+  height: 72px;
+  border: 4px solid #eef3f0;
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgb(238 243 240 / 0.1), transparent),
+    rgb(96 165 250 / 0.12);
+  box-shadow:
+    0 0 0 1px rgb(96 165 250 / 0.22),
+    0 0 24px rgb(45 212 191 / 0.2);
+  transform: rotate(90deg);
+}
+
+.rotate-prompt__phone::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 5px;
+  width: 15px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgb(238 243 240 / 0.7);
+  transform: translateX(-50%);
+}
+
+.rotate-prompt__phone::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 5px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid rgb(238 243 240 / 0.72);
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.rotate-prompt__arrow {
+  position: absolute;
+  left: 20px;
+  top: 3px;
+  width: 86px;
+  height: 86px;
+  border: 5px solid transparent;
+  border-top-color: #5eead4;
+  border-left-color: #5eead4;
+  border-radius: 50%;
+  transform: rotate(-34deg);
+}
+
+.rotate-prompt__arrow::after {
+  content: "";
+  position: absolute;
+  right: 8px;
+  top: -1px;
+  width: 14px;
+  height: 14px;
+  border-top: 5px solid #5eead4;
+  border-right: 5px solid #5eead4;
+  transform: rotate(31deg);
+}
+
+.rotate-prompt__label {
+  color: #eef3f0;
+  text-shadow: 0 0 18px rgb(94 234 212 / 0.3);
 }
 
 @media (orientation: portrait) {
@@ -402,6 +563,11 @@ canvas {
   .hud__badge--coords {
     min-width: 108px;
     font-size: 9px;
+  }
+
+  .hud__icon-button {
+    width: 28px;
+    height: 28px;
   }
 
   .weapon-tray {

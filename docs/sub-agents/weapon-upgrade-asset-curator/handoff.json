@@ -2,13 +2,13 @@
   "handoffVersion": "1.0.0",
   "agentId": "weapon-upgrade-asset-curator",
   "status": "in-progress",
-  "updatedAt": "2026-07-04T12:00:00Z",
-  "summary": "Three-gun slice now uses yaw 0, right-shifted and per-weapon lowered viewmodels, manifest-derived wall clearance, per-weapon muzzle anchors, pitch-corrected wall collision feedback, cache-busted public asset URLs, and shared shot-effect pose math.",
+  "updatedAt": "2026-07-04T17:00:43Z",
+  "summary": "Three-gun slice now uses yaw 0, right-shifted and per-weapon lowered viewmodels, manifest-derived wall clearance, per-weapon muzzle anchors, pitch-corrected wall collision feedback, cache-busted public asset URLs, shared shot-effect pose math, visible muzzle-flash alignment, and ElevenLabs firing SFX.",
   "observations": [
     "SPARK is a fast sidearm using blaster-a.glb.",
     "BORE is a close scatter weapon using blaster-h.glb.",
     "VAULT is a heavy pulse weapon using blaster-p.glb.",
-    "Each weapon has a procedural Web Audio firing profile until ElevenLabs audio is added.",
+    "Each weapon has an ElevenLabs-generated firing SFX asset mapped by soundProfile.",
     "All three viewmodels use Y rotation 0 after the user requested the guns face the other way.",
     "Shots raycast against the tile level and report lastShot wall hit details through debug state.",
     "Weapon preview/model paths use runtime assetBuild cache invalidation through the manifest helper.",
@@ -21,7 +21,9 @@
     "WeaponSystemSnapshot.effectPose exposes rounded shot-effect positions for QA automation.",
     "SPARK keeps its previous first-person framing while BORE and VAULT were lowered for their different silhouettes.",
     "Each weapon now declares view.muzzleLocalOffset in the manifest.",
-    "weaponShotMath.ts converts flat X/Z wall raycast distances to camera-space tracer distances so pitch up/down shots still terminate at the reticle."
+    "weaponShotMath.ts converts flat X/Z wall raycast distances to camera-space tracer distances so pitch up/down shots still terminate at the reticle.",
+    "The visible yellow muzzle flash now sits in shotFeedbackRoot and uses the same camera-local muzzle position as the tracer start.",
+    "WeaponAudio now plays committed cache-busted MP3 SFX assets rather than procedural oscillator/noise bursts."
   ],
   "decisions": [
     "Expose the three weapons through a clickable landscape selector.",
@@ -50,6 +52,10 @@
     "src/game/weapons/weaponSystem.ts",
     "src/game/weapons/weaponViewPose.ts",
     "src/game/weapons/weaponAudio.ts",
+    "src/game/audioManifest.ts",
+    "public/assets/audio/elevenlabs-foundation/spark-sidearm.mp3",
+    "public/assets/audio/elevenlabs-foundation/bore-scatter.mp3",
+    "public/assets/audio/elevenlabs-foundation/vault-heavy.mp3",
     "public/assets/weapons/kenney-blaster-kit/models/blaster-a.glb",
     "public/assets/weapons/kenney-blaster-kit/models/blaster-h.glb",
     "public/assets/weapons/kenney-blaster-kit/models/blaster-p.glb"
@@ -63,7 +69,8 @@
         "magazineSize": 18,
         "fireIntervalMs": 155,
         "rangeUnits": 28,
-        "soundProfile": "sidearm"
+        "soundProfile": "sidearm",
+        "audioAssetId": "audio.weapon.spark.elevenlabs"
       },
       {
         "assetId": "weapon.blaster.bore",
@@ -72,7 +79,8 @@
         "magazineSize": 8,
         "fireIntervalMs": 470,
         "rangeUnits": 18,
-        "soundProfile": "scatter"
+        "soundProfile": "scatter",
+        "audioAssetId": "audio.weapon.bore.elevenlabs"
       },
       {
         "assetId": "weapon.blaster.vault",
@@ -81,7 +89,8 @@
         "magazineSize": 12,
         "fireIntervalMs": 285,
         "rangeUnits": 24,
-        "soundProfile": "heavy"
+        "soundProfile": "heavy",
+        "audioAssetId": "audio.weapon.vault.elevenlabs"
       }
     ],
     "viewModelYawRadians": 0,
@@ -101,6 +110,7 @@
     "weaponFootprintBlocksMovement": false,
     "shotEffectPoseSource": "src/game/weapons/weaponViewPose.ts",
     "shotPitchCorrectionSource": "src/game/weapons/weaponShotMath.ts",
+    "visibleMuzzleFlashParent": "shotFeedbackRoot",
     "muzzleLocalOffsets": {
       "weapon.blaster.spark": [0.04, 0.04, -1.1],
       "weapon.blaster.bore": [0.05, 0.02, -1.02],

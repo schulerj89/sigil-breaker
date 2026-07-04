@@ -2,23 +2,28 @@
   "handoffVersion": "1.0.0",
   "agentId": "landscape-title-hud-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T05:05:00Z",
-  "summary": "Landscape debug HUD now includes compact player coordinates and has Playwright coverage for small-phone fit.",
+  "updatedAt": "2026-07-04T17:00:43Z",
+  "summary": "Landscape debug HUD now includes compact player coordinates, a music mute icon, and portrait rotate prompt icon coverage.",
   "observations": [
     "Center metrics HUD includes FPS, XYZ coordinates, JS heap, level triangle count, and chunk count.",
     "Coordinates use the player's debug scene position with one decimal precision.",
-    "Playwright smoke checks HUD group overlap and badge text overflow across the declared mobile landscape viewport set."
+    "Playwright smoke checks HUD group overlap and badge text overflow across the declared mobile landscape viewport set.",
+    "A compact top-right music mute button is exposed at [data-music-toggle].",
+    "The portrait-only rotate prompt now includes a CSS-built phone and rotation icon."
   ],
   "decisions": [
     "Landscape is the playable orientation.",
     "Portrait should show a rotate prompt.",
     "Reward choices must show clear stat deltas and selected state.",
     "Debug coordinates should stay compact and hidden from final production HUD unless QA mode is active.",
-    "Center metrics may wrap, but must not overlap left/right HUD groups."
+    "Center metrics may wrap, but must not overlap left/right HUD groups.",
+    "Music mute should stay an icon-sized HUD control rather than a full text badge.",
+    "Portrait prompt must cover the viewport because portrait is not playable."
   ],
   "caughtIssues": [
     "Initial coordinate badge sizing risked crowding the 667 px landscape HUD; CSS now uses auto/minmax/auto grid columns and wrapped center metrics.",
-    "HUD safe-area and reward-choice rules are still future work."
+    "HUD safe-area and reward-choice rules are still future work.",
+    "Adding more right-side HUD controls can crowd the build, weapon, and ammo badges on 667px landscape viewports."
   ],
   "risks": [
     "Reward UI can become unreadable if powerup names and stat copy are not constrained early."
@@ -39,6 +44,18 @@
       "pause",
       "rewardChoices"
     ],
+    "musicMuteButton": {
+      "selector": "[data-music-toggle]",
+      "iconSelector": ".music-icon",
+      "stateAttribute": "aria-pressed",
+      "debugField": "snapshot.weapon.audio.musicMuted"
+    },
+    "rotatePrompt": {
+      "selector": ".rotate-prompt",
+      "iconSelector": ".rotate-prompt__icon",
+      "visibleWhen": "viewport width is less than height",
+      "copy": "ROTATE TO LANDSCAPE"
+    },
     "forbiddenOverlapZones": [
       "thumb-left",
       "thumb-right",

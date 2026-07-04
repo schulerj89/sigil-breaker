@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEBUG_SCENE_ID, MOBILE_VIEWPORTS, PERFORMANCE_BUDGETS } from '../game/config';
+import { FOUNDATION_MUSIC_ASSET, GAME_AUDIO_ASSETS, WEAPON_AUDIO_ASSETS } from '../game/audioManifest';
 import {
   FOUNDATION_LEVEL_MAP,
   FOUNDATION_LEVEL_ID,
@@ -204,6 +205,27 @@ describe('FPS foundation config', () => {
     }
   });
 
+  it('registers generated ElevenLabs audio for the foundation level', () => {
+    const audioIds = GAME_AUDIO_ASSETS.map((asset) => asset.id).sort();
+    const totalAudioBytes = GAME_AUDIO_ASSETS.reduce((total, asset) => total + asset.bytes, 0);
+
+    expect(audioIds).toEqual([
+      'audio.music.foundation.elevenlabs',
+      'audio.weapon.bore.elevenlabs',
+      'audio.weapon.spark.elevenlabs',
+      'audio.weapon.vault.elevenlabs',
+    ]);
+    expect(WEAPON_AUDIO_ASSETS.sidearm.path).toBe('assets/audio/elevenlabs-foundation/spark-sidearm.mp3');
+    expect(WEAPON_AUDIO_ASSETS.scatter.path).toBe('assets/audio/elevenlabs-foundation/bore-scatter.mp3');
+    expect(WEAPON_AUDIO_ASSETS.heavy.path).toBe('assets/audio/elevenlabs-foundation/vault-heavy.mp3');
+    expect(FOUNDATION_MUSIC_ASSET.path).toBe(
+      'assets/audio/elevenlabs-foundation/foundation-combat-loop.mp3',
+    );
+    expect(FOUNDATION_MUSIC_ASSET.kind).toBe('music');
+    expect(totalAudioBytes).toBe(439_869);
+    expect(totalAudioBytes).toBeLessThan(5_000_000);
+  });
+
   it('derives shot effects from each weapon view pose', () => {
     const neutralPose = { recoil: 0, wallAvoidance: 0, aimBlend: 0 };
     const aimPose = { recoil: 0, wallAvoidance: 0, aimBlend: 1 };
@@ -369,6 +391,9 @@ describe('FPS foundation config', () => {
     expect(withAssetVersion('Textures/colormap.png')).toMatch(/^Textures\/colormap\.png\?assetBuild=.+/);
     expect(publicAssetUrl('assets/environment/kenney-prototype-textures/textures/floor-grid-steel.png')).toMatch(
       /assets\/environment\/kenney-prototype-textures\/textures\/floor-grid-steel\.png\?assetBuild=.+/,
+    );
+    expect(publicAssetUrl('assets/audio/elevenlabs-foundation/spark-sidearm.mp3')).toMatch(
+      /assets\/audio\/elevenlabs-foundation\/spark-sidearm\.mp3\?assetBuild=.+/,
     );
     expect(withAssetVersion('Textures/colormap.png?assetBuild=already')).toBe(
       'Textures/colormap.png?assetBuild=already',

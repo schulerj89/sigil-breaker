@@ -3,6 +3,18 @@ import { expect, test, type Page } from '@playwright/test';
 test.setTimeout(120_000);
 
 const FULL_INTERACTION_PROJECT = 'chromium-modern-phone-landscape';
+const EXPECTED_LOADED_ASSET_IDS = [
+  'audio.music.foundation.elevenlabs',
+  'audio.weapon.bore.elevenlabs',
+  'audio.weapon.spark.elevenlabs',
+  'audio.weapon.vault.elevenlabs',
+  'environment.foundation.floor-grid-steel',
+  'environment.foundation.roof-flat-steel',
+  'environment.foundation.wall-panel-steel',
+  'weapon.blaster.bore',
+  'weapon.blaster.spark',
+  'weapon.blaster.vault',
+] as const;
 
 interface DebugSnapshot {
   buildId: string;
@@ -58,6 +70,14 @@ interface DebugSnapshot {
       distanceUnits: number;
       tile: [number, number] | null;
     } | null;
+    audio: {
+      musicMuted: boolean;
+      musicPlaying: boolean;
+      unlocked: boolean;
+      loadedAssetIds: string[];
+      assetLoadErrors: string[];
+      assetBytesLoaded: number;
+    };
   };
   controls: {
     viewportScale: number;
@@ -93,7 +113,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     failedRequests.push(`${request.url()} ${request.failure()?.errorText ?? 'request failed'}`);
   });
 
-  await page.goto('/sigil-breaker/?qaCapture=1', { waitUntil: 'networkidle' });
+  await page.goto('/sigil-breaker/?qaCapture=1', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.game-canvas')).toBeVisible();
   await expect(page.locator('[data-debug-coordinates]')).toHaveText(
     /^XYZ -?\d+\.\d -?\d+\.\d -?\d+\.\d$/,
@@ -105,7 +125,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     return (
       snapshot !== undefined &&
       snapshot.assetLoadErrors.length === 0 &&
-      snapshot.memoryMetrics.loadedAssetIds.length === 6 &&
+      snapshot.memoryMetrics.loadedAssetIds.length === 10 &&
       snapshot.rendererMetrics.textures >= 4 &&
       snapshot.memoryMetrics.weaponModelBytesLoaded > 0
     );
@@ -125,14 +145,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     depthUnits: 45,
   });
   expect(debugSnapshot.assetLoadErrors).toEqual([]);
-  expect(debugSnapshot.memoryMetrics.loadedAssetIds).toEqual([
-    'environment.foundation.floor-grid-steel',
-    'environment.foundation.roof-flat-steel',
-    'environment.foundation.wall-panel-steel',
-    'weapon.blaster.bore',
-    'weapon.blaster.spark',
-    'weapon.blaster.vault',
-  ]);
+  expect(debugSnapshot.memoryMetrics.loadedAssetIds).toEqual([...EXPECTED_LOADED_ASSET_IDS]);
   expect(debugSnapshot.level.streaming.loadedTextureAssetIds).toEqual([
     'environment.foundation.floor-grid-steel',
     'environment.foundation.roof-flat-steel',
@@ -152,6 +165,15 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(debugSnapshot.weapon.isFireHeld).toBe(false);
   expect(debugSnapshot.weapon.aimBlend).toBe(0);
   expect(debugSnapshot.weapon.cameraFovDegrees).toBeCloseTo(70);
+  expect(debugSnapshot.weapon.audio.loadedAssetIds).toEqual([
+    'audio.music.foundation.elevenlabs',
+    'audio.weapon.bore.elevenlabs',
+    'audio.weapon.spark.elevenlabs',
+    'audio.weapon.vault.elevenlabs',
+  ]);
+  expect(debugSnapshot.weapon.audio.assetLoadErrors).toEqual([]);
+  expect(debugSnapshot.weapon.audio.assetBytesLoaded).toBe(439_869);
+  expect(debugSnapshot.weapon.audio.musicMuted).toBe(false);
   expect(debugSnapshot.controls.viewportScale).toBe(1);
 
   const coordinateText = await page.locator('[data-debug-coordinates]').textContent();
@@ -160,6 +182,9 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   await expectControlsToFit(page);
   await expect(page.locator('[data-fire-button]')).not.toHaveText(/F/);
   await expect(page.locator('[data-fire-button] .reticle-icon')).toBeVisible();
+  await expect(page.locator('[data-music-toggle] .music-icon')).toBeVisible();
+  await expect(page.locator('[data-music-toggle]')).toHaveAttribute('aria-pressed', 'false');
+  await expect(page.locator('.rotate-prompt')).toBeHidden();
   await expect(page.locator('[data-weapon-cycle-button]')).toHaveCount(0);
   await expectViewportScaleLocked(page);
 
@@ -192,7 +217,23 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(textureUrls.length).toBeGreaterThanOrEqual(1);
   expect(environmentTextureUrls).toHaveLength(3);
 
-  for (const url of [...previewUrls, ...modelUrls, ...textureUrls, ...environmentTextureUrls]) {
+  const audioUrls = await page.evaluate((buildId) =>
+    performance
+      .getEntriesByType('resource')
+      .map((entry) => entry.name)
+      .filter((url) => url.includes('/assets/audio/elevenlabs-foundation/') && url.endsWith('.mp3?assetBuild=' + buildId))
+      .sort(),
+    debugSnapshot.buildId,
+  );
+  const audioFileNames = [...new Set(audioUrls.map((url) => new URL(url).pathname.split('/').pop() ?? ''))].sort();
+  expect(audioFileNames).toEqual([
+    'bore-scatter.mp3',
+    'foundation-combat-loop.mp3',
+    'spark-sidearm.mp3',
+    'vault-heavy.mp3',
+  ]);
+
+  for (const url of [...previewUrls, ...modelUrls, ...textureUrls, ...environmentTextureUrls, ...audioUrls]) {
     expect(new URL(url).searchParams.get('assetBuild')).toBe(debugSnapshot.buildId);
   }
 
@@ -232,6 +273,12 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   await page.waitForTimeout(220);
   expect((await readDebugSnapshot(page)).weapon.shotCount).toBe(releasedShotCount);
 
+  await page.locator('[data-music-toggle]').click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).weapon.audio.musicMuted).toBe(true);
+  await expect(page.locator('[data-music-toggle]')).toHaveAttribute('aria-pressed', 'true');
+  await page.locator('[data-music-toggle]').click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).weapon.audio.musicMuted).toBe(false);
+
   if (testInfo.project.name !== FULL_INTERACTION_PROJECT) {
     expect(consoleErrors).toEqual([]);
     expect(failedRequests).toEqual([]);
@@ -256,6 +303,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(routeSnapshot.scene.playerPosition[0]).toBeGreaterThan(-19.8);
   expect(routeSnapshot.scene.playerPosition[2]).toBeGreaterThan(-20.6);
   await verifyZoomGesturesAreBlocked(page);
+  await verifyPortraitRotatePrompt(page);
 
   expect(consoleErrors).toEqual([]);
   expect(failedRequests).toEqual([]);
@@ -319,18 +367,59 @@ async function verifyRestartLoopDoesNotGrowRendererMetrics(page: Page, baseline:
 }
 
 async function waitForSceneAssets(page: Page): Promise<void> {
-  await page.waitForFunction(() => {
+  await page.waitForFunction((expectedAssetCount) => {
     const snapshot = window.__SIGILBREAKER_DEBUG__?.getSnapshot();
 
     return (
       snapshot !== undefined &&
       snapshot.assetLoadErrors.length === 0 &&
-      snapshot.memoryMetrics.loadedAssetIds.length === 6 &&
+      snapshot.memoryMetrics.loadedAssetIds.length === expectedAssetCount &&
       snapshot.memoryMetrics.weaponModelBytesLoaded > 0 &&
       snapshot.rendererMetrics.geometries > 0 &&
       snapshot.rendererMetrics.textures >= 4
     );
+  }, EXPECTED_LOADED_ASSET_IDS.length);
+}
+
+async function verifyPortraitRotatePrompt(page: Page): Promise<void> {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.locator('.rotate-prompt')).toBeVisible();
+  const promptFit = await page.evaluate(() => {
+    const prompt = document.querySelector<HTMLElement>('.rotate-prompt');
+    const icon = document.querySelector<HTMLElement>('.rotate-prompt__icon');
+    const label = document.querySelector<HTMLElement>('.rotate-prompt__label');
+
+    if (!prompt || !icon || !label) {
+      return {
+        present: false,
+        coversViewport: false,
+        iconVisible: false,
+        labelFits: false,
+      };
+    }
+
+    const promptRect = prompt.getBoundingClientRect();
+    const iconRect = icon.getBoundingClientRect();
+
+    return {
+      present: true,
+      coversViewport:
+        promptRect.left <= 0 &&
+        promptRect.top <= 0 &&
+        promptRect.right >= window.innerWidth &&
+        promptRect.bottom >= window.innerHeight,
+      iconVisible: iconRect.width >= 100 && iconRect.height >= 80,
+      labelFits: label.scrollWidth <= label.clientWidth + 1 && label.scrollHeight <= label.clientHeight + 1,
+    };
   });
+
+  expect(promptFit.present).toBe(true);
+  expect(promptFit.coversViewport).toBe(true);
+  expect(promptFit.iconVisible).toBe(true);
+  expect(promptFit.labelFits).toBe(true);
+
+  await page.setViewportSize({ width: 844, height: 390 });
+  await expect(page.locator('.rotate-prompt')).toBeHidden();
 }
 
 async function holdFireButtonUntilShotCount(page: Page, expectedShotCountFloor: number): Promise<DebugSnapshot> {

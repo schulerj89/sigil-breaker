@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { collidesWithLevel, raycastLevel } from '../levelMap';
 import { WEAPON_COLLISION_RADIUS, getWeaponWallProbeLocalPosition } from './weaponClearance';
-import { WeaponAudio } from './weaponAudio';
+import { WeaponAudio, type WeaponAudioSnapshot } from './weaponAudio';
 import { WEAPON_DEFINITIONS, publicAssetUrl, withAssetVersion, type WeaponDefinition } from './weaponManifest';
 import {
   getCameraSpaceShotDistance,
@@ -11,7 +11,6 @@ import {
   hasHorizontalShotDirection,
 } from './weaponShotMath';
 import {
-  getWeaponMuzzleLocalOffset,
   getWeaponRootCameraPosition,
   getWeaponRootCameraRotation,
   getWeaponRootCameraScale,
@@ -50,6 +49,7 @@ export interface WeaponSystemSnapshot {
   modelBytesLoaded: number;
   loadedAssetIds: string[];
   assetLoadErrors: string[];
+  audio: WeaponAudioSnapshot;
   effectPose: WeaponShotEffectPositions;
   lastShot: WeaponShotSnapshot | null;
 }
@@ -102,13 +102,13 @@ export class WeaponSystem {
     this.loadingManager.setURLModifier(withAssetVersion);
     this.modelSlot.name = 'first-person-weapon-model-slot';
     this.muzzleFlash = createMuzzleFlash();
-    this.muzzleFlash.position.set(...getWeaponMuzzleLocalOffset(this.activeWeapon.view));
     this.shotFeedbackRoot.name = 'first-person-shot-feedback-root';
     this.shotTracer = createShotTracer();
     this.wallImpact = createWallImpact();
-    this.viewRoot.add(this.modelSlot, this.muzzleFlash);
-    this.shotFeedbackRoot.add(this.shotTracer, this.wallImpact);
+    this.viewRoot.add(this.modelSlot);
+    this.shotFeedbackRoot.add(this.muzzleFlash, this.shotTracer, this.wallImpact);
     this.camera.add(this.viewRoot, this.shotFeedbackRoot);
+    this.audio.bind(root);
 
     for (const weapon of WEAPON_DEFINITIONS) {
       this.ammoByWeapon.set(weapon.id, weapon.magazineSize);
@@ -156,14 +156,21 @@ export class WeaponSystem {
     this.viewRoot.position.set(...getWeaponRootCameraPosition(view, pose));
     this.viewRoot.rotation.set(...getWeaponRootCameraRotation(view, pose));
     this.viewRoot.scale.setScalar(getWeaponRootCameraScale(view, pose));
-    this.muzzleFlash.position.set(...getWeaponMuzzleLocalOffset(view));
+    const effectPositions = getWeaponShotEffectPositions(
+      view,
+      this.shotFeedbackDistance > 0 ? this.shotFeedbackDistance : this.activeWeapon.rangeUnits,
+      pose,
+    );
+    this.muzzleFlash.position.set(...effectPositions.muzzle);
 
     if (shotFeedbackVisible && this.shotFeedbackDistance > 0) {
-      this.updateShotFeedback(this.shotFeedbackDistance);
+      this.setShotFeedbackPositions(effectPositions);
     }
   }
 
   getSnapshot(): WeaponSystemSnapshot {
+    const audioSnapshot = this.audio.getSnapshot();
+
     return {
       weaponIds: WEAPON_DEFINITIONS.map((weapon) => weapon.id),
       activeWeaponId: this.activeWeapon.id,
@@ -180,8 +187,9 @@ export class WeaponSystem {
         (total, weapon) => total + weapon.definition.modelBytes,
         0,
       ),
-      loadedAssetIds: [...this.loadedAssetIds].sort(),
-      assetLoadErrors: [...this.assetLoadErrors],
+      loadedAssetIds: [...this.loadedAssetIds, ...audioSnapshot.loadedAssetIds].sort(),
+      assetLoadErrors: [...this.assetLoadErrors, ...audioSnapshot.assetLoadErrors],
+      audio: audioSnapshot,
       effectPose: roundEffectPose(
         getWeaponShotEffectPositions(
           this.activeWeapon.view,
@@ -323,6 +331,11 @@ export class WeaponSystem {
 
   private updateShotFeedback(distance: number): void {
     const positions = getWeaponShotEffectPositions(this.activeWeapon.view, distance, this.getViewPose());
+    this.muzzleFlash.position.set(...positions.muzzle);
+    this.setShotFeedbackPositions(positions);
+  }
+
+  private setShotFeedbackPositions(positions: WeaponShotEffectPositions): void {
     updateShotTracer(this.shotTracer, positions.muzzle, positions.tracerEnd);
     this.wallImpact.position.set(...positions.wallImpact);
   }

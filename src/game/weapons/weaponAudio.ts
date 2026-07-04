@@ -1,4 +1,27 @@
 import type { WeaponSoundProfile } from './weaponManifest';
+import { FOUNDATION_MUSIC_ASSET, GAME_AUDIO_ASSETS, WEAPON_AUDIO_ASSETS } from '../audioManifest';
+import { publicAssetUrl } from '../assetUrls';
+
+const MUSIC_MUTED_STORAGE_KEY = 'sigilbreaker.foundation.musicMuted';
+const SFX_POOL_SIZE = 4;
+
+export interface WeaponAudioSnapshot {
+  musicMuted: boolean;
+  musicPlaying: boolean;
+  unlocked: boolean;
+  loadedAssetIds: string[];
+  assetLoadErrors: string[];
+  assetBytesLoaded: number;
+}
+
+interface LoadedAudioAsset {
+  id: string;
+  url: string;
+  bytes: number;
+  volume: number;
+  pool: HTMLAudioElement[];
+  nextIndex: number;
+}
 
 type BrowserWindowWithAudioContext = Window & typeof globalThis & {
   webkitAudioContext?: typeof AudioContext;
@@ -6,101 +29,201 @@ type BrowserWindowWithAudioContext = Window & typeof globalThis & {
 
 export class WeaponAudio {
   private audioContext: AudioContext | null = null;
-  private noiseBuffer: AudioBuffer | null = null;
+  private readonly loadedAssetIds = new Set<string>();
+  private readonly assetLoadErrors: string[] = [];
+  private readonly sfxByProfile = new Map<WeaponSoundProfile, LoadedAudioAsset>();
+  private readonly music = new Audio(publicAssetUrl(FOUNDATION_MUSIC_ASSET.path));
+  private musicMuted = readStoredMusicMuted();
+  private unlocked = false;
+  private root: HTMLElement | null = null;
+
+  constructor() {
+    this.music.loop = true;
+    this.music.preload = 'auto';
+    this.music.volume = this.musicMuted ? 0 : FOUNDATION_MUSIC_ASSET.volume;
+    void this.preload();
+  }
+
+  bind(root: HTMLElement): void {
+    this.root = root;
+    this.root.addEventListener('pointerdown', this.onPointerDown);
+    this.updateMusicButtonState();
+  }
 
   play(profile: WeaponSoundProfile): void {
-    const context = this.getAudioContext();
-    const now = context.currentTime;
-
-    switch (profile) {
-      case 'sidearm':
-        this.playToneBurst(context, now, 420, 0.09, 0.18, 0.03);
-        this.playNoiseBurst(context, now, 0.055, 0.04);
-        break;
-      case 'scatter':
-        this.playToneBurst(context, now, 180, 0.15, 0.24, 0.06);
-        this.playToneBurst(context, now + 0.018, 95, 0.11, 0.16, 0.08);
-        this.playNoiseBurst(context, now, 0.13, 0.11);
-        break;
-      case 'heavy':
-        this.playToneBurst(context, now, 250, 0.16, 0.22, 0.055);
-        this.playToneBurst(context, now + 0.025, 120, 0.13, 0.2, 0.07);
-        this.playNoiseBurst(context, now, 0.085, 0.06);
-        break;
+    this.unlock();
+    const asset = this.sfxByProfile.get(profile);
+    if (!asset || asset.pool.length === 0) {
+      return;
     }
+
+    const audio = asset.pool[asset.nextIndex % asset.pool.length];
+    asset.nextIndex = (asset.nextIndex + 1) % asset.pool.length;
+    audio.pause();
+    audio.currentTime = 0;
+    audio.volume = asset.volume;
+    void audio.play().catch(() => undefined);
+  }
+
+  getSnapshot(): WeaponAudioSnapshot {
+    return {
+      musicMuted: this.musicMuted,
+      musicPlaying: !this.music.paused && !this.musicMuted,
+      unlocked: this.unlocked,
+      loadedAssetIds: [...this.loadedAssetIds].sort(),
+      assetLoadErrors: [...this.assetLoadErrors],
+      assetBytesLoaded: GAME_AUDIO_ASSETS.reduce(
+        (total, asset) => (this.loadedAssetIds.has(asset.id) ? total + asset.bytes : total),
+        0,
+      ),
+    };
   }
 
   dispose(): void {
+    this.root?.removeEventListener('pointerdown', this.onPointerDown);
+    this.root = null;
+    for (const asset of this.sfxByProfile.values()) {
+      for (const audio of asset.pool) {
+        audio.pause();
+        audio.removeAttribute('src');
+        audio.load();
+      }
+    }
+    this.sfxByProfile.clear();
+    this.music.pause();
+    this.music.removeAttribute('src');
+    this.music.load();
     if (this.audioContext?.state !== 'closed') {
       void this.audioContext?.close();
     }
     this.audioContext = null;
-    this.noiseBuffer = null;
   }
 
-  private getAudioContext(): AudioContext {
+  private async preload(): Promise<void> {
+    for (const [profile, definition] of Object.entries(WEAPON_AUDIO_ASSETS) as Array<
+      [WeaponSoundProfile, (typeof WEAPON_AUDIO_ASSETS)[WeaponSoundProfile]]
+    >) {
+      const url = publicAssetUrl(definition.path);
+      const ok = await this.verifyAsset(definition.id, url, definition.bytes);
+      if (!ok) {
+        continue;
+      }
+
+      this.sfxByProfile.set(profile, {
+        id: definition.id,
+        url,
+        bytes: definition.bytes,
+        volume: definition.volume,
+        pool: createAudioPool(url, SFX_POOL_SIZE),
+        nextIndex: 0,
+      });
+    }
+
+    const musicUrl = publicAssetUrl(FOUNDATION_MUSIC_ASSET.path);
+    const musicOk = await this.verifyAsset(FOUNDATION_MUSIC_ASSET.id, musicUrl, FOUNDATION_MUSIC_ASSET.bytes);
+    if (musicOk) {
+      this.music.src = musicUrl;
+      this.music.load();
+    }
+  }
+
+  private async verifyAsset(assetId: string, url: string, expectedBytes: number): Promise<boolean> {
+    try {
+      const response = await fetch(url, { cache: 'force-cache' });
+      if (!response.ok) {
+        this.assetLoadErrors.push(`${assetId}: ${response.status} ${response.statusText}`);
+        return false;
+      }
+
+      const blob = await response.blob();
+      if (blob.size !== expectedBytes) {
+        this.assetLoadErrors.push(`${assetId}: expected ${expectedBytes}B, loaded ${blob.size}B`);
+        return false;
+      }
+      this.loadedAssetIds.add(assetId);
+      return true;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.assetLoadErrors.push(`${assetId}: ${message}`);
+      return false;
+    }
+  }
+
+  private unlock(): void {
+    this.unlocked = true;
     if (this.audioContext) {
       if (this.audioContext.state === 'suspended') {
         void this.audioContext.resume();
       }
-      return this.audioContext;
+    } else {
+      const AudioContextCtor = window.AudioContext ?? (window as BrowserWindowWithAudioContext).webkitAudioContext;
+      this.audioContext = new AudioContextCtor();
     }
 
-    const AudioContextCtor = window.AudioContext ?? (window as BrowserWindowWithAudioContext).webkitAudioContext;
-    this.audioContext = new AudioContextCtor();
-    return this.audioContext;
+    if (!this.musicMuted && this.loadedAssetIds.has(FOUNDATION_MUSIC_ASSET.id)) {
+      void this.music.play().catch(() => undefined);
+    }
   }
 
-  private playToneBurst(
-    context: AudioContext,
-    startTime: number,
-    frequency: number,
-    duration: number,
-    gainValue: number,
-    detuneAmount: number,
-  ): void {
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-    oscillator.type = 'sawtooth';
-    oscillator.frequency.setValueAtTime(frequency, startTime);
-    oscillator.frequency.exponentialRampToValueAtTime(Math.max(35, frequency * detuneAmount), startTime + duration);
-    gain.gain.setValueAtTime(gainValue, startTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-    oscillator.connect(gain);
-    gain.connect(context.destination);
-    oscillator.start(startTime);
-    oscillator.stop(startTime + duration + 0.02);
+  private toggleMusic(): void {
+    this.musicMuted = !this.musicMuted;
+    storeMusicMuted(this.musicMuted);
+    this.music.volume = this.musicMuted ? 0 : FOUNDATION_MUSIC_ASSET.volume;
+    if (this.musicMuted) {
+      this.music.pause();
+    } else {
+      this.unlock();
+    }
+    this.updateMusicButtonState();
   }
 
-  private playNoiseBurst(context: AudioContext, startTime: number, duration: number, gainValue: number): void {
-    const source = context.createBufferSource();
-    const gain = context.createGain();
-    const filter = context.createBiquadFilter();
-    source.buffer = this.getNoiseBuffer(context);
-    filter.type = 'bandpass';
-    filter.frequency.setValueAtTime(980, startTime);
-    filter.Q.setValueAtTime(0.85, startTime);
-    gain.gain.setValueAtTime(gainValue, startTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-    source.connect(filter);
-    filter.connect(gain);
-    gain.connect(context.destination);
-    source.start(startTime);
-    source.stop(startTime + duration + 0.02);
-  }
-
-  private getNoiseBuffer(context: AudioContext): AudioBuffer {
-    if (this.noiseBuffer) {
-      return this.noiseBuffer;
+  private updateMusicButtonState(): void {
+    const button = this.root?.querySelector<HTMLButtonElement>('[data-music-toggle]');
+    if (!button) {
+      return;
     }
 
-    const frameCount = Math.floor(context.sampleRate * 0.18);
-    this.noiseBuffer = context.createBuffer(1, frameCount, context.sampleRate);
-    const data = this.noiseBuffer.getChannelData(0);
-    for (let index = 0; index < frameCount; index++) {
-      data[index] = Math.random() * 2 - 1;
+    button.classList.toggle('hud__icon-button--muted', this.musicMuted);
+    button.setAttribute('aria-pressed', String(this.musicMuted));
+    button.setAttribute('aria-label', this.musicMuted ? 'Unmute music' : 'Mute music');
+  }
+
+  private readonly onPointerDown = (event: PointerEvent): void => {
+    const target = event.target;
+    if (!(target instanceof Element)) {
+      return;
     }
 
-    return this.noiseBuffer;
+    if (target.closest('[data-music-toggle]')) {
+      event.preventDefault();
+      this.toggleMusic();
+      return;
+    }
+
+    this.unlock();
+  };
+}
+
+function createAudioPool(url: string, size: number): HTMLAudioElement[] {
+  return Array.from({ length: size }, () => {
+    const audio = new Audio(url);
+    audio.preload = 'auto';
+    return audio;
+  });
+}
+
+function readStoredMusicMuted(): boolean {
+  try {
+    return window.localStorage.getItem(MUSIC_MUTED_STORAGE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function storeMusicMuted(value: boolean): void {
+  try {
+    window.localStorage.setItem(MUSIC_MUTED_STORAGE_KEY, value ? '1' : '0');
+  } catch {
+    // Storage can be unavailable in privacy modes; mute still works for this session.
   }
 }

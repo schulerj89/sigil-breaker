@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T16:13:24Z",
-  "summary": "Manual smoke remains green, and MVP-fast Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, hold-fire aim/zoom, effect-pose alignment, pitch-corrected shot math, entry-splitter validation, movement collision, browser zoom guards, right-side control layout, and steel foundation texture loading/rendering.",
+  "updatedAt": "2026-07-04T17:00:43Z",
+  "summary": "Manual smoke remains green, and MVP-fast Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, hold-fire aim/zoom, effect-pose alignment, pitch-corrected shot math, entry-splitter validation, movement collision, browser zoom guards, right-side control layout, steel foundation texture loading/rendering, ElevenLabs audio loading, music mute, and portrait rotate prompt layout.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -42,7 +42,11 @@
     "Browser smoke now waits for renderer texture count before validating the initial frame so steel foundation textures are uploaded, not just downloaded.",
     "Screenshot QA confirmed the steel floor, wall, roof, and centered held-fire SPARK pose in a temporary 844 x 390 gameplay-height capture.",
     "Renderer budget assertions now include draw calls, triangles, geometries, and textures.",
-    "The heavy chromium-modern-phone-landscape project now runs a five-iteration QA restart loop and rechecks loaded asset IDs plus renderer budgets after each restart."
+    "The heavy chromium-modern-phone-landscape project now runs a five-iteration QA restart loop and rechecks loaded asset IDs plus renderer budgets after each restart.",
+    "Browser smoke now expects four ElevenLabs audio asset IDs in memoryMetrics.loadedAssetIds.",
+    "Browser smoke verifies the music mute icon and toggles snapshot.weapon.audio.musicMuted.",
+    "Browser smoke verifies ElevenLabs MP3 resource URLs carry the active assetBuild query.",
+    "Browser smoke switches the heavy project to portrait and checks the rotate prompt overlay and icon before returning to landscape."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -58,7 +62,9 @@
     "Keep an initial viewport-scale assertion before movement-route smoke, then run active gesture smoke after deterministic movement so look-zone drags cannot rotate the route setup.",
     "Use two Playwright workers for MVP browser smoke while keeping the heavier route on one viewport to avoid repeating the same WebGL interaction path five times.",
     "Treat hold-fire as the canonical automated firing path.",
-    "Keep reticle/control-fit checks in all viewports because the right-side action pad remains a thumb-zone risk."
+    "Keep reticle/control-fit checks in all viewports because the right-side action pad remains a thumb-zone risk.",
+    "Keep audio asset cache-busting and music mute state in browser smoke.",
+    "Keep portrait prompt smoke scoped to chromium-modern-phone-landscape until a specific portrait bug requires all-viewports coverage."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
@@ -69,7 +75,8 @@
     "Pitch-up and pitch-down screenshot QA currently uses pointer-drag approximation because deterministic debug look poses do not exist yet.",
     "Previous double-tap smoke covered repeated fire/UI controls but not the full look surface or pinch gestures.",
     "Repeating full movement/gesture smoke across all five viewports made the Pages workflow slow for MVP-level coverage.",
-    "Earlier fire smoke only proved one shot and did not catch hold cadence, release cleanup, FOV zoom, or weapon-centering state."
+    "Earlier fire smoke only proved one shot and did not catch hold cadence, release cleanup, FOV zoom, or weapon-centering state.",
+    "Existing smoke validates the debug effect pose for firing alignment, but it still cannot reliably freeze the short visible flash in a deterministic frame."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
@@ -96,6 +103,10 @@
         "environment.foundation.floor-grid-steel",
         "environment.foundation.roof-flat-steel",
         "environment.foundation.wall-panel-steel",
+        "audio.music.foundation.elevenlabs",
+        "audio.weapon.bore.elevenlabs",
+        "audio.weapon.spark.elevenlabs",
+        "audio.weapon.vault.elevenlabs",
         "weapon.blaster.bore",
         "weapon.blaster.spark",
         "weapon.blaster.vault"
@@ -153,6 +164,9 @@
       "weaponCycleButtonRemovedChecked": true,
       "foundationEnvironmentTexturesChecked": true,
       "foundationEnvironmentTexturesRenderedChecked": true,
+      "elevenLabsAudioChecked": true,
+      "musicMuteChecked": true,
+      "portraitRotatePromptChecked": true,
       "qaRestartLoopChecked": true,
       "rightSideControlFitChecked": true,
       "rendererBudgetChecked": true,
@@ -178,7 +192,10 @@
       "weaponTrayChangesActiveWeapon",
       "foundationEnvironmentTexturesCacheBusted",
       "qaRestartLoopRendererBudgets",
-      "rendererBudgetsWithinLimit"
+      "rendererBudgetsWithinLimit",
+      "elevenLabsAudioCacheBusted",
+      "musicMuteButtonToggles",
+      "portraitRotatePromptVisible"
     ],
     "screenshotNames": [
       "boot-mobile-landscape.png",

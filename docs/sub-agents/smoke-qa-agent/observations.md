@@ -1,6 +1,6 @@
 # Observations: smoke-qa-agent
 
-Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effect-pose, pitch-corrected tracer math, entry-splitter, movement-route, browser zoom-guard, hold-fire smoke, and foundation texture smoke.
+Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effect-pose, pitch-corrected tracer math, entry-splitter, movement-route, browser zoom-guard, hold-fire smoke, foundation texture smoke, ElevenLabs audio smoke, and portrait rotate prompt smoke.
 
 ## What It Saw
 
@@ -41,6 +41,9 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Browser smoke now waits for renderer texture count before validating the initial frame so the steel foundation textures are uploaded, not just downloaded.
 - Screenshot QA confirmed the steel floor, wall, roof, and centered held-fire SPARK pose in a temporary 844 x 390 gameplay-height capture.
 - The heavy `chromium-modern-phone-landscape` project now runs a five-iteration QA restart loop and rechecks loaded asset IDs plus renderer budgets after each restart.
+- Browser smoke now expects four cache-busted ElevenLabs audio asset IDs in the debug loaded asset list.
+- Browser smoke verifies the music mute icon is visible, toggles `snapshot.weapon.audio.musicMuted`, and checks MP3 resource URLs include `assetBuild`.
+- Browser smoke now switches the heavy viewport to portrait, verifies the rotate prompt covers the viewport with a visible icon, then switches back to landscape.
 
 ## Decisions
 
@@ -55,6 +58,8 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Use two Playwright workers for MVP browser smoke while keeping the heavier route on one viewport to avoid repeating the same WebGL interaction path five times.
 - Treat hold-fire as the canonical automated firing path; single tap can be manually checked but should not be the primary smoke signal.
 - Keep reticle/control-fit checks in all viewports because the right-side action pad remains a thumb-zone risk.
+- Keep audio URL cache-busting in the smoke gate because stale Pages audio can otherwise survive deploys.
+- Keep the portrait rotate prompt coverage scoped to the heavy viewport until portrait-specific regressions appear.
 
 ## Caught Issues
 
@@ -80,3 +85,4 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Next screenshot QA should capture the held-fire centered pose for SPARK, BORE, and VAULT, because current automation checks debug pose rather than visual framing.
 - Future screenshot QA should use deterministic debug look poses if the steel floor, wall, or roof art direction changes.
 - Reset-loop smoke now covers renderer debug counts, but full GPU/heap leak confidence still belongs to memory-lifecycle QA.
+- Future screenshot QA should capture the portrait rotate prompt and the held-fire muzzle flash for all three weapons once deterministic flash capture exists.

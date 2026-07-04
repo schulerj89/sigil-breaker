@@ -161,7 +161,7 @@ export function createDebugApi(
           movePointerActive: controllerSnapshot.controls.movePointerActive,
           moveVector: controllerSnapshot.controls.moveVector,
           keyboardVector: controllerSnapshot.controls.keyboardVector,
-          buttons: ['hold-fire-aim', 'weapon-select'],
+          buttons: ['hold-fire-aim', 'weapon-select', 'music-toggle'],
         },
         budgets: PERFORMANCE_BUDGETS,
       };
