@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "level-kit-curator",
   "status": "in-progress",
-  "updatedAt": "2026-07-04T05:40:00Z",
-  "summary": "Foundation layout QA now separates 3-unit lane validation from 5-unit structural entry validation, and the reported narrow entries were widened.",
+  "updatedAt": "2026-07-04T06:05:00Z",
+  "summary": "Foundation layout QA now separates 3-unit lanes, 5-unit structural entries, and 3-per-side/6-combined splitter-post clearance.",
   "observations": [
     "The 45 x 45 foundation map remains a placeholder layout.",
     "validate-levels now checks bounded row/column segments below 3 tiles.",
@@ -16,7 +16,11 @@
     "Widened the top vertical divider entry at column 22 rows 4-8.",
     "Widened row 20 entries at columns 5-9 and 28-32.",
     "Widened the row 30 right entry at columns 36-40.",
-    "The current foundation map has 1648 walkable tiles and remains spawn-to-exit reachable."
+    "Added minEntrySplitSideUnits 3 and minEntrySplitAreaUnits 6 to catch continuing wall posts that split structural entries into narrow branches.",
+    "User-reported world coordinates -10.0, 17.8; -9.4, 17.2; and 8.2, 17.5 mapped to the bottom row 39 wall-band entries.",
+    "Widened row 30 first entry to columns 15-22.",
+    "Widened row 39 entries to columns 8-14 and 26-32.",
+    "The current foundation map has 1653 walkable tiles and remains spawn-to-exit reachable."
   ],
   "decisions": [
     "Use unique external kits per level.",
@@ -24,12 +28,14 @@
     "Define level-relative anchors for powerups and encounters.",
     "Keep the foundation level minimum passage gate at 3 tiles.",
     "Reject one-tile corner pinches even when long straight runs still pass.",
-    "Keep general traversal lanes at 3 tiles but require structural wall-band entries to be at least 5 tiles."
+    "Keep general traversal lanes at 3 tiles but require structural wall-band entries to be at least 5 tiles.",
+    "Reject continuing wall posts that split structural entries when either side is below 3 tiles or both sides total below 6 tiles."
   ],
   "caughtIssues": [
     "The previous lane QA could pass a diagonal wall-corner squeeze that still looked like a one-unit path.",
     "The straight-run validator could pass L-shaped edge notches because their horizontal and vertical runs were both long.",
-    "The corner-pinch validator could not catch straight 2- or 3-tile door-like entries with no diagonal pinch pattern."
+    "The corner-pinch validator could not catch straight 2- or 3-tile door-like entries with no diagonal pinch pattern.",
+    "A 5-tile structural entry can still feel like two 2-tile branches when a wall post sits just inside the entry."
   ],
   "risks": [
     "Weak scale references can make buildings, cover, and enemies feel wrong on mobile.",
@@ -46,8 +52,11 @@
     "foundationPassageRules": {
       "minimumOpenTiles": 3,
       "minimumEntryTiles": 5,
+      "minimumEntrySplitSideTiles": 3,
+      "minimumEntrySplitAreaTiles": 6,
       "rejectBoundedSegmentsBelowMinimum": true,
       "rejectStructuralWallBandEntriesBelowMinimum": true,
+      "rejectStructuralEntrySplittersBelowMinimum": true,
       "rejectDiagonalCornerCuts": true,
       "rejectCornerPinches": true,
       "widenedStructuralEntries": [
@@ -72,15 +81,36 @@
         {
           "axis": "row",
           "row": 30,
+          "start": 15,
+          "end": 22
+        },
+        {
+          "axis": "row",
+          "row": 30,
           "start": 36,
           "end": 40
+        },
+        {
+          "axis": "row",
+          "row": 39,
+          "start": 8,
+          "end": 14
+        },
+        {
+          "axis": "row",
+          "row": 39,
+          "start": 26,
+          "end": 32
         }
       ],
       "knownFixedPinchWorldCoordinates": [
         [12.1, 1.6, -2.1],
-        [12.2, 1.6, 7.6]
+        [12.2, 1.6, 7.6],
+        [-10.0, 1.6, 17.8],
+        [-9.4, 1.6, 17.2],
+        [8.2, 1.6, 17.5]
       ],
-      "walkableTiles": 1648
+      "walkableTiles": 1653
     },
     "requiredLevelKitSections": [
       "environmentIdentity",

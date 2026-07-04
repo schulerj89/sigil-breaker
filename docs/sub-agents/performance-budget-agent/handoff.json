@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-04T05:40:00Z",
-  "summary": "Weapon and shot-feedback budget instrumentation is wired; entry-width changes add no assets, shared effect-pose math is lightweight, and Playwright production smoke remains green, but visible FPS still needs production profiling.",
+  "updatedAt": "2026-07-04T06:10:00Z",
+  "summary": "Weapon and shot-feedback budget instrumentation is wired; entry and splitter widening add no assets, shared effect-pose math is lightweight, and Playwright production smoke remains green, but visible FPS still needs production profiling.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -20,7 +20,9 @@
     "The structural entry-width fix opened eight walkable cells and added no render payload.",
     "weaponViewPose.ts adds camera-local shot-effect math and a rounded debug effectPose field.",
     "Latest npm run validate:browser passed all five landscape viewport gates after the entry-width and shot-effect alignment changes.",
-    "The production JS chunk reported by Vite is about 642.83 kB minified and still triggers the known large chunk warning."
+    "The production JS chunk reported by Vite is about 642.83 kB minified and still triggers the known large chunk warning.",
+    "The structural entry splitter fix opened five additional walkable cells and added no render payload.",
+    "Latest npm run validate:browser passed all five landscape viewport gates after the splitter validator and map widening changes."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -30,7 +32,8 @@
     "Keep coordinate reporting in the lightweight DOM debug HUD.",
     "Use Playwright for correctness smoke, not as the final performance benchmark while qaCapture is enabled.",
     "Keep the weapon clearance probes for now because they are map-sample based and low cost.",
-    "Keep shared shot-effect pose math unit-testable rather than adding more scene graph probes."
+    "Keep shared shot-effect pose math unit-testable rather than adding more scene graph probes.",
+    "Keep structural entry splitter validation in build/test tooling because it has no runtime frame cost."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
@@ -81,7 +84,9 @@
     "shotEffectPoseCost": "shot-time and short-lived visible-effect camera-local vector math",
     "productionJsChunkKb": 642.83,
     "publicAssetCacheParam": "assetBuild",
-    "browserSmokeCommand": "npm run validate:browser"
+    "browserSmokeCommand": "npm run validate:browser",
+    "foundationWalkableTiles": 1653,
+    "structuralEntrySplitterValidation": true
   },
   "nextAgents": [
     "memory-lifecycle-agent",

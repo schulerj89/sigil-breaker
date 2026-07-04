@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T05:40:00Z",
-  "summary": "Manual smoke remains green, and Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, one-shot firing, and effect-pose alignment.",
+  "updatedAt": "2026-07-04T06:10:00Z",
+  "summary": "Manual smoke remains green, and Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, one-shot firing, effect-pose alignment, and the latest entry-splitter validator changes.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -20,7 +20,9 @@
     "Latest validate:browser passed after closing six corner pinch tiles and adding weapon wall avoidance.",
     "Unit coverage now checks the reported world coordinates and a weapon-footprint near-wall collision case.",
     "Latest validate:browser passed after widening structural entries to 5 tiles and adding shared weapon shot-effect pose math.",
-    "Playwright now fires once and asserts ammo/shotCount changes plus right-offset muzzle and aligned tracer/impact effect pose."
+    "Playwright now fires once and asserts ammo/shotCount changes plus right-offset muzzle and aligned tracer/impact effect pose.",
+    "Latest validate:browser passed after adding structural entry splitter validation and widening row 30/39 split entries.",
+    "Unit coverage now pins the user-reported world coordinates near row 39/40 and checks the widened row slices."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -97,6 +99,7 @@
       "levelCornerPinchesChecked": true,
       "weaponFootprintUnitChecked": true,
       "structuralEntryWidthChecked": true,
+      "structuralEntrySplitterChecked": true,
       "shotEffectPoseChecked": true,
       "assetLoadErrors": 0
     },

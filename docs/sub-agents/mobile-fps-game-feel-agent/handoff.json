@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "mobile-fps-game-feel-agent",
   "status": "in-progress",
-  "updatedAt": "2026-07-04T05:40:00Z",
-  "summary": "Basic mobile FPS weapon feel now includes faster movement, wall-shot detection, double-tap-safe fire input, weapon-aware wall clearance, wider structural entries, and shared shot-effect pose alignment.",
+  "updatedAt": "2026-07-04T06:05:00Z",
+  "summary": "Basic mobile FPS weapon feel now includes faster movement, wall-shot detection, double-tap-safe fire input, weapon-aware wall clearance, wider structural entries, splitter-post clearance, and shared shot-effect pose alignment.",
   "observations": [
     "The right-side fire button calls the weapon system without stealing aim drags elsewhere on the look zone.",
     "SPARK, BORE, and VAULT use different cadence and recoil values.",
@@ -14,6 +14,8 @@
     "WeaponSystem exposes wallAvoidance in the weapon debug snapshot.",
     "Right-shifted viewmodels reduce overlap with the bottom-center weapon tray.",
     "Structural wall-band entries now require 5 open tiles so the weapon footprint does not make door-like breaks feel like 2 usable units.",
+    "Structural entry splitter posts now require at least 3 open tiles per side and 6 combined open tiles.",
+    "The bottom row 39 entries near world x -10 and x 8.2 were widened to keep 3-tile branches around the adjacent divider posts.",
     "Shot feedback uses a shared weapon view pose so tracer start follows active weapon offset, recoil, and wall retraction."
   ],
   "decisions": [
@@ -22,7 +24,8 @@
     "Keep procedural audio until ElevenLabs assets are intentionally generated.",
     "Keep shot wall feedback lightweight until proper tracer and impact assets are sourced.",
     "Use viewmodel retraction for rotation-near-wall cases that movement collision cannot solve alone.",
-    "Keep structural wall-band entries wider than the ordinary 3-tile traversal lane minimum."
+    "Keep structural wall-band entries wider than the ordinary 3-tile traversal lane minimum.",
+    "Do not center continuing wall posts inside structural entries unless both resulting branches meet the splitter clearance rule."
   ],
   "caughtIssues": [
     "Fast repeated fire needed explicit double-tap zoom prevention.",
@@ -31,7 +34,8 @@
   "risks": [
     "Without hit detection or enemy response, weapon feel can only be judged on cadence, recoil, audio, and UI responsiveness.",
     "Weapon footprint clearance can make tight turns feel heavier if future maps shrink below the 3-tile lane rule.",
-    "Door-like entries below 5 tiles can feel narrower than their symbol-map width once the carried weapon is included."
+    "Door-like entries below 5 tiles can feel narrower than their symbol-map width once the carried weapon is included.",
+    "A 5-tile entry can still feel like two 2-tile branches when a continuing divider post sits just inside the opening."
   ],
   "blockers": [],
   "artifacts": [
@@ -54,7 +58,9 @@
       "debugField": "snapshot.weapon.wallAvoidance",
       "movementIncludesWeaponFootprint": true,
       "viewmodelWallAvoidance": true,
-      "minimumStructuralEntryTiles": 5
+      "minimumStructuralEntryTiles": 5,
+      "minimumEntrySplitterSideTiles": 3,
+      "minimumEntrySplitterCombinedTiles": 6
     },
     "shotFeedback": {
       "poseSource": "src/game/weapons/weaponViewPose.ts",

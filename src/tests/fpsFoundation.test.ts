@@ -10,6 +10,8 @@ import {
   LEVEL_WIDTH_TILES,
   type LevelTileSymbol,
   MIN_FOUNDATION_ENTRY_UNITS,
+  MIN_FOUNDATION_ENTRY_SPLIT_AREA_UNITS,
+  MIN_FOUNDATION_ENTRY_SPLIT_SIDE_UNITS,
   MIN_FOUNDATION_PASSAGE_UNITS,
   collidesWithLevel,
   getLevelTiles,
@@ -95,6 +97,8 @@ describe('FPS foundation config', () => {
   it('keeps walkable lanes at least three units wide', () => {
     const minimumOpenTiles = Math.ceil(MIN_FOUNDATION_PASSAGE_UNITS / LEVEL_TILE_SIZE);
     const minimumEntryOpenTiles = Math.ceil(MIN_FOUNDATION_ENTRY_UNITS / LEVEL_TILE_SIZE);
+    const minimumEntrySplitSideTiles = Math.ceil(MIN_FOUNDATION_ENTRY_SPLIT_SIDE_UNITS / LEVEL_TILE_SIZE);
+    const minimumEntrySplitAreaTiles = Math.ceil(MIN_FOUNDATION_ENTRY_SPLIT_AREA_UNITS / LEVEL_TILE_SIZE);
 
     for (let row = 0; row < LEVEL_HEIGHT_TILES; row++) {
       for (let column = 0; column < LEVEL_WIDTH_TILES; column++) {
@@ -113,12 +117,28 @@ describe('FPS foundation config', () => {
     }
 
     expect(minimumEntryOpenTiles).toBe(5);
+    expect(minimumEntrySplitSideTiles).toBe(3);
+    expect(minimumEntrySplitAreaTiles).toBe(6);
     expect(findNarrowBoundedSegments(minimumOpenTiles)).toEqual([]);
     expect(findNarrowBoundedWallEntries(minimumEntryOpenTiles, minimumOpenTiles)).toEqual([]);
+    expect(
+      findNarrowWallEntrySplitters(
+        minimumEntryOpenTiles,
+        minimumOpenTiles,
+        minimumEntrySplitSideTiles,
+        minimumEntrySplitAreaTiles,
+      ),
+    ).toEqual([]);
     expect(findDiagonalCornerCuts()).toEqual([]);
     expect(findCornerPinches()).toEqual([]);
     expect(worldToTile(12.1, -2.1)?.symbol).toBe('#');
     expect(worldToTile(12.2, 7.6)?.symbol).toBe('#');
+    expect(worldToTile(-10, 17.8)).toMatchObject({ row: 40, column: 12, symbol: '.' });
+    expect(worldToTile(-9.4, 17.2)).toMatchObject({ row: 39, column: 13, symbol: '.' });
+    expect(worldToTile(8.2, 17.5)).toMatchObject({ row: 40, column: 30, symbol: '.' });
+    expect(FOUNDATION_LEVEL_MAP[30].slice(15, 23)).toBe('........');
+    expect(FOUNDATION_LEVEL_MAP[39].slice(8, 15)).toBe('.......');
+    expect(FOUNDATION_LEVEL_MAP[39].slice(26, 33)).toBe('.......');
   });
 
   it('keeps spawn open while treating boundaries as solid', () => {
@@ -290,8 +310,60 @@ function findNarrowBoundedSegments(minimumOpenTiles: number): Array<Record<strin
 function findNarrowBoundedWallEntries(
   minimumEntryOpenTiles: number,
   minimumWallRunTiles: number,
+): WallBandEntry[] {
+  return findStructuralWallBandEntries(minimumWallRunTiles).filter(
+    (entry) => entry.length < minimumEntryOpenTiles,
+  );
+}
+
+function countStructuralWallRun(row: number, column: number, rowStep: number, columnStep: number): number {
+  let count = 0;
+  let nextRow = row;
+  let nextColumn = column;
+
+  while (
+    nextRow >= 0 &&
+    nextRow < LEVEL_HEIGHT_TILES &&
+    nextColumn >= 0 &&
+    nextColumn < LEVEL_WIDTH_TILES &&
+    FOUNDATION_LEVEL_MAP[nextRow][nextColumn] === '#'
+  ) {
+    count++;
+    nextRow += rowStep;
+    nextColumn += columnStep;
+  }
+
+  return count;
+}
+
+type WallBandEntry =
+  | { axis: 'row'; row: number; start: number; end: number; length: number }
+  | { axis: 'column'; column: number; start: number; end: number; length: number };
+
+function findNarrowWallEntrySplitters(
+  minimumEntryOpenTiles: number,
+  minimumWallRunTiles: number,
+  minimumEntrySplitSideTiles: number,
+  minimumEntrySplitAreaTiles: number,
 ): Array<Record<string, number | string>> {
-  const entries: Array<Record<string, number | string>> = [];
+  const splitters: Array<Record<string, number | string>> = [];
+  const entries = findStructuralWallBandEntries(minimumWallRunTiles).filter(
+    (entry) => entry.length >= minimumEntryOpenTiles,
+  );
+
+  for (const entry of entries) {
+    if (entry.axis === 'row') {
+      splitters.push(...findRowEntrySplitters(entry, minimumEntrySplitSideTiles, minimumEntrySplitAreaTiles));
+    } else {
+      splitters.push(...findColumnEntrySplitters(entry, minimumEntrySplitSideTiles, minimumEntrySplitAreaTiles));
+    }
+  }
+
+  return splitters;
+}
+
+function findStructuralWallBandEntries(minimumWallRunTiles: number): WallBandEntry[] {
+  const entries: WallBandEntry[] = [];
 
   for (let row = 0; row < LEVEL_HEIGHT_TILES; row++) {
     let start: number | null = null;
@@ -310,10 +382,9 @@ function findNarrowBoundedWallEntries(
         if (
           bounded &&
           countStructuralWallRun(row, start - 1, 0, -1) >= minimumWallRunTiles &&
-          countStructuralWallRun(row, end + 1, 0, 1) >= minimumWallRunTiles &&
-          end - start + 1 < minimumEntryOpenTiles
+          countStructuralWallRun(row, end + 1, 0, 1) >= minimumWallRunTiles
         ) {
-          entries.push({ axis: 'row', row, start, end });
+          entries.push({ axis: 'row', row, start, end, length: end - start + 1 });
         }
         start = null;
       }
@@ -337,10 +408,9 @@ function findNarrowBoundedWallEntries(
         if (
           bounded &&
           countStructuralWallRun(start - 1, column, -1, 0) >= minimumWallRunTiles &&
-          countStructuralWallRun(end + 1, column, 1, 0) >= minimumWallRunTiles &&
-          end - start + 1 < minimumEntryOpenTiles
+          countStructuralWallRun(end + 1, column, 1, 0) >= minimumWallRunTiles
         ) {
-          entries.push({ axis: 'column', column, start, end });
+          entries.push({ axis: 'column', column, start, end, length: end - start + 1 });
         }
         start = null;
       }
@@ -350,24 +420,126 @@ function findNarrowBoundedWallEntries(
   return entries;
 }
 
-function countStructuralWallRun(row: number, column: number, rowStep: number, columnStep: number): number {
+function findRowEntrySplitters(
+  entry: Extract<WallBandEntry, { axis: 'row' }>,
+  minimumEntrySplitSideTiles: number,
+  minimumEntrySplitAreaTiles: number,
+): Array<Record<string, number | string>> {
+  const splitters: Array<Record<string, number | string>> = [];
+
+  for (const adjacentRow of [entry.row - 1, entry.row + 1]) {
+    if (adjacentRow < 0 || adjacentRow >= LEVEL_HEIGHT_TILES) {
+      continue;
+    }
+
+    const awayRow = adjacentRow < entry.row ? adjacentRow - 1 : adjacentRow + 1;
+    for (let column = entry.start + 1; column <= entry.end - 1; column++) {
+      if (
+        FOUNDATION_LEVEL_MAP[adjacentRow][column] !== '#' ||
+        !isOpenAt(entry.row, column) ||
+        !isStructuralWallAt(awayRow, column) ||
+        !isOpenAt(adjacentRow, column - 1) ||
+        !isOpenAt(adjacentRow, column + 1)
+      ) {
+        continue;
+      }
+
+      const leftClearance = countOpenInRowSegment(adjacentRow, column - 1, -1, entry.start, entry.end);
+      const rightClearance = countOpenInRowSegment(adjacentRow, column + 1, 1, entry.start, entry.end);
+      if (
+        leftClearance < minimumEntrySplitSideTiles ||
+        rightClearance < minimumEntrySplitSideTiles ||
+        leftClearance + rightClearance < minimumEntrySplitAreaTiles
+      ) {
+        splitters.push({ axis: 'row', row: entry.row, adjacentRow, splitterColumn: column });
+      }
+    }
+  }
+
+  return splitters;
+}
+
+function findColumnEntrySplitters(
+  entry: Extract<WallBandEntry, { axis: 'column' }>,
+  minimumEntrySplitSideTiles: number,
+  minimumEntrySplitAreaTiles: number,
+): Array<Record<string, number | string>> {
+  const splitters: Array<Record<string, number | string>> = [];
+
+  for (const adjacentColumn of [entry.column - 1, entry.column + 1]) {
+    if (adjacentColumn < 0 || adjacentColumn >= LEVEL_WIDTH_TILES) {
+      continue;
+    }
+
+    const awayColumn = adjacentColumn < entry.column ? adjacentColumn - 1 : adjacentColumn + 1;
+    for (let row = entry.start + 1; row <= entry.end - 1; row++) {
+      if (
+        FOUNDATION_LEVEL_MAP[row][adjacentColumn] !== '#' ||
+        !isOpenAt(row, entry.column) ||
+        !isStructuralWallAt(row, awayColumn) ||
+        !isOpenAt(row - 1, adjacentColumn) ||
+        !isOpenAt(row + 1, adjacentColumn)
+      ) {
+        continue;
+      }
+
+      const upperClearance = countOpenInColumnSegment(adjacentColumn, row - 1, -1, entry.start, entry.end);
+      const lowerClearance = countOpenInColumnSegment(adjacentColumn, row + 1, 1, entry.start, entry.end);
+      if (
+        upperClearance < minimumEntrySplitSideTiles ||
+        lowerClearance < minimumEntrySplitSideTiles ||
+        upperClearance + lowerClearance < minimumEntrySplitAreaTiles
+      ) {
+        splitters.push({ axis: 'column', column: entry.column, adjacentColumn, splitterRow: row });
+      }
+    }
+  }
+
+  return splitters;
+}
+
+function countOpenInRowSegment(row: number, column: number, columnStep: number, start: number, end: number): number {
   let count = 0;
-  let nextRow = row;
   let nextColumn = column;
 
-  while (
-    nextRow >= 0 &&
-    nextRow < LEVEL_HEIGHT_TILES &&
-    nextColumn >= 0 &&
-    nextColumn < LEVEL_WIDTH_TILES &&
-    FOUNDATION_LEVEL_MAP[nextRow][nextColumn] === '#'
-  ) {
+  while (nextColumn >= start && nextColumn <= end && isOpenAt(row, nextColumn)) {
     count++;
-    nextRow += rowStep;
     nextColumn += columnStep;
   }
 
   return count;
+}
+
+function countOpenInColumnSegment(column: number, row: number, rowStep: number, start: number, end: number): number {
+  let count = 0;
+  let nextRow = row;
+
+  while (nextRow >= start && nextRow <= end && isOpenAt(nextRow, column)) {
+    count++;
+    nextRow += rowStep;
+  }
+
+  return count;
+}
+
+function isOpenAt(row: number, column: number): boolean {
+  return (
+    row >= 0 &&
+    row < LEVEL_HEIGHT_TILES &&
+    column >= 0 &&
+    column < LEVEL_WIDTH_TILES &&
+    !isSolidSymbol(FOUNDATION_LEVEL_MAP[row][column] as LevelTileSymbol)
+  );
+}
+
+function isStructuralWallAt(row: number, column: number): boolean {
+  return (
+    row >= 0 &&
+    row < LEVEL_HEIGHT_TILES &&
+    column >= 0 &&
+    column < LEVEL_WIDTH_TILES &&
+    FOUNDATION_LEVEL_MAP[row][column] === '#'
+  );
 }
 
 function findDiagonalCornerCuts(): Array<Record<string, number | string>> {

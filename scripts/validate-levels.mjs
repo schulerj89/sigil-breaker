@@ -45,9 +45,13 @@ function validateLevel(levelData) {
   const tileSize = Number(levelData.tileSize);
   const minPassageUnits = Number(levelData.minPassageUnits);
   const minEntryUnits = Number(levelData.minEntryUnits ?? levelData.minPassageUnits);
+  const minEntrySplitSideUnits = Number(levelData.minEntrySplitSideUnits ?? levelData.minPassageUnits);
+  const minEntrySplitAreaUnits = Number(levelData.minEntrySplitAreaUnits ?? minEntrySplitSideUnits * 2);
   const chunkSizeTiles = Number(levelData.streaming?.chunkSizeTiles);
   const minimumOpenTiles = Math.ceil(minPassageUnits / tileSize);
   const minimumEntryOpenTiles = Math.ceil(minEntryUnits / tileSize);
+  const minimumEntrySplitSideTiles = Math.ceil(minEntrySplitSideUnits / tileSize);
+  const minimumEntrySplitAreaTiles = Math.ceil(minEntrySplitAreaUnits / tileSize);
 
   if (!levelData.id || typeof levelData.id !== 'string') {
     errors.push('Level is missing a string id.');
@@ -73,6 +77,22 @@ function validateLevel(levelData) {
     errors.push('minEntryUnits must be greater than or equal to minPassageUnits.');
   }
 
+  if (!Number.isFinite(minEntrySplitSideUnits) || minEntrySplitSideUnits <= 0) {
+    errors.push('minEntrySplitSideUnits must be a positive number when provided.');
+  }
+
+  if (!Number.isFinite(minEntrySplitAreaUnits) || minEntrySplitAreaUnits <= 0) {
+    errors.push('minEntrySplitAreaUnits must be a positive number when provided.');
+  }
+
+  if (
+    Number.isFinite(minEntrySplitAreaUnits) &&
+    Number.isFinite(minEntrySplitSideUnits) &&
+    minEntrySplitAreaUnits < minEntrySplitSideUnits * 2
+  ) {
+    errors.push('minEntrySplitAreaUnits must be at least double minEntrySplitSideUnits.');
+  }
+
   if (!Number.isInteger(chunkSizeTiles) || chunkSizeTiles <= 0) {
     errors.push('streaming.chunkSizeTiles must be a positive integer.');
   }
@@ -87,6 +107,7 @@ function validateLevel(levelData) {
   const narrowTiles = [];
   const narrowSegments = [];
   const narrowWallBandEntries = [];
+  const narrowWallBandEntrySplitters = [];
   const diagonalCornerCuts = [];
   const cornerPinches = [];
 
@@ -136,6 +157,15 @@ function validateLevel(levelData) {
   errors.push(...validateBoundary(map, width, height));
   narrowSegments.push(...findNarrowSegments(map, minimumOpenTiles));
   narrowWallBandEntries.push(...findNarrowWallBandEntries(map, minimumEntryOpenTiles, minimumOpenTiles));
+  narrowWallBandEntrySplitters.push(
+    ...findNarrowWallBandEntrySplitters(
+      map,
+      minimumEntryOpenTiles,
+      minimumOpenTiles,
+      minimumEntrySplitSideTiles,
+      minimumEntrySplitAreaTiles,
+    ),
+  );
   diagonalCornerCuts.push(...findDiagonalCornerCuts(map));
   cornerPinches.push(...findCornerPinches(map));
 
@@ -172,6 +202,16 @@ function validateLevel(levelData) {
       .join(', ');
     errors.push(
       `Found ${narrowWallBandEntries.length} structural wall-band entr${narrowWallBandEntries.length === 1 ? 'y' : 'ies'} below ${minimumEntryOpenTiles} tiles: ${preview}`,
+    );
+  }
+
+  if (narrowWallBandEntrySplitters.length > 0) {
+    const preview = narrowWallBandEntrySplitters
+      .slice(0, 12)
+      .map(formatWallBandEntrySplitter)
+      .join(', ');
+    errors.push(
+      `Found ${narrowWallBandEntrySplitters.length} structural entry splitter(s) below side ${minimumEntrySplitSideTiles} / combined ${minimumEntrySplitAreaTiles} open tiles: ${preview}`,
     );
   }
 
@@ -250,6 +290,39 @@ function findNarrowSegments(map, minimumOpenTiles) {
 }
 
 function findNarrowWallBandEntries(map, minimumEntryOpenTiles, minimumWallRunTiles) {
+  return findStructuralWallBandEntries(map, minimumWallRunTiles).filter(
+    (entry) => entry.length < minimumEntryOpenTiles,
+  );
+}
+
+function findNarrowWallBandEntrySplitters(
+  map,
+  minimumEntryOpenTiles,
+  minimumWallRunTiles,
+  minimumEntrySplitSideTiles,
+  minimumEntrySplitAreaTiles,
+) {
+  const splitters = [];
+  const entries = findStructuralWallBandEntries(map, minimumWallRunTiles).filter(
+    (entry) => entry.length >= minimumEntryOpenTiles,
+  );
+
+  for (const entry of entries) {
+    if (entry.axis === 'row') {
+      splitters.push(
+        ...findRowEntrySplitters(map, entry, minimumEntrySplitSideTiles, minimumEntrySplitAreaTiles),
+      );
+    } else {
+      splitters.push(
+        ...findColumnEntrySplitters(map, entry, minimumEntrySplitSideTiles, minimumEntrySplitAreaTiles),
+      );
+    }
+  }
+
+  return splitters;
+}
+
+function findStructuralWallBandEntries(map, minimumWallRunTiles) {
   const entries = [];
   const height = map.length;
   const width = map[0]?.length ?? 0;
@@ -270,12 +343,7 @@ function findNarrowWallBandEntries(map, minimumEntryOpenTiles, minimumWallRunTil
           map[row][end + 1] === STRUCTURAL_WALL_SYMBOL;
         const wallRunBefore = countStructuralWallRun(map, row, start - 1, 0, -1);
         const wallRunAfter = countStructuralWallRun(map, row, end + 1, 0, 1);
-        if (
-          isBoundedByWalls &&
-          wallRunBefore >= minimumWallRunTiles &&
-          wallRunAfter >= minimumWallRunTiles &&
-          end - start + 1 < minimumEntryOpenTiles
-        ) {
+        if (isBoundedByWalls && wallRunBefore >= minimumWallRunTiles && wallRunAfter >= minimumWallRunTiles) {
           entries.push({ axis: 'row', row, start, end, length: end - start + 1 });
         }
         start = null;
@@ -299,12 +367,7 @@ function findNarrowWallBandEntries(map, minimumEntryOpenTiles, minimumWallRunTil
           map[end + 1][column] === STRUCTURAL_WALL_SYMBOL;
         const wallRunBefore = countStructuralWallRun(map, start - 1, column, -1, 0);
         const wallRunAfter = countStructuralWallRun(map, end + 1, column, 1, 0);
-        if (
-          isBoundedByWalls &&
-          wallRunBefore >= minimumWallRunTiles &&
-          wallRunAfter >= minimumWallRunTiles &&
-          end - start + 1 < minimumEntryOpenTiles
-        ) {
+        if (isBoundedByWalls && wallRunBefore >= minimumWallRunTiles && wallRunAfter >= minimumWallRunTiles) {
           entries.push({ axis: 'column', column, start, end, length: end - start + 1 });
         }
         start = null;
@@ -313,6 +376,112 @@ function findNarrowWallBandEntries(map, minimumEntryOpenTiles, minimumWallRunTil
   }
 
   return entries;
+}
+
+function findRowEntrySplitters(map, entry, minimumEntrySplitSideTiles, minimumEntrySplitAreaTiles) {
+  const splitters = [];
+
+  for (const adjacentRow of [entry.row - 1, entry.row + 1]) {
+    if (adjacentRow < 0 || adjacentRow >= map.length) {
+      continue;
+    }
+
+    const awayRow = adjacentRow < entry.row ? adjacentRow - 1 : adjacentRow + 1;
+    for (let column = entry.start + 1; column <= entry.end - 1; column++) {
+      if (
+        map[adjacentRow][column] !== STRUCTURAL_WALL_SYMBOL ||
+        !isOpenTile(map, entry.row, column) ||
+        !isStructuralWallAt(map, awayRow, column) ||
+        !isOpenTile(map, adjacentRow, column - 1) ||
+        !isOpenTile(map, adjacentRow, column + 1)
+      ) {
+        continue;
+      }
+
+      const leftClearance = countOpenInRowSegment(map, adjacentRow, column - 1, -1, entry.start, entry.end);
+      const rightClearance = countOpenInRowSegment(map, adjacentRow, column + 1, 1, entry.start, entry.end);
+      if (
+        leftClearance < minimumEntrySplitSideTiles ||
+        rightClearance < minimumEntrySplitSideTiles ||
+        leftClearance + rightClearance < minimumEntrySplitAreaTiles
+      ) {
+        splitters.push({
+          axis: 'row',
+          row: entry.row,
+          start: entry.start,
+          end: entry.end,
+          adjacentRow,
+          splitterColumn: column,
+          leftClearance,
+          rightClearance,
+          combinedClearance: leftClearance + rightClearance,
+        });
+      }
+    }
+  }
+
+  return splitters;
+}
+
+function findColumnEntrySplitters(map, entry, minimumEntrySplitSideTiles, minimumEntrySplitAreaTiles) {
+  const splitters = [];
+
+  for (const adjacentColumn of [entry.column - 1, entry.column + 1]) {
+    if (adjacentColumn < 0 || adjacentColumn >= (map[0]?.length ?? 0)) {
+      continue;
+    }
+
+    const awayColumn = adjacentColumn < entry.column ? adjacentColumn - 1 : adjacentColumn + 1;
+    for (let row = entry.start + 1; row <= entry.end - 1; row++) {
+      if (
+        map[row][adjacentColumn] !== STRUCTURAL_WALL_SYMBOL ||
+        !isOpenTile(map, row, entry.column) ||
+        !isStructuralWallAt(map, row, awayColumn) ||
+        !isOpenTile(map, row - 1, adjacentColumn) ||
+        !isOpenTile(map, row + 1, adjacentColumn)
+      ) {
+        continue;
+      }
+
+      const upperClearance = countOpenInColumnSegment(map, adjacentColumn, row - 1, -1, entry.start, entry.end);
+      const lowerClearance = countOpenInColumnSegment(map, adjacentColumn, row + 1, 1, entry.start, entry.end);
+      if (
+        upperClearance < minimumEntrySplitSideTiles ||
+        lowerClearance < minimumEntrySplitSideTiles ||
+        upperClearance + lowerClearance < minimumEntrySplitAreaTiles
+      ) {
+        splitters.push({
+          axis: 'column',
+          column: entry.column,
+          start: entry.start,
+          end: entry.end,
+          adjacentColumn,
+          splitterRow: row,
+          upperClearance,
+          lowerClearance,
+          combinedClearance: upperClearance + lowerClearance,
+        });
+      }
+    }
+  }
+
+  return splitters;
+}
+
+function formatWallBandEntrySplitter(splitter) {
+  if (splitter.axis === 'row') {
+    return (
+      `row ${splitter.row} columns ${splitter.start}-${splitter.end}, ` +
+      `adjacent row ${splitter.adjacentRow} splitter column ${splitter.splitterColumn} ` +
+      `left/right ${splitter.leftClearance}/${splitter.rightClearance}`
+    );
+  }
+
+  return (
+    `column ${splitter.column} rows ${splitter.start}-${splitter.end}, ` +
+    `adjacent column ${splitter.adjacentColumn} splitter row ${splitter.splitterRow} ` +
+    `upper/lower ${splitter.upperClearance}/${splitter.lowerClearance}`
+  );
 }
 
 function countStructuralWallRun(map, row, column, rowStep, columnStep) {
@@ -333,6 +502,50 @@ function countStructuralWallRun(map, row, column, rowStep, columnStep) {
   }
 
   return count;
+}
+
+function countOpenInRowSegment(map, row, column, columnStep, start, end) {
+  let count = 0;
+  let nextColumn = column;
+
+  while (nextColumn >= start && nextColumn <= end && isOpenTile(map, row, nextColumn)) {
+    count++;
+    nextColumn += columnStep;
+  }
+
+  return count;
+}
+
+function countOpenInColumnSegment(map, column, row, rowStep, start, end) {
+  let count = 0;
+  let nextRow = row;
+
+  while (nextRow >= start && nextRow <= end && isOpenTile(map, nextRow, column)) {
+    count++;
+    nextRow += rowStep;
+  }
+
+  return count;
+}
+
+function isOpenTile(map, row, column) {
+  return (
+    row >= 0 &&
+    row < map.length &&
+    column >= 0 &&
+    column < map[row].length &&
+    !SOLID_SYMBOLS.has(map[row][column])
+  );
+}
+
+function isStructuralWallAt(map, row, column) {
+  return (
+    row >= 0 &&
+    row < map.length &&
+    column >= 0 &&
+    column < map[row].length &&
+    map[row][column] === STRUCTURAL_WALL_SYMBOL
+  );
 }
 
 function findDiagonalCornerCuts(map) {

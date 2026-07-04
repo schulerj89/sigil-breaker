@@ -1,6 +1,6 @@
 # Observations: performance-budget-agent
 
-Status: needs review after input/collision/effect-pose and browser-smoke pass.
+Status: needs review after input/collision/effect-pose/entry-splitter and browser-smoke pass.
 
 ## What It Saw
 
@@ -17,6 +17,8 @@ Status: needs review after input/collision/effect-pose and browser-smoke pass.
 - The entry-width fix opens eight walkable cells and does not add render assets.
 - `weaponViewPose.ts` adds small shot-time/effect-visible camera-local math so tracer placement follows the same pose as the viewmodel.
 - Latest production-preview Playwright smoke passed all five landscape viewports after the entry-width and effect-pose changes.
+- The entry-splitter fix opens five additional walkable cells and does not add render assets.
+- Latest production-preview Playwright smoke passed all five landscape viewports after the splitter validator and map widening changes.
 
 ## Decisions
 
@@ -46,3 +48,4 @@ Status: needs review after input/collision/effect-pose and browser-smoke pass.
 - Future asset streaming should account for cache-busted URLs when comparing network/cache behavior between builds.
 - Future performance profiling should measure close-wall movement with weapon avoidance active.
 - Future performance profiling should measure repeated firing with effect-pose updates visible, although the current helper is lightweight.
+- Entry-splitter validation is build/test-time only and should not affect runtime frame budget.

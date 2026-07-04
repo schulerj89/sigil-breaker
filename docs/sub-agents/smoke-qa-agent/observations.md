@@ -1,6 +1,6 @@
 # Observations: smoke-qa-agent
 
-Status: complete for input/collision/layout plus coordinate/cache/effect-pose browser smoke.
+Status: complete for input/collision/layout plus coordinate/cache/effect-pose and entry-splitter browser smoke.
 
 ## What It Saw
 
@@ -19,6 +19,8 @@ Status: complete for input/collision/layout plus coordinate/cache/effect-pose br
 - Unit tests now pin the reported pinch coordinates and the weapon footprint collision case.
 - Latest Playwright smoke after entry-width and shot-effect alignment fixes passed all five landscape viewports.
 - Browser smoke now fires once, verifies ammo and shot count changed, and checks `snapshot.weapon.effectPose` for a right-offset muzzle plus aligned tracer/impact positions.
+- Latest Playwright smoke after structural entry splitter validation passed all five landscape viewports.
+- Unit coverage now pins the user-reported world coordinates near row 39/40 and the widened row 30/39 entry slices.
 
 ## Decisions
 
