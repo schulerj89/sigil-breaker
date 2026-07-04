@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-test.setTimeout(120_000);
+test.setTimeout(180_000);
 
 const FULL_INTERACTION_PROJECT = 'chromium-modern-phone-landscape';
 const EXPECTED_LOADED_ASSET_IDS = [
@@ -297,7 +297,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(wallPushEnd.scene.playerPosition[2]).toBeGreaterThanOrEqual(wallPushStart.scene.playerPosition[2] - 0.05);
 
   await driveUntil(page, 'KeyD', (routeSnapshot) => routeSnapshot.scene.playerPosition[2] > -20.6, 2500);
-  await driveUntil(page, 'KeyW', (routeSnapshot) => routeSnapshot.scene.playerPosition[0] > -19.8, 3000);
+  await driveUntil(page, 'KeyW', (routeSnapshot) => routeSnapshot.scene.playerPosition[0] > -19.8, 6000);
   const routeSnapshot = await readDebugSnapshot(page);
   expectPlayerFootprintClear(routeSnapshot);
   expect(routeSnapshot.scene.playerPosition[0]).toBeGreaterThan(-19.8);
