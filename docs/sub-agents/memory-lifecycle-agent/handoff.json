@@ -1,22 +1,32 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "memory-lifecycle-agent",
-  "status": "not-started",
-  "updatedAt": "2026-07-04T00:00:00Z",
-  "summary": "Initial memory scaffold only; no Three.js lifecycle code exists.",
+  "status": "in-progress",
+  "updatedAt": "2026-07-04T04:30:00Z",
+  "summary": "Weapon GLB lifecycle ownership is implemented, but automated reset-loop memory QA is still pending.",
   "observations": [
-    "No Three.js loaders, scene transitions, or GPU disposal paths exist yet."
+    "WeaponSystem owns GLTFLoader-loaded weapon objects.",
+    "WeaponSystem.dispose() removes input listeners, closes WeaponAudio, and disposes weapon geometries/materials/textures.",
+    "Detached loaded weapons are disposed even when they are not currently attached to the viewmodel slot.",
+    "Debug memory metrics expose weaponModelBytesLoaded for the current weapon set."
   ],
   "decisions": [
-    "Five reset loops should return texture and geometry counts to baseline.",
-    "Shared resources need ownership or reference counting."
+    "Keep weapon model ownership scoped to WeaponSystem.",
+    "Five reset loops should return texture and geometry counts to baseline before larger asset imports.",
+    "Shared resources can stay simple for this tiny weapon set but need review before cross-system sharing."
   ],
-  "caughtIssues": [],
+  "caughtIssues": [
+    "A scene-graph-only dispose path could miss loaded weapon models that were detached by weapon switching."
+  ],
   "risks": [
-    "Scene resets can leak GPU memory if disposal is bolted on late."
+    "No automated reset-loop memory test exists yet.",
+    "Future shared textures or model caches may need reference counting."
   ],
   "blockers": [],
-  "artifacts": [],
+  "artifacts": [
+    "src/game/weapons/weaponSystem.ts",
+    "src/game/debug.ts"
+  ],
   "jsonForAgents": {
     "resetLoopCount": 5,
     "maxHeapGrowthPercent": 5,
@@ -34,4 +44,3 @@
     "smoke-qa-agent"
   ]
 }
-

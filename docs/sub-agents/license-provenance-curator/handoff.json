@@ -1,24 +1,41 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "license-provenance-curator",
-  "status": "not-started",
-  "updatedAt": "2026-07-04T00:00:00Z",
-  "summary": "Initial license scaffold only; no FPS candidates have been reviewed.",
+  "status": "complete",
+  "updatedAt": "2026-07-04T04:20:00Z",
+  "summary": "Approved three selected Kenney Blaster Kit 2.1 weapon models under CC0 for the first test-level weapon slice.",
   "observations": [
-    "No future FPS source ledger exists yet."
+    "Kenney Blaster Kit 2.1 is listed as Creative Commons CC0 by the official source.",
+    "The committed package includes a local LICENSE.txt beside the selected weapon assets.",
+    "docs/assets/source-ledger.json records source URL, download URL, hashes, byte counts, and redistribution flags."
   ],
   "decisions": [
-    "License approval is required before shippable asset import.",
-    "Mixed-license sources require per-asset review."
+    "Approve weapon.blaster.spark, weapon.blaster.bore, and weapon.blaster.vault.",
+    "Keep the current external weapon intake CC0-only.",
+    "Use npm run validate:assets as the local and CI provenance check."
   ],
-  "caughtIssues": [],
+  "caughtIssues": [
+    "The project did not previously have a future FPS source ledger."
+  ],
   "risks": [
-    "Free download availability does not imply game redistribution rights."
+    "Future non-CC0 assets still need separate license review before import."
   ],
   "blockers": [],
-  "artifacts": [],
+  "artifacts": [
+    "docs/assets/source-ledger.json",
+    "public/assets/weapons/kenney-blaster-kit/LICENSE.txt",
+    "public/assets/weapons/kenney-blaster-kit/source.json"
+  ],
   "jsonForAgents": {
     "approvalRequiredBeforeImport": true,
+    "approvedSourceIds": [
+      "kenney.blaster-kit.2-1"
+    ],
+    "approvedAssetIds": [
+      "weapon.blaster.spark",
+      "weapon.blaster.bore",
+      "weapon.blaster.vault"
+    ],
     "rejectLicenseTypes": [
       "noncommercial",
       "editorial-only",
@@ -31,4 +48,3 @@
     "asset-pipeline-lead"
   ]
 }
-

@@ -9,6 +9,7 @@ import {
   LEVEL_WIDTH_TILES,
 } from './levelMap';
 import type { LevelStreamingSnapshot } from './levelStreaming';
+import type { WeaponSystemSnapshot } from './weapons/weaponSystem';
 
 export interface DebugSnapshot {
   buildId: string;
@@ -49,10 +50,12 @@ export interface DebugSnapshot {
     decodedTextureMbEstimate: number;
     levelRuntimeBytesEstimate: number;
     chunkInstanceMatrixBytes: number;
+    weaponModelBytesLoaded: number;
     loadedAssetIds: string[];
     activeSceneRoots: number;
   };
   assetLoadErrors: string[];
+  weapon: WeaponSystemSnapshot;
   controls: {
     orientationLock: 'landscape';
     primaryInput: 'touch';
@@ -75,6 +78,7 @@ export function createDebugApi(
   getFps: () => number,
   getControllerSnapshot: () => FpsControllerSnapshot,
   getLevelStreamingSnapshot: () => LevelStreamingSnapshot,
+  getWeaponSnapshot: () => WeaponSystemSnapshot,
 ): DebugApi {
   return {
     getSnapshot: () => {
@@ -82,6 +86,7 @@ export function createDebugApi(
       const viewportHeight = window.innerHeight;
       const controllerSnapshot = getControllerSnapshot();
       const levelStreamingSnapshot = getLevelStreamingSnapshot();
+      const weaponSnapshot = getWeaponSnapshot();
 
       return {
         buildId: __SIGILBREAKER_BUILD_ID__,
@@ -122,10 +127,12 @@ export function createDebugApi(
           decodedTextureMbEstimate: 0,
           levelRuntimeBytesEstimate: levelStreamingSnapshot.runtimeBytesEstimate,
           chunkInstanceMatrixBytes: levelStreamingSnapshot.instanceMatrixBytes,
-          loadedAssetIds: [],
+          weaponModelBytesLoaded: weaponSnapshot.modelBytesLoaded,
+          loadedAssetIds: weaponSnapshot.loadedAssetIds,
           activeSceneRoots: 1 + levelStreamingSnapshot.activeChunks,
         },
-        assetLoadErrors: [],
+        assetLoadErrors: weaponSnapshot.assetLoadErrors,
+        weapon: weaponSnapshot,
         controls: {
           orientationLock: 'landscape',
           primaryInput: 'touch',
@@ -134,7 +141,7 @@ export function createDebugApi(
           movePointerActive: controllerSnapshot.controls.movePointerActive,
           moveVector: controllerSnapshot.controls.moveVector,
           keyboardVector: controllerSnapshot.controls.keyboardVector,
-          buttons: ['fire', 'reload', 'dash', 'interact', 'weapon-swap', 'pause'],
+          buttons: ['fire', 'weapon-select'],
         },
         budgets: PERFORMANCE_BUDGETS,
       };

@@ -16,6 +16,7 @@ import {
   isSolidSymbol,
 } from '../game/levelMap';
 import { createLevelChunks, getActiveChunkIdsForTile } from '../game/levelStreaming';
+import { WEAPON_ASSET_SOURCE, WEAPON_DEFINITIONS } from '../game/weapons/weaponManifest';
 
 describe('FPS foundation config', () => {
   it('keeps the bootstrap scene aligned with the mobile landscape gates', () => {
@@ -99,6 +100,25 @@ describe('FPS foundation config', () => {
     expect(collidesWithLevel(spawn.x, spawn.z, 0.24)).toBe(false);
     expect(collidesWithLevel(-22.6, 0, 0.24)).toBe(true);
     expect(collidesWithLevel(22.6, 0, 0.24)).toBe(true);
+  });
+
+  it('uses a small CC0 external weapon set for the test level', () => {
+    const weaponIds = WEAPON_DEFINITIONS.map((weapon) => weapon.id);
+    const totalModelBytes = WEAPON_DEFINITIONS.reduce((total, weapon) => total + weapon.modelBytes, 0);
+
+    expect(WEAPON_ASSET_SOURCE.license).toBe('Creative Commons Zero, CC0');
+    expect(WEAPON_ASSET_SOURCE.attributionRequired).toBe(false);
+    expect(WEAPON_DEFINITIONS).toHaveLength(3);
+    expect(new Set(weaponIds).size).toBe(WEAPON_DEFINITIONS.length);
+    expect(totalModelBytes).toBeLessThan(1_000_000);
+
+    for (const weapon of WEAPON_DEFINITIONS) {
+      expect(weapon.modelPath).toMatch(/^assets\/weapons\/kenney-blaster-kit\/models\/.+\.glb$/);
+      expect(weapon.previewPath).toMatch(/^assets\/weapons\/kenney-blaster-kit\/previews\/.+\.png$/);
+      expect(weapon.magazineSize).toBeGreaterThan(0);
+      expect(weapon.fireIntervalMs).toBeGreaterThan(100);
+      expect(weapon.recoilKick).toBeGreaterThan(0);
+    }
   });
 });
 

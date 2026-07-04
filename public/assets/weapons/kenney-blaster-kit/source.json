@@ -1,0 +1,17 @@
+{
+  "sourceId": "kenney.blaster-kit.2-1",
+  "name": "Blaster Kit 2.1",
+  "author": "Kenney",
+  "sourceUrl": "https://kenney.nl/assets/blaster-kit",
+  "license": "Creative Commons Zero, CC0",
+  "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "licenseFile": "LICENSE.txt",
+  "sharedFiles": [
+    "models/Textures/colormap.png"
+  ],
+  "selectedAssets": [
+    "models/blaster-a.glb",
+    "models/blaster-h.glb",
+    "models/blaster-p.glb"
+  ]
+}

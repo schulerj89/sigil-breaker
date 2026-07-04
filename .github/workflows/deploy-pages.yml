@@ -33,6 +33,9 @@ jobs:
       - name: Validate levels
         run: npm run validate:levels
 
+      - name: Validate assets
+        run: npm run validate:assets
+
       - name: Test
         run: npm test
 

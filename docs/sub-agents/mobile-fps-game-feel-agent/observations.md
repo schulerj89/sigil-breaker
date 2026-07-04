@@ -1,23 +1,23 @@
 # Observations: mobile-fps-game-feel-agent
 
-Status: not run for implementation yet.
+Status: in progress for first weapon intake.
 
 ## What It Saw
 
-- Initial scaffold pass only.
-- No FPS controller, weapon loop, or combat feedback exists yet.
-- Mobile game feel needs early coordination with controls, camera, audio, and weapons.
+- Added a first one-button shooting loop for the mobile landscape test level.
+- Added three touch-selectable weapons with distinct cadence, magazine size, recoil kick, and procedural firing sound.
+- The existing right-side look zone remains the primary aim surface; weapon buttons and fire button opt out of camera drag handling.
 
 ## Decisions
 
-- Touch input latency target is under 50 ms.
-- Camera shake and recoil must prioritize readability over spectacle.
+- Keep recoil small until hit reactions and enemy readability exist.
+- Use a single large right-side fire button for this slice.
+- Treat the procedural Web Audio sounds as placeholders until ElevenLabs sound effects/music are added.
 
 ## Caught Issues
 
-- No future input latency instrumentation exists yet.
+- The shoot loop currently has no hit detection, reload button, projectile trace, or enemy feedback.
 
 ## Next Handoff Notes
 
-- First FPS prototype should expose input timing and basic weapon cadence for review.
-
+- Camera, audio, and playthrough QA should review firing feel after browser smoke confirms basic state changes.

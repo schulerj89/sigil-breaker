@@ -1,23 +1,23 @@
 # Observations: weapon-upgrade-asset-curator
 
-Status: not run for implementation yet.
+Status: complete for first weapon intake.
 
 ## What It Saw
 
-- Initial scaffold pass only.
-- No FPS weapon roster or upgrade visuals exist yet.
-- Weapons need asset, feel, camera, audio, and powerup coordination.
+- Integrated three first-person test weapons from Kenney Blaster Kit 2.1.
+- Current roles are fast sidearm, close scatter, and heavy pulse.
+- Each weapon has a preview thumbnail, distinct magazine size, cadence, recoil value, and procedural gunshot profile.
 
 ## Decisions
 
-- Weapon assets must be reviewed in first-person landscape framing.
-- Upgrade visuals must map to real mechanics.
+- Use these three weapons for the initial selector and shoot-loop smoke tests.
+- Delay upgrade visuals until powerups and weapon progression are implemented.
+- Treat current model offsets as prototype framing values pending camera/game-feel review.
 
 ## Caught Issues
 
-- No first weapon brief exists yet.
+- The models are not authored specifically as hands/viewmodels, so first-person framing may need iteration.
 
 ## Next Handoff Notes
 
-- Coordinate with camera and game-feel agents before approving viewmodel assets.
-
+- Camera and game-feel agents should review recoil readability, muzzle flash placement, and button placement in landscape phone view.

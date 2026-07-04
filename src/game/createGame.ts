@@ -4,6 +4,8 @@ import { createDebugApi, type DebugApi } from './debug';
 import { createFoundationLevelRuntime } from './foundationLevelRuntime';
 import { FpsControls } from './fpsControls';
 import { LEVEL_HEIGHT_TILES, LEVEL_WIDTH_TILES } from './levelMap';
+import { WEAPON_DEFINITIONS, publicAssetUrl } from './weapons/weaponManifest';
+import { WeaponSystem } from './weapons/weaponSystem';
 
 export interface SigilbreakerApp {
   dispose: () => void;
@@ -41,6 +43,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   scene.fog = new THREE.Fog(0x0d1012, 12, 30);
 
   const camera = new THREE.PerspectiveCamera(70, 1, 0.1, 180);
+  scene.add(camera);
 
   const disposables: Array<{ dispose: () => void }> = [];
   const track = <Resource extends { dispose: () => void }>(resource: Resource): Resource => {
@@ -50,6 +53,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
 
   const levelRuntime = createFoundationLevelRuntime(scene, track);
   const controls = new FpsControls(root, camera);
+  const weaponSystem = new WeaponSystem(root, camera);
   levelRuntime.update(controls.getSnapshot().player.position);
 
   let animationFrame = 0;
@@ -57,7 +61,13 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   let lastHudUpdate = 0;
   let fps = PERFORMANCE_BUDGETS.targetFps;
 
-  const debug = createDebugApi(renderer, () => fps, () => controls.getSnapshot(), () => levelRuntime.getSnapshot());
+  const debug = createDebugApi(
+    renderer,
+    () => fps,
+    () => controls.getSnapshot(),
+    () => levelRuntime.getSnapshot(),
+    () => weaponSystem.getSnapshot(),
+  );
   window.__SIGILBREAKER_DEBUG__ = debug;
 
   const resize = (): void => {
@@ -75,6 +85,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     fps = fps * 0.9 + (1 / Math.max(deltaSeconds, 0.001)) * 0.1;
 
     controls.update(deltaSeconds);
+    weaponSystem.update(deltaSeconds, now);
     levelRuntime.update(controls.getSnapshot().player.position);
     renderer.render(scene, camera);
 
@@ -97,6 +108,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     dispose: () => {
       window.cancelAnimationFrame(animationFrame);
       controls.dispose();
+      weaponSystem.dispose();
       levelRuntime.dispose();
       resizeObserver.disconnect();
       window.removeEventListener('orientationchange', resize);
@@ -132,22 +144,45 @@ function createShellMarkup(): string {
           <span class="hud__badge hud__badge--metric" data-debug-chunks>CH --</span>
         </div>
         <div class="hud__right">
-          <span class="hud__badge hud__badge--ammo">30 / 90</span>
+          <span class="hud__badge hud__badge--weapon" data-weapon-label>${WEAPON_DEFINITIONS[0].label}</span>
+          <span class="hud__badge hud__badge--ammo" data-weapon-ammo>-- / --</span>
           <span class="hud__badge hud__badge--build">${__SIGILBREAKER_BUILD_ID__}</span>
         </div>
       </div>
       <div class="crosshair" aria-hidden="true"></div>
-      <div class="touch-zones" aria-hidden="true">
+      <div class="weapon-tray" aria-label="Weapon selection">
+        ${WEAPON_DEFINITIONS.map(
+          (weapon) => `
+            <button
+              class="weapon-button"
+              type="button"
+              data-ui-control
+              data-weapon-button
+              data-weapon-id="${weapon.id}"
+              aria-label="${weapon.label} ${weapon.role}"
+              aria-pressed="false"
+            >
+              <img src="${publicAssetUrl(weapon.previewPath)}" alt="" draggable="false" />
+              <span>${weapon.label}</span>
+            </button>
+          `,
+        ).join('')}
+      </div>
+      <div class="touch-zones">
         <div class="stick" data-move-stick>
           <div class="stick__knob" data-stick-knob></div>
         </div>
-        <div class="action-pad">
-          <div class="action-button" data-action-button>R</div>
-          <div class="action-button action-button--fire" data-action-button>F</div>
-          <div class="action-button" data-action-button>D</div>
-          <div class="action-button" data-action-button>I</div>
-          <div class="action-button" data-action-button>W</div>
-          <div class="action-button" data-action-button>P</div>
+        <div class="action-pad action-pad--single">
+          <button
+            class="action-button action-button--fire"
+            type="button"
+            data-ui-control
+            data-action-button
+            data-fire-button
+            aria-label="Fire"
+          >
+            F
+          </button>
         </div>
       </div>
       <div class="rotate-prompt">ROTATE DEVICE</div>
@@ -160,6 +195,12 @@ function updateDebugHud(root: HTMLElement, debug: DebugApi): void {
   setHudText(root, '[data-debug-fps]', `FPS ${Math.round(snapshot.rendererMetrics.fps)}`);
   setHudText(root, '[data-debug-memory]', `JS ${formatMaybeMb(snapshot.memoryMetrics.jsHeapMb)}`);
   setHudText(root, '[data-debug-level-memory]', `LVL ${formatBytes(snapshot.memoryMetrics.levelRuntimeBytesEstimate)}`);
+  setHudText(root, '[data-weapon-label]', snapshot.weapon.activeWeaponLabel);
+  setHudText(
+    root,
+    '[data-weapon-ammo]',
+    snapshot.weapon.isReloading ? 'LOAD' : `${snapshot.weapon.ammoInMagazine} / ${snapshot.weapon.magazineSize}`,
+  );
   setHudText(
     root,
     '[data-debug-chunks]',

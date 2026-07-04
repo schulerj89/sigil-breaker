@@ -1,22 +1,25 @@
 # Observations: performance-budget-agent
 
-Status: not run for implementation yet.
+Status: needs review after first weapon intake.
 
 ## What It Saw
 
-- Initial scaffold pass only.
-- The repo now has a Three.js foundation scene and debug metrics API.
-- Future FPS work still needs explicit visible-browser 60 FPS validation as real assets and gameplay are added.
+- Added three small GLB weapon models to the current Three.js foundation scene.
+- Debug metrics now include `weaponModelBytesLoaded`, weapon `loadedAssetIds`, and weapon asset load errors.
+- `scripts/validate-assets.mjs` caps the first weapon payload through source-ledger validation.
+- Browser smoke reported 57 FPS in the dev server at 844 x 390 with the VAULT weapon active.
 
 ## Decisions
 
-- Use visible-browser QA for FPS and headless QA for state/budget smoke.
-- Require renderer metrics in debug output.
+- Keep all three first weapon GLBs preloaded for selector responsiveness; payload is well under the current budget.
+- Keep the weapon slice, but profile production preview before adding heavier enemy/building assets.
 
 ## Caught Issues
 
-- The bootstrap debug metrics API exists, but no asset-heavy scene has been measured yet.
+- The weapon slice is lightweight, but GLB loading now makes disposal and loaded-asset reporting part of the runtime surface.
+- GLB texture dependencies must be committed and validated; the first browser smoke caught the missing shared colormap.
 
 ## Next Handoff Notes
 
-- Keep renderer metrics available before adding asset-heavy scenes.
+- Memory-lifecycle and smoke QA should verify loaded model bytes and no asset errors in the debug API.
+- Next performance pass should compare production preview FPS against dev-server FPS.

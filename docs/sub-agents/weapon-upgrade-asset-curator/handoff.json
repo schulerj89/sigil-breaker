@@ -1,31 +1,61 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "weapon-upgrade-asset-curator",
-  "status": "not-started",
-  "updatedAt": "2026-07-04T00:00:00Z",
-  "summary": "Initial weapon asset scaffold only; no weapon roster exists.",
+  "status": "complete",
+  "updatedAt": "2026-07-04T04:20:00Z",
+  "summary": "Approved a three-gun external weapon slice for the test level selector and one-button shoot loop.",
   "observations": [
-    "No weapon or upgrade asset brief has been created."
+    "SPARK is a fast sidearm using blaster-a.glb.",
+    "BORE is a close scatter weapon using blaster-h.glb.",
+    "VAULT is a heavy pulse weapon using blaster-p.glb.",
+    "Each weapon has a procedural Web Audio firing profile until ElevenLabs audio is added."
   ],
   "decisions": [
-    "Weapon candidates must be tested as first-person viewmodels.",
-    "Upgrade icons and VFX must map to actual mechanics."
+    "Expose the three weapons through a clickable landscape selector.",
+    "Use one fire button for this slice.",
+    "Leave upgrades, reload button, projectile behavior, and hit impacts for later iterations."
   ],
-  "caughtIssues": [],
+  "caughtIssues": [
+    "Current assets are prop-scale GLB models, not dedicated animated first-person weapon rigs."
+  ],
   "risks": [
-    "Weapon assets can look acceptable in orbit view but fail when framed as mobile FPS viewmodels."
+    "Model offsets may need per-device adjustment once gameplay camera tuning starts."
   ],
   "blockers": [],
-  "artifacts": [],
+  "artifacts": [
+    "src/game/weapons/weaponManifest.ts",
+    "src/game/weapons/weaponSystem.ts",
+    "src/game/weapons/weaponAudio.ts",
+    "public/assets/weapons/kenney-blaster-kit/models/blaster-a.glb",
+    "public/assets/weapons/kenney-blaster-kit/models/blaster-h.glb",
+    "public/assets/weapons/kenney-blaster-kit/models/blaster-p.glb"
+  ],
   "jsonForAgents": {
-    "weaponAssetCategories": [
-      "viewmodel",
-      "worldPickup",
-      "attachment",
-      "muzzleFlash",
-      "projectile",
-      "hitImpact",
-      "upgradeIcon"
+    "weaponRoster": [
+      {
+        "assetId": "weapon.blaster.spark",
+        "label": "SPARK",
+        "role": "fast sidearm",
+        "magazineSize": 18,
+        "fireIntervalMs": 155,
+        "soundProfile": "sidearm"
+      },
+      {
+        "assetId": "weapon.blaster.bore",
+        "label": "BORE",
+        "role": "close scatter",
+        "magazineSize": 8,
+        "fireIntervalMs": 470,
+        "soundProfile": "scatter"
+      },
+      {
+        "assetId": "weapon.blaster.vault",
+        "label": "VAULT",
+        "role": "heavy pulse",
+        "magazineSize": 12,
+        "fireIntervalMs": 285,
+        "soundProfile": "heavy"
+      }
     ],
     "requiresCameraReview": true
   },
@@ -35,4 +65,3 @@
     "asset-playground-qa-agent"
   ]
 }
-

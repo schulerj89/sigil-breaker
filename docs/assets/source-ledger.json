@@ -1,0 +1,71 @@
+{
+  "ledgerVersion": "1.0.0",
+  "updatedAt": "2026-07-04T04:20:00Z",
+  "sources": [
+    {
+      "sourceId": "kenney.blaster-kit.2-1",
+      "name": "Blaster Kit 2.1",
+      "author": "Kenney",
+      "sourceUrl": "https://kenney.nl/assets/blaster-kit",
+      "downloadUrl": "https://kenney.nl/media/pages/assets/blaster-kit/261d80a716-1753959510/kenney_blaster-kit_2.1.zip",
+      "downloadedAt": "2026-07-04T04:15:00Z",
+      "license": "Creative Commons Zero, CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseFile": "public/assets/weapons/kenney-blaster-kit/LICENSE.txt",
+      "commercialUseAllowed": true,
+      "redistributionAllowed": true,
+      "modificationAllowed": true,
+      "attributionRequired": false,
+      "notes": [
+        "Official Kenney asset page lists Creative Commons CC0.",
+        "The distributed license file states personal, educational, and commercial use are allowed.",
+        "Only selected GLB files, their shared texture, and previews are committed; the full source zip is not committed."
+      ],
+      "sharedFiles": [
+        {
+          "sourceFile": "Models/GLB format/Textures/colormap.png",
+          "path": "public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png",
+          "bytes": 10223,
+          "sha256": "4d0867c3c3c8c539106f91fbc0987d0e1b7d2811362d1daed593169c7d3b0fdc",
+          "gameUse": "weapon",
+          "loadGroup": "level-01-weapons"
+        }
+      ],
+      "assets": [
+        {
+          "assetId": "weapon.blaster.spark",
+          "sourceFile": "Models/GLB format/blaster-a.glb",
+          "path": "public/assets/weapons/kenney-blaster-kit/models/blaster-a.glb",
+          "previewPath": "public/assets/weapons/kenney-blaster-kit/previews/blaster-a.png",
+          "bytes": 44992,
+          "sha256": "d6d6fe0ec5baf21d7717449220799d45b95d2d663ace7b22612b255dc1a8b308",
+          "previewSha256": "f2c5429ac788196f6b1f4f1b576efb09a45aa095af8bbdfe1e76fd2d875651f5",
+          "gameUse": "weapon",
+          "loadGroup": "level-01-weapons"
+        },
+        {
+          "assetId": "weapon.blaster.bore",
+          "sourceFile": "Models/GLB format/blaster-h.glb",
+          "path": "public/assets/weapons/kenney-blaster-kit/models/blaster-h.glb",
+          "previewPath": "public/assets/weapons/kenney-blaster-kit/previews/blaster-h.png",
+          "bytes": 28380,
+          "sha256": "f124a4ffd990a248e801aa451ab7ec4abde71a18c121b571f9bb52206609b36b",
+          "previewSha256": "f5479ce17b0f282fbf33266a8ede8bc86d9ed5fa579c67bc7b4b6f89fcebe783",
+          "gameUse": "weapon",
+          "loadGroup": "level-01-weapons"
+        },
+        {
+          "assetId": "weapon.blaster.vault",
+          "sourceFile": "Models/GLB format/blaster-p.glb",
+          "path": "public/assets/weapons/kenney-blaster-kit/models/blaster-p.glb",
+          "previewPath": "public/assets/weapons/kenney-blaster-kit/previews/blaster-p.png",
+          "bytes": 80460,
+          "sha256": "2ffc94c6d8f12d45410012b13169988b70929c7e6ae7d4f868a188265210e49a",
+          "previewSha256": "98b28473af3abfd4e96a3dc3e7a030205617e9745f8329f63284cf4304779dc3",
+          "gameUse": "weapon",
+          "loadGroup": "level-01-weapons"
+        }
+      ]
+    }
+  ]
+}

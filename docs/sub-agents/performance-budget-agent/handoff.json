@@ -1,24 +1,40 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
-  "status": "not-started",
-  "updatedAt": "2026-07-04T00:00:00Z",
-  "summary": "Initial performance scaffold only; no Three.js metrics have been measured.",
+  "status": "needs-review",
+  "updatedAt": "2026-07-04T04:30:00Z",
+  "summary": "Weapon asset budget instrumentation is wired; manual dev-browser smoke passed asset checks but observed about 57 FPS.",
   "observations": [
-    "No Three.js renderer metrics API exists in the current MVP."
+    "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
+    "Debug memory metrics include weaponModelBytesLoaded.",
+    "Debug asset metrics now include weapon loadedAssetIds and assetLoadErrors.",
+    "Manual browser smoke at 844 x 390 observed about 57 FPS with VAULT active."
   ],
   "decisions": [
-    "Visible-browser landscape QA is required for 60 FPS validation.",
-    "Headless smoke should assert metrics and state, not final FPS."
+    "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
+    "Use npm run validate:assets to catch missing files, size drift, and hash drift.",
+    "Do a production-preview FPS comparison before importing heavier enemy or building assets."
   ],
-  "caughtIssues": [],
+  "caughtIssues": [
+    "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
+    "Initial weapon asset package missed the shared GLB texture dependency.",
+    "Dev-server smoke did not show a locked 60 FPS."
+  ],
   "risks": [
-    "Without a metrics API, future performance regressions will be hard to catch."
+    "Future larger weapon sets should not all preload by default without level/load-group gating.",
+    "The current 57 FPS dev smoke needs a production-preview comparison before increasing scene complexity."
   ],
   "blockers": [],
-  "artifacts": [],
+  "artifacts": [
+    "src/game/weapons/weaponSystem.ts",
+    "src/game/debug.ts",
+    "scripts/validate-assets.mjs"
+  ],
   "jsonForAgents": {
     "visibleFpsTarget": 60,
+    "visibleFpsObservedDev": 57,
+    "weaponSourcePayloadBytes": 164055,
+    "weaponLoadGroup": "level-01-weapons",
     "budgets": {
       "drawCallsMax": 90,
       "trianglesMax": 250000,
@@ -42,4 +58,3 @@
     "asset-playground-qa-agent"
   ]
 }
-

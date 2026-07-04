@@ -1,23 +1,22 @@
 # Observations: asset-playground-qa-agent
 
-Status: not run for implementation yet.
+Status: needs review after browser smoke.
 
 ## What It Saw
 
-- Initial scaffold pass only.
-- No asset playground exists yet.
-- No FPS external asset has been submitted for QA.
+- A dedicated asset playground still does not exist.
+- The first three weapon assets are loaded in the live test level through `WeaponSystem`.
+- Browser smoke should verify all three GLB models load, switch, and fire without asset errors.
 
 ## Decisions
 
-- Playground QA must happen before gameplay integration.
-- Screenshot artifacts should be stored under `artifacts/sub-agents/<run-id>/asset-playground-qa-agent/`.
+- Accept live-level smoke as a temporary substitute for this first tiny CC0 weapon slice.
+- Still require a proper playground before importing larger enemy, building, or animated weapon sets.
 
 ## Caught Issues
 
-- The future playground needs to be built before asset QA can run.
+- This slice reverses the ideal order by integrating before a standalone playground exists.
 
 ## Next Handoff Notes
 
-- First Three.js tooling slice should include a minimal asset playground before importing real assets.
-
+- Smoke QA should inspect `window.__SIGILBREAKER_DEBUG__` for loaded weapon asset IDs and errors.

@@ -1,23 +1,42 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "asset-playground-qa-agent",
-  "status": "not-started",
-  "updatedAt": "2026-07-04T00:00:00Z",
-  "summary": "Initial playground QA scaffold only; no playground or assets have been tested.",
+  "status": "needs-review",
+  "updatedAt": "2026-07-04T04:20:00Z",
+  "summary": "First weapon assets are integrated into the live test level, but a standalone asset playground still needs to be built.",
   "observations": [
-    "The future Three.js asset playground has not been implemented."
+    "The live test level can temporarily validate GLB load, weapon switching, and shoot feedback.",
+    "window.__SIGILBREAKER_DEBUG__ now exposes loadedAssetIds, assetLoadErrors, and weapon state.",
+    "A dedicated orbit/first-person asset playground remains missing."
   ],
   "decisions": [
-    "Assets must pass playground QA before gameplay use.",
-    "Playground screenshots should be stable and named for comparison."
+    "Use live-level smoke for the three initial CC0 weapon assets only.",
+    "Require a dedicated asset playground before larger asset-library imports.",
+    "Keep screenshot artifact guidance unchanged for future playground QA."
   ],
-  "caughtIssues": [],
+  "caughtIssues": [
+    "No standalone playground exists for scale grid, material inspection, or isolated model screenshots."
+  ],
   "risks": [
-    "Skipping playground QA can hide scale, material, animation, and mobile framing failures until gameplay integration."
+    "Gameplay camera framing can hide model scale and material issues that an asset playground would reveal."
   ],
   "blockers": [],
-  "artifacts": [],
+  "artifacts": [
+    "src/game/weapons/weaponSystem.ts",
+    "src/game/debug.ts"
+  ],
   "jsonForAgents": {
+    "temporaryLiveLevelQa": true,
+    "assetIdsToSmoke": [
+      "weapon.blaster.spark",
+      "weapon.blaster.bore",
+      "weapon.blaster.vault"
+    ],
+    "debugAssertions": [
+      "assetLoadErrors.length === 0",
+      "loadedAssetIds includes all three weapon asset IDs",
+      "weapon.shotCount increments after firing"
+    ],
     "requiredPlaygroundFeatures": [
       "registryOrPathLoader",
       "orbitCamera",
@@ -37,4 +56,3 @@
     "level-kit-curator"
   ]
 }
-

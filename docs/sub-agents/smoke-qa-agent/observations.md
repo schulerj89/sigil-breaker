@@ -1,23 +1,24 @@
 # Observations: smoke-qa-agent
 
-Status: not run for implementation yet.
+Status: complete for first weapon intake.
 
 ## What It Saw
 
-- Initial scaffold pass only.
-- Current repo has Vitest tests but no future Playwright smoke route.
-- Three.js FPS smoke testing needs debug hooks and mobile landscape screenshots.
+- Ran in-browser smoke at an 844 x 390 landscape viewport against the local dev server.
+- Verified all three weapon asset IDs load, the weapon selector changes active state, and the fire button decrements ammo/increments shot count.
+- Verified the shared Kenney texture URL returns 200 and the debug API reports no asset load errors.
+- Captured a landscape screenshot with HUD, d-pad, weapon tray, VAULT viewmodel, and fire button visible.
 
 ## Decisions
 
-- Smoke QA should be fast and block obvious broken builds.
-- Full playthrough QA remains separate.
+- Keep this as manual browser smoke for now.
+- Add automated browser smoke once the test harness is introduced.
 
 ## Caught Issues
 
-- No browser smoke tests exist for the future FPS rewrite.
+- Initial smoke caught a missing `Textures/colormap.png` dependency from the GLBs; the texture is now committed and validated.
+- Visible dev-browser FPS reported around 57 FPS during smoke, so production profiling should stay on the performance agent backlog.
 
 ## Next Handoff Notes
 
-- Add smoke tests after the first Three.js boot canvas and debug API exist.
-
+- Next smoke slice should automate nonblank canvas, no asset failures, and weapon state interactions.

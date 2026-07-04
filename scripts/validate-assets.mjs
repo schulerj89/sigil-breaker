@@ -1,0 +1,171 @@
+#!/usr/bin/env node
+/* global console, process */
+
+import { createHash } from 'node:crypto';
+import { readFile, stat } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const scriptDir = path.dirname(fileURLToPath(import.meta.url));
+const repoRoot = path.resolve(scriptDir, '..');
+const ledgerPath = path.join(repoRoot, 'docs', 'assets', 'source-ledger.json');
+const maxInitialWeaponPayloadBytes = 1_000_000;
+
+const ledger = JSON.parse(await readFile(ledgerPath, 'utf8'));
+const result = await validateAssetLedger(ledger);
+
+if (result.errors.length > 0) {
+  console.error(`Asset QA failed for ${ledgerPath}`);
+  for (const error of result.errors) {
+    console.error(`- ${error}`);
+  }
+  process.exitCode = 1;
+} else {
+  console.log(
+    [
+      'Asset QA passed',
+      `${result.sources} source(s)`,
+      `${result.assets} asset(s)`,
+      `${result.levelOneWeaponBytes}B level-01 weapon payload`,
+    ].join(' | '),
+  );
+}
+
+async function validateAssetLedger(assetLedger) {
+  const errors = [];
+  const assetIds = new Set();
+  let assetCount = 0;
+  let levelOneWeaponBytes = 0;
+
+  if (!Array.isArray(assetLedger.sources)) {
+    return {
+      errors: ['Ledger must include a sources array.'],
+      sources: 0,
+      assets: 0,
+      levelOneWeaponBytes: 0,
+    };
+  }
+
+  for (const source of assetLedger.sources) {
+    if (!source.sourceId || typeof source.sourceId !== 'string') {
+      errors.push('Source is missing a sourceId.');
+    }
+    if (source.license !== 'Creative Commons Zero, CC0') {
+      errors.push(`${source.sourceId} must be CC0 for the current external asset intake gate.`);
+    }
+    if (source.attributionRequired !== false) {
+      errors.push(`${source.sourceId} must not require attribution for MVP weapon assets.`);
+    }
+    if (source.commercialUseAllowed !== true || source.redistributionAllowed !== true) {
+      errors.push(`${source.sourceId} must allow commercial use and redistribution.`);
+    }
+
+    await expectCommittedFile(source.licenseFile, errors, `${source.sourceId} license file`);
+
+    for (const sharedFile of source.sharedFiles ?? []) {
+      if (sharedFile.gameUse === 'weapon' && sharedFile.loadGroup === 'level-01-weapons') {
+        levelOneWeaponBytes += Number(sharedFile.bytes) || 0;
+      }
+
+      await expectCommittedFile(sharedFile.path, errors, `${source.sourceId} shared file`);
+      await expectHash(sharedFile.path, sharedFile.sha256, errors, `${source.sourceId} shared file`);
+      await expectByteSize(sharedFile.path, sharedFile.bytes, errors, `${source.sourceId} shared file`);
+    }
+
+    if (!Array.isArray(source.assets) || source.assets.length === 0) {
+      errors.push(`${source.sourceId} must list at least one selected asset.`);
+      continue;
+    }
+
+    for (const asset of source.assets) {
+      assetCount++;
+      if (assetIds.has(asset.assetId)) {
+        errors.push(`Duplicate assetId ${asset.assetId}.`);
+      }
+      assetIds.add(asset.assetId);
+
+      if (asset.gameUse === 'weapon' && asset.loadGroup === 'level-01-weapons') {
+        levelOneWeaponBytes += Number(asset.bytes) || 0;
+      }
+
+      await expectCommittedFile(asset.path, errors, `${asset.assetId} model`);
+      await expectCommittedFile(asset.previewPath, errors, `${asset.assetId} preview`);
+      await expectHash(asset.path, asset.sha256, errors, `${asset.assetId} model`);
+      await expectHash(asset.previewPath, asset.previewSha256, errors, `${asset.assetId} preview`);
+      await expectByteSize(asset.path, asset.bytes, errors, `${asset.assetId} model`);
+    }
+  }
+
+  if (levelOneWeaponBytes > maxInitialWeaponPayloadBytes) {
+    errors.push(
+      `level-01 weapon payload ${levelOneWeaponBytes}B exceeds ${maxInitialWeaponPayloadBytes}B budget.`,
+    );
+  }
+
+  return {
+    errors,
+    sources: assetLedger.sources.length,
+    assets: assetCount,
+    levelOneWeaponBytes,
+  };
+}
+
+async function expectCommittedFile(repoRelativePath, errors, label) {
+  if (!repoRelativePath || typeof repoRelativePath !== 'string') {
+    errors.push(`${label} is missing a path.`);
+    return;
+  }
+
+  const resolvedPath = resolveRepoPath(repoRelativePath);
+  try {
+    const fileStat = await stat(resolvedPath);
+    if (!fileStat.isFile()) {
+      errors.push(`${label} path is not a file: ${repoRelativePath}`);
+    }
+  } catch {
+    errors.push(`${label} is missing: ${repoRelativePath}`);
+  }
+}
+
+async function expectHash(repoRelativePath, expectedHash, errors, label) {
+  if (!expectedHash || typeof expectedHash !== 'string') {
+    errors.push(`${label} is missing a sha256 hash.`);
+    return;
+  }
+
+  try {
+    const fileBuffer = await readFile(resolveRepoPath(repoRelativePath));
+    const actualHash = createHash('sha256').update(fileBuffer).digest('hex');
+    if (actualHash !== expectedHash) {
+      errors.push(`${label} sha256 mismatch: expected ${expectedHash}, found ${actualHash}.`);
+    }
+  } catch {
+    errors.push(`${label} could not be hashed: ${repoRelativePath}`);
+  }
+}
+
+async function expectByteSize(repoRelativePath, expectedBytes, errors, label) {
+  if (!Number.isInteger(expectedBytes) || expectedBytes <= 0) {
+    errors.push(`${label} is missing a positive byte count.`);
+    return;
+  }
+
+  try {
+    const fileStat = await stat(resolveRepoPath(repoRelativePath));
+    if (fileStat.size !== expectedBytes) {
+      errors.push(`${label} size mismatch: expected ${expectedBytes}B, found ${fileStat.size}B.`);
+    }
+  } catch {
+    errors.push(`${label} size could not be checked: ${repoRelativePath}`);
+  }
+}
+
+function resolveRepoPath(repoRelativePath) {
+  const resolvedPath = path.resolve(repoRoot, repoRelativePath);
+  const relativePath = path.relative(repoRoot, resolvedPath);
+  if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+    throw new Error(`Asset path escapes repo root: ${repoRelativePath}`);
+  }
+
+  return resolvedPath;
+}

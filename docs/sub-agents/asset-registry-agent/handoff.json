@@ -1,35 +1,44 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "asset-registry-agent",
-  "status": "not-started",
-  "updatedAt": "2026-07-04T00:00:00Z",
-  "summary": "Initial registry scaffold only; no FPS registry files exist.",
+  "status": "complete",
+  "updatedAt": "2026-07-04T04:20:00Z",
+  "summary": "Registered the first three external weapon assets through a source ledger and runtime weapon manifest.",
   "observations": [
-    "The current asset manifest is MVP-specific.",
-    "Future FPS assets need source, license, load group, fallback, and QA metadata."
+    "docs/assets/source-ledger.json records source, license, hashes, byte counts, and load group.",
+    "src/game/weapons/weaponManifest.ts exposes the runtime weapon definitions for the selector and loader.",
+    "The first weapon payload is 164055B for GLB model data plus the shared color texture, before previews and metadata."
   ],
   "decisions": [
-    "Use stable namespaced asset IDs.",
-    "Do not require a full-game preload for level assets."
+    "Use level-01-weapons as the first load group.",
+    "Keep source/provenance metadata outside runtime code.",
+    "Add npm run validate:assets as the first file/hash registry gate."
   ],
-  "caughtIssues": [],
+  "caughtIssues": [
+    "A generalized registry/playground UI still does not exist."
+  ],
   "risks": [
-    "A weak registry can make memory and streaming QA impossible."
+    "Runtime and ledger metadata can drift if new imports bypass validate-assets."
   ],
   "blockers": [],
-  "artifacts": [],
+  "artifacts": [
+    "docs/assets/source-ledger.json",
+    "src/game/weapons/weaponManifest.ts",
+    "scripts/validate-assets.mjs"
+  ],
   "jsonForAgents": {
-    "idPatternExamples": [
-      "level01.building.watchtower.01",
-      "enemy.grunt.urban.01",
-      "weapon.rifle.burst.01",
-      "powerup.damage.common.01"
+    "registeredAssetIds": [
+      "weapon.blaster.spark",
+      "weapon.blaster.bore",
+      "weapon.blaster.vault"
     ],
-    "requiredRegistryStatusFields": [
-      "licensePass",
-      "playgroundPass",
-      "mobileBudgetPass"
-    ]
+    "loadGroup": "level-01-weapons",
+    "sharedFiles": [
+      "public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png"
+    ],
+    "sourceLedger": "docs/assets/source-ledger.json",
+    "runtimeManifest": "src/game/weapons/weaponManifest.ts",
+    "validationCommand": "npm run validate:assets"
   },
   "nextAgents": [
     "gltf-optimization-agent",
@@ -37,4 +46,3 @@
     "performance-budget-agent"
   ]
 }
-

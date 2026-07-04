@@ -1,23 +1,23 @@
 # Observations: memory-lifecycle-agent
 
-Status: not run for implementation yet.
+Status: in progress after first weapon intake.
 
 ## What It Saw
 
-- Initial scaffold pass only.
-- The current MVP has no Three.js GPU resource lifecycle to review.
-- Future asset streaming and scene transitions will need explicit disposal rules.
+- The repo now uses `GLTFLoader` for three first-person weapon models.
+- `WeaponSystem.dispose()` removes event listeners, closes the audio context, removes the viewmodel root, and disposes loaded model meshes/materials/textures.
+- Detached loaded weapon models are explicitly disposed during teardown rather than relying only on the currently attached scene graph.
 
 ## Decisions
 
-- Reset-loop QA is required before asset-heavy scenes are accepted.
-- Shared resources need clear ownership or reference counting.
+- Keep loaded weapon ownership inside `WeaponSystem` for now.
+- Run reset-loop QA before adding larger weapon sets, enemies, or level-kit GLBs.
 
 ## Caught Issues
 
-- No future memory debug counters exist yet.
+- No automated reset-loop memory test exists yet.
+- Shared GLB texture dependencies are present; future shared resource handling may need reference counting if assets are split across systems.
 
 ## Next Handoff Notes
 
-- First Three.js slice should expose renderer memory counters and reset-loop hooks.
-
+- Next lifecycle pass should automate repeated create/dispose cycles and assert geometry/texture counts return to baseline.

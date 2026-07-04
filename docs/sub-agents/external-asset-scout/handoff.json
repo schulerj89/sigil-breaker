@@ -1,36 +1,45 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "external-asset-scout",
-  "status": "not-started",
-  "updatedAt": "2026-07-04T00:00:00Z",
-  "summary": "Initial source-scout scaffold only; no candidate assets have been selected.",
+  "status": "complete",
+  "updatedAt": "2026-07-04T04:20:00Z",
+  "summary": "Selected Kenney Blaster Kit 2.1 as the first CC0 external weapon source for three test-level guns.",
   "observations": [
-    "No FPS level, enemy, weapon, or HUD asset brief exists yet."
+    "Official Kenney source lists Blaster Kit 2.1 as Creative Commons CC0.",
+    "The kit includes GLB models and preview images suitable for a quick first-person weapon selector.",
+    "Only blaster-a, blaster-h, and blaster-p were imported for the first payload."
   ],
   "decisions": [
-    "Discovery handoffs must not be treated as license approval.",
-    "Prefer CC0 sources before mixed-license sources."
+    "Use Kenney Blaster Kit 2.1 for the first weapon slice.",
+    "Defer larger gun-pack imports until a level-specific roster needs them.",
+    "Keep the external-source gate CC0-only for this early mobile prototype."
   ],
-  "caughtIssues": [],
+  "caughtIssues": [
+    "No enemy or environment asset brief exists yet, so weapon selection stayed generic sci-fi."
+  ],
   "risks": [
-    "Free asset pages often still have redistribution or attribution obligations."
+    "The stylized sci-fi look may need art-direction review once the first level theme is set."
   ],
   "blockers": [],
-  "artifacts": [],
+  "artifacts": [
+    "docs/assets/source-ledger.json",
+    "public/assets/weapons/kenney-blaster-kit/source.json"
+  ],
   "jsonForAgents": {
-    "candidateFields": [
-      "sourceUrl",
-      "author",
-      "licenseClaim",
-      "assetType",
-      "intendedUse",
-      "riskNotes"
+    "selectedSourceId": "kenney.blaster-kit.2-1",
+    "selectedAssetIds": [
+      "weapon.blaster.spark",
+      "weapon.blaster.bore",
+      "weapon.blaster.vault"
     ],
-    "licenseReviewRequired": true
+    "licenseReviewRequired": false,
+    "futureCandidates": [
+      "quaternius.ultimate-guns-pack",
+      "poly-pizza.ultimate-guns-pack"
+    ]
   },
   "nextAgents": [
     "license-provenance-curator",
     "asset-registry-agent"
   ]
 }
-

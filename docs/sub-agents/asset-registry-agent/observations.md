@@ -1,22 +1,23 @@
 # Observations: asset-registry-agent
 
-Status: not run for implementation yet.
+Status: complete for first weapon intake.
 
 ## What It Saw
 
-- Initial scaffold pass only.
-- The old Phaser asset manifest has been removed.
-- Future FPS registry needs metadata for Three.js assets, source records, and streaming.
+- Added the first FPS external asset ledger at `docs/assets/source-ledger.json`.
+- Added source-local metadata at `public/assets/weapons/kenney-blaster-kit/source.json`.
+- Weapon runtime manifest lives in `src/game/weapons/weaponManifest.ts` for the three first-person test guns.
 
 ## Decisions
 
-- Future FPS assets need stable IDs and load groups.
-- Registry entries require license and playground QA status.
+- Use stable IDs: `weapon.blaster.spark`, `weapon.blaster.bore`, and `weapon.blaster.vault`.
+- Assign all three to `level-01-weapons` for the first test-level preload.
+- Keep path, byte size, and SHA-256 in source ledger until a fuller asset registry lands.
 
 ## Caught Issues
 
-- No FPS asset registry implementation exists yet.
+- This is a minimal runtime manifest, not the final generalized asset registry.
 
 ## Next Handoff Notes
 
-- Build a new FPS asset registry when the first external asset slice begins.
+- Gltf optimization and future streaming agents should use `docs/assets/source-ledger.json` plus `src/game/weapons/weaponManifest.ts`.

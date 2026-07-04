@@ -1,23 +1,50 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
-  "status": "not-started",
-  "updatedAt": "2026-07-04T00:00:00Z",
-  "summary": "Initial smoke QA scaffold only; no FPS smoke route exists.",
+  "status": "complete",
+  "updatedAt": "2026-07-04T04:30:00Z",
+  "summary": "Manual browser smoke passed for the first weapon selector/fire loop after fixing the missing shared GLB texture.",
   "observations": [
-    "The current repo has no future Three.js Playwright smoke coverage."
+    "Local browser smoke used an 844 x 390 landscape viewport.",
+    "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
+    "VAULT selector click updated active weapon state and HUD label.",
+    "Fire button click changed VAULT ammo from 12 to 11 and incremented shotCount to 1.",
+    "Shared texture public URL returned 200 with image/png."
   ],
   "decisions": [
-    "Smoke QA should verify boot, nonblank canvas, debug API, console, network, and mobile layout.",
+    "Keep manual browser smoke for this slice.",
+    "Automate smoke once browser test harness work starts.",
     "Full playthrough QA remains a separate gate."
   ],
-  "caughtIssues": [],
+  "caughtIssues": [
+    "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
+    "Dev-browser FPS hovered around 57 during smoke rather than a locked 60."
+  ],
   "risks": [
-    "Without smoke tests, blank canvas and asset 404 failures can reach later QA."
+    "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
+    "FPS should be checked in production preview before heavier asset imports."
   ],
   "blockers": [],
-  "artifacts": [],
+  "artifacts": [
+    "public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png",
+    "scripts/validate-assets.mjs"
+  ],
   "jsonForAgents": {
+    "latestManualSmoke": {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "loadedAssetIds": [
+        "weapon.blaster.bore",
+        "weapon.blaster.spark",
+        "weapon.blaster.vault"
+      ],
+      "assetLoadErrors": 0,
+      "weaponSwitchTested": "weapon.blaster.vault",
+      "shotCountAfterFire": 1,
+      "fpsObserved": 57
+    },
     "requiredSmokeAssertions": [
       "appBoots",
       "webglCanvasNonBlank",
@@ -38,4 +65,3 @@
     "performance-budget-agent"
   ]
 }
-

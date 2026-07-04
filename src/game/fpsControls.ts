@@ -115,7 +115,7 @@ export class FpsControls {
       return;
     }
 
-    if (target.closest('[data-action-button]')) {
+    if (target.closest('[data-ui-control]')) {
       return;
     }
 
@@ -273,4 +273,3 @@ function clamp(value: number, min: number, max: number): number {
 function roundMetric(value: number): number {
   return Math.round(value * 100) / 100;
 }
-
