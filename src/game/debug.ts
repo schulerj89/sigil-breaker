@@ -1,5 +1,6 @@
 import type { WebGLRenderer } from 'three';
 import { DEBUG_SCENE_ID, PERFORMANCE_BUDGETS, type CameraMode } from './config';
+import { FOUNDATION_ENVIRONMENT_TEXTURE_DECODED_BYTES } from './foundationLevelRuntime';
 import type { FpsControllerSnapshot } from './fpsControls';
 import {
   FOUNDATION_LEVEL_MAP,
@@ -97,6 +98,8 @@ export function createDebugApi(
       const levelStreamingSnapshot = getLevelStreamingSnapshot();
       const weaponSnapshot = getWeaponSnapshot();
       const zoomGuardSnapshot = getZoomGuardSnapshot();
+      const loadedAssetIds = [...levelStreamingSnapshot.loadedTextureAssetIds, ...weaponSnapshot.loadedAssetIds].sort();
+      const assetLoadErrors = [...levelStreamingSnapshot.assetLoadErrors, ...weaponSnapshot.assetLoadErrors];
 
       return {
         buildId: __SIGILBREAKER_BUILD_ID__,
@@ -134,14 +137,14 @@ export function createDebugApi(
         },
         memoryMetrics: {
           jsHeapMb: readHeapMb(),
-          decodedTextureMbEstimate: 0,
+          decodedTextureMbEstimate: roundMetric(FOUNDATION_ENVIRONMENT_TEXTURE_DECODED_BYTES / 1_048_576),
           levelRuntimeBytesEstimate: levelStreamingSnapshot.runtimeBytesEstimate,
           chunkInstanceMatrixBytes: levelStreamingSnapshot.instanceMatrixBytes,
           weaponModelBytesLoaded: weaponSnapshot.modelBytesLoaded,
-          loadedAssetIds: weaponSnapshot.loadedAssetIds,
+          loadedAssetIds,
           activeSceneRoots: 1 + levelStreamingSnapshot.activeChunks,
         },
-        assetLoadErrors: weaponSnapshot.assetLoadErrors,
+        assetLoadErrors,
         weapon: weaponSnapshot,
         controls: {
           orientationLock: 'landscape',
@@ -158,7 +161,7 @@ export function createDebugApi(
           movePointerActive: controllerSnapshot.controls.movePointerActive,
           moveVector: controllerSnapshot.controls.moveVector,
           keyboardVector: controllerSnapshot.controls.keyboardVector,
-          buttons: ['hold-fire-aim', 'weapon-cycle', 'weapon-select'],
+          buttons: ['hold-fire-aim', 'weapon-select'],
         },
         budgets: PERFORMANCE_BUDGETS,
       };

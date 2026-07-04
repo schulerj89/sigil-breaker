@@ -10,8 +10,8 @@ Status: complete after full-surface mobile zoom guard and hold-fire combat contr
 - The previous prevention was scoped mostly to UI controls, leaving full-canvas double taps, two-finger pinch movement, WebKit gesture events, and ctrl-wheel pinch emulation as possible page zoom paths.
 - The fire button is now a reticle icon that acts on hold: immediate first shot, continued fire, camera zoom, and weapon-centering pose.
 - The held fire button can also own a look pointer at reduced sensitivity so one right thumb can aim and fire.
-- A smaller gun-icon button cycles weapons without requiring the weapon tray.
-- Browser smoke now asserts the reticle/gun icons are visible, controls fit the viewport, hold-fire state releases, and weapon cycling updates debug state.
+- The smaller gun-icon weapon-cycle button was removed; weapon switching remains through the bottom weapon tray.
+- Browser smoke now asserts the reticle icon is visible, the removed weapon-cycle selector is absent, controls fit the viewport, and hold-fire state releases.
 
 ## Decisions
 
@@ -23,7 +23,7 @@ Status: complete after full-surface mobile zoom guard and hold-fire combat contr
 - Keep active movement and look pointer IDs stable; later non-UI touches in those zones are ignored instead of overwriting the current pointer.
 - Let the fire button participate in look only when no other look pointer is active.
 - Keep fire-drag look sensitivity lower than the normal right-side look zone.
-- Put weapon cycling on a separate small button so holding fire never changes weapons.
+- Keep weapon switching in the bottom tray so holding fire never changes weapons.
 
 ## Caught Issues
 
@@ -35,4 +35,4 @@ Status: complete after full-surface mobile zoom guard and hold-fire combat contr
 
 - Continue testing simultaneous move, aim, and fire on physical mobile Safari/Chrome when available.
 - Physical iOS Safari should specifically retry two-finger pinch while one finger is on the movement stick and another finger is in the look zone.
-- Physical-device smoke should also hold the fire button, drag to track a target, release, and then cycle weapons with the gun-icon button.
+- Physical-device smoke should also hold the fire button, drag to track a target, release, and then switch weapons with the bottom tray.

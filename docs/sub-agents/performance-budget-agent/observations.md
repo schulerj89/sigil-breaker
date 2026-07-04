@@ -1,6 +1,6 @@
 # Observations: performance-budget-agent
 
-Status: needs review after input/collision/effect-pose/entry-splitter, body-collision resolver, pitch shot math, zoom guard, hold-fire aim, and MVP browser-smoke pass.
+Status: needs review after input/collision/effect-pose/entry-splitter, body-collision resolver, pitch shot math, zoom guard, hold-fire aim, foundation textures, and MVP browser-smoke pass.
 
 ## What It Saw
 
@@ -29,10 +29,14 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Taller foundation walls reuse the existing instanced wall geometry path and add no new draw calls or textures.
 - Larger gun scale and per-weapon aim poses are manifest/math changes; they add no new model payload.
 - Hold-fire aim adds one camera FOV blend, one viewmodel pose blend, and cadence-gated shooting while held.
-- The reticle and gun-cycle icons are CSS-only DOM controls and add no WebGL resources.
-- Latest production JS chunk is about 650.77 kB minified and still triggers the known Vite large chunk warning.
-- Latest `npm run validate:browser` passed all five landscape viewports in 25.7 seconds with two workers.
+- The reticle icon is a CSS-only DOM control and adds no WebGL resources; the extra gun-cycle icon button was removed.
+- Latest production JS chunk is about 651.34 kB minified and still triggers the known Vite large chunk warning.
+- Latest `npm run validate:browser` passed all five landscape viewports in 41.2 seconds with two workers and the QA restart loop.
 - Browser smoke now asserts render calls, triangles, geometries, and textures against the debug budget object.
+- The foundation texture pass adds three 1024 x 1024 PNG textures totaling 16588B source payload and about 12MB decoded RGBA estimate.
+- The full-level roof adds one PlaneGeometry, one MeshBasicMaterial, and one draw call.
+- The foundation floor, wall, and roof use unlit textured materials so the prototype colors stay visible without extra lighting work.
+- The heavy browser smoke project now restarts the app five times through the QA restart hook and rechecks loaded assets plus renderer budgets each time.
 
 ## Decisions
 
@@ -47,6 +51,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Keep MVP smoke focused on one full interaction route plus all-viewport layout/boot checks until the game grows beyond prototype scope.
 - Keep hold-fire pose/FOV math in scalar helpers and existing objects instead of adding extra scene graph probes.
 - Use the existing renderer budget counters as the MVP gate until visible-device FPS profiling is repeated.
+- Keep the roof as one shared plane and keep floor/wall/roof textures shared by material to avoid per-chunk texture duplication.
 
 ## Caught Issues
 
@@ -72,3 +77,5 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Future mobile profiling should check that pinch/double-tap guard listeners do not interfere with simultaneous move/look/fire pointer throughput.
 - Restore broader per-viewport interaction routes before beta/release gates or when a viewport-specific gameplay issue is suspected.
 - Future profiling should measure sustained held fire on physical mobile hardware, not just one-shot smoke.
+- Future profiling should compare visible FPS with the roof on/off if enclosure or texture fill-rate becomes a concern.
+- Memory-lifecycle QA should still add a deeper heap/GPU leak pass; the current restart smoke only watches debug renderer counters.

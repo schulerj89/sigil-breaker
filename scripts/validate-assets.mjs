@@ -2,14 +2,18 @@
 /* global console, process */
 
 import { createHash } from 'node:crypto';
+import { execFile } from 'node:child_process';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
+import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, '..');
 const ledgerPath = path.join(repoRoot, 'docs', 'assets', 'source-ledger.json');
 const maxInitialWeaponPayloadBytes = 1_000_000;
+const maxInitialEnvironmentPayloadBytes = 1_000_000;
+const execFileAsync = promisify(execFile);
 
 const ledger = JSON.parse(await readFile(ledgerPath, 'utf8'));
 const result = await validateAssetLedger(ledger);
@@ -27,6 +31,7 @@ if (result.errors.length > 0) {
       `${result.sources} source(s)`,
       `${result.assets} asset(s)`,
       `${result.levelOneWeaponBytes}B level-01 weapon payload`,
+      `${result.foundationEnvironmentBytes}B foundation environment payload`,
     ].join(' | '),
   );
 }
@@ -36,6 +41,7 @@ async function validateAssetLedger(assetLedger) {
   const assetIds = new Set();
   let assetCount = 0;
   let levelOneWeaponBytes = 0;
+  let foundationEnvironmentBytes = 0;
 
   if (!Array.isArray(assetLedger.sources)) {
     return {
@@ -43,6 +49,7 @@ async function validateAssetLedger(assetLedger) {
       sources: 0,
       assets: 0,
       levelOneWeaponBytes: 0,
+      foundationEnvironmentBytes: 0,
     };
   }
 
@@ -54,7 +61,7 @@ async function validateAssetLedger(assetLedger) {
       errors.push(`${source.sourceId} must be CC0 for the current external asset intake gate.`);
     }
     if (source.attributionRequired !== false) {
-      errors.push(`${source.sourceId} must not require attribution for MVP weapon assets.`);
+      errors.push(`${source.sourceId} must not require attribution for MVP assets.`);
     }
     if (source.commercialUseAllowed !== true || source.redistributionAllowed !== true) {
       errors.push(`${source.sourceId} must allow commercial use and redistribution.`);
@@ -66,15 +73,22 @@ async function validateAssetLedger(assetLedger) {
       if (sharedFile.gameUse === 'weapon' && sharedFile.loadGroup === 'level-01-weapons') {
         levelOneWeaponBytes += Number(sharedFile.bytes) || 0;
       }
+      if (sharedFile.gameUse === 'environment' && sharedFile.loadGroup === 'foundation-environment') {
+        foundationEnvironmentBytes += Number(sharedFile.bytes) || 0;
+      }
 
       await expectCommittedFile(sharedFile.path, errors, `${source.sourceId} shared file`);
       await expectHash(sharedFile.path, sharedFile.sha256, errors, `${source.sourceId} shared file`);
       await expectByteSize(sharedFile.path, sharedFile.bytes, errors, `${source.sourceId} shared file`);
     }
 
-    if (!Array.isArray(source.assets) || source.assets.length === 0) {
-      errors.push(`${source.sourceId} must list at least one selected asset.`);
+    if (!Array.isArray(source.assets)) {
+      errors.push(`${source.sourceId} must include an assets array.`);
       continue;
+    }
+
+    if (source.assets.length === 0 && (source.sharedFiles ?? []).length === 0) {
+      errors.push(`${source.sourceId} must list at least one selected asset or shared file.`);
     }
 
     for (const asset of source.assets) {
@@ -87,12 +101,26 @@ async function validateAssetLedger(assetLedger) {
       if (asset.gameUse === 'weapon' && asset.loadGroup === 'level-01-weapons') {
         levelOneWeaponBytes += Number(asset.bytes) || 0;
       }
+      if (asset.gameUse === 'environment' && asset.loadGroup === 'foundation-environment') {
+        foundationEnvironmentBytes += Number(asset.bytes) || 0;
+      }
 
-      await expectCommittedFile(asset.path, errors, `${asset.assetId} model`);
+      await expectCommittedFile(asset.path, errors, `${asset.assetId} file`);
+      await expectHash(asset.path, asset.sha256, errors, `${asset.assetId} file`);
+      await expectByteSize(asset.path, asset.bytes, errors, `${asset.assetId} file`);
+
+      if (asset.assetType === 'texture') {
+        if (asset.sourceSha256 !== asset.sha256) {
+          errors.push(`${asset.assetId} sourceSha256 must match sha256 for unmodified copied textures.`);
+        }
+        if (asset.optimizedSha256 !== asset.sha256) {
+          errors.push(`${asset.assetId} optimizedSha256 must match sha256 for the committed texture.`);
+        }
+        continue;
+      }
+
       await expectCommittedFile(asset.previewPath, errors, `${asset.assetId} preview`);
-      await expectHash(asset.path, asset.sha256, errors, `${asset.assetId} model`);
       await expectHash(asset.previewPath, asset.previewSha256, errors, `${asset.assetId} preview`);
-      await expectByteSize(asset.path, asset.bytes, errors, `${asset.assetId} model`);
     }
   }
 
@@ -101,12 +129,18 @@ async function validateAssetLedger(assetLedger) {
       `level-01 weapon payload ${levelOneWeaponBytes}B exceeds ${maxInitialWeaponPayloadBytes}B budget.`,
     );
   }
+  if (foundationEnvironmentBytes > maxInitialEnvironmentPayloadBytes) {
+    errors.push(
+      `foundation environment payload ${foundationEnvironmentBytes}B exceeds ${maxInitialEnvironmentPayloadBytes}B budget.`,
+    );
+  }
 
   return {
     errors,
     sources: assetLedger.sources.length,
     assets: assetCount,
     levelOneWeaponBytes,
+    foundationEnvironmentBytes,
   };
 }
 
@@ -124,6 +158,13 @@ async function expectCommittedFile(repoRelativePath, errors, label) {
     }
   } catch {
     errors.push(`${label} is missing: ${repoRelativePath}`);
+    return;
+  }
+
+  try {
+    await execFileAsync('git', ['ls-files', '--error-unmatch', '--', repoRelativePath], { cwd: repoRoot });
+  } catch {
+    errors.push(`${label} is not tracked by git: ${repoRelativePath}`);
   }
 }
 

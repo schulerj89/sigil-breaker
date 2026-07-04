@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "touch-controls-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T14:45:00Z",
-  "summary": "Mobile touch controls exist, the full game surface guards double-tap, pinch, WebKit gesture, and ctrl-wheel zoom paths, and the combat controls now support hold-fire aim/zoom plus a separate weapon-cycle button.",
+  "updatedAt": "2026-07-04T15:20:00Z",
+  "summary": "Mobile touch controls exist, the full game surface guards double-tap, pinch, WebKit gesture, and ctrl-wheel zoom paths, and the combat controls now support hold-fire aim/zoom with weapon switching through the bottom tray.",
   "observations": [
     "The prototype has a left movement stick, right look zone, center weapon tray, and one right-side fire button.",
     "Fast fire input now prevents default on pointerup, click, dblclick, and touchend for UI controls.",
@@ -13,8 +13,8 @@
     "The debug API reports viewportScale plus prevented zoom gesture, multi-touch start/move, wheel zoom, and double-tap counters.",
     "The fire button is now a reticle icon that holds to fire, zoom, and center the weapon.",
     "The held fire button can own a reduced-sensitivity look pointer when no other look pointer is active.",
-    "A smaller gun-icon button cycles weapons without using the bottom tray.",
-    "Browser smoke asserts control fit, reticle/gun icon visibility, hold-fire release, and weapon-cycle debug state."
+    "The smaller gun-icon weapon-cycle button was removed; weapon switching remains through the bottom weapon tray.",
+    "Browser smoke asserts control fit, reticle visibility, absence of the removed weapon-cycle selector, and hold-fire release."
   ],
   "decisions": [
     "Left thumb zone owns movement.",
@@ -24,7 +24,7 @@
     "Zoom prevention should call preventDefault without stopPropagation so gameplay pointer handlers keep receiving movement, aim, and fire input.",
     "Fire-button drag should aim only when no other look pointer is already active.",
     "Keep fire-drag look sensitivity lower than normal look sensitivity.",
-    "Weapon cycling should remain separate from hold-fire so pressure on fire cannot change weapons."
+    "Weapon switching should remain separate from hold-fire so pressure on fire cannot change weapons."
   ],
   "caughtIssues": [
     "The viewport tag needed explicit minimum and maximum scale values to help prevent mobile double-tap zoom.",
@@ -58,7 +58,6 @@
     ],
     "combatSelectors": {
       "fire": "data-fire-button",
-      "weaponCycle": "data-weapon-cycle-button",
       "weaponSelect": "data-weapon-button",
       "moveStick": "data-move-stick"
     },

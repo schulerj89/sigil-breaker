@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "mobile-fps-game-feel-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T14:45:00Z",
-  "summary": "Basic mobile FPS weapon feel now includes faster movement, body-only resolved player collision, wall-shot detection, full-surface zoom-safe touch input, visual weapon wall clearance, wider structural entries, splitter-post clearance, shared shot-effect pose alignment, and hold-fire ADS-style zoom/centering.",
+  "updatedAt": "2026-07-04T15:20:00Z",
+  "summary": "Basic mobile FPS weapon feel now includes faster movement, body-only resolved player collision, wall-shot detection, full-surface zoom-safe touch input, visual weapon wall clearance, wider structural entries, splitter-post clearance, shared shot-effect pose alignment, hold-fire ADS-style zoom/centering, and textured foundation room surfaces.",
   "observations": [
     "The right-side fire button calls the weapon system without stealing aim drags elsewhere on the look zone.",
     "SPARK, BORE, and VAULT use different cadence and recoil values.",
@@ -23,8 +23,10 @@
     "Starter weapon view scales were increased and each weapon now has hip and hold-fire aim poses.",
     "Holding the fire button immediately fires, continues firing by cadence, zooms the camera from 70 to 62 degrees, and blends the gun toward a centered aim pose.",
     "The fire button can drive reduced-sensitivity look while held so the right thumb can aim and fire together.",
-    "The fire button is represented by a reticle icon, and a smaller gun-icon button cycles weapons.",
-    "Weapon debug state now includes isFireHeld, aimBlend, and cameraFovDegrees."
+    "The fire button is represented by a reticle icon; the smaller gun-icon cycle button was removed and weapon switching remains in the bottom tray.",
+    "Weapon debug state now includes isFireHeld, aimBlend, and cameraFovDegrees.",
+    "The foundation level now uses Kenney CC0 prototype textures for floor, walls, and roof.",
+    "A full-level roof plane sits above the wall height."
   ],
   "decisions": [
     "Keep one fire button for now.",
@@ -71,7 +73,6 @@
     "movementSpeedUnitsPerSecond": 4.0625,
     "currentWeaponControls": {
       "touchFire": "data-fire-button",
-      "touchWeaponCycle": "data-weapon-cycle-button",
       "touchSelect": "data-weapon-button",
       "desktopSmokeFire": "Space",
       "desktopSmokeSelect": "Digit1-Digit3"
@@ -91,6 +92,12 @@
     },
     "viewmodel": {
       "wallHeightUnits": 3.2,
+      "roofHeightUnits": 3.28,
+      "texturedFoundationSurfaces": [
+        "floor",
+        "wall",
+        "roof"
+      ],
       "perWeaponAimPose": true,
       "aimScaleMultiplier": 1.04
     },

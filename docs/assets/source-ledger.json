@@ -1,6 +1,6 @@
 {
   "ledgerVersion": "1.0.0",
-  "updatedAt": "2026-07-04T04:20:00Z",
+  "updatedAt": "2026-07-04T15:05:00Z",
   "sources": [
     {
       "sourceId": "kenney.blaster-kit.2-1",
@@ -64,6 +64,66 @@
           "previewSha256": "98b28473af3abfd4e96a3dc3e7a030205617e9745f8329f63284cf4304779dc3",
           "gameUse": "weapon",
           "loadGroup": "level-01-weapons"
+        }
+      ]
+    },
+    {
+      "sourceId": "kenney.prototype-textures.1-0",
+      "name": "Prototype Textures",
+      "author": "Kenney",
+      "sourceUrl": "https://www.kenney.nl/assets/prototype-textures",
+      "downloadUrl": "https://opengameart.org/sites/default/files/kenney_prototypeTextures.zip",
+      "downloadedAt": "2026-07-04T15:05:00Z",
+      "license": "Creative Commons Zero, CC0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "licenseFile": "public/assets/environment/kenney-prototype-textures/LICENSE.txt",
+      "commercialUseAllowed": true,
+      "redistributionAllowed": true,
+      "modificationAllowed": true,
+      "attributionRequired": false,
+      "notes": [
+        "Official Kenney asset page lists Creative Commons CC0.",
+        "OpenGameArt listing identifies Kenney as author and CC0 license.",
+        "Only selected colored PNG textures are committed for the foundation floor, walls, and roof.",
+        "Selected textures are unmodified copies from the source zip; sourceSha256, optimizedSha256, and sha256 intentionally match."
+      ],
+      "sharedFiles": [],
+      "assets": [
+        {
+          "assetId": "environment.foundation.floor-grid-green",
+          "assetType": "texture",
+          "sourceFile": "PNG/Green/texture_07.png",
+          "path": "public/assets/environment/kenney-prototype-textures/textures/floor-grid-green.png",
+          "bytes": 2739,
+          "sourceSha256": "7e9dcf4d6e4a5dfae1ca44a2396216193f52af31273ff22a61f6ba35fcab8b72",
+          "optimizedSha256": "7e9dcf4d6e4a5dfae1ca44a2396216193f52af31273ff22a61f6ba35fcab8b72",
+          "sha256": "7e9dcf4d6e4a5dfae1ca44a2396216193f52af31273ff22a61f6ba35fcab8b72",
+          "gameUse": "environment",
+          "loadGroup": "foundation-environment"
+        },
+        {
+          "assetId": "environment.foundation.wall-panel-orange",
+          "assetType": "texture",
+          "sourceFile": "PNG/Orange/texture_05.png",
+          "path": "public/assets/environment/kenney-prototype-textures/textures/wall-panel-orange.png",
+          "bytes": 13212,
+          "sourceSha256": "3415a948e1d9265c531620180fd574e2aefed0ba1ee807df20b08c2a1ce4c5bd",
+          "optimizedSha256": "3415a948e1d9265c531620180fd574e2aefed0ba1ee807df20b08c2a1ce4c5bd",
+          "sha256": "3415a948e1d9265c531620180fd574e2aefed0ba1ee807df20b08c2a1ce4c5bd",
+          "gameUse": "environment",
+          "loadGroup": "foundation-environment"
+        },
+        {
+          "assetId": "environment.foundation.roof-flat-purple",
+          "assetType": "texture",
+          "sourceFile": "PNG/Purple/texture_09.png",
+          "path": "public/assets/environment/kenney-prototype-textures/textures/roof-flat-purple.png",
+          "bytes": 637,
+          "sourceSha256": "71a0ff68f911cc1a747cadcbc8cdb34051b33d3fc010158e0e38a8ea3524adb8",
+          "optimizedSha256": "71a0ff68f911cc1a747cadcbc8cdb34051b33d3fc010158e0e38a8ea3524adb8",
+          "sha256": "71a0ff68f911cc1a747cadcbc8cdb34051b33d3fc010158e0e38a8ea3524adb8",
+          "gameUse": "environment",
+          "loadGroup": "foundation-environment"
         }
       ]
     }

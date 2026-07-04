@@ -32,6 +32,8 @@ export interface LevelStreamingSnapshot {
   loadedWallTiles: number;
   loadedCoverTiles: number;
   loadedExitTiles: number;
+  loadedTextureAssetIds: string[];
+  assetLoadErrors: string[];
   activeChunkIds: string[];
   loadedChunkIds: string[];
   sharedGeometryBytes: number;

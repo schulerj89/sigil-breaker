@@ -10,7 +10,7 @@ Status: not run for full implementation yet; updated with traversal targets.
 - The foundation map now has structural five-tile entries that should be included in route traversal once deterministic route tooling exists.
 - The foundation map now also has splitter-post clearance targets around row 30 and row 39 entries.
 - Future routes should include held fire while moving and turning because the fire button now owns shot cadence, zoom, weapon centering, and reduced-sensitivity look.
-- Future routes should include the gun-icon weapon cycle button in addition to the bottom weapon tray.
+- Future routes should switch weapons through the bottom weapon tray.
 
 ## Decisions
 
@@ -28,4 +28,4 @@ Status: not run for full implementation yet; updated with traversal targets.
 
 - Future implementation should add deterministic test routes and debug shortcuts for playthrough QA.
 - First route should include the top vertical divider entry, both row 20 entries, both row 30 entries, and both row 39 entries.
-- Include hold-fire aim, release cleanup, and weapon cycling in the first combat route.
+- Include hold-fire aim, release cleanup, and weapon-tray switching in the first combat route.

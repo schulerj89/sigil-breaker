@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T14:45:00Z",
-  "summary": "Manual smoke remains green, and MVP-fast Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, hold-fire aim/zoom, effect-pose alignment, pitch-corrected shot math, entry-splitter validation, movement collision, browser zoom guards, and right-side control layout.",
+  "updatedAt": "2026-07-04T15:25:00Z",
+  "summary": "Manual smoke remains green, and MVP-fast Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, hold-fire aim/zoom, effect-pose alignment, pitch-corrected shot math, entry-splitter validation, movement collision, browser zoom guards, right-side control layout, and foundation texture loading/rendering.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -32,12 +32,15 @@
     "Browser smoke holds move/look touches while firing to check that active pointer ownership remains stable.",
     "MVP browser smoke still boots all five required landscape viewports, but only chromium-modern-phone-landscape runs the heavier movement route and active zoom/multitouch gesture checks.",
     "Local npm run test:e2e measured about 19 seconds after the MVP split and two-worker Playwright config.",
-    "Latest npm run validate:browser passed all five landscape viewports after taller walls, larger guns, hold-fire aim zoom, reticle fire icon, and gun-cycle button changes.",
+    "Latest npm run validate:browser passed all five landscape viewports after taller walls, larger guns, hold-fire aim zoom, and reticle fire icon changes.",
     "Browser smoke now holds fire long enough to verify multiple shots, ammo reduction, isFireHeld, positive aimBlend, and reduced cameraFovDegrees.",
     "Browser smoke verifies release cleanup by checking isFireHeld clears and shotCount stops increasing after release.",
-    "Browser smoke checks the fire button has no F text, reticle and gun icons are visible, controls fit the viewport, touch targets are at least 44 px, and fire/cycle/stick controls do not overlap.",
-    "Browser smoke cycles from SPARK to BORE through the gun-icon button and checks the updated aria label.",
-    "Renderer budget assertions now include draw calls, triangles, geometries, and textures."
+    "Browser smoke checks the fire button has no F text, the reticle icon is visible, the removed gun-cycle selector is absent, controls fit the viewport, touch targets are at least 44 px, and fire/stick controls do not overlap.",
+    "Browser smoke now expects three environment texture asset IDs and verifies their assetBuild URLs.",
+    "Browser smoke now waits for renderer texture count before validating the initial frame so colored foundation textures are uploaded, not just downloaded.",
+    "Screenshot QA confirmed the foundation reads as orange wall panels, a green tiled floor, and a purple ceiling at gameplay height.",
+    "Renderer budget assertions now include draw calls, triangles, geometries, and textures.",
+    "The heavy chromium-modern-phone-landscape project now runs a five-iteration QA restart loop and rechecks loaded asset IDs plus renderer budgets after each restart."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -53,7 +56,7 @@
     "Keep an initial viewport-scale assertion before movement-route smoke, then run active gesture smoke after deterministic movement so look-zone drags cannot rotate the route setup.",
     "Use two Playwright workers for MVP browser smoke while keeping the heavier route on one viewport to avoid repeating the same WebGL interaction path five times.",
     "Treat hold-fire as the canonical automated firing path.",
-    "Keep icon/control-fit checks in all viewports because the new weapon-cycle button shares the right-side action pad."
+    "Keep reticle/control-fit checks in all viewports because the right-side action pad remains a thumb-zone risk."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
@@ -88,6 +91,9 @@
         "height": 390
       },
       "loadedAssetIds": [
+        "environment.foundation.floor-grid-green",
+        "environment.foundation.roof-flat-purple",
+        "environment.foundation.wall-panel-orange",
         "weapon.blaster.bore",
         "weapon.blaster.spark",
         "weapon.blaster.vault"
@@ -141,14 +147,17 @@
       "simultaneousMoveAimFireChecked": true,
       "holdFireAimChecked": true,
       "holdFireReleaseChecked": true,
-      "weaponCycleButtonChecked": true,
+      "weaponCycleButtonRemovedChecked": true,
+      "foundationEnvironmentTexturesChecked": true,
+      "foundationEnvironmentTexturesRenderedChecked": true,
+      "qaRestartLoopChecked": true,
       "rightSideControlFitChecked": true,
       "rendererBudgetChecked": true,
       "fullInteractionProject": "chromium-modern-phone-landscape",
       "mvpFastViewportSplit": true,
       "visualViewportScaleAfterZoomGestures": 1,
       "assetLoadErrors": 0,
-      "latestDurationSeconds": 25.7
+      "latestDurationSeconds": 41.2
     },
     "requiredSmokeAssertions": [
       "appBoots",
@@ -163,7 +172,9 @@
       "publicAssetUrlsCacheBusted",
       "holdFireContinuousCadence",
       "holdFireReleases",
-      "weaponCycleButtonChangesActiveWeapon",
+      "weaponTrayChangesActiveWeapon",
+      "foundationEnvironmentTexturesCacheBusted",
+      "qaRestartLoopRendererBudgets",
       "rendererBudgetsWithinLimit"
     ],
     "screenshotNames": [

@@ -16,10 +16,38 @@ import {
   type LevelChunk,
   type LevelStreamingSnapshot,
 } from './levelStreaming';
+import { publicAssetUrl } from './assetUrls';
 
 const MATRIX_BYTES = 16 * Float32Array.BYTES_PER_ELEMENT;
 export const FOUNDATION_WALL_HEIGHT_UNITS = 3.2;
 export const FOUNDATION_COVER_HEIGHT_UNITS = 1.15;
+export const FOUNDATION_ROOF_HEIGHT_UNITS = 3.28;
+export const FOUNDATION_ENVIRONMENT_TEXTURE_SOURCE_BYTES = 16_588;
+export const FOUNDATION_ENVIRONMENT_TEXTURE_DECODED_BYTES = 3 * 1024 * 1024 * 4;
+
+interface EnvironmentTextureDefinition {
+  id: string;
+  path: string;
+  repeat: [number, number];
+}
+
+const FOUNDATION_ENVIRONMENT_TEXTURES = {
+  floor: {
+    id: 'environment.foundation.floor-grid-green',
+    path: 'assets/environment/kenney-prototype-textures/textures/floor-grid-green.png',
+    repeat: [8, 8],
+  },
+  wall: {
+    id: 'environment.foundation.wall-panel-orange',
+    path: 'assets/environment/kenney-prototype-textures/textures/wall-panel-orange.png',
+    repeat: [1, 1],
+  },
+  roof: {
+    id: 'environment.foundation.roof-flat-purple',
+    path: 'assets/environment/kenney-prototype-textures/textures/roof-flat-purple.png',
+    repeat: [8, 8],
+  },
+} as const satisfies Record<string, EnvironmentTextureDefinition>;
 
 export interface FoundationLevelRuntime {
   update: (playerPosition: readonly [number, number, number]) => void;
@@ -31,22 +59,45 @@ export function createFoundationLevelRuntime(
   scene: THREE.Scene,
   track: <Resource extends { dispose: () => void }>(resource: Resource) => Resource,
 ): FoundationLevelRuntime {
-  const ambient = new THREE.HemisphereLight(0xd8fff0, 0x1b1410, 1.4);
+  const ambient = new THREE.HemisphereLight(0xd8fff0, 0x1b1410, 0.82);
   scene.add(ambient);
 
-  const keyLight = new THREE.DirectionalLight(0xffefc2, 2.2);
+  const keyLight = new THREE.DirectionalLight(0xffefc2, 1.35);
   keyLight.position.set(5, 8, 7);
   scene.add(keyLight);
 
   const levelWidth = LEVEL_WIDTH_TILES * LEVEL_TILE_SIZE;
   const levelDepth = LEVEL_HEIGHT_TILES * LEVEL_TILE_SIZE;
+  const textureLoader = new THREE.TextureLoader();
+  const loadedTextureAssetIds = new Set<string>();
+  const assetLoadErrors: string[] = [];
+  const floorTexture = loadEnvironmentTexture(
+    textureLoader,
+    FOUNDATION_ENVIRONMENT_TEXTURES.floor,
+    track,
+    loadedTextureAssetIds,
+    assetLoadErrors,
+  );
+  const wallTexture = loadEnvironmentTexture(
+    textureLoader,
+    FOUNDATION_ENVIRONMENT_TEXTURES.wall,
+    track,
+    loadedTextureAssetIds,
+    assetLoadErrors,
+  );
+  const roofTexture = loadEnvironmentTexture(
+    textureLoader,
+    FOUNDATION_ENVIRONMENT_TEXTURES.roof,
+    track,
+    loadedTextureAssetIds,
+    assetLoadErrors,
+  );
 
   const floorGeometry = track(new THREE.PlaneGeometry(levelWidth, levelDepth, 1, 1));
   const floorMaterial = track(
-    new THREE.MeshStandardMaterial({
-      color: 0x1b2621,
-      roughness: 0.82,
-      metalness: 0.04,
+    new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      map: floorTexture,
     }),
   );
   const floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -65,11 +116,25 @@ export function createFoundationLevelRuntime(
   }
   scene.add(grid);
 
+  const roofGeometry = track(new THREE.PlaneGeometry(levelWidth, levelDepth, 1, 1));
+  const roofMaterial = track(
+    new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      map: roofTexture,
+      side: THREE.FrontSide,
+    }),
+  );
+  const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+  roof.name = 'foundation-roof';
+  roof.position.y = FOUNDATION_ROOF_HEIGHT_UNITS;
+  roof.rotation.x = Math.PI / 2;
+  scene.add(roof);
+
   const wallGeometry = track(new THREE.BoxGeometry(LEVEL_TILE_SIZE, FOUNDATION_WALL_HEIGHT_UNITS, LEVEL_TILE_SIZE));
   const wallMaterial = track(
-    new THREE.MeshStandardMaterial({
-      color: 0x263c46,
-      roughness: 0.74,
+    new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      map: wallTexture,
     }),
   );
   const coverGeometry = track(new THREE.BoxGeometry(LEVEL_TILE_SIZE, FOUNDATION_COVER_HEIGHT_UNITS, LEVEL_TILE_SIZE));
@@ -89,6 +154,7 @@ export function createFoundationLevelRuntime(
   );
   const sharedGeometryBytes =
     estimateGeometryBytes(floorGeometry) +
+    estimateGeometryBytes(roofGeometry) +
     estimateGeometryBytes(grid.geometry) +
     estimateGeometryBytes(wallGeometry) +
     estimateGeometryBytes(coverGeometry) +
@@ -98,6 +164,7 @@ export function createFoundationLevelRuntime(
   const chunksById = new Map(chunks.map((chunk) => [chunk.id, chunk]));
   const loadedChunks = new Map<string, THREE.Group>();
   const activeChunkIds = new Set<string>();
+  const staticSceneObjects = [ambient, keyLight, floor, grid, roof];
 
   return {
     update: (playerPosition) => {
@@ -172,19 +239,30 @@ export function createFoundationLevelRuntime(
         loadedWallTiles,
         loadedCoverTiles,
         loadedExitTiles,
+        loadedTextureAssetIds: [...loadedTextureAssetIds].sort(),
+        assetLoadErrors: [...assetLoadErrors],
         activeChunkIds: activeChunkList,
         loadedChunkIds: loadedChunkList,
         sharedGeometryBytes,
         instanceMatrixBytes,
-        runtimeBytesEstimate: sharedGeometryBytes + instanceMatrixBytes,
+        runtimeBytesEstimate:
+          sharedGeometryBytes +
+          instanceMatrixBytes +
+          FOUNDATION_ENVIRONMENT_TEXTURE_SOURCE_BYTES +
+          FOUNDATION_ENVIRONMENT_TEXTURE_DECODED_BYTES,
       };
     },
     dispose: () => {
       for (const group of loadedChunks.values()) {
+        disposeChunkGroup(group);
         group.removeFromParent();
       }
       loadedChunks.clear();
       activeChunkIds.clear();
+
+      for (const object of staticSceneObjects) {
+        object.removeFromParent();
+      }
     },
   };
 }
@@ -232,6 +310,44 @@ function setTileInstances(mesh: THREE.InstancedMesh, tiles: LevelChunk['tiles'],
     mesh.setMatrixAt(index, matrix);
   });
   mesh.instanceMatrix.needsUpdate = true;
+}
+
+function disposeChunkGroup(group: THREE.Group): void {
+  group.traverse((object) => {
+    if (object instanceof THREE.InstancedMesh) {
+      object.dispose();
+    }
+  });
+}
+
+function loadEnvironmentTexture(
+  loader: THREE.TextureLoader,
+  definition: EnvironmentTextureDefinition,
+  track: <Resource extends { dispose: () => void }>(resource: Resource) => Resource,
+  loadedTextureAssetIds: Set<string>,
+  assetLoadErrors: string[],
+): THREE.Texture {
+  const texture = track(
+    loader.load(
+      publicAssetUrl(definition.path),
+      () => {
+        loadedTextureAssetIds.add(definition.id);
+      },
+      undefined,
+      (error) => {
+        const message = error instanceof Error ? error.message : String(error);
+        assetLoadErrors.push(`${definition.id}: ${message}`);
+      },
+    ),
+  );
+  texture.name = definition.id;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(...definition.repeat);
+  texture.anisotropy = 4;
+
+  return texture;
 }
 
 function estimateGeometryBytes(geometry: THREE.BufferGeometry): number {

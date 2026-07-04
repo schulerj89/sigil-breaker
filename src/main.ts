@@ -10,4 +10,17 @@ if (!root) {
   throw new Error('Missing #game root element.');
 }
 
-createGame(root);
+let app = createGame(root);
+
+if (new URLSearchParams(window.location.search).has('qaCapture')) {
+  window.__SIGILBREAKER_RESTART__ = () => {
+    app.dispose();
+    app = createGame(root);
+  };
+}
+
+declare global {
+  interface Window {
+    __SIGILBREAKER_RESTART__?: () => void;
+  }
+}

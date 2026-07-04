@@ -178,16 +178,6 @@ function createShellMarkup(): string {
         </div>
         <div class="action-pad action-pad--combat">
           <button
-            class="action-button action-button--weapon-switch"
-            type="button"
-            data-ui-control
-            data-action-button
-            data-weapon-cycle-button
-            aria-label="Switch weapon. Current ${WEAPON_DEFINITIONS[0].label}"
-          >
-            <span class="gun-icon" aria-hidden="true"><span class="gun-icon__grip"></span></span>
-          </button>
-          <button
             class="action-button action-button--fire"
             type="button"
             data-ui-control

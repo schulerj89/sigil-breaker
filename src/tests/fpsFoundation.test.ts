@@ -23,7 +23,13 @@ import {
   worldToTile,
 } from '../game/levelMap';
 import { createLevelChunks, getActiveChunkIdsForTile } from '../game/levelStreaming';
-import { FOUNDATION_COVER_HEIGHT_UNITS, FOUNDATION_WALL_HEIGHT_UNITS } from '../game/foundationLevelRuntime';
+import {
+  FOUNDATION_COVER_HEIGHT_UNITS,
+  FOUNDATION_ENVIRONMENT_TEXTURE_DECODED_BYTES,
+  FOUNDATION_ENVIRONMENT_TEXTURE_SOURCE_BYTES,
+  FOUNDATION_ROOF_HEIGHT_UNITS,
+  FOUNDATION_WALL_HEIGHT_UNITS,
+} from '../game/foundationLevelRuntime';
 import {
   MOVE_SPEED_UNITS_PER_SECOND,
   PLAYER_COLLISION_RADIUS,
@@ -58,6 +64,9 @@ describe('FPS foundation config', () => {
     expect(MOVE_SPEED_UNITS_PER_SECOND).toBeCloseTo(4.0625);
     expect(FOUNDATION_WALL_HEIGHT_UNITS).toBeCloseTo(3.2);
     expect(FOUNDATION_COVER_HEIGHT_UNITS).toBeCloseTo(1.15);
+    expect(FOUNDATION_ROOF_HEIGHT_UNITS).toBeGreaterThan(FOUNDATION_WALL_HEIGHT_UNITS);
+    expect(FOUNDATION_ENVIRONMENT_TEXTURE_SOURCE_BYTES).toBe(16_588);
+    expect(FOUNDATION_ENVIRONMENT_TEXTURE_DECODED_BYTES).toBe(12_582_912);
   });
 
   it('tracks the required mobile landscape viewport set', () => {
@@ -354,6 +363,9 @@ describe('FPS foundation config', () => {
       /assets\/weapons\/example\.glb\?assetBuild=.+/,
     );
     expect(withAssetVersion('Textures/colormap.png')).toMatch(/^Textures\/colormap\.png\?assetBuild=.+/);
+    expect(publicAssetUrl('assets/environment/kenney-prototype-textures/textures/floor-grid-green.png')).toMatch(
+      /assets\/environment\/kenney-prototype-textures\/textures\/floor-grid-green\.png\?assetBuild=.+/,
+    );
     expect(withAssetVersion('Textures/colormap.png?assetBuild=already')).toBe(
       'Textures/colormap.png?assetBuild=already',
     );

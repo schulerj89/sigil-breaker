@@ -22,7 +22,8 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - First-person gun view scales were increased and each weapon now has hip and hold-fire aim poses.
 - Holding the fire button immediately fires, continues firing by weapon cadence, zooms the camera from 70 to 62 degrees, and blends the gun toward a centered aim pose.
 - The fire button can also drive right-thumb look at reduced sensitivity while held, with a small dead zone to prevent accidental camera jumps.
-- The fire button is now a reticle icon, and a smaller gun-icon button cycles weapons without opening the bottom tray.
+- The fire button is now a reticle icon; the smaller gun-icon cycle button was removed, and weapon switching remains in the bottom tray.
+- The foundation level now uses Kenney CC0 prototype textures for floor, walls, and roof, with a full-level roof plane above the wall height.
 - Debug state now exposes `weapon.isFireHeld`, `weapon.aimBlend`, and `weapon.cameraFovDegrees` for QA and tuning.
 
 ## Decisions
@@ -51,4 +52,4 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - Playthrough QA should re-check the faster traversal speed, wall approach, turning near walls, widened 5-tile structural entries, and splitter-post branches against the 45 x 45 layout.
 - Do not reintroduce the weapon footprint as a hard movement collider unless escape movement and yaw recovery are explicitly handled.
 - Do not let future gesture recognizers replace active move/look pointer IDs; multi-touch combat depends on stable pointer ownership.
-- Playthrough QA should re-check hold-fire while turning, moving, and cycling weapons because fire now owns aim, cadence, FOV, and pose state.
+- Playthrough QA should re-check hold-fire while turning and moving because fire now owns aim, cadence, FOV, and pose state.

@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-04T14:45:00Z",
-  "summary": "Weapon and shot-feedback budget instrumentation is wired; entry and splitter widening add no assets, body collision resolution is nearby-tile scoped, pitch-corrected shot math is CPU-only, zoom prevention is event-only, hold-fire aim reuses existing weapon objects, MVP browser smoke is faster, and visible FPS still needs production profiling.",
+  "updatedAt": "2026-07-04T15:20:00Z",
+  "summary": "Weapon and shot-feedback budget instrumentation is wired; entry and splitter widening add no assets, body collision resolution is nearby-tile scoped, pitch-corrected shot math is CPU-only, zoom prevention is event-only, hold-fire aim reuses existing weapon objects, foundation textures add three shared textures plus one roof draw, MVP browser smoke is faster, and visible FPS still needs production profiling.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -33,10 +33,13 @@
     "Taller foundation walls reuse the existing instanced wall geometry path and add no new draw calls or textures.",
     "Larger gun scale and per-weapon aim poses are manifest/math changes and add no new model payload.",
     "Hold-fire aim adds one camera FOV blend, one viewmodel pose blend, and cadence-gated shooting while held.",
-    "The reticle and gun-cycle icons are CSS-only DOM controls and add no WebGL resources.",
-    "Latest production JS chunk reported by Vite is about 650.77 kB minified and still triggers the known large chunk warning.",
-    "Latest npm run validate:browser passed all five landscape viewports in 25.7 seconds with two workers.",
-    "Browser smoke now asserts render calls, triangles, geometries, and textures against the debug budget object."
+    "The reticle icon is a CSS-only DOM control and adds no WebGL resources; the extra gun-cycle icon button was removed.",
+    "Latest production JS chunk reported by Vite is about 651.34 kB minified and still triggers the known large chunk warning.",
+    "Latest npm run validate:browser passed all five landscape viewports in 41.2 seconds with two workers and the QA restart loop.",
+    "Browser smoke now asserts render calls, triangles, geometries, and textures against the debug budget object.",
+    "The foundation texture pass adds three 1024 x 1024 PNG textures totaling 16588B source payload and about 12MB decoded RGBA estimate.",
+    "The full-level roof adds one PlaneGeometry, one MeshStandardMaterial, and one draw call.",
+    "The heavy browser smoke project now restarts the app five times through the QA restart hook and rechecks loaded assets plus renderer budgets each time."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -52,7 +55,8 @@
     "Keep zoom prevention out of the animation loop and assert it through debug counters in smoke QA.",
     "Keep MVP smoke focused on one full interaction route plus all-viewport layout/boot checks until the game grows beyond prototype scope.",
     "Keep hold-fire pose and FOV math in scalar helpers and existing scene objects.",
-    "Use renderer budget counters as the MVP gate until visible-device FPS profiling is repeated."
+    "Use renderer budget counters as the MVP gate until visible-device FPS profiling is repeated.",
+    "Keep the roof as one shared plane and keep floor, wall, and roof textures shared by material to avoid per-chunk texture duplication."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
@@ -72,7 +76,9 @@
     "Future cache analysis should compare build ids to avoid mistaking intentional URL changes for duplicate asset leaks.",
     "Future mobile profiling should verify the zoom guard does not reduce simultaneous move, aim, and fire throughput on physical devices.",
     "Restore broader per-viewport interaction routes before beta/release gates or when a viewport-specific gameplay issue is suspected.",
-    "Sustained held-fire profiling still needs a physical mobile device pass."
+    "Sustained held-fire profiling still needs a physical mobile device pass.",
+    "Future profiling should compare visible FPS with the roof on/off if enclosure or texture fill-rate becomes a concern.",
+    "Memory-lifecycle QA should still add a deeper heap/GPU leak pass; the current restart smoke only watches debug renderer counters."
   ],
   "blockers": [],
   "artifacts": [
@@ -110,20 +116,36 @@
     "movementCollisionCost": "nearby solid-tile circle resolver while movement input is active",
     "weaponClearanceCost": "one weapon wall ray/probe for visual viewmodel avoidance",
     "shotEffectPoseCost": "shot-time and short-lived visible-effect camera-local vector/scalar math",
-    "productionJsChunkKb": 650.77,
+    "productionJsChunkKb": 651.34,
     "publicAssetCacheParam": "assetBuild",
     "browserSmokeCommand": "npm run validate:browser",
     "browserSmokeWorkers": 2,
     "fullInteractionProject": "chromium-modern-phone-landscape",
     "mvpFastViewportSplit": true,
-    "localBrowserSmokeSeconds": 25.7,
+    "localBrowserSmokeSeconds": 41.2,
     "zoomGuardRuntimeCost": "event listeners only; no animation-loop work and no render resources",
     "foundationWalkableTiles": 1653,
     "structuralEntrySplitterValidation": true,
     "holdFireAimCost": "camera FOV blend plus existing viewmodel pose blend while held; no new WebGL resources",
     "wallHeightUnits": 3.2,
+    "roofHeightUnits": 3.28,
+    "foundationEnvironmentTextureSourceBytes": 16588,
+    "foundationEnvironmentTextureDecodedBytesEstimate": 12582912,
+    "foundationRoofCost": "one plane geometry, one mesh/material, one draw call",
+    "qaRestartLoop": {
+      "iterations": 5,
+      "project": "chromium-modern-phone-landscape",
+      "checks": [
+        "loadedAssetIds",
+        "assetLoadErrors",
+        "drawCalls",
+        "triangles",
+        "geometries",
+        "textures"
+      ]
+    },
     "gunScaleChange": "manifest-only",
-    "rightSideIconControlsCost": "css-dom-only"
+    "reticleControlCost": "css-dom-only"
   },
   "nextAgents": [
     "memory-lifecycle-agent",

@@ -15,6 +15,10 @@ interface DebugSnapshot {
     depthUnits: number;
     tileSize: number;
     map: readonly string[];
+    streaming: {
+      loadedTextureAssetIds: string[];
+      assetLoadErrors: string[];
+    };
   };
   device: {
     orientation: 'landscape' | 'portrait';
@@ -101,7 +105,8 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     return (
       snapshot !== undefined &&
       snapshot.assetLoadErrors.length === 0 &&
-      snapshot.memoryMetrics.loadedAssetIds.length === 3 &&
+      snapshot.memoryMetrics.loadedAssetIds.length === 6 &&
+      snapshot.rendererMetrics.textures >= 4 &&
       snapshot.memoryMetrics.weaponModelBytesLoaded > 0
     );
   });
@@ -121,12 +126,22 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   });
   expect(debugSnapshot.assetLoadErrors).toEqual([]);
   expect(debugSnapshot.memoryMetrics.loadedAssetIds).toEqual([
+    'environment.foundation.floor-grid-green',
+    'environment.foundation.roof-flat-purple',
+    'environment.foundation.wall-panel-orange',
     'weapon.blaster.bore',
     'weapon.blaster.spark',
     'weapon.blaster.vault',
   ]);
+  expect(debugSnapshot.level.streaming.loadedTextureAssetIds).toEqual([
+    'environment.foundation.floor-grid-green',
+    'environment.foundation.roof-flat-purple',
+    'environment.foundation.wall-panel-orange',
+  ]);
+  expect(debugSnapshot.level.streaming.assetLoadErrors).toEqual([]);
   expect(debugSnapshot.rendererMetrics.calls).toBeGreaterThan(0);
   expect(debugSnapshot.rendererMetrics.triangles).toBeGreaterThan(0);
+  expect(debugSnapshot.rendererMetrics.textures).toBeGreaterThanOrEqual(4);
   expect(debugSnapshot.rendererMetrics.calls).toBeLessThanOrEqual(debugSnapshot.budgets.drawCallsMax);
   expect(debugSnapshot.rendererMetrics.triangles).toBeLessThanOrEqual(debugSnapshot.budgets.trianglesMax);
   expect(debugSnapshot.rendererMetrics.geometries).toBeLessThanOrEqual(debugSnapshot.budgets.geometriesMax);
@@ -145,7 +160,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   await expectControlsToFit(page);
   await expect(page.locator('[data-fire-button]')).not.toHaveText(/F/);
   await expect(page.locator('[data-fire-button] .reticle-icon')).toBeVisible();
-  await expect(page.locator('[data-weapon-cycle-button] .gun-icon')).toBeVisible();
+  await expect(page.locator('[data-weapon-cycle-button]')).toHaveCount(0);
   await expectViewportScaleLocked(page);
 
   await expect.poll(async () => (await page.evaluate(readCanvasSamples)).nonBlankSamples).toBeGreaterThan(0);
@@ -164,13 +179,25 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   const previewUrls = assetResources.filter((url) => url.includes('/previews/'));
   const modelUrls = assetResources.filter((url) => url.endsWith('.glb?assetBuild=' + debugSnapshot.buildId));
   const textureUrls = assetResources.filter((url) => url.includes('/Textures/colormap.png'));
+  const environmentTextureUrls = await page.evaluate(() =>
+    performance
+      .getEntriesByType('resource')
+      .map((entry) => entry.name)
+      .filter((url) => url.includes('/assets/environment/kenney-prototype-textures/textures/'))
+      .sort(),
+  );
 
   expect(previewUrls).toHaveLength(3);
   expect(modelUrls).toHaveLength(3);
   expect(textureUrls.length).toBeGreaterThanOrEqual(1);
+  expect(environmentTextureUrls).toHaveLength(3);
 
-  for (const url of [...previewUrls, ...modelUrls, ...textureUrls]) {
+  for (const url of [...previewUrls, ...modelUrls, ...textureUrls, ...environmentTextureUrls]) {
     expect(new URL(url).searchParams.get('assetBuild')).toBe(debugSnapshot.buildId);
+  }
+
+  if (testInfo.project.name === FULL_INTERACTION_PROJECT) {
+    await verifyRestartLoopDoesNotGrowRendererMetrics(page, debugSnapshot);
   }
 
   const preShotSnapshot = await readDebugSnapshot(page);
@@ -196,18 +223,6 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   const releasedShotCount = (await readDebugSnapshot(page)).weapon.shotCount;
   await page.waitForTimeout(220);
   expect((await readDebugSnapshot(page)).weapon.shotCount).toBe(releasedShotCount);
-
-  const beforeCycleSnapshot = await readDebugSnapshot(page);
-  await page.locator('[data-weapon-cycle-button]').click();
-  await expect
-    .poll(async () => (await readDebugSnapshot(page)).weapon.activeWeaponId)
-    .not.toBe(beforeCycleSnapshot.weapon.activeWeaponId);
-  const afterCycleSnapshot = await readDebugSnapshot(page);
-  expect(afterCycleSnapshot.weapon.activeWeaponId).toBe('weapon.blaster.bore');
-  await expect(page.locator('[data-weapon-cycle-button]')).toHaveAttribute(
-    'aria-label',
-    `Switch weapon. Current ${afterCycleSnapshot.weapon.activeWeaponLabel}`,
-  );
 
   if (testInfo.project.name !== FULL_INTERACTION_PROJECT) {
     expect(consoleErrors).toEqual([]);
@@ -272,6 +287,42 @@ async function readDebugSnapshot(page: Page): Promise<DebugSnapshot> {
   const snapshot = await page.evaluate<DebugSnapshot | undefined>(() => window.__SIGILBREAKER_DEBUG__?.getSnapshot());
   expect(snapshot).toBeDefined();
   return snapshot as DebugSnapshot;
+}
+
+async function verifyRestartLoopDoesNotGrowRendererMetrics(page: Page, baseline: DebugSnapshot): Promise<void> {
+  for (let index = 0; index < 5; index++) {
+    await page.evaluate(() => {
+      if (!window.__SIGILBREAKER_RESTART__) {
+        throw new Error('Missing QA restart hook.');
+      }
+
+      window.__SIGILBREAKER_RESTART__();
+    });
+    await waitForSceneAssets(page);
+    const snapshot = await readDebugSnapshot(page);
+
+    expect(snapshot.assetLoadErrors).toEqual([]);
+    expect(snapshot.memoryMetrics.loadedAssetIds).toEqual(baseline.memoryMetrics.loadedAssetIds);
+    expect(snapshot.rendererMetrics.calls).toBeLessThanOrEqual(snapshot.budgets.drawCallsMax);
+    expect(snapshot.rendererMetrics.triangles).toBeLessThanOrEqual(snapshot.budgets.trianglesMax);
+    expect(snapshot.rendererMetrics.geometries).toBeLessThanOrEqual(snapshot.budgets.geometriesMax);
+    expect(snapshot.rendererMetrics.textures).toBeLessThanOrEqual(snapshot.budgets.texturesMax);
+  }
+}
+
+async function waitForSceneAssets(page: Page): Promise<void> {
+  await page.waitForFunction(() => {
+    const snapshot = window.__SIGILBREAKER_DEBUG__?.getSnapshot();
+
+    return (
+      snapshot !== undefined &&
+      snapshot.assetLoadErrors.length === 0 &&
+      snapshot.memoryMetrics.loadedAssetIds.length === 6 &&
+      snapshot.memoryMetrics.weaponModelBytesLoaded > 0 &&
+      snapshot.rendererMetrics.geometries > 0 &&
+      snapshot.rendererMetrics.textures >= 4
+    );
+  });
 }
 
 async function holdFireButton(page: Page, durationMs: number): Promise<DebugSnapshot> {
@@ -632,7 +683,6 @@ async function expectControlsToFit(page: Page): Promise<void> {
     const selectors = {
       stick: '[data-move-stick]',
       fire: '[data-fire-button]',
-      weaponSwitch: '[data-weapon-cycle-button]',
     } as const;
     const rects = Object.fromEntries(
       Object.entries(selectors).map(([key, selector]) => {
@@ -673,10 +723,6 @@ async function expectControlsToFit(page: Page): Promise<void> {
       withinViewport,
       undersizedTargets,
       stickOverlapsFire: rects.stick !== null && rects.fire !== null && rectsOverlap(rects.stick, rects.fire),
-      stickOverlapsWeaponSwitch:
-        rects.stick !== null && rects.weaponSwitch !== null && rectsOverlap(rects.stick, rects.weaponSwitch),
-      fireOverlapsWeaponSwitch:
-        rects.fire !== null && rects.weaponSwitch !== null && rectsOverlap(rects.fire, rects.weaponSwitch),
     };
 
     function rectsOverlap(first: DOMRectLike, second: DOMRectLike): boolean {
@@ -688,8 +734,6 @@ async function expectControlsToFit(page: Page): Promise<void> {
   expect(controlFit.withinViewport).toBe(true);
   expect(controlFit.undersizedTargets).toEqual([]);
   expect(controlFit.stickOverlapsFire).toBe(false);
-  expect(controlFit.stickOverlapsWeaponSwitch).toBe(false);
-  expect(controlFit.fireOverlapsWeaponSwitch).toBe(false);
 }
 
 interface DOMRectLike {

@@ -266,12 +266,6 @@ export class WeaponSystem {
     this.updateMenuState();
   }
 
-  private cycleWeapon(): void {
-    const activeIndex = WEAPON_DEFINITIONS.findIndex((weapon) => weapon.id === this.activeWeapon.id);
-    const nextWeapon = WEAPON_DEFINITIONS[(activeIndex + 1) % WEAPON_DEFINITIONS.length] ?? WEAPON_DEFINITIONS[0];
-    this.switchWeapon(nextWeapon.id);
-  }
-
   private shoot(now: number): void {
     if (now < this.nextShotAt || this.reloadCompleteAt > 0) {
       return;
@@ -397,11 +391,6 @@ export class WeaponSystem {
       button.classList.toggle('weapon-button--active', isActive);
       button.setAttribute('aria-pressed', String(isActive));
     }
-
-    const cycleButton = this.root.querySelector<HTMLButtonElement>('[data-weapon-cycle-button]');
-    if (cycleButton) {
-      cycleButton.setAttribute('aria-label', `Switch weapon. Current ${this.activeWeapon.label}`);
-    }
   }
 
   private readonly onPointerDown = (event: PointerEvent): void => {
@@ -414,12 +403,6 @@ export class WeaponSystem {
     if (weaponButton?.dataset.weaponId) {
       event.preventDefault();
       this.switchWeapon(weaponButton.dataset.weaponId);
-      return;
-    }
-
-    if (target.closest('[data-weapon-cycle-button]')) {
-      event.preventDefault();
-      this.cycleWeapon();
       return;
     }
 
@@ -458,10 +441,6 @@ export class WeaponSystem {
     const weaponButton = target.closest<HTMLElement>('[data-weapon-button]');
     if (target.closest('[data-ui-control]')) {
       event.preventDefault();
-    }
-
-    if (target.closest('[data-weapon-cycle-button]')) {
-      return;
     }
 
     if (!weaponButton?.dataset.weaponId) {
