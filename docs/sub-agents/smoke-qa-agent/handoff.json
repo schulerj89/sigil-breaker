@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T06:32:00Z",
-  "summary": "Manual smoke remains green, and Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, one-shot firing, effect-pose alignment, entry-splitter validation, and the new movement collision route.",
+  "updatedAt": "2026-07-04T12:00:00Z",
+  "summary": "Manual smoke remains green, and Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, one-shot firing, effect-pose alignment, pitch-corrected shot math, entry-splitter validation, and the movement collision route.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -24,7 +24,9 @@
     "Latest validate:browser passed after adding structural entry splitter validation and widening row 30/39 split entries.",
     "Unit coverage now pins the user-reported world coordinates near row 39/40 and checks the widened row slices.",
     "Unit coverage now verifies body-only player collision, non-blocking weapon-only footprint overlap, wall depenetration, and tangential slide while pushed into a wall.",
-    "Latest Playwright smoke drives keyboard movement into the near-spawn top wall, asserts the player footprint stays clear during wall push, then escapes and moves east."
+    "Latest Playwright smoke drives keyboard movement into the near-spawn top wall, asserts the player footprint stays clear during wall push, then escapes and moves east.",
+    "Unit coverage now verifies per-weapon muzzle offsets and pitch-corrected shot distance conversion.",
+    "Captured SPARK, BORE, and VAULT level/fire screenshots plus SPARK pitch-up/pitch-down firing screenshots under artifacts/sub-agents/20260704-weapon-framing/smoke-qa-agent."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -35,14 +37,16 @@
     "Keep the one-shot effect-pose browser assertion as a regression gate.",
     "Keep the keyboard movement route as the current browser regression for body collision and wall push behavior.",
     "Add deterministic close-wall pose/input coverage for snapshot.weapon.wallAvoidance in a later smoke slice.",
-    "Add weapon switching and fast-fire/no-zoom assertions in a later smoke slice."
+    "Add weapon switching and fast-fire/no-zoom assertions in a later smoke slice.",
+    "Use snapshot.weapon.effectPose as the automated tracer alignment signal because the primitive tracer is brief in screenshots."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
     "Dev-browser FPS hovered around 57 during first weapon smoke and around 56 during the latest fast-fire smoke.",
     "Plain vite preview did not emulate the GitHub Pages project base path for built asset URLs.",
     "Headless Chromium can emit empty Three shader validation messages after multiple WebGL contexts; the smoke filters only that known empty-log validation noise.",
-    "Close-wall viewmodel retraction is currently unit/debug-state visible but not yet asserted by Playwright look interaction."
+    "Close-wall viewmodel retraction is currently unit/debug-state visible but not yet asserted by Playwright look interaction.",
+    "Pitch-up and pitch-down screenshot QA currently uses pointer-drag approximation because deterministic debug look poses do not exist yet."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
@@ -52,7 +56,8 @@
   "artifacts": [
     "public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png",
     "scripts/validate-assets.mjs",
-    "e2e/foundation-smoke.spec.ts"
+    "e2e/foundation-smoke.spec.ts",
+    "artifacts/sub-agents/20260704-weapon-framing/smoke-qa-agent"
   ],
   "jsonForAgents": {
     "latestManualSmoke": {
@@ -107,6 +112,8 @@
       "bodyOnlyCollisionChecked": true,
       "weaponFootprintNonBlockingChecked": true,
       "shotEffectPoseChecked": true,
+      "perWeaponMuzzleOffsetChecked": true,
+      "pitchCorrectedShotMathChecked": true,
       "assetLoadErrors": 0
     },
     "requiredSmokeAssertions": [
@@ -123,7 +130,12 @@
     "screenshotNames": [
       "boot-mobile-landscape.png",
       "gameplay-mobile-landscape.png",
-      "pause-mobile-landscape.png"
+      "pause-mobile-landscape.png",
+      "weapon-spark-level.png",
+      "weapon-bore-level.png",
+      "weapon-vault-level.png",
+      "tracer-spark-pitch-up.png",
+      "tracer-spark-pitch-down.png"
     ]
   },
   "nextAgents": [

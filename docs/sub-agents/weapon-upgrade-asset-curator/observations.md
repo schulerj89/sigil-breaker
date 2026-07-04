@@ -1,6 +1,6 @@
 # Observations: weapon-upgrade-asset-curator
 
-Status: in progress after weapon placement, collision, cache-busting, and shot-effect alignment pass.
+Status: in progress after per-weapon muzzle, pitch shot-effect, collision, cache-busting, and shot-effect alignment pass.
 
 ## What It Saw
 
@@ -16,6 +16,9 @@ Status: in progress after weapon placement, collision, cache-busting, and shot-e
 - Added `weaponViewPose.ts` so muzzle flash, tracer start, tracer endpoint, and wall impact positions are derived from one camera-local weapon pose helper.
 - The pose helper includes view offset, scale, view rotation, recoil, and wall-avoidance retraction/lowering.
 - `WeaponSystemSnapshot.effectPose` now exposes rounded shot-effect positions for browser QA and future sub-agent checks.
+- Added per-weapon `view.muzzleLocalOffset` anchors so SPARK, BORE, and VAULT no longer share one muzzle/tracer start point.
+- Lowered BORE and VAULT first-person view positions to account for their larger/different silhouettes while keeping SPARK's existing framing.
+- Shot feedback now converts flat X/Z wall raycast distance into camera-space distance so pitched shots still end at the reticle.
 
 ## Decisions
 
@@ -25,6 +28,8 @@ Status: in progress after weapon placement, collision, cache-busting, and shot-e
 - Use temporary primitive tracer and impact feedback until external projectile/hit assets are sourced.
 - Derive viewmodel wall clearance from the current weapon manifest so later offset changes do not desync wall retraction.
 - Derive shot feedback from `getWeaponShotEffectPositions` so later viewmodel movement cannot desync muzzle flash and tracer placement.
+- Keep `muzzleLocalOffset` in the weapon manifest next to each view pose; do not move shape-specific muzzle tuning back into a shared constant.
+- Treat `weaponShotMath.ts` as the pitch correction boundary between flat level raycasts and camera-local tracer rendering.
 
 ## Caught Issues
 
@@ -32,7 +37,9 @@ Status: in progress after weapon placement, collision, cache-busting, and shot-e
 - Wall collision is level-tile based, not a final projectile or enemy hit system.
 - Wall avoidance is a retraction/probe layer, not full mesh-vs-level collision for every weapon triangle.
 - The current tracer and wall impact are still procedural primitives; they should be replaced with external assets once the weapon VFX source is chosen.
+- The primitive tracer is brief in still screenshots, so debug `effectPose` remains the more reliable automated alignment signal.
 
 ## Next Handoff Notes
 
 - Camera and game-feel agents should review yaw `0`, right-offset model placement, wall retraction, muzzle flash placement, and tracer readability in landscape phone view.
+- Screenshot QA captures for this pass live under `artifacts/sub-agents/20260704-weapon-framing/smoke-qa-agent/`.

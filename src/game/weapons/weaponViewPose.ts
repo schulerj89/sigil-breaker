@@ -4,7 +4,6 @@ import type { WeaponDefinition } from './weaponManifest';
 export const WEAPON_VIEW_WALL_RETRACT_UNITS = 0.46;
 export const WEAPON_VIEW_WALL_LOWER_UNITS = 0.09;
 export const WEAPON_VIEW_WALL_TILT_RADIANS = 0.12;
-export const WEAPON_MUZZLE_LOCAL_OFFSET = [0.04, 0.04, -1.1] as const;
 export const WEAPON_WALL_IMPACT_INSET_UNITS = 0.035;
 export const MIN_SHOT_TRACER_DISTANCE_UNITS = 0.7;
 
@@ -45,7 +44,7 @@ export function getWeaponMuzzleCameraPosition(
   view: WeaponDefinition['view'],
   pose: WeaponViewPoseState,
 ): [number, number, number] {
-  return transformWeaponLocalPoint(view, WEAPON_MUZZLE_LOCAL_OFFSET, pose);
+  return transformWeaponLocalPoint(view, getWeaponMuzzleLocalOffset(view), pose);
 }
 
 export function getWeaponShotEffectPositions(
@@ -60,6 +59,10 @@ export function getWeaponShotEffectPositions(
     tracerEnd: [0, 0, -tracerDistance],
     wallImpact: [0, 0, -distance + WEAPON_WALL_IMPACT_INSET_UNITS],
   };
+}
+
+export function getWeaponMuzzleLocalOffset(view: WeaponDefinition['view']): readonly [number, number, number] {
+  return view.muzzleLocalOffset;
 }
 
 function transformWeaponLocalPoint(

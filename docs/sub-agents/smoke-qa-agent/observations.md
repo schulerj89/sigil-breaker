@@ -1,6 +1,6 @@
 # Observations: smoke-qa-agent
 
-Status: complete for input/collision/layout plus coordinate/cache/effect-pose, entry-splitter, and movement-route browser smoke.
+Status: complete for input/collision/layout plus coordinate/cache/effect-pose, pitch-corrected tracer math, entry-splitter, and movement-route browser smoke.
 
 ## What It Saw
 
@@ -23,6 +23,9 @@ Status: complete for input/collision/layout plus coordinate/cache/effect-pose, e
 - Unit coverage now pins the user-reported world coordinates near row 39/40 and the widened row 30/39 entry slices.
 - Latest Playwright smoke now drives a near-spawn keyboard route into the top wall, verifies the body footprint stays clear while pushing against the wall, then escapes and moves east across all five landscape viewports.
 - Unit coverage now verifies body-only player collision, weapon-only overlap as a non-blocking visual condition, wall depenetration, and tangential slide while pressed into a wall.
+- Latest unit coverage verifies per-weapon muzzle offsets and pitch-corrected conversion from flat X/Z wall raycast distance to camera-space tracer distance.
+- Captured SPARK, BORE, and VAULT level/fire screenshots plus SPARK pitch-up/pitch-down firing frames under `artifacts/sub-agents/20260704-weapon-framing/smoke-qa-agent/`.
+- Latest `npm run validate:browser` passed all five landscape viewports after per-weapon muzzle and pitch-distance changes.
 
 ## Decisions
 
@@ -32,6 +35,7 @@ Status: complete for input/collision/layout plus coordinate/cache/effect-pose, e
 - Keep using `visualViewport.scale` as the smoke signal for double-tap zoom regressions.
 - Use Playwright as the automated browser smoke harness for production preview and Pages path validation.
 - Use the `qaCapture=1` query only for capture/readback reliability; normal production users keep `preserveDrawingBuffer` off.
+- Use `snapshot.weapon.effectPose` as the automated source for tracer alignment because the primitive tracer can disappear between screenshots.
 
 ## Caught Issues
 
@@ -42,8 +46,10 @@ Status: complete for input/collision/layout plus coordinate/cache/effect-pose, e
 - Playwright/HUD review caught the coordinate badge crowding risk on 667 px landscape; HUD fit assertions and CSS wrapping now cover it.
 - Level QA caught no remaining corner pinches after the six tile closures.
 - Weapon wall avoidance is exposed as `snapshot.weapon.wallAvoidance`; the browser route now covers movement near a wall, while close-wall look rotation remains future work.
+- Still screenshots confirmed BORE and VAULT sit lower in the landscape frame, but visual tuning remains approximate until final first-person weapon assets exist.
 
 ## Next Handoff Notes
 
 - Next smoke slice should add weapon switching and fast-fire/no-zoom coverage.
 - Add automated close-wall turn/retract coverage once debug pose controls or deterministic input routes exist.
+- Future screenshot QA should use deterministic debug look poses for pitch-up and pitch-down firing rather than pointer-drag approximation.

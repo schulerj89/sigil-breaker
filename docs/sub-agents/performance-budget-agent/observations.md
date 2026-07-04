@@ -1,6 +1,6 @@
 # Observations: performance-budget-agent
 
-Status: needs review after input/collision/effect-pose/entry-splitter, body-collision resolver, and browser-smoke pass.
+Status: needs review after input/collision/effect-pose/entry-splitter, body-collision resolver, pitch shot math, and browser-smoke pass.
 
 ## What It Saw
 
@@ -20,6 +20,9 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - The entry-splitter fix opens five additional walkable cells and does not add render assets.
 - Latest production-preview Playwright smoke passed all five landscape viewports after the splitter validator and map widening changes.
 - Latest production-preview Playwright smoke passed all five landscape viewports after adding the body collision resolver and keyboard wall-push route.
+- Per-weapon muzzle offsets are manifest-only data and do not add render assets.
+- Pitch-corrected shot math adds CPU-only scalar conversion between flat X/Z wall raycast distance and camera-space tracer distance.
+- Latest production-preview Playwright smoke passed all five landscape viewports after per-weapon muzzle and pitch-distance changes.
 
 ## Decisions
 
@@ -39,7 +42,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Coordinate HUD is DOM text only and should remain in debug metrics rather than the final combat HUD.
 - The build still emits Vite's large chunk warning around the Three.js bundle.
 - The build JS chunk increased slightly after adding the shared weapon clearance module and wall-avoidance debug field.
-- The production JS chunk is now about 644.14 kB minified after adding the movement route smoke and body collision resolver.
+- The production JS chunk is now about 644.59 kB minified after adding the pitch-distance helper.
 
 ## Next Handoff Notes
 

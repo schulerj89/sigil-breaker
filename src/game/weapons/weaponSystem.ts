@@ -5,7 +5,13 @@ import { WEAPON_COLLISION_RADIUS, getWeaponWallProbeLocalPosition } from './weap
 import { WeaponAudio } from './weaponAudio';
 import { WEAPON_DEFINITIONS, publicAssetUrl, withAssetVersion, type WeaponDefinition } from './weaponManifest';
 import {
-  WEAPON_MUZZLE_LOCAL_OFFSET,
+  getCameraSpaceShotDistance,
+  getHorizontalRaycastDistance,
+  getHorizontalShotDirectionLength,
+  hasHorizontalShotDirection,
+} from './weaponShotMath';
+import {
+  getWeaponMuzzleLocalOffset,
   getWeaponRootCameraPosition,
   getWeaponRootCameraRotation,
   getWeaponShotEffectPositions,
@@ -14,6 +20,7 @@ import {
 
 const WALL_AVOIDANCE_DISTANCE = 1.12;
 const WALL_AVOIDANCE_START_DISTANCE = 0.34;
+const MIN_BLOCKED_SHOT_DISTANCE_UNITS = 0.35;
 
 export interface WeaponShotSnapshot {
   sequence: number;
@@ -79,6 +86,7 @@ export class WeaponSystem {
     this.loadingManager.setURLModifier(withAssetVersion);
     this.modelSlot.name = 'first-person-weapon-model-slot';
     this.muzzleFlash = createMuzzleFlash();
+    this.muzzleFlash.position.set(...getWeaponMuzzleLocalOffset(this.activeWeapon.view));
     this.shotFeedbackRoot.name = 'first-person-shot-feedback-root';
     this.shotTracer = createShotTracer();
     this.wallImpact = createWallImpact();
@@ -118,6 +126,7 @@ export class WeaponSystem {
     this.viewRoot.position.set(...getWeaponRootCameraPosition(view, pose));
     this.viewRoot.rotation.set(...getWeaponRootCameraRotation(view, pose));
     this.viewRoot.scale.setScalar(view.scale);
+    this.muzzleFlash.position.set(...getWeaponMuzzleLocalOffset(view));
 
     if (shotFeedbackVisible && this.shotFeedbackDistance > 0) {
       this.updateShotFeedback(this.shotFeedbackDistance);
@@ -242,14 +251,26 @@ export class WeaponSystem {
   private traceShot(now: number): void {
     const direction = new THREE.Vector3();
     this.camera.getWorldDirection(direction);
-    const hit = raycastLevel(
-      this.camera.position.x,
-      this.camera.position.z,
-      direction.x,
-      direction.z,
+    const horizontalDirectionLength = getHorizontalShotDirectionLength(direction.x, direction.z);
+    const maxHorizontalDistance = getHorizontalRaycastDistance(
       this.activeWeapon.rangeUnits,
+      horizontalDirectionLength,
     );
-    const distance = hit ? Math.max(0.35, hit.distance) : this.activeWeapon.rangeUnits;
+    const hit = hasHorizontalShotDirection(horizontalDirectionLength)
+      ? raycastLevel(
+          this.camera.position.x,
+          this.camera.position.z,
+          direction.x,
+          direction.z,
+          maxHorizontalDistance,
+        )
+      : null;
+    const distance = hit
+      ? Math.max(
+          MIN_BLOCKED_SHOT_DISTANCE_UNITS,
+          getCameraSpaceShotDistance(hit.distance, horizontalDirectionLength),
+        )
+      : this.activeWeapon.rangeUnits;
     this.lastShot = {
       sequence: this.shotCount,
       blockedByWall: Boolean(hit),
@@ -419,7 +440,6 @@ function createMuzzleFlash(): THREE.Mesh {
   });
   const mesh = new THREE.Mesh(geometry, material);
   mesh.name = 'weapon-muzzle-flash';
-  mesh.position.set(...WEAPON_MUZZLE_LOCAL_OFFSET);
   mesh.rotation.x = Math.PI / 2;
   mesh.visible = false;
   return mesh;

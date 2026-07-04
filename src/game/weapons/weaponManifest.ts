@@ -18,6 +18,7 @@ export interface WeaponDefinition {
     position: [number, number, number];
     rotation: [number, number, number];
     scale: number;
+    muzzleLocalOffset: [number, number, number];
   };
 }
 
@@ -57,6 +58,7 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       position: [0.52, -0.34, -0.88],
       rotation: [-0.08, VIEW_FORWARD_YAW, 0.02],
       scale: 0.68,
+      muzzleLocalOffset: [0.04, 0.04, -1.1],
     },
   },
   {
@@ -74,9 +76,10 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
     rangeUnits: 18,
     soundProfile: 'scatter',
     view: {
-      position: [0.56, -0.36, -0.98],
+      position: [0.56, -0.42, -0.98],
       rotation: [-0.1, VIEW_FORWARD_YAW, 0.02],
       scale: 0.82,
+      muzzleLocalOffset: [0.05, 0.02, -1.02],
     },
   },
   {
@@ -94,9 +97,10 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
     rangeUnits: 24,
     soundProfile: 'heavy',
     view: {
-      position: [0.6, -0.39, -1.08],
+      position: [0.6, -0.45, -1.08],
       rotation: [-0.09, VIEW_FORWARD_YAW, 0.03],
       scale: 0.72,
+      muzzleLocalOffset: [0.06, 0.01, -1.16],
     },
   },
 ];

@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-04T06:32:00Z",
-  "summary": "Weapon and shot-feedback budget instrumentation is wired; entry and splitter widening add no assets, body collision resolution is nearby-tile scoped, and Playwright production smoke remains green, but visible FPS still needs production profiling.",
+  "updatedAt": "2026-07-04T12:00:00Z",
+  "summary": "Weapon and shot-feedback budget instrumentation is wired; entry and splitter widening add no assets, body collision resolution is nearby-tile scoped, pitch-corrected shot math is CPU-only, and Playwright production smoke remains green, but visible FPS still needs production profiling.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -20,11 +20,13 @@
     "The structural entry-width fix opened eight walkable cells and added no render payload.",
     "weaponViewPose.ts adds camera-local shot-effect math and a rounded debug effectPose field.",
     "Latest npm run validate:browser passed all five landscape viewport gates after the entry-width and shot-effect alignment changes.",
-    "The production JS chunk reported by Vite is about 644.14 kB minified and still triggers the known large chunk warning.",
     "The structural entry splitter fix opened five additional walkable cells and added no render payload.",
     "Latest npm run validate:browser passed all five landscape viewport gates after the splitter validator and map widening changes.",
     "Latest npm run validate:browser passed all five landscape viewport gates after adding body collision resolution and the keyboard wall-push route.",
-    "The production JS chunk reported by Vite is about 644.14 kB minified and still triggers the known large chunk warning."
+    "Per-weapon muzzle offsets are manifest data only and do not add render assets.",
+    "weaponShotMath.ts adds a few CPU-only scalar calculations to keep pitched tracer endpoints aligned with the reticle.",
+    "Latest npm run validate:browser passed all five landscape viewport gates after per-weapon muzzle and pitch-distance changes.",
+    "The production JS chunk reported by Vite is about 644.59 kB minified after the pitch-distance helper and still triggers the known large chunk warning."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -35,7 +37,7 @@
     "Use Playwright for correctness smoke, not as the final performance benchmark while qaCapture is enabled.",
     "Keep the body collision resolver because it scans only nearby tiles and runs during movement input.",
     "Keep the weapon wall-avoidance probes for now because they are map-sample based and low cost.",
-    "Keep shared shot-effect pose math unit-testable rather than adding more scene graph probes.",
+    "Keep shared shot-effect pose and shot-distance math unit-testable rather than adding more scene graph probes.",
     "Keep structural entry splitter validation in build/test tooling because it has no runtime frame cost."
   ],
   "caughtIssues": [
@@ -56,6 +58,7 @@
   "blockers": [],
   "artifacts": [
     "src/game/weapons/weaponSystem.ts",
+    "src/game/weapons/weaponShotMath.ts",
     "src/game/weapons/weaponViewPose.ts",
     "src/game/debug.ts",
     "scripts/validate-assets.mjs",
@@ -86,8 +89,8 @@
     "qaCapturePreserveDrawingBuffer": true,
     "movementCollisionCost": "nearby solid-tile circle resolver while movement input is active",
     "weaponClearanceCost": "one weapon wall ray/probe for visual viewmodel avoidance",
-    "shotEffectPoseCost": "shot-time and short-lived visible-effect camera-local vector math",
-    "productionJsChunkKb": 644.14,
+    "shotEffectPoseCost": "shot-time and short-lived visible-effect camera-local vector/scalar math",
+    "productionJsChunkKb": 644.59,
     "publicAssetCacheParam": "assetBuild",
     "browserSmokeCommand": "npm run validate:browser",
     "foundationWalkableTiles": 1653,

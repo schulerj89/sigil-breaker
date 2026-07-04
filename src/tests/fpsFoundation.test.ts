@@ -34,10 +34,16 @@ import { getWeaponFootprintClearance } from '../game/weapons/weaponClearance';
 import {
   MIN_SHOT_TRACER_DISTANCE_UNITS,
   WEAPON_WALL_IMPACT_INSET_UNITS,
+  getWeaponMuzzleLocalOffset,
   getWeaponMuzzleCameraPosition,
   getWeaponRootCameraPosition,
   getWeaponShotEffectPositions,
 } from '../game/weapons/weaponViewPose';
+import {
+  getCameraSpaceShotDistance,
+  getHorizontalRaycastDistance,
+  getHorizontalShotDirectionLength,
+} from '../game/weapons/weaponShotMath';
 import { WEAPON_ASSET_SOURCE, WEAPON_DEFINITIONS, publicAssetUrl, withAssetVersion } from '../game/weapons/weaponManifest';
 
 describe('FPS foundation config', () => {
@@ -178,12 +184,27 @@ describe('FPS foundation config', () => {
       expect(clearance.rightOffset).toBeGreaterThanOrEqual(weapon.view.position[0]);
       expect(clearance.forwardOffset).toBeGreaterThanOrEqual(Math.abs(weapon.view.position[2]));
       expect(weapon.view.rotation[1]).toBeCloseTo(0);
+      expect(getWeaponMuzzleLocalOffset(weapon.view)).toHaveLength(3);
     }
   });
 
-  it('derives shot effects from the weapon view pose', () => {
+  it('derives shot effects from each weapon view pose', () => {
     const neutralPose = { recoil: 0, wallAvoidance: 0 };
     const wallPose = { recoil: 0.08, wallAvoidance: 0.65 };
+    const muzzleOffsets = new Set(WEAPON_DEFINITIONS.map((weapon) => getWeaponMuzzleLocalOffset(weapon.view).join(',')));
+    const spark = getWeaponById('weapon.blaster.spark');
+    const bore = getWeaponById('weapon.blaster.bore');
+    const vault = getWeaponById('weapon.blaster.vault');
+
+    expect(muzzleOffsets.size).toBe(WEAPON_DEFINITIONS.length);
+    expect(bore.view.position[1]).toBeLessThan(spark.view.position[1]);
+    expect(vault.view.position[1]).toBeLessThan(bore.view.position[1]);
+    expect(getWeaponMuzzleCameraPosition(bore.view, neutralPose)[1]).toBeLessThan(
+      getWeaponMuzzleCameraPosition(spark.view, neutralPose)[1],
+    );
+    expect(getWeaponMuzzleCameraPosition(vault.view, neutralPose)[1]).toBeLessThan(
+      getWeaponMuzzleCameraPosition(bore.view, neutralPose)[1],
+    );
 
     for (const weapon of WEAPON_DEFINITIONS) {
       const root = getWeaponRootCameraPosition(weapon.view, neutralPose);
@@ -211,6 +232,17 @@ describe('FPS foundation config', () => {
       expect(wallMuzzle[1]).not.toBeCloseTo(muzzle[1]);
       expect(wallMuzzle[2]).not.toBeCloseTo(muzzle[2]);
     }
+  });
+
+  it('converts flat wall ray hits into camera-space tracer distances', () => {
+    const levelWallDistance = 10;
+    const levelAim = getHorizontalShotDirectionLength(1, 0);
+    const pitchedAim = getHorizontalShotDirectionLength(Math.SQRT1_2, 0);
+
+    expect(getHorizontalRaycastDistance(20, levelAim)).toBeCloseTo(20);
+    expect(getCameraSpaceShotDistance(levelWallDistance, levelAim)).toBeCloseTo(levelWallDistance);
+    expect(getHorizontalRaycastDistance(20, pitchedAim)).toBeCloseTo(20 * Math.SQRT1_2);
+    expect(getCameraSpaceShotDistance(levelWallDistance * Math.SQRT1_2, pitchedAim)).toBeCloseTo(levelWallDistance);
   });
 
   it('keeps weapon clearance visual without making it a movement blocker', () => {
@@ -740,4 +772,13 @@ function expectTupleClose(actual: readonly [number, number, number], expected: r
   expect(actual[0]).toBeCloseTo(expected[0]);
   expect(actual[1]).toBeCloseTo(expected[1]);
   expect(actual[2]).toBeCloseTo(expected[2]);
+}
+
+function getWeaponById(id: string) {
+  const weapon = WEAPON_DEFINITIONS.find((definition) => definition.id === id);
+  if (!weapon) {
+    throw new Error(`Missing weapon definition ${id}`);
+  }
+
+  return weapon;
 }

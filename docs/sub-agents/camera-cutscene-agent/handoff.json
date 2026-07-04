@@ -2,19 +2,24 @@
   "handoffVersion": "1.0.0",
   "agentId": "camera-cutscene-agent",
   "status": "not-started",
-  "updatedAt": "2026-07-04T05:40:00Z",
-  "summary": "Initial camera scaffold only; no cutscene system exists, but weapon feedback now depends on shared camera-local view-pose math.",
+  "updatedAt": "2026-07-04T12:00:00Z",
+  "summary": "Initial camera scaffold only; no cutscene system exists, but weapon feedback now depends on shared camera-local view-pose math and pitch-corrected shot distance math.",
   "observations": [
     "No camera modes, viewmodel framing, or cutscene system exists yet.",
-    "Weapon muzzle, tracer, and wall-impact positions are derived from src/game/weapons/weaponViewPose.ts."
+    "Weapon muzzle, tracer, and wall-impact positions are derived from src/game/weapons/weaponViewPose.ts.",
+    "Pitched shot tracer distance is corrected by src/game/weapons/weaponShotMath.ts because level wall raycasts operate in flat X/Z space.",
+    "No deterministic pitch-up or pitch-down debug camera poses exist yet."
   ],
   "decisions": [
     "Cutscenes must be skippable.",
     "Input state must be restored after cutscenes.",
     "Camera shake and FOV shifts must remain readable on mobile.",
-    "Gameplay camera changes must preserve or explicitly suspend weapon shot-effect pose alignment."
+    "Gameplay camera changes must preserve or explicitly suspend weapon shot-effect pose alignment.",
+    "Future aim/FOV/recoil camera changes must preserve the flat-raycast to camera-space shot-distance conversion."
   ],
-  "caughtIssues": [],
+  "caughtIssues": [
+    "Pointer-drag screenshot QA can approximate pitch-up/down firing, but deterministic debug look poses are needed for stable visual regression."
+  ],
   "risks": [
     "Camera and viewmodel decisions can break touch controls and HUD readability if reviewed late."
   ],
@@ -35,9 +40,12 @@
     "restoreInputAfterCutscene": true,
     "debugPoseRequired": true,
     "weaponEffectPoseSource": "src/game/weapons/weaponViewPose.ts",
+    "shotPitchCorrectionSource": "src/game/weapons/weaponShotMath.ts",
     "requiredDebugPoses": [
       "first-person-fire",
-      "close-wall-weapon-retract"
+      "close-wall-weapon-retract",
+      "first-person-fire-pitch-up",
+      "first-person-fire-pitch-down"
     ]
   },
   "nextAgents": [
