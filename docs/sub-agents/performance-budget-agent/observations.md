@@ -1,6 +1,6 @@
 # Observations: performance-budget-agent
 
-Status: needs review after input/collision/effect-pose/entry-splitter, body-collision resolver, pitch shot math, zoom guard, and MVP browser-smoke pass.
+Status: needs review after input/collision/effect-pose/entry-splitter, body-collision resolver, pitch shot math, zoom guard, hold-fire aim, and MVP browser-smoke pass.
 
 ## What It Saw
 
@@ -24,8 +24,15 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Pitch-corrected shot math adds CPU-only scalar conversion between flat X/Z wall raycast distance and camera-space tracer distance.
 - Latest production-preview Playwright smoke passed all five landscape viewports after per-weapon muzzle and pitch-distance changes.
 - The mobile zoom guard adds non-passive event listeners and debug counters only; it adds no scene objects, textures, geometries, or per-frame render work.
-- Browser smoke now uses two Playwright workers and limits full movement/gesture interaction coverage to `chromium-modern-phone-landscape`; all five viewports still run boot, HUD, asset, canvas, cache, viewport-scale, and one-shot checks.
+- Browser smoke now uses two Playwright workers and limits full movement/gesture interaction coverage to `chromium-modern-phone-landscape`; all five viewports still run boot, HUD, asset, canvas, cache, viewport-scale, and hold-fire checks.
 - Local `npm run test:e2e` measured about 19 seconds after the MVP split.
+- Taller foundation walls reuse the existing instanced wall geometry path and add no new draw calls or textures.
+- Larger gun scale and per-weapon aim poses are manifest/math changes; they add no new model payload.
+- Hold-fire aim adds one camera FOV blend, one viewmodel pose blend, and cadence-gated shooting while held.
+- The reticle and gun-cycle icons are CSS-only DOM controls and add no WebGL resources.
+- Latest production JS chunk is about 650.77 kB minified and still triggers the known Vite large chunk warning.
+- Latest `npm run validate:browser` passed all five landscape viewports in 25.7 seconds with two workers.
+- Browser smoke now asserts render calls, triangles, geometries, and textures against the debug budget object.
 
 ## Decisions
 
@@ -38,6 +45,8 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Keep the shared shot-effect pose helper; it avoids extra scene objects and keeps placement math unit-testable.
 - Keep zoom prevention out of the animation loop; smoke should verify counters through the existing debug snapshot.
 - Keep MVP smoke focused on one full interaction route plus all-viewport layout/boot checks until the game grows beyond prototype scope.
+- Keep hold-fire pose/FOV math in scalar helpers and existing objects instead of adding extra scene graph probes.
+- Use the existing renderer budget counters as the MVP gate until visible-device FPS profiling is repeated.
 
 ## Caught Issues
 
@@ -49,6 +58,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - The build JS chunk increased slightly after adding the shared weapon clearance module and wall-avoidance debug field.
 - The production JS chunk is now about 644.59 kB minified after adding the pitch-distance helper.
 - The earlier all-viewport full interaction smoke repeated the same route and gesture work five times, which was disproportionate for MVP CI.
+- Continuous fire increases audio/effect churn by cadence, but the current visible primitives are reused and not recreated per shot.
 
 ## Next Handoff Notes
 
@@ -61,3 +71,4 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Entry-splitter validation is build/test-time only and should not affect runtime frame budget.
 - Future mobile profiling should check that pinch/double-tap guard listeners do not interfere with simultaneous move/look/fire pointer throughput.
 - Restore broader per-viewport interaction routes before beta/release gates or when a viewport-specific gameplay issue is suspected.
+- Future profiling should measure sustained held fire on physical mobile hardware, not just one-shot smoke.

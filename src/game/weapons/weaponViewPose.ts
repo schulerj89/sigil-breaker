@@ -10,6 +10,7 @@ export const MIN_SHOT_TRACER_DISTANCE_UNITS = 0.7;
 export interface WeaponViewPoseState {
   recoil: number;
   wallAvoidance: number;
+  aimBlend: number;
 }
 
 export interface WeaponShotEffectPositions {
@@ -22,10 +23,14 @@ export function getWeaponRootCameraPosition(
   view: WeaponDefinition['view'],
   pose: WeaponViewPoseState,
 ): [number, number, number] {
+  const baseX = lerp(view.position[0], view.aimPosition[0], pose.aimBlend);
+  const baseY = lerp(view.position[1], view.aimPosition[1], pose.aimBlend);
+  const baseZ = lerp(view.position[2], view.aimPosition[2], pose.aimBlend);
+
   return [
-    view.position[0],
-    view.position[1] - pose.wallAvoidance * WEAPON_VIEW_WALL_LOWER_UNITS,
-    view.position[2] + pose.recoil + pose.wallAvoidance * WEAPON_VIEW_WALL_RETRACT_UNITS,
+    baseX,
+    baseY - pose.wallAvoidance * WEAPON_VIEW_WALL_LOWER_UNITS,
+    baseZ + pose.recoil + pose.wallAvoidance * WEAPON_VIEW_WALL_RETRACT_UNITS,
   ];
 }
 
@@ -33,11 +38,19 @@ export function getWeaponRootCameraRotation(
   view: WeaponDefinition['view'],
   pose: WeaponViewPoseState,
 ): [number, number, number] {
+  const baseX = lerp(view.rotation[0], view.aimRotation[0], pose.aimBlend);
+  const baseY = lerp(view.rotation[1], view.aimRotation[1], pose.aimBlend);
+  const baseZ = lerp(view.rotation[2], view.aimRotation[2], pose.aimBlend);
+
   return [
-    view.rotation[0] - pose.recoil * 1.4 - pose.wallAvoidance * WEAPON_VIEW_WALL_TILT_RADIANS,
-    view.rotation[1],
-    view.rotation[2] + pose.recoil * 0.55,
+    baseX - pose.recoil * 1.4 - pose.wallAvoidance * WEAPON_VIEW_WALL_TILT_RADIANS,
+    baseY,
+    baseZ + pose.recoil * 0.55,
   ];
+}
+
+export function getWeaponRootCameraScale(view: WeaponDefinition['view'], pose: WeaponViewPoseState): number {
+  return view.scale * lerp(1, view.aimScaleMultiplier, pose.aimBlend);
 }
 
 export function getWeaponMuzzleCameraPosition(
@@ -73,8 +86,12 @@ function transformWeaponLocalPoint(
   const [rootX, rootY, rootZ] = getWeaponRootCameraPosition(view, pose);
   const [rotationX, rotationY, rotationZ] = getWeaponRootCameraRotation(view, pose);
   const offset = new THREE.Vector3(...localPoint)
-    .multiplyScalar(view.scale)
+    .multiplyScalar(getWeaponRootCameraScale(view, pose))
     .applyEuler(new THREE.Euler(rotationX, rotationY, rotationZ, 'XYZ'));
 
   return [rootX + offset.x, rootY + offset.y, rootZ + offset.z];
+}
+
+function lerp(start: number, end: number, amount: number): number {
+  return start + (end - start) * amount;
 }

@@ -27,6 +27,8 @@ interface DebugSnapshot {
     fps: number;
     calls: number;
     triangles: number;
+    geometries: number;
+    textures: number;
   };
   memoryMetrics: {
     loadedAssetIds: string[];
@@ -38,6 +40,9 @@ interface DebugSnapshot {
     activeWeaponLabel: string;
     ammoInMagazine: number;
     magazineSize: number;
+    isFireHeld: boolean;
+    aimBlend: number;
+    cameraFovDegrees: number;
     shotCount: number;
     effectPose: {
       muzzle: [number, number, number];
@@ -60,6 +65,12 @@ interface DebugSnapshot {
     lookActive: boolean;
     movePointerActive: boolean;
     moveVector: [number, number];
+  };
+  budgets: {
+    drawCallsMax: number;
+    trianglesMax: number;
+    geometriesMax: number;
+    texturesMax: number;
   };
 }
 
@@ -116,14 +127,25 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   ]);
   expect(debugSnapshot.rendererMetrics.calls).toBeGreaterThan(0);
   expect(debugSnapshot.rendererMetrics.triangles).toBeGreaterThan(0);
+  expect(debugSnapshot.rendererMetrics.calls).toBeLessThanOrEqual(debugSnapshot.budgets.drawCallsMax);
+  expect(debugSnapshot.rendererMetrics.triangles).toBeLessThanOrEqual(debugSnapshot.budgets.trianglesMax);
+  expect(debugSnapshot.rendererMetrics.geometries).toBeLessThanOrEqual(debugSnapshot.budgets.geometriesMax);
+  expect(debugSnapshot.rendererMetrics.textures).toBeLessThanOrEqual(debugSnapshot.budgets.texturesMax);
   expect(debugSnapshot.weapon.activeWeaponId).toBe('weapon.blaster.spark');
   expect(debugSnapshot.weapon.activeWeaponLabel).toBe('SPARK');
   expect(debugSnapshot.weapon.ammoInMagazine).toBe(debugSnapshot.weapon.magazineSize);
+  expect(debugSnapshot.weapon.isFireHeld).toBe(false);
+  expect(debugSnapshot.weapon.aimBlend).toBe(0);
+  expect(debugSnapshot.weapon.cameraFovDegrees).toBeCloseTo(70);
   expect(debugSnapshot.controls.viewportScale).toBe(1);
 
   const coordinateText = await page.locator('[data-debug-coordinates]').textContent();
   expect(coordinateText).toBe(formatCoordinates(debugSnapshot.scene.playerPosition));
   await expectHudToFit(page);
+  await expectControlsToFit(page);
+  await expect(page.locator('[data-fire-button]')).not.toHaveText(/F/);
+  await expect(page.locator('[data-fire-button] .reticle-icon')).toBeVisible();
+  await expect(page.locator('[data-weapon-cycle-button] .gun-icon')).toBeVisible();
   await expectViewportScaleLocked(page);
 
   await expect.poll(async () => (await page.evaluate(readCanvasSamples)).nonBlankSamples).toBeGreaterThan(0);
@@ -152,15 +174,14 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   }
 
   const preShotSnapshot = await readDebugSnapshot(page);
-  await page.locator('[data-fire-button]').click();
-  await expect
-    .poll(async () => (await page.evaluate(() => window.__SIGILBREAKER_DEBUG__?.getSnapshot().weapon.shotCount)) ?? 0)
-    .toBeGreaterThan(preShotSnapshot.weapon.shotCount);
-  const shotSnapshot = (await page.evaluate<DebugSnapshot | undefined>(
-    () => window.__SIGILBREAKER_DEBUG__?.getSnapshot(),
-  )) as DebugSnapshot;
-  expect(shotSnapshot.weapon.ammoInMagazine).toBe(preShotSnapshot.weapon.ammoInMagazine - 1);
-  expect(shotSnapshot.weapon.effectPose.muzzle[0]).toBeGreaterThan(0.5);
+  const shotSnapshot = await holdFireButton(page, 380);
+  expect(shotSnapshot.weapon.shotCount).toBeGreaterThan(preShotSnapshot.weapon.shotCount + 1);
+  expect(shotSnapshot.weapon.ammoInMagazine).toBeLessThan(preShotSnapshot.weapon.ammoInMagazine);
+  expect(shotSnapshot.weapon.isFireHeld).toBe(true);
+  expect(shotSnapshot.weapon.aimBlend).toBeGreaterThan(0.45);
+  expect(shotSnapshot.weapon.cameraFovDegrees).toBeLessThan(preShotSnapshot.weapon.cameraFovDegrees);
+  expect(shotSnapshot.weapon.effectPose.muzzle[0]).toBeGreaterThan(0.15);
+  expect(shotSnapshot.weapon.effectPose.muzzle[0]).toBeLessThan(preShotSnapshot.weapon.effectPose.muzzle[0]);
   expect(shotSnapshot.weapon.effectPose.muzzle[2]).toBeLessThan(-1);
   expect(shotSnapshot.weapon.effectPose.tracerEnd[0]).toBe(0);
   expect(shotSnapshot.weapon.effectPose.tracerEnd[1]).toBe(0);
@@ -171,6 +192,22 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
       1,
     );
   }
+  await expect.poll(async () => (await readDebugSnapshot(page)).weapon.isFireHeld).toBe(false);
+  const releasedShotCount = (await readDebugSnapshot(page)).weapon.shotCount;
+  await page.waitForTimeout(220);
+  expect((await readDebugSnapshot(page)).weapon.shotCount).toBe(releasedShotCount);
+
+  const beforeCycleSnapshot = await readDebugSnapshot(page);
+  await page.locator('[data-weapon-cycle-button]').click();
+  await expect
+    .poll(async () => (await readDebugSnapshot(page)).weapon.activeWeaponId)
+    .not.toBe(beforeCycleSnapshot.weapon.activeWeaponId);
+  const afterCycleSnapshot = await readDebugSnapshot(page);
+  expect(afterCycleSnapshot.weapon.activeWeaponId).toBe('weapon.blaster.bore');
+  await expect(page.locator('[data-weapon-cycle-button]')).toHaveAttribute(
+    'aria-label',
+    `Switch weapon. Current ${afterCycleSnapshot.weapon.activeWeaponLabel}`,
+  );
 
   if (testInfo.project.name !== FULL_INTERACTION_PROJECT) {
     expect(consoleErrors).toEqual([]);
@@ -234,6 +271,30 @@ function readCanvasSamples(): { supported: boolean; nonBlankSamples: number } {
 async function readDebugSnapshot(page: Page): Promise<DebugSnapshot> {
   const snapshot = await page.evaluate<DebugSnapshot | undefined>(() => window.__SIGILBREAKER_DEBUG__?.getSnapshot());
   expect(snapshot).toBeDefined();
+  return snapshot as DebugSnapshot;
+}
+
+async function holdFireButton(page: Page, durationMs: number): Promise<DebugSnapshot> {
+  const point = await readElementCenter(page, '[data-fire-button]');
+  const client = await page.context().newCDPSession(page);
+  let snapshot: DebugSnapshot | null = null;
+
+  try {
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [{ x: point.x, y: point.y, radiusX: 5, radiusY: 5, id: 31 }],
+    });
+    await page.waitForTimeout(durationMs);
+    snapshot = await readDebugSnapshot(page);
+  } finally {
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: [],
+    });
+    await client.detach();
+  }
+
+  expect(snapshot).not.toBeNull();
   return snapshot as DebugSnapshot;
 }
 
@@ -387,6 +448,9 @@ async function verifySimultaneousMoveAimFire(page: Page): Promise<void> {
     const activeSnapshot = await readDebugSnapshot(page);
     expect(activeSnapshot.controls.movePointerActive).toBe(true);
     expect(activeSnapshot.controls.lookActive).toBe(true);
+    expect(activeSnapshot.weapon.isFireHeld).toBe(true);
+    expect(activeSnapshot.weapon.aimBlend).toBeGreaterThan(0.2);
+    expect(activeSnapshot.weapon.cameraFovDegrees).toBeLessThan(start.weapon.cameraFovDegrees);
     expect(Math.hypot(...activeSnapshot.controls.moveVector)).toBeGreaterThan(0.2);
   } finally {
     await client.send('Input.dispatchTouchEvent', {
@@ -395,6 +459,9 @@ async function verifySimultaneousMoveAimFire(page: Page): Promise<void> {
     });
     await client.detach();
   }
+
+  await expect.poll(async () => (await readDebugSnapshot(page)).weapon.isFireHeld).toBe(false);
+  await expect.poll(async () => (await readDebugSnapshot(page)).controls.lookActive).toBe(false);
 }
 
 async function readGesturePoint(page: Page): Promise<{ x: number; y: number }> {
@@ -432,6 +499,21 @@ async function readCombatTouchPoints(page: Page): Promise<{
       },
     };
   });
+}
+
+async function readElementCenter(page: Page, selector: string): Promise<{ x: number; y: number }> {
+  return page.evaluate((targetSelector) => {
+    const rect = document.querySelector(targetSelector)?.getBoundingClientRect();
+
+    if (!rect) {
+      throw new Error(`Missing element ${targetSelector}.`);
+    }
+
+    return {
+      x: Math.round(rect.left + rect.width / 2),
+      y: Math.round(rect.top + rect.height / 2),
+    };
+  }, selector);
 }
 
 async function expectViewportScaleLocked(page: Page): Promise<void> {
@@ -543,4 +625,78 @@ async function expectHudToFit(page: Page): Promise<void> {
   expect(hudFit.centerRightGap).toBeGreaterThanOrEqual(0);
   expect(hudFit.groupsWithinViewport).toBe(true);
   expect(hudFit.overflowingBadges).toEqual([]);
+}
+
+async function expectControlsToFit(page: Page): Promise<void> {
+  const controlFit = await page.evaluate(() => {
+    const selectors = {
+      stick: '[data-move-stick]',
+      fire: '[data-fire-button]',
+      weaponSwitch: '[data-weapon-cycle-button]',
+    } as const;
+    const rects = Object.fromEntries(
+      Object.entries(selectors).map(([key, selector]) => {
+        const rect = document.querySelector(selector)?.getBoundingClientRect();
+
+        return [
+          key,
+          rect
+            ? {
+                left: rect.left,
+                top: rect.top,
+                right: rect.right,
+                bottom: rect.bottom,
+                width: rect.width,
+                height: rect.height,
+              }
+            : null,
+        ];
+      }),
+    ) as Record<keyof typeof selectors, DOMRectLike | null>;
+
+    const allPresent = Object.values(rects).every((rect) => rect !== null);
+    const viewport = { width: window.innerWidth, height: window.innerHeight };
+    const withinViewport = Object.values(rects).every(
+      (rect) =>
+        rect !== null &&
+        rect.left >= 0 &&
+        rect.top >= 0 &&
+        rect.right <= viewport.width &&
+        rect.bottom <= viewport.height,
+    );
+    const undersizedTargets = Object.entries(rects)
+      .filter(([, rect]) => rect === null || rect.width < 44 || rect.height < 44)
+      .map(([key]) => key);
+
+    return {
+      allPresent,
+      withinViewport,
+      undersizedTargets,
+      stickOverlapsFire: rects.stick !== null && rects.fire !== null && rectsOverlap(rects.stick, rects.fire),
+      stickOverlapsWeaponSwitch:
+        rects.stick !== null && rects.weaponSwitch !== null && rectsOverlap(rects.stick, rects.weaponSwitch),
+      fireOverlapsWeaponSwitch:
+        rects.fire !== null && rects.weaponSwitch !== null && rectsOverlap(rects.fire, rects.weaponSwitch),
+    };
+
+    function rectsOverlap(first: DOMRectLike, second: DOMRectLike): boolean {
+      return first.left < second.right && first.right > second.left && first.top < second.bottom && first.bottom > second.top;
+    }
+  });
+
+  expect(controlFit.allPresent).toBe(true);
+  expect(controlFit.withinViewport).toBe(true);
+  expect(controlFit.undersizedTargets).toEqual([]);
+  expect(controlFit.stickOverlapsFire).toBe(false);
+  expect(controlFit.stickOverlapsWeaponSwitch).toBe(false);
+  expect(controlFit.fireOverlapsWeaponSwitch).toBe(false);
+}
+
+interface DOMRectLike {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+  width: number;
+  height: number;
 }

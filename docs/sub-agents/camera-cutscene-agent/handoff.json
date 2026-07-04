@@ -2,23 +2,29 @@
   "handoffVersion": "1.0.0",
   "agentId": "camera-cutscene-agent",
   "status": "not-started",
-  "updatedAt": "2026-07-04T12:00:00Z",
-  "summary": "Initial camera scaffold only; no cutscene system exists, but weapon feedback now depends on shared camera-local view-pose math and pitch-corrected shot distance math.",
+  "updatedAt": "2026-07-04T14:45:00Z",
+  "summary": "Initial camera scaffold only; no cutscene system exists, but weapon feedback now depends on shared camera-local view-pose math, pitch-corrected shot distance math, and hold-fire FOV/weapon-centering state.",
   "observations": [
     "No camera modes, viewmodel framing, or cutscene system exists yet.",
     "Weapon muzzle, tracer, and wall-impact positions are derived from src/game/weapons/weaponViewPose.ts.",
     "Pitched shot tracer distance is corrected by src/game/weapons/weaponShotMath.ts because level wall raycasts operate in flat X/Z space.",
-    "No deterministic pitch-up or pitch-down debug camera poses exist yet."
+    "No deterministic pitch-up or pitch-down debug camera poses exist yet.",
+    "Holding fire blends camera FOV from 70 to 62 degrees and blends each weapon from its hip pose toward a centered aim pose.",
+    "snapshot.weapon.aimBlend and snapshot.weapon.cameraFovDegrees expose the current aim camera state.",
+    "Fire-button drag can adjust yaw/pitch at reduced sensitivity while the same pointer is held for fire."
   ],
   "decisions": [
     "Cutscenes must be skippable.",
     "Input state must be restored after cutscenes.",
     "Camera shake and FOV shifts must remain readable on mobile.",
     "Gameplay camera changes must preserve or explicitly suspend weapon shot-effect pose alignment.",
-    "Future aim/FOV/recoil camera changes must preserve the flat-raycast to camera-space shot-distance conversion."
+    "Future aim/FOV/recoil camera changes must preserve the flat-raycast to camera-space shot-distance conversion.",
+    "Treat hold-fire as the current aim camera mode until a formal camera state machine exists.",
+    "Any future camera mode must restore base FOV when held fire, reload, or cutscene state ends."
   ],
   "caughtIssues": [
-    "Pointer-drag screenshot QA can approximate pitch-up/down firing, but deterministic debug look poses are needed for stable visual regression."
+    "Pointer-drag screenshot QA can approximate pitch-up/down firing, but deterministic debug look poses are needed for stable visual regression.",
+    "Held-fire centering is debug-state tested but not screenshot-regressed for each weapon silhouette."
   ],
   "risks": [
     "Camera and viewmodel decisions can break touch controls and HUD readability if reviewed late."
@@ -41,11 +47,23 @@
     "debugPoseRequired": true,
     "weaponEffectPoseSource": "src/game/weapons/weaponViewPose.ts",
     "shotPitchCorrectionSource": "src/game/weapons/weaponShotMath.ts",
+    "holdFireAim": {
+      "baseFovDegrees": 70,
+      "aimFovDegrees": 62,
+      "debugFields": [
+        "weapon.aimBlend",
+        "weapon.cameraFovDegrees"
+      ],
+      "poseSource": "src/game/weapons/weaponManifest.ts"
+    },
     "requiredDebugPoses": [
       "first-person-fire",
       "close-wall-weapon-retract",
       "first-person-fire-pitch-up",
-      "first-person-fire-pitch-down"
+      "first-person-fire-pitch-down",
+      "held-fire-aim-spark",
+      "held-fire-aim-bore",
+      "held-fire-aim-vault"
     ]
   },
   "nextAgents": [

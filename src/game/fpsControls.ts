@@ -6,6 +6,8 @@ const EYE_HEIGHT = 1.62;
 export const PLAYER_COLLISION_RADIUS = 0.3;
 export const MOVE_SPEED_UNITS_PER_SECOND = 4.0625;
 const LOOK_SENSITIVITY = 0.004;
+const FIRE_LOOK_SENSITIVITY_MULTIPLIER = 0.72;
+const FIRE_LOOK_DEAD_ZONE_PX = 3;
 const MIN_PITCH = -1.15;
 const MAX_PITCH = 1.1;
 
@@ -39,6 +41,8 @@ export class FpsControls {
   private lookPointerId: number | null = null;
   private lastLookX = 0;
   private lastLookY = 0;
+  private lookSensitivity = LOOK_SENSITIVITY;
+  private lookPointerUsesDeadZone = false;
   private readonly pressedKeys = new Set<KeyName>();
   private readonly stick: HTMLElement | null;
   private readonly stickKnob: HTMLElement | null;
@@ -117,6 +121,10 @@ export class FpsControls {
     }
 
     if (target.closest('[data-ui-control]')) {
+      if (target.closest('[data-fire-button]') && this.lookPointerId === null) {
+        this.beginLookPointer(event, LOOK_SENSITIVITY * FIRE_LOOK_SENSITIVITY_MULTIPLIER, true);
+        event.preventDefault();
+      }
       return;
     }
 
@@ -139,10 +147,7 @@ export class FpsControls {
         return;
       }
 
-      this.lookPointerId = event.pointerId;
-      this.lastLookX = event.clientX;
-      this.lastLookY = event.clientY;
-      this.root.setPointerCapture(event.pointerId);
+      this.beginLookPointer(event, LOOK_SENSITIVITY, false);
       event.preventDefault();
     }
   };
@@ -159,8 +164,10 @@ export class FpsControls {
       const deltaY = event.clientY - this.lastLookY;
       this.lastLookX = event.clientX;
       this.lastLookY = event.clientY;
-      this.yaw -= deltaX * LOOK_SENSITIVITY;
-      this.pitch = clamp(this.pitch - deltaY * LOOK_SENSITIVITY, MIN_PITCH, MAX_PITCH);
+      if (!this.lookPointerUsesDeadZone || Math.hypot(deltaX, deltaY) >= FIRE_LOOK_DEAD_ZONE_PX) {
+        this.yaw -= deltaX * this.lookSensitivity;
+        this.pitch = clamp(this.pitch - deltaY * this.lookSensitivity, MIN_PITCH, MAX_PITCH);
+      }
       event.preventDefault();
     }
   };
@@ -177,6 +184,8 @@ export class FpsControls {
 
     if (event.pointerId === this.lookPointerId) {
       this.lookPointerId = null;
+      this.lookSensitivity = LOOK_SENSITIVITY;
+      this.lookPointerUsesDeadZone = false;
       handledTrackedPointer = true;
     }
 
@@ -226,6 +235,15 @@ export class FpsControls {
 
     this.moveInput.set(knobX / maxDistance, -knobY / maxDistance);
     this.updateStickKnob(knobX, knobY);
+  }
+
+  private beginLookPointer(event: PointerEvent, sensitivity: number, usesDeadZone: boolean): void {
+    this.lookPointerId = event.pointerId;
+    this.lastLookX = event.clientX;
+    this.lastLookY = event.clientY;
+    this.lookSensitivity = sensitivity;
+    this.lookPointerUsesDeadZone = usesDeadZone;
+    this.root.setPointerCapture(event.pointerId);
   }
 
   private updateStickKnob(x: number, y: number): void {

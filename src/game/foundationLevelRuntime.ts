@@ -18,6 +18,8 @@ import {
 } from './levelStreaming';
 
 const MATRIX_BYTES = 16 * Float32Array.BYTES_PER_ELEMENT;
+export const FOUNDATION_WALL_HEIGHT_UNITS = 3.2;
+export const FOUNDATION_COVER_HEIGHT_UNITS = 1.15;
 
 export interface FoundationLevelRuntime {
   update: (playerPosition: readonly [number, number, number]) => void;
@@ -63,14 +65,14 @@ export function createFoundationLevelRuntime(
   }
   scene.add(grid);
 
-  const wallGeometry = track(new THREE.BoxGeometry(LEVEL_TILE_SIZE, 2.4, LEVEL_TILE_SIZE));
+  const wallGeometry = track(new THREE.BoxGeometry(LEVEL_TILE_SIZE, FOUNDATION_WALL_HEIGHT_UNITS, LEVEL_TILE_SIZE));
   const wallMaterial = track(
     new THREE.MeshStandardMaterial({
       color: 0x263c46,
       roughness: 0.74,
     }),
   );
-  const coverGeometry = track(new THREE.BoxGeometry(LEVEL_TILE_SIZE, 1.15, LEVEL_TILE_SIZE));
+  const coverGeometry = track(new THREE.BoxGeometry(LEVEL_TILE_SIZE, FOUNDATION_COVER_HEIGHT_UNITS, LEVEL_TILE_SIZE));
   const coverMaterial = track(
     new THREE.MeshStandardMaterial({
       color: 0x3f5560,
@@ -202,14 +204,14 @@ function createChunkGroup(
   if (chunk.wallTiles.length > 0) {
     const wallMesh = new THREE.InstancedMesh(wallGeometry, wallMaterial, chunk.wallTiles.length);
     wallMesh.name = `foundation-walls-${chunk.id}`;
-    setTileInstances(wallMesh, chunk.wallTiles, 1.2);
+    setTileInstances(wallMesh, chunk.wallTiles, FOUNDATION_WALL_HEIGHT_UNITS / 2);
     group.add(wallMesh);
   }
 
   if (chunk.coverTiles.length > 0) {
     const coverMesh = new THREE.InstancedMesh(coverGeometry, coverMaterial, chunk.coverTiles.length);
     coverMesh.name = `foundation-cover-${chunk.id}`;
-    setTileInstances(coverMesh, chunk.coverTiles, 0.575);
+    setTileInstances(coverMesh, chunk.coverTiles, FOUNDATION_COVER_HEIGHT_UNITS / 2);
     group.add(coverMesh);
   }
 

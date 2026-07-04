@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "mobile-fps-game-feel-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T13:15:00Z",
-  "summary": "Basic mobile FPS weapon feel now includes faster movement, body-only resolved player collision, wall-shot detection, full-surface zoom-safe touch input, visual weapon wall clearance, wider structural entries, splitter-post clearance, and shared shot-effect pose alignment.",
+  "updatedAt": "2026-07-04T14:45:00Z",
+  "summary": "Basic mobile FPS weapon feel now includes faster movement, body-only resolved player collision, wall-shot detection, full-surface zoom-safe touch input, visual weapon wall clearance, wider structural entries, splitter-post clearance, shared shot-effect pose alignment, and hold-fire ADS-style zoom/centering.",
   "observations": [
     "The right-side fire button calls the weapon system without stealing aim drags elsewhere on the look zone.",
     "SPARK, BORE, and VAULT use different cadence and recoil values.",
@@ -18,7 +18,13 @@
     "Structural entry splitter posts now require at least 3 open tiles per side and 6 combined open tiles.",
     "The bottom row 39 entries near world x -10 and x 8.2 were widened to keep 3-tile branches around the adjacent divider posts.",
     "Shot feedback uses a shared weapon view pose so tracer start follows active weapon offset, recoil, and wall retraction.",
-    "Accidental double-tap, pinch, WebKit gesture, and ctrl-wheel zoom paths are guarded while keeping move/look pointer ownership stable."
+    "Accidental double-tap, pinch, WebKit gesture, and ctrl-wheel zoom paths are guarded while keeping move/look pointer ownership stable.",
+    "Foundation walls now render at 3.2 units tall.",
+    "Starter weapon view scales were increased and each weapon now has hip and hold-fire aim poses.",
+    "Holding the fire button immediately fires, continues firing by cadence, zooms the camera from 70 to 62 degrees, and blends the gun toward a centered aim pose.",
+    "The fire button can drive reduced-sensitivity look while held so the right thumb can aim and fire together.",
+    "The fire button is represented by a reticle icon, and a smaller gun-icon button cycles weapons.",
+    "Weapon debug state now includes isFireHeld, aimBlend, and cameraFovDegrees."
   ],
   "decisions": [
     "Keep one fire button for now.",
@@ -28,24 +34,31 @@
     "Use body-only movement collision and viewmodel retraction for rotation-near-wall cases.",
     "Keep structural wall-band entries wider than the ordinary 3-tile traversal lane minimum.",
     "Do not center continuing wall posts inside structural entries unless both resulting branches meet the splitter clearance rule.",
-    "Do not allow later non-UI touches to overwrite active move/look pointer IDs."
+    "Do not allow later non-UI touches to overwrite active move/look pointer IDs.",
+    "Treat the fire button as the current mobile ADS-plus-trigger hold for MVP.",
+    "Keep fire-button drag aiming slower than the main look zone.",
+    "Keep per-weapon aim poses in the manifest because starter gun silhouettes differ."
   ],
   "caughtIssues": [
     "Fast repeated fire and full-canvas look taps needed explicit double-tap zoom prevention.",
-    "Weapon-only movement blocking caused unrecoverable stuck states when the player turned near entries."
+    "Weapon-only movement blocking caused unrecoverable stuck states when the player turned near entries.",
+    "Tap-only fire did not provide enough FPS feel; the fire action needed continuous cadence, aim zoom, and centered weapon framing."
   ],
   "risks": [
     "Without hit detection or enemy response, weapon feel can only be judged on cadence, recoil, audio, and UI responsiveness.",
     "Weapon presentation can still visually crowd tight turns if future maps shrink below the 3-tile lane rule.",
     "Physical mobile Safari still needs direct pinch/double-tap verification.",
     "Door-like entries below 5 tiles can feel narrower than their symbol-map width with a right-shifted weapon.",
-    "A 5-tile entry can still feel like two 2-tile branches when a continuing divider post sits just inside the opening."
+    "A 5-tile entry can still feel like two 2-tile branches when a continuing divider post sits just inside the opening.",
+    "Physical devices should verify that reduced-sensitivity fire-button look remains controllable under thumb pressure."
   ],
   "blockers": [],
   "artifacts": [
     "src/game/fpsControls.ts",
     "src/game/levelMap.ts",
     "src/game/weapons/weaponSystem.ts",
+    "src/game/weapons/weaponManifest.ts",
+    "src/game/weapons/weaponViewPose.ts",
     "src/game/weapons/weaponAudio.ts",
     "src/game/mobileZoomGuard.ts",
     "src/game/createGame.ts",
@@ -58,9 +71,28 @@
     "movementSpeedUnitsPerSecond": 4.0625,
     "currentWeaponControls": {
       "touchFire": "data-fire-button",
+      "touchWeaponCycle": "data-weapon-cycle-button",
       "touchSelect": "data-weapon-button",
       "desktopSmokeFire": "Space",
       "desktopSmokeSelect": "Digit1-Digit3"
+    },
+    "holdFireAim": {
+      "debugFields": [
+        "weapon.isFireHeld",
+        "weapon.aimBlend",
+        "weapon.cameraFovDegrees"
+      ],
+      "baseFovDegrees": 70,
+      "aimFovDegrees": 62,
+      "fireLookSensitivityMultiplier": 0.72,
+      "fireLookDeadZonePx": 3,
+      "continuousCadence": true,
+      "immediateFirstShot": true
+    },
+    "viewmodel": {
+      "wallHeightUnits": 3.2,
+      "perWeaponAimPose": true,
+      "aimScaleMultiplier": 1.04
     },
     "touchZoomGuard": {
       "viewportScaleDebugField": "controls.viewportScale",

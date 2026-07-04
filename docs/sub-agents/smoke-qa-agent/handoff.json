@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T14:25:00Z",
-  "summary": "Manual smoke remains green, and MVP-fast Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, one-shot firing, effect-pose alignment, pitch-corrected shot math, entry-splitter validation, movement collision, and browser zoom guards.",
+  "updatedAt": "2026-07-04T14:45:00Z",
+  "summary": "Manual smoke remains green, and MVP-fast Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, hold-fire aim/zoom, effect-pose alignment, pitch-corrected shot math, entry-splitter validation, movement collision, browser zoom guards, and right-side control layout.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -20,7 +20,7 @@
     "Latest validate:browser passed after closing six corner pinch tiles and adding weapon wall avoidance.",
     "Unit coverage now checks the reported world coordinates and a weapon-only near-wall overlap case.",
     "Latest validate:browser passed after widening structural entries to 5 tiles and adding shared weapon shot-effect pose math.",
-    "Playwright now fires once and asserts ammo/shotCount changes plus right-offset muzzle and aligned tracer/impact effect pose.",
+    "Playwright now holds fire and asserts ammo/shotCount changes by cadence plus centered-aim muzzle and aligned tracer/impact effect pose.",
     "Latest validate:browser passed after adding structural entry splitter validation and widening row 30/39 split entries.",
     "Unit coverage now pins the user-reported world coordinates near row 39/40 and checks the widened row slices.",
     "Unit coverage now verifies body-only player collision, non-blocking weapon-only footprint overlap, wall depenetration, and tangential slide while pushed into a wall.",
@@ -31,7 +31,13 @@
     "The debug API reports zoom-guard counters for double taps, multi-touch starts/movement, WebKit gestures, and wheel zoom.",
     "Browser smoke holds move/look touches while firing to check that active pointer ownership remains stable.",
     "MVP browser smoke still boots all five required landscape viewports, but only chromium-modern-phone-landscape runs the heavier movement route and active zoom/multitouch gesture checks.",
-    "Local npm run test:e2e measured about 19 seconds after the MVP split and two-worker Playwright config."
+    "Local npm run test:e2e measured about 19 seconds after the MVP split and two-worker Playwright config.",
+    "Latest npm run validate:browser passed all five landscape viewports after taller walls, larger guns, hold-fire aim zoom, reticle fire icon, and gun-cycle button changes.",
+    "Browser smoke now holds fire long enough to verify multiple shots, ammo reduction, isFireHeld, positive aimBlend, and reduced cameraFovDegrees.",
+    "Browser smoke verifies release cleanup by checking isFireHeld clears and shotCount stops increasing after release.",
+    "Browser smoke checks the fire button has no F text, reticle and gun icons are visible, controls fit the viewport, touch targets are at least 44 px, and fire/cycle/stick controls do not overlap.",
+    "Browser smoke cycles from SPARK to BORE through the gun-icon button and checks the updated aria label.",
+    "Renderer budget assertions now include draw calls, triangles, geometries, and textures."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -39,13 +45,15 @@
     "Track visualViewport.scale for double-tap zoom regressions.",
     "Full playthrough QA remains a separate gate.",
     "Keep Playwright running against the Pages preview path rather than the dev root path.",
-    "Keep the one-shot effect-pose browser assertion as a regression gate.",
+    "Keep the hold-fire effect-pose browser assertion as a regression gate.",
     "Keep the keyboard movement route as the current browser regression for body collision and wall push behavior.",
     "Add deterministic close-wall pose/input coverage for snapshot.weapon.wallAvoidance in a later smoke slice.",
     "Add weapon switching and fast-fire/no-zoom assertions in a later smoke slice.",
     "Use snapshot.weapon.effectPose as the automated tracer alignment signal because the primitive tracer is brief in screenshots.",
     "Keep an initial viewport-scale assertion before movement-route smoke, then run active gesture smoke after deterministic movement so look-zone drags cannot rotate the route setup.",
-    "Use two Playwright workers for MVP browser smoke while keeping the heavier route on one viewport to avoid repeating the same WebGL interaction path five times."
+    "Use two Playwright workers for MVP browser smoke while keeping the heavier route on one viewport to avoid repeating the same WebGL interaction path five times.",
+    "Treat hold-fire as the canonical automated firing path.",
+    "Keep icon/control-fit checks in all viewports because the new weapon-cycle button shares the right-side action pad."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
@@ -55,12 +63,14 @@
     "Close-wall viewmodel retraction is currently unit/debug-state visible but not yet asserted by Playwright look interaction.",
     "Pitch-up and pitch-down screenshot QA currently uses pointer-drag approximation because deterministic debug look poses do not exist yet.",
     "Previous double-tap smoke covered repeated fire/UI controls but not the full look surface or pinch gestures.",
-    "Repeating full movement/gesture smoke across all five viewports made the Pages workflow slow for MVP-level coverage."
+    "Repeating full movement/gesture smoke across all five viewports made the Pages workflow slow for MVP-level coverage.",
+    "Earlier fire smoke only proved one shot and did not catch hold cadence, release cleanup, FOV zoom, or weapon-centering state."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
     "FPS should be checked in production preview before heavier asset imports.",
     "Physical mobile Safari should still be used for final double-tap and pinch confidence because headless Chromium cannot fully emulate browser chrome.",
+    "Held-fire visual framing for SPARK, BORE, and VAULT still needs screenshot QA on real mobile or deterministic debug poses.",
     "Full-route coverage should be re-expanded per viewport before a larger release gate or when viewport-specific gameplay bugs appear."
   ],
   "blockers": [],
@@ -129,10 +139,16 @@
       "pitchCorrectedShotMathChecked": true,
       "browserZoomGuardChecked": true,
       "simultaneousMoveAimFireChecked": true,
+      "holdFireAimChecked": true,
+      "holdFireReleaseChecked": true,
+      "weaponCycleButtonChecked": true,
+      "rightSideControlFitChecked": true,
+      "rendererBudgetChecked": true,
       "fullInteractionProject": "chromium-modern-phone-landscape",
       "mvpFastViewportSplit": true,
       "visualViewportScaleAfterZoomGestures": 1,
-      "assetLoadErrors": 0
+      "assetLoadErrors": 0,
+      "latestDurationSeconds": 25.7
     },
     "requiredSmokeAssertions": [
       "appBoots",
@@ -142,8 +158,13 @@
       "noConsoleErrors",
       "noNetworkAssetFailures",
       "hudFitsLandscapeViewport",
+      "touchControlsFitLandscapeViewport",
       "debugCoordinatesVisible",
-      "publicAssetUrlsCacheBusted"
+      "publicAssetUrlsCacheBusted",
+      "holdFireContinuousCadence",
+      "holdFireReleases",
+      "weaponCycleButtonChangesActiveWeapon",
+      "rendererBudgetsWithinLimit"
     ],
     "screenshotNames": [
       "boot-mobile-landscape.png",

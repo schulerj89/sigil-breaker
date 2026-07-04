@@ -283,9 +283,12 @@ canvas {
   justify-items: center;
 }
 
-.action-pad--single {
-  grid-template-columns: 78px;
-  grid-template-rows: 78px;
+.action-pad--combat {
+  grid-template-columns: 52px 78px;
+  grid-template-rows: 52px 78px;
+  gap: 10px;
+  align-items: end;
+  justify-items: end;
 }
 
 .action-button {
@@ -312,10 +315,97 @@ canvas {
 }
 
 .action-button--fire {
+  grid-column: 2;
+  grid-row: 2;
   width: 78px;
   height: 78px;
   border-color: rgb(248 113 113 / 0.75);
   color: #ffb1a9;
+}
+
+.action-button--weapon-switch {
+  grid-column: 1;
+  grid-row: 1;
+  width: 52px;
+  height: 52px;
+  border-color: rgb(147 197 253 / 0.68);
+  color: #bfdbfe;
+}
+
+.action-button--active {
+  background: rgb(248 113 113 / 0.18);
+  box-shadow: 0 0 22px rgb(248 113 113 / 0.24);
+  transform: scale(0.98);
+}
+
+.reticle-icon {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: block;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.reticle-icon::before,
+.reticle-icon::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: currentColor;
+  transform: translate(-50%, -50%);
+}
+
+.reticle-icon::before {
+  width: 2px;
+  height: 38px;
+}
+
+.reticle-icon::after {
+  width: 38px;
+  height: 2px;
+}
+
+.gun-icon {
+  position: relative;
+  width: 30px;
+  height: 20px;
+  display: block;
+}
+
+.gun-icon::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 6px;
+  width: 16px;
+  height: 8px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.gun-icon::after {
+  content: "";
+  position: absolute;
+  left: 16px;
+  top: 8px;
+  width: 12px;
+  height: 4px;
+  border-radius: 1px;
+  background: currentColor;
+}
+
+.gun-icon__grip {
+  position: absolute;
+  left: 7px;
+  top: 13px;
+  width: 6px;
+  height: 8px;
+  display: block;
+  background: currentColor;
+  transform: skew(-12deg);
+  transform-origin: top center;
 }
 
 .rotate-prompt {
@@ -387,9 +477,10 @@ canvas {
     height: 112px;
   }
 
-  .action-pad {
-    grid-template-columns: 68px;
-    grid-template-rows: 68px;
+  .action-pad--combat {
+    grid-template-columns: 46px 68px;
+    grid-template-rows: 46px 68px;
+    gap: 8px;
   }
 
   .action-button {
@@ -401,5 +492,27 @@ canvas {
   .action-button--fire {
     width: 68px;
     height: 68px;
+  }
+
+  .action-button--weapon-switch {
+    width: 46px;
+    height: 46px;
+  }
+
+  .reticle-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .reticle-icon::before {
+    height: 34px;
+  }
+
+  .reticle-icon::after {
+    width: 34px;
+  }
+
+  .gun-icon {
+    transform: scale(0.86);
   }
 }

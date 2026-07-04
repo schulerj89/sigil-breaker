@@ -14,13 +14,19 @@ import {
   getWeaponMuzzleLocalOffset,
   getWeaponRootCameraPosition,
   getWeaponRootCameraRotation,
+  getWeaponRootCameraScale,
   getWeaponShotEffectPositions,
+  type WeaponViewPoseState,
   type WeaponShotEffectPositions,
 } from './weaponViewPose';
 
 const WALL_AVOIDANCE_DISTANCE = 1.12;
 const WALL_AVOIDANCE_START_DISTANCE = 0.34;
 const MIN_BLOCKED_SHOT_DISTANCE_UNITS = 0.35;
+const AIM_FOV_OFFSET_DEGREES = 8;
+const MIN_AIM_FOV_DEGREES = 58;
+const AIM_IN_SPEED = 12;
+const AIM_OUT_SPEED = 7;
 
 export interface WeaponShotSnapshot {
   sequence: number;
@@ -36,6 +42,9 @@ export interface WeaponSystemSnapshot {
   ammoInMagazine: number;
   magazineSize: number;
   isReloading: boolean;
+  isFireHeld: boolean;
+  aimBlend: number;
+  cameraFovDegrees: number;
   shotCount: number;
   wallAvoidance: number;
   modelBytesLoaded: number;
@@ -62,6 +71,8 @@ export class WeaponSystem {
   private readonly wallImpact: THREE.Mesh;
   private readonly wallAvoidanceDirection = new THREE.Vector3();
   private readonly wallAvoidanceProbe = new THREE.Vector3();
+  private readonly baseCameraFov: number;
+  private readonly aimCameraFov: number;
   private readonly loadedWeapons = new Map<string, LoadedWeapon>();
   private readonly loadedAssetIds = new Set<string>();
   private readonly assetLoadErrors: string[] = [];
@@ -76,12 +87,17 @@ export class WeaponSystem {
   private wallAvoidance = 0;
   private shotFeedbackDistance = 0;
   private shotCount = 0;
+  private aimBlend = 0;
+  private firePointerId: number | null = null;
+  private keyboardFireHeld = false;
   private lastShot: WeaponShotSnapshot | null = null;
 
   constructor(
     private readonly root: HTMLElement,
     private readonly camera: THREE.PerspectiveCamera,
   ) {
+    this.baseCameraFov = camera.fov;
+    this.aimCameraFov = Math.max(MIN_AIM_FOV_DEGREES, this.baseCameraFov - AIM_FOV_OFFSET_DEGREES);
     this.viewRoot.name = 'first-person-weapon-root';
     this.loadingManager.setURLModifier(withAssetVersion);
     this.modelSlot.name = 'first-person-weapon-model-slot';
@@ -101,10 +117,13 @@ export class WeaponSystem {
     this.updateMenuState();
     this.root.addEventListener('pointerdown', this.onPointerDown);
     this.root.addEventListener('pointerup', this.onPointerUp);
+    this.root.addEventListener('pointercancel', this.onPointerCancel);
     this.root.addEventListener('click', this.onClick);
     this.root.addEventListener('dblclick', this.onDoubleClick);
     this.root.addEventListener('touchend', this.onTouchEnd, { passive: false });
     window.addEventListener('keydown', this.onKeyDown);
+    window.addEventListener('keyup', this.onKeyUp);
+    window.addEventListener('blur', this.onWindowBlur);
     void this.preloadWeapons();
   }
 
@@ -112,6 +131,17 @@ export class WeaponSystem {
     if (this.reloadCompleteAt > 0 && now >= this.reloadCompleteAt) {
       this.ammoByWeapon.set(this.activeWeapon.id, this.activeWeapon.magazineSize);
       this.reloadCompleteAt = 0;
+    }
+
+    this.aimBlend = approach(
+      this.aimBlend,
+      this.isFiringHeld() ? 1 : 0,
+      deltaSeconds * (this.isFiringHeld() ? AIM_IN_SPEED : AIM_OUT_SPEED),
+    );
+    this.updateCameraFov();
+
+    if (this.isFiringHeld()) {
+      this.shoot(now);
     }
 
     this.recoil = Math.max(0, this.recoil - deltaSeconds * 8);
@@ -125,7 +155,7 @@ export class WeaponSystem {
     const pose = this.getViewPose();
     this.viewRoot.position.set(...getWeaponRootCameraPosition(view, pose));
     this.viewRoot.rotation.set(...getWeaponRootCameraRotation(view, pose));
-    this.viewRoot.scale.setScalar(view.scale);
+    this.viewRoot.scale.setScalar(getWeaponRootCameraScale(view, pose));
     this.muzzleFlash.position.set(...getWeaponMuzzleLocalOffset(view));
 
     if (shotFeedbackVisible && this.shotFeedbackDistance > 0) {
@@ -141,6 +171,9 @@ export class WeaponSystem {
       ammoInMagazine: this.ammoByWeapon.get(this.activeWeapon.id) ?? 0,
       magazineSize: this.activeWeapon.magazineSize,
       isReloading: this.reloadCompleteAt > 0,
+      isFireHeld: this.isFiringHeld(),
+      aimBlend: roundMetric(this.aimBlend),
+      cameraFovDegrees: roundMetric(this.camera.fov),
       shotCount: this.shotCount,
       wallAvoidance: roundMetric(this.wallAvoidance),
       modelBytesLoaded: [...this.loadedWeapons.values()].reduce(
@@ -163,10 +196,16 @@ export class WeaponSystem {
   dispose(): void {
     this.root.removeEventListener('pointerdown', this.onPointerDown);
     this.root.removeEventListener('pointerup', this.onPointerUp);
+    this.root.removeEventListener('pointercancel', this.onPointerCancel);
     this.root.removeEventListener('click', this.onClick);
     this.root.removeEventListener('dblclick', this.onDoubleClick);
     this.root.removeEventListener('touchend', this.onTouchEnd);
     window.removeEventListener('keydown', this.onKeyDown);
+    window.removeEventListener('keyup', this.onKeyUp);
+    window.removeEventListener('blur', this.onWindowBlur);
+    this.releaseFireState();
+    this.camera.fov = this.baseCameraFov;
+    this.camera.updateProjectionMatrix();
     this.audio.dispose();
     const disposedGeometries = new Set<THREE.BufferGeometry>();
     const disposedMaterials = new Set<THREE.Material>();
@@ -225,6 +264,12 @@ export class WeaponSystem {
       this.attachFallbackWeapon(nextWeapon);
     }
     this.updateMenuState();
+  }
+
+  private cycleWeapon(): void {
+    const activeIndex = WEAPON_DEFINITIONS.findIndex((weapon) => weapon.id === this.activeWeapon.id);
+    const nextWeapon = WEAPON_DEFINITIONS[(activeIndex + 1) % WEAPON_DEFINITIONS.length] ?? WEAPON_DEFINITIONS[0];
+    this.switchWeapon(nextWeapon.id);
   }
 
   private shoot(now: number): void {
@@ -318,10 +363,11 @@ export class WeaponSystem {
     return Math.max(rayAvoidance, probeAvoidance);
   }
 
-  private getViewPose(): { recoil: number; wallAvoidance: number } {
+  private getViewPose(): WeaponViewPoseState {
     return {
       recoil: this.recoil,
       wallAvoidance: this.wallAvoidance,
+      aimBlend: this.aimBlend,
     };
   }
 
@@ -351,6 +397,11 @@ export class WeaponSystem {
       button.classList.toggle('weapon-button--active', isActive);
       button.setAttribute('aria-pressed', String(isActive));
     }
+
+    const cycleButton = this.root.querySelector<HTMLButtonElement>('[data-weapon-cycle-button]');
+    if (cycleButton) {
+      cycleButton.setAttribute('aria-label', `Switch weapon. Current ${this.activeWeapon.label}`);
+    }
   }
 
   private readonly onPointerDown = (event: PointerEvent): void => {
@@ -366,16 +417,35 @@ export class WeaponSystem {
       return;
     }
 
+    if (target.closest('[data-weapon-cycle-button]')) {
+      event.preventDefault();
+      this.cycleWeapon();
+      return;
+    }
+
     if (target.closest('[data-fire-button]')) {
       event.preventDefault();
-      this.shoot(performance.now());
+      this.beginPointerFire(event.pointerId, performance.now());
     }
   };
 
   private readonly onPointerUp = (event: PointerEvent): void => {
+    if (event.pointerId === this.firePointerId) {
+      event.preventDefault();
+      this.endPointerFire(event.pointerId);
+      return;
+    }
+
     const target = event.target;
     if (target instanceof Element && target.closest('[data-ui-control]')) {
       event.preventDefault();
+    }
+  };
+
+  private readonly onPointerCancel = (event: PointerEvent): void => {
+    if (event.pointerId === this.firePointerId) {
+      event.preventDefault();
+      this.endPointerFire(event.pointerId);
     }
   };
 
@@ -388,6 +458,10 @@ export class WeaponSystem {
     const weaponButton = target.closest<HTMLElement>('[data-weapon-button]');
     if (target.closest('[data-ui-control]')) {
       event.preventDefault();
+    }
+
+    if (target.closest('[data-weapon-cycle-button]')) {
+      return;
     }
 
     if (!weaponButton?.dataset.weaponId) {
@@ -414,7 +488,11 @@ export class WeaponSystem {
   private readonly onKeyDown = (event: KeyboardEvent): void => {
     if (event.code === 'Space') {
       event.preventDefault();
-      this.shoot(performance.now());
+      if (!this.keyboardFireHeld) {
+        this.keyboardFireHeld = true;
+        this.updateFireButtonState();
+        this.shoot(performance.now());
+      }
       return;
     }
 
@@ -428,6 +506,74 @@ export class WeaponSystem {
       this.switchWeapon(weapon.id);
     }
   };
+
+  private readonly onKeyUp = (event: KeyboardEvent): void => {
+    if (event.code === 'Space') {
+      event.preventDefault();
+      this.keyboardFireHeld = false;
+      this.updateFireButtonState();
+    }
+  };
+
+  private readonly onWindowBlur = (): void => {
+    this.releaseFireState();
+  };
+
+  private beginPointerFire(pointerId: number, now: number): void {
+    if (this.firePointerId !== null) {
+      return;
+    }
+
+    this.firePointerId = pointerId;
+    if (!this.root.hasPointerCapture(pointerId)) {
+      this.root.setPointerCapture(pointerId);
+    }
+    this.updateFireButtonState();
+    this.shoot(now);
+  }
+
+  private endPointerFire(pointerId: number): void {
+    if (this.firePointerId !== pointerId) {
+      return;
+    }
+
+    this.firePointerId = null;
+    if (this.root.hasPointerCapture(pointerId)) {
+      this.root.releasePointerCapture(pointerId);
+    }
+    this.updateFireButtonState();
+  }
+
+  private releaseFireState(): void {
+    const activePointerId = this.firePointerId;
+    this.firePointerId = null;
+    this.keyboardFireHeld = false;
+    if (activePointerId !== null && this.root.hasPointerCapture(activePointerId)) {
+      this.root.releasePointerCapture(activePointerId);
+    }
+    this.updateFireButtonState();
+  }
+
+  private isFiringHeld(): boolean {
+    return this.firePointerId !== null || this.keyboardFireHeld;
+  }
+
+  private updateFireButtonState(): void {
+    const fireButton = this.root.querySelector<HTMLElement>('[data-fire-button]');
+    if (fireButton) {
+      fireButton.classList.toggle('action-button--active', this.isFiringHeld());
+    }
+  }
+
+  private updateCameraFov(): void {
+    const targetFov = lerp(this.baseCameraFov, this.aimCameraFov, this.aimBlend);
+    if (Math.abs(this.camera.fov - targetFov) < 0.01) {
+      return;
+    }
+
+    this.camera.fov = targetFov;
+    this.camera.updateProjectionMatrix();
+  }
 }
 
 function createMuzzleFlash(): THREE.Mesh {
@@ -559,4 +705,16 @@ function roundTuple(tuple: readonly [number, number, number]): [number, number, 
 
 function clamp01(value: number): number {
   return Math.min(1, Math.max(0, value));
+}
+
+function approach(current: number, target: number, delta: number): number {
+  if (current < target) {
+    return Math.min(target, current + delta);
+  }
+
+  return Math.max(target, current - delta);
+}
+
+function lerp(start: number, end: number, amount: number): number {
+  return start + (end - start) * amount;
 }

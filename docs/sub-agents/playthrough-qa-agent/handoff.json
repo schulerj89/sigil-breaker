@@ -2,12 +2,14 @@
   "handoffVersion": "1.0.0",
   "agentId": "playthrough-qa-agent",
   "status": "not-started",
-  "updatedAt": "2026-07-04T06:05:00Z",
-  "summary": "Initial playthrough QA scaffold only; no full FPS route exists, but the first route should cover widened structural entries, splitter-post branches, and weapon-footprint traversal.",
+  "updatedAt": "2026-07-04T14:45:00Z",
+  "summary": "Initial playthrough QA scaffold only; no full FPS route exists, but the first route should cover widened structural entries, splitter-post branches, weapon-footprint traversal, hold-fire aim, release cleanup, and weapon cycling.",
   "observations": [
     "No playable FPS route, reward choice, or transition exists yet.",
     "The foundation map now uses 5-tile structural entries for door-like breaks.",
-    "Continuing wall posts near entries now require 3 tiles per branch and 6 combined tiles."
+    "Continuing wall posts near entries now require 3 tiles per branch and 6 combined tiles.",
+    "Hold-fire now controls continuous firing, aim zoom, weapon centering, and reduced-sensitivity look.",
+    "A gun-icon button cycles weapons separately from the bottom weapon tray."
   ],
   "decisions": [
     "Playthrough QA must include combat, pause, death/recovery, objective, reward choice, and transition.",
@@ -17,7 +19,8 @@
   "risks": [
     "Smoke tests can pass while the actual combat and reward loop feels broken.",
     "Door-like entries can still feel sticky if future props or enemies reduce usable width below the 5-tile structural-entry rule.",
-    "Splitter-post branches can feel sticky if future divider edits reduce either branch below 3 tiles."
+    "Splitter-post branches can feel sticky if future divider edits reduce either branch below 3 tiles.",
+    "Sustained hold-fire may reveal sticky movement or camera issues near entries that one-shot smoke cannot catch."
   ],
   "blockers": [],
   "artifacts": [],
@@ -28,7 +31,10 @@
       "move",
       "aim",
       "shoot",
+      "hold-fire-aim",
+      "release-fire",
       "reload",
+      "cycle-weapon",
       "take-damage",
       "pause-resume",
       "complete-objective",

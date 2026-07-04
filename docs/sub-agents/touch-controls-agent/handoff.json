@@ -2,36 +2,46 @@
   "handoffVersion": "1.0.0",
   "agentId": "touch-controls-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T13:15:00Z",
-  "summary": "Mobile touch controls exist and the full game surface now guards double-tap, pinch, WebKit gesture, and ctrl-wheel zoom paths.",
+  "updatedAt": "2026-07-04T14:45:00Z",
+  "summary": "Mobile touch controls exist, the full game surface guards double-tap, pinch, WebKit gesture, and ctrl-wheel zoom paths, and the combat controls now support hold-fire aim/zoom plus a separate weapon-cycle button.",
   "observations": [
     "The prototype has a left movement stick, right look zone, center weapon tray, and one right-side fire button.",
     "Fast fire input now prevents default on pointerup, click, dblclick, and touchend for UI controls.",
     "844 x 390 browser smoke kept visualViewport.scale at 1 after repeated fire input.",
     "The game now has a document/root mobile zoom guard for full-canvas double taps, two-finger touch starts/movement, WebKit gesture events, and ctrl-wheel zoom emulation.",
     "Active move/look pointers are stable; later non-UI touches in an already-owned zone are ignored instead of replacing the current pointer.",
-    "The debug API reports viewportScale plus prevented zoom gesture, multi-touch start/move, wheel zoom, and double-tap counters."
+    "The debug API reports viewportScale plus prevented zoom gesture, multi-touch start/move, wheel zoom, and double-tap counters.",
+    "The fire button is now a reticle icon that holds to fire, zoom, and center the weapon.",
+    "The held fire button can own a reduced-sensitivity look pointer when no other look pointer is active.",
+    "A smaller gun-icon button cycles weapons without using the bottom tray.",
+    "Browser smoke asserts control fit, reticle/gun icon visibility, hold-fire release, and weapon-cycle debug state."
   ],
   "decisions": [
     "Left thumb zone owns movement.",
     "Right thumb zone owns look and aim.",
     "Move, aim, and fire must work simultaneously.",
     "Weapon and fire controls should respond on pointerdown instead of waiting for synthetic click.",
-    "Zoom prevention should call preventDefault without stopPropagation so gameplay pointer handlers keep receiving movement, aim, and fire input."
+    "Zoom prevention should call preventDefault without stopPropagation so gameplay pointer handlers keep receiving movement, aim, and fire input.",
+    "Fire-button drag should aim only when no other look pointer is already active.",
+    "Keep fire-drag look sensitivity lower than normal look sensitivity.",
+    "Weapon cycling should remain separate from hold-fire so pressure on fire cannot change weapons."
   ],
   "caughtIssues": [
     "The viewport tag needed explicit minimum and maximum scale values to help prevent mobile double-tap zoom.",
-    "UI-control-only double-tap prevention did not cover accidental double taps or pinches on the main look/canvas surface."
+    "UI-control-only double-tap prevention did not cover accidental double taps or pinches on the main look/canvas surface.",
+    "Single-tap fire did not support the mobile FPS hold-to-aim pattern."
   ],
   "risks": [
     "Physical mobile Safari still needs direct device verification for double-tap and pinch zoom behavior.",
-    "Any future custom gesture recognizer must preserve the guard's non-propagation-blocking behavior."
+    "Any future custom gesture recognizer must preserve the guard's non-propagation-blocking behavior.",
+    "Physical mobile thumb pressure could reveal fire-drag sensitivity or dead-zone tuning needs."
   ],
   "blockers": [],
   "artifacts": [
     "index.html",
     "src/style.css",
     "src/game/weapons/weaponSystem.ts",
+    "src/game/fpsControls.ts",
     "src/game/mobileZoomGuard.ts",
     "src/game/debug.ts",
     "e2e/foundation-smoke.spec.ts"
@@ -46,6 +56,23 @@
       "ability",
       "pause"
     ],
+    "combatSelectors": {
+      "fire": "data-fire-button",
+      "weaponCycle": "data-weapon-cycle-button",
+      "weaponSelect": "data-weapon-button",
+      "moveStick": "data-move-stick"
+    },
+    "holdFireAim": {
+      "debugFields": [
+        "weapon.isFireHeld",
+        "weapon.aimBlend",
+        "weapon.cameraFovDegrees"
+      ],
+      "fireLookSensitivityMultiplier": 0.72,
+      "fireLookDeadZonePx": 3,
+      "immediateFirstShot": true,
+      "continuousFire": true
+    },
     "testViewports": [
       "667x375",
       "740x360",

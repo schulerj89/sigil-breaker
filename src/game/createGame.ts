@@ -176,16 +176,26 @@ function createShellMarkup(): string {
         <div class="stick" data-move-stick>
           <div class="stick__knob" data-stick-knob></div>
         </div>
-        <div class="action-pad action-pad--single">
+        <div class="action-pad action-pad--combat">
+          <button
+            class="action-button action-button--weapon-switch"
+            type="button"
+            data-ui-control
+            data-action-button
+            data-weapon-cycle-button
+            aria-label="Switch weapon. Current ${WEAPON_DEFINITIONS[0].label}"
+          >
+            <span class="gun-icon" aria-hidden="true"><span class="gun-icon__grip"></span></span>
+          </button>
           <button
             class="action-button action-button--fire"
             type="button"
             data-ui-control
             data-action-button
             data-fire-button
-            aria-label="Fire"
+            aria-label="Hold to aim and fire"
           >
-            F
+            <span class="reticle-icon" aria-hidden="true"></span>
           </button>
         </div>
       </div>

@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-04T14:25:00Z",
-  "summary": "Weapon and shot-feedback budget instrumentation is wired; entry and splitter widening add no assets, body collision resolution is nearby-tile scoped, pitch-corrected shot math is CPU-only, zoom prevention is event-only, MVP browser smoke is faster, and visible FPS still needs production profiling.",
+  "updatedAt": "2026-07-04T14:45:00Z",
+  "summary": "Weapon and shot-feedback budget instrumentation is wired; entry and splitter widening add no assets, body collision resolution is nearby-tile scoped, pitch-corrected shot math is CPU-only, zoom prevention is event-only, hold-fire aim reuses existing weapon objects, MVP browser smoke is faster, and visible FPS still needs production profiling.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -28,8 +28,15 @@
     "Latest npm run validate:browser passed all five landscape viewport gates after per-weapon muzzle and pitch-distance changes.",
     "The production JS chunk reported by Vite is about 644.59 kB minified after the pitch-distance helper and still triggers the known large chunk warning.",
     "The mobile zoom guard adds non-passive event listeners and debug counters only; it adds no GPU resources or per-frame render work.",
-    "Browser smoke now uses two Playwright workers and limits full movement/gesture interaction coverage to chromium-modern-phone-landscape; all five viewports still run boot, HUD, asset, canvas, cache, viewport-scale, and one-shot checks.",
-    "Local npm run test:e2e measured about 19 seconds after the MVP split."
+    "Browser smoke now uses two Playwright workers and limits full movement/gesture interaction coverage to chromium-modern-phone-landscape; all five viewports still run boot, HUD, asset, canvas, cache, viewport-scale, and hold-fire checks.",
+    "Local npm run test:e2e measured about 19 seconds after the MVP split.",
+    "Taller foundation walls reuse the existing instanced wall geometry path and add no new draw calls or textures.",
+    "Larger gun scale and per-weapon aim poses are manifest/math changes and add no new model payload.",
+    "Hold-fire aim adds one camera FOV blend, one viewmodel pose blend, and cadence-gated shooting while held.",
+    "The reticle and gun-cycle icons are CSS-only DOM controls and add no WebGL resources.",
+    "Latest production JS chunk reported by Vite is about 650.77 kB minified and still triggers the known large chunk warning.",
+    "Latest npm run validate:browser passed all five landscape viewports in 25.7 seconds with two workers.",
+    "Browser smoke now asserts render calls, triangles, geometries, and textures against the debug budget object."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -43,7 +50,9 @@
     "Keep shared shot-effect pose and shot-distance math unit-testable rather than adding more scene graph probes.",
     "Keep structural entry splitter validation in build/test tooling because it has no runtime frame cost.",
     "Keep zoom prevention out of the animation loop and assert it through debug counters in smoke QA.",
-    "Keep MVP smoke focused on one full interaction route plus all-viewport layout/boot checks until the game grows beyond prototype scope."
+    "Keep MVP smoke focused on one full interaction route plus all-viewport layout/boot checks until the game grows beyond prototype scope.",
+    "Keep hold-fire pose and FOV math in scalar helpers and existing scene objects.",
+    "Use renderer budget counters as the MVP gate until visible-device FPS profiling is repeated."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
@@ -53,7 +62,8 @@
     "Vite still reports the large chunk warning for the Three.js-heavy bundle.",
     "Weapon avoidance is approximate and should be profiled if close-wall checks expand beyond map samples.",
     "Vite's large chunk warning still needs a future code-splitting review before the asset roster grows.",
-    "The earlier all-viewport full interaction smoke repeated the same route and gesture work five times, which was disproportionate for MVP CI."
+    "The earlier all-viewport full interaction smoke repeated the same route and gesture work five times, which was disproportionate for MVP CI.",
+    "Continuous fire increases audio/effect churn by cadence, but current visible primitives are reused instead of recreated per shot."
   ],
   "risks": [
     "Future larger weapon sets should not all preload by default without level/load-group gating.",
@@ -61,7 +71,8 @@
     "More complex future level geometry may require replacing the grid resolver with a navmesh, capsule/octree, or authored collision proxy system.",
     "Future cache analysis should compare build ids to avoid mistaking intentional URL changes for duplicate asset leaks.",
     "Future mobile profiling should verify the zoom guard does not reduce simultaneous move, aim, and fire throughput on physical devices.",
-    "Restore broader per-viewport interaction routes before beta/release gates or when a viewport-specific gameplay issue is suspected."
+    "Restore broader per-viewport interaction routes before beta/release gates or when a viewport-specific gameplay issue is suspected.",
+    "Sustained held-fire profiling still needs a physical mobile device pass."
   ],
   "blockers": [],
   "artifacts": [
@@ -99,16 +110,20 @@
     "movementCollisionCost": "nearby solid-tile circle resolver while movement input is active",
     "weaponClearanceCost": "one weapon wall ray/probe for visual viewmodel avoidance",
     "shotEffectPoseCost": "shot-time and short-lived visible-effect camera-local vector/scalar math",
-    "productionJsChunkKb": 644.59,
+    "productionJsChunkKb": 650.77,
     "publicAssetCacheParam": "assetBuild",
     "browserSmokeCommand": "npm run validate:browser",
     "browserSmokeWorkers": 2,
     "fullInteractionProject": "chromium-modern-phone-landscape",
     "mvpFastViewportSplit": true,
-    "localBrowserSmokeSeconds": 19,
+    "localBrowserSmokeSeconds": 25.7,
     "zoomGuardRuntimeCost": "event listeners only; no animation-loop work and no render resources",
     "foundationWalkableTiles": 1653,
-    "structuralEntrySplitterValidation": true
+    "structuralEntrySplitterValidation": true,
+    "holdFireAimCost": "camera FOV blend plus existing viewmodel pose blend while held; no new WebGL resources",
+    "wallHeightUnits": 3.2,
+    "gunScaleChange": "manifest-only",
+    "rightSideIconControlsCost": "css-dom-only"
   },
   "nextAgents": [
     "memory-lifecycle-agent",

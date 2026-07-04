@@ -23,6 +23,7 @@ import {
   worldToTile,
 } from '../game/levelMap';
 import { createLevelChunks, getActiveChunkIdsForTile } from '../game/levelStreaming';
+import { FOUNDATION_COVER_HEIGHT_UNITS, FOUNDATION_WALL_HEIGHT_UNITS } from '../game/foundationLevelRuntime';
 import {
   MOVE_SPEED_UNITS_PER_SECOND,
   PLAYER_COLLISION_RADIUS,
@@ -37,6 +38,7 @@ import {
   getWeaponMuzzleLocalOffset,
   getWeaponMuzzleCameraPosition,
   getWeaponRootCameraPosition,
+  getWeaponRootCameraScale,
   getWeaponShotEffectPositions,
 } from '../game/weapons/weaponViewPose';
 import {
@@ -54,6 +56,8 @@ describe('FPS foundation config', () => {
     expect(PERFORMANCE_BUDGETS.trianglesMax).toBeLessThanOrEqual(250_000);
     expect(PERFORMANCE_BUDGETS.initialScenePayloadMbMax).toBeLessThanOrEqual(40);
     expect(MOVE_SPEED_UNITS_PER_SECOND).toBeCloseTo(4.0625);
+    expect(FOUNDATION_WALL_HEIGHT_UNITS).toBeCloseTo(3.2);
+    expect(FOUNDATION_COVER_HEIGHT_UNITS).toBeCloseTo(1.15);
   });
 
   it('tracks the required mobile landscape viewport set', () => {
@@ -181,6 +185,8 @@ describe('FPS foundation config', () => {
       expect(weapon.recoilKick).toBeGreaterThan(0);
       expect(weapon.rangeUnits).toBeGreaterThan(12);
       expect(weapon.view.position[0]).toBeGreaterThanOrEqual(0.52);
+      expect(weapon.view.aimPosition[0]).toBeLessThan(weapon.view.position[0]);
+      expect(weapon.view.aimScaleMultiplier).toBeGreaterThanOrEqual(1);
       expect(clearance.rightOffset).toBeGreaterThanOrEqual(weapon.view.position[0]);
       expect(clearance.forwardOffset).toBeGreaterThanOrEqual(Math.abs(weapon.view.position[2]));
       expect(weapon.view.rotation[1]).toBeCloseTo(0);
@@ -189,8 +195,9 @@ describe('FPS foundation config', () => {
   });
 
   it('derives shot effects from each weapon view pose', () => {
-    const neutralPose = { recoil: 0, wallAvoidance: 0 };
-    const wallPose = { recoil: 0.08, wallAvoidance: 0.65 };
+    const neutralPose = { recoil: 0, wallAvoidance: 0, aimBlend: 0 };
+    const aimPose = { recoil: 0, wallAvoidance: 0, aimBlend: 1 };
+    const wallPose = { recoil: 0.08, wallAvoidance: 0.65, aimBlend: 0 };
     const muzzleOffsets = new Set(WEAPON_DEFINITIONS.map((weapon) => getWeaponMuzzleLocalOffset(weapon.view).join(',')));
     const spark = getWeaponById('weapon.blaster.spark');
     const bore = getWeaponById('weapon.blaster.bore');
@@ -208,6 +215,7 @@ describe('FPS foundation config', () => {
 
     for (const weapon of WEAPON_DEFINITIONS) {
       const root = getWeaponRootCameraPosition(weapon.view, neutralPose);
+      const aimRoot = getWeaponRootCameraPosition(weapon.view, aimPose);
       const muzzle = getWeaponMuzzleCameraPosition(weapon.view, neutralPose);
       const closeEffects = getWeaponShotEffectPositions(weapon.view, 0.35, neutralPose);
       const shiftedView = {
@@ -223,6 +231,10 @@ describe('FPS foundation config', () => {
 
       expect(muzzle[0]).toBeGreaterThan(root[0]);
       expect(muzzle[2]).toBeLessThan(root[2]);
+      expect(aimRoot[0]).toBeLessThan(root[0]);
+      expect(getWeaponRootCameraScale(weapon.view, aimPose)).toBeGreaterThanOrEqual(
+        getWeaponRootCameraScale(weapon.view, neutralPose),
+      );
       expectTupleClose(closeEffects.muzzle, muzzle);
       expectTupleClose(closeEffects.tracerEnd, [0, 0, -MIN_SHOT_TRACER_DISTANCE_UNITS]);
       expectTupleClose(closeEffects.wallImpact, [0, 0, -0.35 + WEAPON_WALL_IMPACT_INSET_UNITS]);
