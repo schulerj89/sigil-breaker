@@ -2,28 +2,30 @@
   "handoffVersion": "1.0.0",
   "agentId": "weapon-upgrade-asset-curator",
   "status": "in-progress",
-  "updatedAt": "2026-07-04T04:45:00Z",
-  "summary": "Three-gun slice now has forward-facing viewmodels, per-weapon ranges, and wall collision feedback.",
+  "updatedAt": "2026-07-04T05:05:00Z",
+  "summary": "Three-gun slice now uses yaw 0 viewmodels, per-weapon ranges, wall collision feedback, and cache-busted public asset URLs.",
   "observations": [
     "SPARK is a fast sidearm using blaster-a.glb.",
     "BORE is a close scatter weapon using blaster-h.glb.",
     "VAULT is a heavy pulse weapon using blaster-p.glb.",
     "Each weapon has a procedural Web Audio firing profile until ElevenLabs audio is added.",
-    "All three viewmodels use a forward-facing Y rotation near Math.PI.",
-    "Shots raycast against the tile level and report lastShot wall hit details through debug state."
+    "All three viewmodels use Y rotation 0 after the user requested the guns face the other way.",
+    "Shots raycast against the tile level and report lastShot wall hit details through debug state.",
+    "Weapon preview/model paths use runtime assetBuild cache invalidation through the manifest helper."
   ],
   "decisions": [
     "Expose the three weapons through a clickable landscape selector.",
     "Use one fire button for this slice.",
     "Leave upgrades, reload button, enemy/projectile behavior, and final hit impact assets for later iterations.",
-    "Use primitive tracer and wall impact only as temporary gameplay feedback."
+    "Use primitive tracer and wall impact only as temporary gameplay feedback.",
+    "Keep yaw 0 until camera/game-feel review proves a better first-person framing."
   ],
   "caughtIssues": [
     "Current assets are prop-scale GLB models, not dedicated animated first-person weapon rigs.",
     "Wall hit feedback currently uses code primitives rather than external assets."
   ],
   "risks": [
-    "Model offsets may need per-device adjustment once gameplay camera tuning starts."
+    "Model offsets and yaw 0 presentation may need per-device adjustment once gameplay camera tuning starts."
   ],
   "blockers": [],
   "artifacts": [
@@ -64,6 +66,7 @@
         "soundProfile": "heavy"
       }
     ],
+    "viewModelYawRadians": 0,
     "requiresCameraReview": true
   },
   "nextAgents": [

@@ -22,7 +22,10 @@ npm run dev
 - `npm run dev` starts the Vite dev server.
 - `npm run build` type-checks and builds the production bundle.
 - `npm test` runs unit tests with Vitest.
+- `npm run test:e2e` runs Playwright browser smoke tests against the production Pages preview.
+- `npm run validate:browser` builds and then runs the Playwright browser smoke tests.
 - `npm run validate:levels` runs the standalone level QA checker for map dimensions, boundaries, reachability, and minimum traversal width.
+- `npm run validate:assets` verifies external asset paths, hashes, sizes, and source-ledger entries.
 - `npm run lint` runs ESLint.
 
 ## Runtime Debug Hook

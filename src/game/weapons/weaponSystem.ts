@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { raycastLevel } from '../levelMap';
 import { WeaponAudio } from './weaponAudio';
-import { WEAPON_DEFINITIONS, publicAssetUrl, type WeaponDefinition } from './weaponManifest';
+import { WEAPON_DEFINITIONS, publicAssetUrl, withAssetVersion, type WeaponDefinition } from './weaponManifest';
 
 export interface WeaponShotSnapshot {
   sequence: number;
@@ -31,7 +31,8 @@ interface LoadedWeapon {
 }
 
 export class WeaponSystem {
-  private readonly loader = new GLTFLoader();
+  private readonly loadingManager = new THREE.LoadingManager();
+  private readonly loader = new GLTFLoader(this.loadingManager);
   private readonly audio = new WeaponAudio();
   private readonly viewRoot = new THREE.Group();
   private readonly modelSlot = new THREE.Group();
@@ -58,6 +59,7 @@ export class WeaponSystem {
     private readonly camera: THREE.PerspectiveCamera,
   ) {
     this.viewRoot.name = 'first-person-weapon-root';
+    this.loadingManager.setURLModifier(withAssetVersion);
     this.modelSlot.name = 'first-person-weapon-model-slot';
     this.muzzleFlash = createMuzzleFlash();
     this.shotFeedbackRoot.name = 'first-person-shot-feedback-root';

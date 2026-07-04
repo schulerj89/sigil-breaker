@@ -31,7 +31,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     antialias: true,
     alpha: false,
     powerPreference: 'high-performance',
-    preserveDrawingBuffer: import.meta.env.DEV,
+    preserveDrawingBuffer: shouldPreserveDrawingBuffer(),
   });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.setClearColor(0x0d1012, 1);
@@ -139,6 +139,7 @@ function createShellMarkup(): string {
         </div>
         <div class="hud__center">
           <span class="hud__badge hud__badge--metric" data-debug-fps>FPS --</span>
+          <span class="hud__badge hud__badge--metric hud__badge--coords" data-debug-coordinates>XYZ -- -- --</span>
           <span class="hud__badge hud__badge--metric" data-debug-memory>JS --</span>
           <span class="hud__badge hud__badge--metric" data-debug-level-memory>LVL --</span>
           <span class="hud__badge hud__badge--metric" data-debug-chunks>CH --</span>
@@ -190,9 +191,14 @@ function createShellMarkup(): string {
   `;
 }
 
+function shouldPreserveDrawingBuffer(): boolean {
+  return import.meta.env.DEV || new URLSearchParams(window.location.search).has('qaCapture');
+}
+
 function updateDebugHud(root: HTMLElement, debug: DebugApi): void {
   const snapshot = debug.getSnapshot();
   setHudText(root, '[data-debug-fps]', `FPS ${Math.round(snapshot.rendererMetrics.fps)}`);
+  setHudText(root, '[data-debug-coordinates]', formatCoordinates(snapshot.scene.playerPosition));
   setHudText(root, '[data-debug-memory]', `JS ${formatMaybeMb(snapshot.memoryMetrics.jsHeapMb)}`);
   setHudText(root, '[data-debug-level-memory]', `LVL ${formatBytes(snapshot.memoryMetrics.levelRuntimeBytesEstimate)}`);
   setHudText(root, '[data-weapon-label]', snapshot.weapon.activeWeaponLabel);
@@ -221,6 +227,14 @@ function formatMaybeMb(value: number | null): string {
   }
 
   return `${Math.round(value)}M`;
+}
+
+function formatCoordinates(position: readonly [number, number, number]): string {
+  return `XYZ ${formatCoordinate(position[0])} ${formatCoordinate(position[1])} ${formatCoordinate(position[2])}`;
+}
+
+function formatCoordinate(value: number): string {
+  return value.toFixed(1);
 }
 
 function formatBytes(bytes: number): string {

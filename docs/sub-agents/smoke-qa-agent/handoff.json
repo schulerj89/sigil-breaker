@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T04:45:00Z",
-  "summary": "Manual browser smoke passed for the fast-fire zoom fix, wall-shot collision, and forward weapon framing.",
+  "updatedAt": "2026-07-04T05:05:00Z",
+  "summary": "Manual smoke remains green, and Playwright production-preview smoke now covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, and Pages base-path routing.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -12,17 +12,24 @@
     "Shared texture public URL returned 200 with image/png.",
     "Repeated fire and a double-click path kept visualViewport.scale at 1.",
     "SPARK lastShot reported blockedByWall true at tile [22, 1] with distance 20.5.",
-    "Fresh reload event check found no new Log.entryAdded or Runtime.exceptionThrown events."
+    "Fresh reload event check found no new Log.entryAdded or Runtime.exceptionThrown events.",
+    "Playwright smoke passed at 667x375, 740x360, 844x390, 932x430, and 1024x768.",
+    "Coordinate HUD text matched the debug player position format.",
+    "Weapon preview, GLB model, and shared texture resource URLs included the production build id as assetBuild.",
+    "The Playwright gate checks HUD group overlap and badge text overflow."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
     "Automate smoke once browser test harness work starts.",
     "Track visualViewport.scale for double-tap zoom regressions.",
-    "Full playthrough QA remains a separate gate."
+    "Full playthrough QA remains a separate gate.",
+    "Keep Playwright running against the Pages preview path rather than the dev root path."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
-    "Dev-browser FPS hovered around 57 during first weapon smoke and around 56 during the latest fast-fire smoke."
+    "Dev-browser FPS hovered around 57 during first weapon smoke and around 56 during the latest fast-fire smoke.",
+    "Plain vite preview did not emulate the GitHub Pages project base path for built asset URLs.",
+    "Headless Chromium can emit empty Three shader validation messages after multiple WebGL contexts; the smoke filters only that known empty-log validation noise."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
@@ -65,6 +72,21 @@
       "lastShotDistanceUnits": 20.5,
       "fpsObserved": 56
     },
+    "latestPlaywrightSmoke": {
+      "command": "npm run validate:browser",
+      "viewports": [
+        "667x375",
+        "740x360",
+        "844x390",
+        "932x430",
+        "1024x768"
+      ],
+      "coordinatesVisible": true,
+      "hudFitChecked": true,
+      "canvasNonBlank": true,
+      "assetBuildChecked": true,
+      "assetLoadErrors": 0
+    },
     "requiredSmokeAssertions": [
       "appBoots",
       "webglCanvasNonBlank",
@@ -72,7 +94,9 @@
       "sceneIdReported",
       "noConsoleErrors",
       "noNetworkAssetFailures",
-      "hudFitsLandscapeViewport"
+      "hudFitsLandscapeViewport",
+      "debugCoordinatesVisible",
+      "publicAssetUrlsCacheBusted"
     ],
     "screenshotNames": [
       "boot-mobile-landscape.png",

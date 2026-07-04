@@ -1,6 +1,6 @@
 # Observations: smoke-qa-agent
 
-Status: complete for input/collision/layout fix.
+Status: complete for input/collision/layout plus coordinate/cache browser smoke.
 
 ## What It Saw
 
@@ -11,20 +11,28 @@ Status: complete for input/collision/layout fix.
 - Re-ran smoke after the input/collision pass: repeated fire kept viewport scale at 1 and lastShot reported a wall hit at tile `[22, 1]`.
 - Captured a new landscape screenshot showing the SPARK viewmodel facing forward with HUD and touch controls visible.
 - Fresh reload CDP event check reported no new log or exception events.
+- Added Playwright browser smoke that runs against a production Pages preview under `/sigil-breaker/`.
+- Latest Playwright smoke passed at 667 x 375, 740 x 360, 844 x 390, 932 x 430, and 1024 x 768.
+- The browser smoke checks the coordinate HUD, nonblank WebGL canvas, debug API state, asset load errors, HUD fit, and cache-busted weapon resources.
+- Weapon previews, GLB models, and the GLB shared texture are asserted to carry the current `assetBuild` query.
 
 ## Decisions
 
-- Keep this as manual browser smoke for now.
-- Add automated browser smoke once the test harness is introduced.
+- Keep manual browser smoke for exploratory checks that are not scripted yet.
+- Use Playwright browser smoke for production-preview boot, HUD, debug API, canvas, and asset-cache gates.
 - Keep using `visualViewport.scale` as the smoke signal for double-tap zoom regressions.
+- Use Playwright as the automated browser smoke harness for production preview and Pages path validation.
+- Use the `qaCapture=1` query only for capture/readback reliability; normal production users keep `preserveDrawingBuffer` off.
 
 ## Caught Issues
 
 - Initial smoke caught a missing `Textures/colormap.png` dependency from the GLBs; the texture is now committed and validated.
 - Visible dev-browser FPS reported around 57 FPS during smoke, so production profiling should stay on the performance agent backlog.
 - Visible dev-browser FPS reported around 56 FPS during the latest 844 x 390 smoke.
+- Playwright initially caught that plain `vite preview` did not serve the production `/sigil-breaker/` base path like GitHub Pages; a Pages preview server now covers that path.
+- Playwright/HUD review caught the coordinate badge crowding risk on 667 px landscape; HUD fit assertions and CSS wrapping now cover it.
 
 ## Next Handoff Notes
 
-- Next smoke slice should automate nonblank canvas, no asset failures, and weapon state interactions.
+- Next smoke slice should add interaction coverage for weapon switching, fire, no zoom, and wall hit checks.
 - Add automated fast-fire/no-zoom and wall-hit assertions when browser smoke becomes scripted.

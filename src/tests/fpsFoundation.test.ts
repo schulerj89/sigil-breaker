@@ -18,7 +18,7 @@ import {
 } from '../game/levelMap';
 import { createLevelChunks, getActiveChunkIdsForTile } from '../game/levelStreaming';
 import { MOVE_SPEED_UNITS_PER_SECOND } from '../game/fpsControls';
-import { WEAPON_ASSET_SOURCE, WEAPON_DEFINITIONS } from '../game/weapons/weaponManifest';
+import { WEAPON_ASSET_SOURCE, WEAPON_DEFINITIONS, publicAssetUrl, withAssetVersion } from '../game/weapons/weaponManifest';
 
 describe('FPS foundation config', () => {
   it('keeps the bootstrap scene aligned with the mobile landscape gates', () => {
@@ -129,8 +129,21 @@ describe('FPS foundation config', () => {
       expect(weapon.fireIntervalMs).toBeGreaterThan(100);
       expect(weapon.recoilKick).toBeGreaterThan(0);
       expect(weapon.rangeUnits).toBeGreaterThan(12);
-      expect(weapon.view.rotation[1]).toBeCloseTo(Math.PI);
+      expect(weapon.view.rotation[1]).toBeCloseTo(0);
     }
+  });
+
+  it('cache-busts public asset URLs with the current build id', () => {
+    expect(publicAssetUrl('assets/weapons/example.glb')).toMatch(
+      /assets\/weapons\/example\.glb\?assetBuild=.+/,
+    );
+    expect(withAssetVersion('Textures/colormap.png')).toMatch(/^Textures\/colormap\.png\?assetBuild=.+/);
+    expect(withAssetVersion('Textures/colormap.png?assetBuild=already')).toBe(
+      'Textures/colormap.png?assetBuild=already',
+    );
+    expect(withAssetVersion('data:application/octet-stream;base64,AA==')).toBe(
+      'data:application/octet-stream;base64,AA==',
+    );
   });
 });
 

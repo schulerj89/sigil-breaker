@@ -1,23 +1,34 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "landscape-title-hud-agent",
-  "status": "not-started",
-  "updatedAt": "2026-07-04T00:00:00Z",
-  "summary": "Initial landscape HUD scaffold only; no FPS UI exists.",
+  "status": "complete",
+  "updatedAt": "2026-07-04T05:05:00Z",
+  "summary": "Landscape debug HUD now includes compact player coordinates and has Playwright coverage for small-phone fit.",
   "observations": [
-    "No landscape FPS title, HUD, pause, or reward UI exists yet."
+    "Center metrics HUD includes FPS, XYZ coordinates, JS heap, level triangle count, and chunk count.",
+    "Coordinates use the player's debug scene position with one decimal precision.",
+    "Playwright smoke checks HUD group overlap and badge text overflow across the declared mobile landscape viewport set."
   ],
   "decisions": [
     "Landscape is the playable orientation.",
     "Portrait should show a rotate prompt.",
-    "Reward choices must show clear stat deltas and selected state."
+    "Reward choices must show clear stat deltas and selected state.",
+    "Debug coordinates should stay compact and hidden from final production HUD unless QA mode is active.",
+    "Center metrics may wrap, but must not overlap left/right HUD groups."
   ],
-  "caughtIssues": [],
+  "caughtIssues": [
+    "Initial coordinate badge sizing risked crowding the 667 px landscape HUD; CSS now uses auto/minmax/auto grid columns and wrapped center metrics.",
+    "HUD safe-area and reward-choice rules are still future work."
+  ],
   "risks": [
     "Reward UI can become unreadable if powerup names and stat copy are not constrained early."
   ],
   "blockers": [],
-  "artifacts": [],
+  "artifacts": [
+    "src/game/createGame.ts",
+    "src/style.css",
+    "e2e/foundation-smoke.spec.ts"
+  ],
   "jsonForAgents": {
     "hudElements": [
       "crosshair",
@@ -35,6 +46,22 @@
       "home-indicator",
       "crosshair"
     ],
+    "debugCoordinateBadge": {
+      "selector": "[data-debug-coordinates]",
+      "format": "XYZ x.y y.y z.y",
+      "source": "window.__SIGILBREAKER_DEBUG__.getSnapshot().scene.playerPosition",
+      "latestSmokeText": "XYZ -21.0 1.6 -21.0"
+    },
+    "hudFitGate": {
+      "command": "npm run validate:browser",
+      "viewports": [
+        "667x375",
+        "740x360",
+        "844x390",
+        "932x430",
+        "1024x768"
+      ]
+    },
     "portraitPlayable": false
   },
   "nextAgents": [
@@ -44,4 +71,3 @@
     "playthrough-qa-agent"
   ]
 }
-

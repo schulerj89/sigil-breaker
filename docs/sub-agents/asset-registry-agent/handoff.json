@@ -2,20 +2,24 @@
   "handoffVersion": "1.0.0",
   "agentId": "asset-registry-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T04:20:00Z",
-  "summary": "Registered the first three external weapon assets through a source ledger and runtime weapon manifest.",
+  "updatedAt": "2026-07-04T05:05:00Z",
+  "summary": "Registered the first three external weapon assets and added runtime assetBuild cache invalidation for public weapon assets.",
   "observations": [
     "docs/assets/source-ledger.json records source, license, hashes, byte counts, and load group.",
     "src/game/weapons/weaponManifest.ts exposes the runtime weapon definitions for the selector and loader.",
-    "The first weapon payload is 164055B for GLB model data plus the shared color texture, before previews and metadata."
+    "The first weapon payload is 164055B for GLB model data plus the shared color texture, before previews and metadata.",
+    "publicAssetUrl() appends assetBuild to preview and model paths.",
+    "GLTFLoader uses LoadingManager.setURLModifier(withAssetVersion) so GLB-referenced textures also receive assetBuild."
   ],
   "decisions": [
     "Use level-01-weapons as the first load group.",
     "Keep source/provenance metadata outside runtime code.",
-    "Add npm run validate:assets as the first file/hash registry gate."
+    "Add npm run validate:assets as the first file/hash registry gate.",
+    "Use the build id query parameter for public assets that are not processed by Vite filename hashing."
   ],
   "caughtIssues": [
-    "A generalized registry/playground UI still does not exist."
+    "A generalized registry/playground UI still does not exist.",
+    "Cache invalidation depends on public hosts preserving query strings."
   ],
   "risks": [
     "Runtime and ledger metadata can drift if new imports bypass validate-assets."
@@ -38,7 +42,14 @@
     ],
     "sourceLedger": "docs/assets/source-ledger.json",
     "runtimeManifest": "src/game/weapons/weaponManifest.ts",
-    "validationCommand": "npm run validate:assets"
+    "validationCommand": "npm run validate:assets",
+    "publicAssetVersionParam": "assetBuild",
+    "publicAssetVersionSource": "__SIGILBREAKER_BUILD_ID__",
+    "cacheBustedUrlOwners": [
+      "weaponManifest.publicAssetUrl",
+      "weaponManifest.withAssetVersion",
+      "weaponSystem.LoadingManager.setURLModifier"
+    ]
   },
   "nextAgents": [
     "gltf-optimization-agent",
