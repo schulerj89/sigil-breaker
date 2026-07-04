@@ -202,6 +202,8 @@ describe('FPS foundation config', () => {
       expect(clearance.forwardOffset).toBeGreaterThanOrEqual(Math.abs(weapon.view.position[2]));
       expect(weapon.view.rotation[1]).toBeCloseTo(0);
       expect(getWeaponMuzzleLocalOffset(weapon.view)).toHaveLength(3);
+      expect(weapon.view.muzzleLocalOffset[2]).toBeGreaterThan(-0.65);
+      expect(weapon.view.muzzleLocalOffset[2]).toBeLessThan(-0.35);
     }
   });
 

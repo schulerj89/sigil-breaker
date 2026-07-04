@@ -2,14 +2,18 @@
   "handoffVersion": "1.0.0",
   "agentId": "landscape-title-hud-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T17:00:43Z",
-  "summary": "Landscape debug HUD now includes compact player coordinates, a music mute icon, and portrait rotate prompt icon coverage.",
+  "updatedAt": "2026-07-04T17:46:32Z",
+  "summary": "Landscape debug HUD now includes compact player coordinates, a music mute icon, a right-thumb weapon cycle button, and animated portrait rotate prompt coverage.",
   "observations": [
     "Center metrics HUD includes FPS, XYZ coordinates, JS heap, level triangle count, and chunk count.",
     "Coordinates use the player's debug scene position with one decimal precision.",
     "Playwright smoke checks HUD group overlap and badge text overflow across the declared mobile landscape viewport set.",
     "A compact top-right music mute button is exposed at [data-music-toggle].",
-    "The portrait-only rotate prompt now includes a CSS-built phone and rotation icon."
+    "The portrait-only rotate prompt now includes a CSS-built phone and rotation icon.",
+    "The rotate prompt phone sweeps toward landscape with CSS motion while the arrow pulses.",
+    "The bottom weapon preview tray was removed and replaced by a single [data-weapon-cycle-button] beside the fire button.",
+    "The weapon cycle button exposes the active weapon through data-active-weapon-id and an updated ARIA label.",
+    "Screenshot QA for this pass is stored under artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/."
   ],
   "decisions": [
     "Landscape is the playable orientation.",
@@ -18,12 +22,15 @@
     "Debug coordinates should stay compact and hidden from final production HUD unless QA mode is active.",
     "Center metrics may wrap, but must not overlap left/right HUD groups.",
     "Music mute should stay an icon-sized HUD control rather than a full text badge.",
-    "Portrait prompt must cover the viewport because portrait is not playable."
+    "Portrait prompt must cover the viewport because portrait is not playable.",
+    "Weapon switching should stay in the right thumb zone beside held-fire so the bottom center remains clear for the first-person viewmodel.",
+    "The rotate prompt should remain CSS-driven and respect prefers-reduced-motion."
   ],
   "caughtIssues": [
     "Initial coordinate badge sizing risked crowding the 667 px landscape HUD; CSS now uses auto/minmax/auto grid columns and wrapped center metrics.",
     "HUD safe-area and reward-choice rules are still future work.",
-    "Adding more right-side HUD controls can crowd the build, weapon, and ammo badges on 667px landscape viewports."
+    "Adding more right-side HUD controls can crowd the build, weapon, and ammo badges on 667px landscape viewports.",
+    "The bottom weapon tray competed with viewmodel framing and should not return without a new mobile layout review."
   ],
   "risks": [
     "Reward UI can become unreadable if powerup names and stat copy are not constrained early."
@@ -32,7 +39,8 @@
   "artifacts": [
     "src/game/createGame.ts",
     "src/style.css",
-    "e2e/foundation-smoke.spec.ts"
+    "e2e/foundation-smoke.spec.ts",
+    "artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent"
   ],
   "jsonForAgents": {
     "hudElements": [
@@ -50,9 +58,18 @@
       "stateAttribute": "aria-pressed",
       "debugField": "snapshot.weapon.audio.musicMuted"
     },
+    "weaponCycleButton": {
+      "selector": "[data-weapon-cycle-button]",
+      "iconSelector": ".gun-icon",
+      "activeWeaponAttribute": "data-active-weapon-id",
+      "position": "right thumb action pad beside [data-fire-button]",
+      "bottomPreviewTrayAllowed": false
+    },
     "rotatePrompt": {
       "selector": ".rotate-prompt",
       "iconSelector": ".rotate-prompt__icon",
+      "phoneAnimation": "rotate-phone-sweep",
+      "arrowAnimation": "rotate-arrow-pulse",
       "visibleWhen": "viewport width is less than height",
       "copy": "ROTATE TO LANDSCAPE"
     },
@@ -79,6 +96,7 @@
         "1024x768"
       ]
     },
+    "screenshotArtifacts": "artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent",
     "portraitPlayable": false
   },
   "nextAgents": [

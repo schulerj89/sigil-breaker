@@ -1,6 +1,6 @@
 # Observations: smoke-qa-agent
 
-Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effect-pose, pitch-corrected tracer math, entry-splitter, movement-route, browser zoom-guard, hold-fire smoke, foundation texture smoke, ElevenLabs audio smoke, and portrait rotate prompt smoke.
+Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effect-pose, pitch-corrected tracer math, entry-splitter, movement-route, browser zoom-guard, hold-fire smoke, foundation texture smoke, ElevenLabs audio smoke, weapon cycle button smoke, and animated portrait rotate prompt smoke.
 
 ## What It Saw
 
@@ -44,6 +44,12 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Browser smoke now expects four cache-busted ElevenLabs audio asset IDs in the debug loaded asset list.
 - Browser smoke verifies the music mute icon is visible, toggles `snapshot.weapon.audio.musicMuted`, and checks MP3 resource URLs include `assetBuild`.
 - Browser smoke now switches the heavy viewport to portrait, verifies the rotate prompt covers the viewport with a visible icon, then switches back to landscape.
+- Browser smoke now verifies the bottom weapon tray and `[data-weapon-button]` elements are absent.
+- Browser smoke verifies `[data-weapon-cycle-button]` is visible, then cycles SPARK to BORE to VAULT and back to SPARK while checking HUD label and `data-active-weapon-id`.
+- Browser smoke expects zero runtime weapon preview resource URLs because the preview tray has been removed.
+- Browser smoke checks the rotate prompt phone and arrow have active CSS animation names.
+- The Playwright request-failed filter now narrowly ignores only Chromium `net::ERR_ABORTED` audio request shutdowns for the ElevenLabs audio path.
+- Latest screenshot artifacts live under `artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/`.
 
 ## Decisions
 
@@ -60,6 +66,8 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Keep reticle/control-fit checks in all viewports because the right-side action pad remains a thumb-zone risk.
 - Keep audio URL cache-busting in the smoke gate because stale Pages audio can otherwise survive deploys.
 - Keep the portrait rotate prompt coverage scoped to the heavy viewport until portrait-specific regressions appear.
+- Treat the single weapon cycle button as the MVP weapon switching contract; do not expect preview thumbnail buttons in browser smoke.
+- Keep rotate-prompt animation checks lightweight by reading computed animation names rather than relying on pixel timing.
 
 ## Caught Issues
 
@@ -74,10 +82,11 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Existing UI-control-only no-zoom coverage missed the full look/canvas surface and pinch paths.
 - Repeating full movement/gesture smoke across all five viewports made the Pages workflow slow for MVP-level coverage.
 - Earlier fire smoke only proved one shot; it did not catch hold cadence, release cleanup, FOV zoom, or weapon-centering state.
+- HTMLMediaElement MP3 fetches can emit `net::ERR_ABORTED` when the page closes after cycling/mute tests; the smoke filter is intentionally scoped to that ElevenLabs audio path only.
 
 ## Next Handoff Notes
 
-- Next smoke slice should add weapon switching and fast-fire/no-zoom coverage.
+- Next smoke slice should keep weapon cycle and fast-fire/no-zoom coverage.
 - Add automated close-wall turn/retract coverage once debug pose controls or deterministic input routes exist.
 - Future screenshot QA should use deterministic debug look poses for pitch-up and pitch-down firing rather than pointer-drag approximation.
 - Physical-device smoke should retry two-finger pinch and double tap on mobile Safari because headless Chromium cannot fully represent every browser chrome behavior.
@@ -86,3 +95,4 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Future screenshot QA should use deterministic debug look poses if the steel floor, wall, or roof art direction changes.
 - Reset-loop smoke now covers renderer debug counts, but full GPU/heap leak confidence still belongs to memory-lifecycle QA.
 - Future screenshot QA should capture the portrait rotate prompt and the held-fire muzzle flash for all three weapons once deterministic flash capture exists.
+- Future screenshot QA should capture the centered flash for SPARK, BORE, and VAULT once deterministic debug fire-frame controls exist.

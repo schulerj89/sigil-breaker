@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T17:00:43Z",
-  "summary": "Manual smoke remains green, and MVP-fast Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, hold-fire aim/zoom, effect-pose alignment, pitch-corrected shot math, entry-splitter validation, movement collision, browser zoom guards, right-side control layout, steel foundation texture loading/rendering, ElevenLabs audio loading, music mute, and portrait rotate prompt layout.",
+  "updatedAt": "2026-07-04T17:46:32Z",
+  "summary": "Manual smoke remains green, and MVP-fast Playwright production-preview smoke covers coordinates, HUD fit, nonblank canvas, assetBuild URLs, Pages routing, hold-fire aim/zoom, effect-pose alignment, pitch-corrected shot math, entry-splitter validation, movement collision, browser zoom guards, right-side control layout, steel foundation texture loading/rendering, ElevenLabs audio loading, music mute, the weapon cycle button, and animated portrait rotate prompt layout.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -46,7 +46,13 @@
     "Browser smoke now expects four ElevenLabs audio asset IDs in memoryMetrics.loadedAssetIds.",
     "Browser smoke verifies the music mute icon and toggles snapshot.weapon.audio.musicMuted.",
     "Browser smoke verifies ElevenLabs MP3 resource URLs carry the active assetBuild query.",
-    "Browser smoke switches the heavy project to portrait and checks the rotate prompt overlay and icon before returning to landscape."
+    "Browser smoke switches the heavy project to portrait and checks the rotate prompt overlay and icon before returning to landscape.",
+    "Browser smoke verifies the bottom weapon tray and [data-weapon-button] elements are absent.",
+    "Browser smoke verifies [data-weapon-cycle-button] is visible, then cycles SPARK to BORE to VAULT and back to SPARK while checking HUD label and data-active-weapon-id.",
+    "Browser smoke expects zero runtime weapon preview resource URLs because the preview tray has been removed.",
+    "Browser smoke checks the rotate prompt phone and arrow have active CSS animation names.",
+    "The Playwright request-failed filter narrowly ignores only Chromium net::ERR_ABORTED audio request shutdowns for the ElevenLabs audio path.",
+    "Latest screenshot artifacts live under artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -57,14 +63,16 @@
     "Keep the hold-fire effect-pose browser assertion as a regression gate.",
     "Keep the keyboard movement route as the current browser regression for body collision and wall push behavior.",
     "Add deterministic close-wall pose/input coverage for snapshot.weapon.wallAvoidance in a later smoke slice.",
-    "Add weapon switching and fast-fire/no-zoom assertions in a later smoke slice.",
+    "Keep weapon cycle and fast-fire/no-zoom assertions in the smoke slice.",
     "Use snapshot.weapon.effectPose as the automated tracer alignment signal because the primitive tracer is brief in screenshots.",
     "Keep an initial viewport-scale assertion before movement-route smoke, then run active gesture smoke after deterministic movement so look-zone drags cannot rotate the route setup.",
     "Use two Playwright workers for MVP browser smoke while keeping the heavier route on one viewport to avoid repeating the same WebGL interaction path five times.",
     "Treat hold-fire as the canonical automated firing path.",
     "Keep reticle/control-fit checks in all viewports because the right-side action pad remains a thumb-zone risk.",
     "Keep audio asset cache-busting and music mute state in browser smoke.",
-    "Keep portrait prompt smoke scoped to chromium-modern-phone-landscape until a specific portrait bug requires all-viewports coverage."
+    "Keep portrait prompt smoke scoped to chromium-modern-phone-landscape until a specific portrait bug requires all-viewports coverage.",
+    "Treat the single weapon cycle button as the MVP weapon switching contract.",
+    "Keep rotate-prompt animation checks lightweight by reading computed animation names."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
@@ -76,7 +84,8 @@
     "Previous double-tap smoke covered repeated fire/UI controls but not the full look surface or pinch gestures.",
     "Repeating full movement/gesture smoke across all five viewports made the Pages workflow slow for MVP-level coverage.",
     "Earlier fire smoke only proved one shot and did not catch hold cadence, release cleanup, FOV zoom, or weapon-centering state.",
-    "Existing smoke validates the debug effect pose for firing alignment, but it still cannot reliably freeze the short visible flash in a deterministic frame."
+    "Existing smoke validates the debug effect pose for firing alignment, but it still cannot reliably freeze the short visible flash in a deterministic frame.",
+    "HTMLMediaElement MP3 fetches can emit net::ERR_ABORTED when the page closes after cycling/mute tests; the smoke filter is intentionally scoped to the ElevenLabs audio path only."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
@@ -91,7 +100,8 @@
     "scripts/validate-assets.mjs",
     "e2e/foundation-smoke.spec.ts",
     "src/game/mobileZoomGuard.ts",
-    "artifacts/sub-agents/20260704-weapon-framing/smoke-qa-agent"
+    "artifacts/sub-agents/20260704-weapon-framing/smoke-qa-agent",
+    "artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent"
   ],
   "jsonForAgents": {
     "latestManualSmoke": {
@@ -161,7 +171,9 @@
       "holdFireAimChecked": true,
       "holdFireAimFullViewportOnly": true,
       "holdFireReleaseChecked": true,
-      "weaponCycleButtonRemovedChecked": true,
+      "weaponCycleButtonChecked": true,
+      "bottomWeaponTrayAbsentChecked": true,
+      "rotatePromptAnimationChecked": true,
       "foundationEnvironmentTexturesChecked": true,
       "foundationEnvironmentTexturesRenderedChecked": true,
       "elevenLabsAudioChecked": true,
@@ -174,7 +186,7 @@
       "mvpFastViewportSplit": true,
       "visualViewportScaleAfterZoomGestures": 1,
       "assetLoadErrors": 0,
-      "latestDurationSeconds": 44.5
+      "latestDurationSeconds": 84
     },
     "requiredSmokeAssertions": [
       "appBoots",
@@ -189,13 +201,14 @@
       "publicAssetUrlsCacheBusted",
       "holdFireContinuousCadence",
       "holdFireReleases",
-      "weaponTrayChangesActiveWeapon",
+      "weaponCycleButtonCyclesActiveWeapon",
       "foundationEnvironmentTexturesCacheBusted",
       "qaRestartLoopRendererBudgets",
       "rendererBudgetsWithinLimit",
       "elevenLabsAudioCacheBusted",
       "musicMuteButtonToggles",
-      "portraitRotatePromptVisible"
+      "portraitRotatePromptVisible",
+      "portraitRotatePromptAnimationActive"
     ],
     "screenshotNames": [
       "boot-mobile-landscape.png",
@@ -205,7 +218,10 @@
       "weapon-bore-level.png",
       "weapon-vault-level.png",
       "tracer-spark-pitch-up.png",
-      "tracer-spark-pitch-down.png"
+      "tracer-spark-pitch-down.png",
+      "weapon-cycle-button-landscape.png",
+      "rotate-prompt-motion-frame.png",
+      "spark-fire-frame-03.png"
     ]
   },
   "nextAgents": [

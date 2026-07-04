@@ -64,7 +64,7 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       aimRotation: [-0.04, VIEW_FORWARD_YAW, 0],
       scale: 0.9,
       aimScaleMultiplier: 1.04,
-      muzzleLocalOffset: [0.04, 0.04, -1.1],
+      muzzleLocalOffset: [0.02, 0.03, -0.46],
     },
   },
   {
@@ -88,7 +88,7 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       aimRotation: [-0.05, VIEW_FORWARD_YAW, 0],
       scale: 1.09,
       aimScaleMultiplier: 1.04,
-      muzzleLocalOffset: [0.05, 0.02, -1.02],
+      muzzleLocalOffset: [0.02, 0, -0.4],
     },
   },
   {
@@ -112,7 +112,7 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       aimRotation: [-0.05, VIEW_FORWARD_YAW, 0],
       scale: 0.95,
       aimScaleMultiplier: 1.04,
-      muzzleLocalOffset: [0.06, 0.01, -1.16],
+      muzzleLocalOffset: [0.02, -0.01, -0.52],
     },
   },
 ];

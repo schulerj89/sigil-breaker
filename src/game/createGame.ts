@@ -5,7 +5,7 @@ import { createFoundationLevelRuntime } from './foundationLevelRuntime';
 import { FpsControls } from './fpsControls';
 import { LEVEL_HEIGHT_TILES, LEVEL_WIDTH_TILES } from './levelMap';
 import { createMobileZoomGuard } from './mobileZoomGuard';
-import { WEAPON_DEFINITIONS, publicAssetUrl } from './weapons/weaponManifest';
+import { WEAPON_DEFINITIONS } from './weapons/weaponManifest';
 import { WeaponSystem } from './weapons/weaponSystem';
 
 export interface SigilbreakerApp {
@@ -164,29 +164,21 @@ function createShellMarkup(): string {
         </div>
       </div>
       <div class="crosshair" aria-hidden="true"></div>
-      <div class="weapon-tray" aria-label="Weapon selection">
-        ${WEAPON_DEFINITIONS.map(
-          (weapon) => `
-            <button
-              class="weapon-button"
-              type="button"
-              data-ui-control
-              data-weapon-button
-              data-weapon-id="${weapon.id}"
-              aria-label="${weapon.label} ${weapon.role}"
-              aria-pressed="false"
-            >
-              <img src="${publicAssetUrl(weapon.previewPath)}" alt="" draggable="false" />
-              <span>${weapon.label}</span>
-            </button>
-          `,
-        ).join('')}
-      </div>
       <div class="touch-zones">
         <div class="stick" data-move-stick>
           <div class="stick__knob" data-stick-knob></div>
         </div>
         <div class="action-pad action-pad--combat">
+          <button
+            class="action-button action-button--weapon-cycle"
+            type="button"
+            data-ui-control
+            data-action-button
+            data-weapon-cycle-button
+            aria-label="Switch weapon"
+          >
+            <span class="gun-icon" aria-hidden="true"></span>
+          </button>
           <button
             class="action-button action-button--fire"
             type="button"

@@ -240,55 +240,6 @@ canvas {
   z-index: 2;
 }
 
-.weapon-tray {
-  position: absolute;
-  left: 50%;
-  bottom: max(18px, env(safe-area-inset-bottom));
-  transform: translateX(-50%);
-  display: grid;
-  grid-template-columns: repeat(3, 62px);
-  gap: 8px;
-  pointer-events: auto;
-  z-index: 4;
-}
-
-.weapon-button {
-  width: 62px;
-  height: 68px;
-  display: grid;
-  grid-template-rows: 42px 1fr;
-  align-items: center;
-  justify-items: center;
-  gap: 2px;
-  padding: 4px;
-  border: 1px solid rgb(238 243 240 / 0.22);
-  background: rgb(13 16 18 / 0.54);
-  color: #dbe7ef;
-  font: inherit;
-  font-size: 10px;
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: 0;
-  touch-action: none;
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  user-select: none;
-  appearance: none;
-}
-
-.weapon-button img {
-  width: 42px;
-  height: 42px;
-  image-rendering: auto;
-  object-fit: contain;
-}
-
-.weapon-button--active {
-  border-color: rgb(94 234 212 / 0.76);
-  background: rgb(20 184 166 / 0.16);
-  color: #b7fff2;
-}
-
 .crosshair::before,
 .crosshair::after {
   content: "";
@@ -360,7 +311,7 @@ canvas {
 }
 
 .action-pad--combat {
-  grid-template-columns: 78px;
+  grid-template-columns: 58px 78px;
   grid-template-rows: 78px;
   align-items: end;
   justify-items: end;
@@ -390,7 +341,7 @@ canvas {
 }
 
 .action-button--fire {
-  grid-column: 1;
+  grid-column: 2;
   grid-row: 1;
   width: 78px;
   height: 78px;
@@ -398,10 +349,59 @@ canvas {
   color: #ffb1a9;
 }
 
+.action-button--weapon-cycle {
+  grid-column: 1;
+  grid-row: 1;
+  width: 58px;
+  height: 58px;
+  align-self: end;
+  border-color: rgb(147 197 253 / 0.68);
+  color: #bfdbfe;
+}
+
+.action-button--weapon-cycle:active {
+  background: rgb(59 130 246 / 0.16);
+  box-shadow: 0 0 18px rgb(59 130 246 / 0.22);
+  transform: scale(0.98);
+}
+
 .action-button--active {
   background: rgb(248 113 113 / 0.18);
   box-shadow: 0 0 22px rgb(248 113 113 / 0.24);
   transform: scale(0.98);
+}
+
+.gun-icon {
+  position: relative;
+  width: 34px;
+  height: 22px;
+  display: block;
+}
+
+.gun-icon::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 4px;
+  width: 22px;
+  height: 10px;
+  border-radius: 3px 2px 2px 3px;
+  background: currentColor;
+  box-shadow:
+    21px 2px 0 -3px currentColor,
+    12px 10px 0 -4px currentColor;
+}
+
+.gun-icon::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 12px;
+  width: 9px;
+  height: 11px;
+  border-left: 5px solid currentColor;
+  border-bottom: 4px solid currentColor;
+  transform: skewX(-16deg);
 }
 
 .reticle-icon {
@@ -476,7 +476,9 @@ canvas {
   box-shadow:
     0 0 0 1px rgb(96 165 250 / 0.22),
     0 0 24px rgb(45 212 191 / 0.2);
-  transform: rotate(90deg);
+  transform: rotate(0deg);
+  transform-origin: 50% 50%;
+  animation: rotate-phone-sweep 2.4s ease-in-out infinite;
 }
 
 .rotate-prompt__phone::before {
@@ -514,6 +516,7 @@ canvas {
   border-left-color: #5eead4;
   border-radius: 50%;
   transform: rotate(-34deg);
+  animation: rotate-arrow-pulse 2.4s ease-in-out infinite;
 }
 
 .rotate-prompt__arrow::after {
@@ -531,6 +534,35 @@ canvas {
 .rotate-prompt__label {
   color: #eef3f0;
   text-shadow: 0 0 18px rgb(94 234 212 / 0.3);
+}
+
+@keyframes rotate-phone-sweep {
+  0%,
+  12% {
+    transform: translateX(-8px) rotate(0deg);
+  }
+
+  48%,
+  62% {
+    transform: translateX(8px) rotate(90deg);
+  }
+
+  100% {
+    transform: translateX(-8px) rotate(0deg);
+  }
+}
+
+@keyframes rotate-arrow-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: rotate(-34deg) scale(0.94);
+  }
+
+  50% {
+    opacity: 1;
+    transform: rotate(-34deg) scale(1.04);
+  }
 }
 
 @media (orientation: portrait) {
@@ -570,30 +602,13 @@ canvas {
     height: 28px;
   }
 
-  .weapon-tray {
-    grid-template-columns: repeat(3, 54px);
-    gap: 6px;
-  }
-
-  .weapon-button {
-    width: 54px;
-    height: 60px;
-    grid-template-rows: 36px 1fr;
-    font-size: 9px;
-  }
-
-  .weapon-button img {
-    width: 36px;
-    height: 36px;
-  }
-
   .stick {
     width: 112px;
     height: 112px;
   }
 
   .action-pad--combat {
-    grid-template-columns: 68px;
+    grid-template-columns: 50px 68px;
     grid-template-rows: 68px;
   }
 
@@ -606,6 +621,16 @@ canvas {
   .action-button--fire {
     width: 68px;
     height: 68px;
+  }
+
+  .action-button--weapon-cycle {
+    width: 50px;
+    height: 50px;
+  }
+
+  .gun-icon {
+    width: 30px;
+    height: 20px;
   }
 
   .reticle-icon {
@@ -621,4 +646,15 @@ canvas {
     width: 34px;
   }
 
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rotate-prompt__phone,
+  .rotate-prompt__arrow {
+    animation: none;
+  }
+
+  .rotate-prompt__phone {
+    transform: rotate(90deg);
+  }
 }

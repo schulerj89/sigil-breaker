@@ -110,7 +110,12 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   });
 
   page.on('requestfailed', (request) => {
-    failedRequests.push(`${request.url()} ${request.failure()?.errorText ?? 'request failed'}`);
+    const failure = request.failure()?.errorText ?? 'request failed';
+    if (isIgnorableMediaAbort(request.url(), failure)) {
+      return;
+    }
+
+    failedRequests.push(`${request.url()} ${failure}`);
   });
 
   await page.goto('/sigil-breaker/?qaCapture=1', { waitUntil: 'domcontentloaded' });
@@ -182,10 +187,14 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   await expectControlsToFit(page);
   await expect(page.locator('[data-fire-button]')).not.toHaveText(/F/);
   await expect(page.locator('[data-fire-button] .reticle-icon')).toBeVisible();
+  await expect(page.locator('[data-weapon-cycle-button] .gun-icon')).toBeVisible();
+  await expect(page.locator('[data-weapon-cycle-button]')).toHaveAttribute('data-active-weapon-id', 'weapon.blaster.spark');
+  await expect(page.locator('.weapon-tray')).toHaveCount(0);
+  await expect(page.locator('[data-weapon-button]')).toHaveCount(0);
   await expect(page.locator('[data-music-toggle] .music-icon')).toBeVisible();
   await expect(page.locator('[data-music-toggle]')).toHaveAttribute('aria-pressed', 'false');
   await expect(page.locator('.rotate-prompt')).toBeHidden();
-  await expect(page.locator('[data-weapon-cycle-button]')).toHaveCount(0);
+  await verifyWeaponCycleButton(page);
   await expectViewportScaleLocked(page);
 
   await expect.poll(async () => (await page.evaluate(readCanvasSamples)).nonBlankSamples).toBeGreaterThan(0);
@@ -212,7 +221,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
       .sort(),
   );
 
-  expect(previewUrls).toHaveLength(3);
+  expect(previewUrls).toHaveLength(0);
   expect(modelUrls).toHaveLength(3);
   expect(textureUrls.length).toBeGreaterThanOrEqual(1);
   expect(environmentTextureUrls).toHaveLength(3);
@@ -388,13 +397,16 @@ async function verifyPortraitRotatePrompt(page: Page): Promise<void> {
     const prompt = document.querySelector<HTMLElement>('.rotate-prompt');
     const icon = document.querySelector<HTMLElement>('.rotate-prompt__icon');
     const label = document.querySelector<HTMLElement>('.rotate-prompt__label');
+    const phone = document.querySelector<HTMLElement>('.rotate-prompt__phone');
+    const arrow = document.querySelector<HTMLElement>('.rotate-prompt__arrow');
 
-    if (!prompt || !icon || !label) {
+    if (!prompt || !icon || !label || !phone || !arrow) {
       return {
         present: false,
         coversViewport: false,
         iconVisible: false,
         labelFits: false,
+        animationActive: false,
       };
     }
 
@@ -410,6 +422,9 @@ async function verifyPortraitRotatePrompt(page: Page): Promise<void> {
         promptRect.bottom >= window.innerHeight,
       iconVisible: iconRect.width >= 100 && iconRect.height >= 80,
       labelFits: label.scrollWidth <= label.clientWidth + 1 && label.scrollHeight <= label.clientHeight + 1,
+      animationActive:
+        getComputedStyle(phone).animationName !== 'none' &&
+        getComputedStyle(arrow).animationName !== 'none',
     };
   });
 
@@ -417,9 +432,28 @@ async function verifyPortraitRotatePrompt(page: Page): Promise<void> {
   expect(promptFit.coversViewport).toBe(true);
   expect(promptFit.iconVisible).toBe(true);
   expect(promptFit.labelFits).toBe(true);
+  expect(promptFit.animationActive).toBe(true);
 
   await page.setViewportSize({ width: 844, height: 390 });
   await expect(page.locator('.rotate-prompt')).toBeHidden();
+}
+
+async function verifyWeaponCycleButton(page: Page): Promise<void> {
+  const cycleButton = page.locator('[data-weapon-cycle-button]');
+  await cycleButton.click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).weapon.activeWeaponId).toBe('weapon.blaster.bore');
+  await expect(page.locator('[data-weapon-label]')).toHaveText('BORE');
+  await expect(cycleButton).toHaveAttribute('data-active-weapon-id', 'weapon.blaster.bore');
+
+  await cycleButton.click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).weapon.activeWeaponId).toBe('weapon.blaster.vault');
+  await expect(page.locator('[data-weapon-label]')).toHaveText('VAULT');
+  await expect(cycleButton).toHaveAttribute('data-active-weapon-id', 'weapon.blaster.vault');
+
+  await cycleButton.click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).weapon.activeWeaponId).toBe('weapon.blaster.spark');
+  await expect(page.locator('[data-weapon-label]')).toHaveText('SPARK');
+  await expect(cycleButton).toHaveAttribute('data-active-weapon-id', 'weapon.blaster.spark');
 }
 
 async function holdFireButtonUntilShotCount(page: Page, expectedShotCountFloor: number): Promise<DebugSnapshot> {
@@ -731,6 +765,10 @@ function isIgnorableHeadlessThreeShaderValidation(message: string): boolean {
   );
 }
 
+function isIgnorableMediaAbort(url: string, failure: string): boolean {
+  return url.includes('/assets/audio/elevenlabs-foundation/') && failure === 'net::ERR_ABORTED';
+}
+
 async function expectHudToFit(page: Page): Promise<void> {
   const hudFit = await page.evaluate(() => {
     const leftElement = document.querySelector('.hud__left');
@@ -780,6 +818,7 @@ async function expectControlsToFit(page: Page): Promise<void> {
   const controlFit = await page.evaluate(() => {
     const selectors = {
       stick: '[data-move-stick]',
+      weaponSwitch: '[data-weapon-cycle-button]',
       fire: '[data-fire-button]',
     } as const;
     const rects = Object.fromEntries(
@@ -820,18 +859,34 @@ async function expectControlsToFit(page: Page): Promise<void> {
       allPresent,
       withinViewport,
       undersizedTargets,
-      stickOverlapsFire: rects.stick !== null && rects.fire !== null && rectsOverlap(rects.stick, rects.fire),
+      overlappingPairs: findOverlappingPairs(rects),
     };
 
     function rectsOverlap(first: DOMRectLike, second: DOMRectLike): boolean {
       return first.left < second.right && first.right > second.left && first.top < second.bottom && first.bottom > second.top;
+    }
+
+    function findOverlappingPairs(rectMap: Record<keyof typeof selectors, DOMRectLike | null>): string[] {
+      const pairs: string[] = [];
+      const entries = Object.entries(rectMap) as Array<[keyof typeof selectors, DOMRectLike | null]>;
+      for (let firstIndex = 0; firstIndex < entries.length; firstIndex++) {
+        for (let secondIndex = firstIndex + 1; secondIndex < entries.length; secondIndex++) {
+          const [firstKey, firstRect] = entries[firstIndex];
+          const [secondKey, secondRect] = entries[secondIndex];
+          if (firstRect && secondRect && rectsOverlap(firstRect, secondRect)) {
+            pairs.push(`${firstKey}:${secondKey}`);
+          }
+        }
+      }
+
+      return pairs;
     }
   });
 
   expect(controlFit.allPresent).toBe(true);
   expect(controlFit.withinViewport).toBe(true);
   expect(controlFit.undersizedTargets).toEqual([]);
-  expect(controlFit.stickOverlapsFire).toBe(false);
+  expect(controlFit.overlappingPairs).toEqual([]);
 }
 
 interface DOMRectLike {

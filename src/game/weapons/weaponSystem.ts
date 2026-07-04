@@ -274,6 +274,12 @@ export class WeaponSystem {
     this.updateMenuState();
   }
 
+  private cycleWeapon(): void {
+    const activeIndex = WEAPON_DEFINITIONS.findIndex((weapon) => weapon.id === this.activeWeapon.id);
+    const nextWeapon = WEAPON_DEFINITIONS[(activeIndex + 1) % WEAPON_DEFINITIONS.length] ?? WEAPON_DEFINITIONS[0];
+    this.switchWeapon(nextWeapon.id);
+  }
+
   private shoot(now: number): void {
     if (now < this.nextShotAt || this.reloadCompleteAt > 0) {
       return;
@@ -404,6 +410,12 @@ export class WeaponSystem {
       button.classList.toggle('weapon-button--active', isActive);
       button.setAttribute('aria-pressed', String(isActive));
     }
+
+    const cycleButton = this.root.querySelector<HTMLButtonElement>('[data-weapon-cycle-button]');
+    if (cycleButton) {
+      cycleButton.dataset.activeWeaponId = this.activeWeapon.id;
+      cycleButton.setAttribute('aria-label', `Switch weapon. Current ${this.activeWeapon.label}`);
+    }
   }
 
   private readonly onPointerDown = (event: PointerEvent): void => {
@@ -416,6 +428,12 @@ export class WeaponSystem {
     if (weaponButton?.dataset.weaponId) {
       event.preventDefault();
       this.switchWeapon(weaponButton.dataset.weaponId);
+      return;
+    }
+
+    if (target.closest('[data-weapon-cycle-button]')) {
+      event.preventDefault();
+      this.cycleWeapon();
       return;
     }
 
@@ -569,16 +587,17 @@ export class WeaponSystem {
 }
 
 function createMuzzleFlash(): THREE.Mesh {
-  const geometry = new THREE.ConeGeometry(0.055, 0.22, 10);
+  const geometry = new THREE.CircleGeometry(0.11, 18);
   const material = new THREE.MeshBasicMaterial({
     color: 0xffd06a,
     transparent: true,
-    opacity: 0.8,
+    opacity: 0.86,
     depthWrite: false,
+    side: THREE.DoubleSide,
   });
   const mesh = new THREE.Mesh(geometry, material);
   mesh.name = 'weapon-muzzle-flash';
-  mesh.rotation.x = Math.PI / 2;
+  mesh.renderOrder = 5;
   mesh.visible = false;
   return mesh;
 }
