@@ -5,7 +5,7 @@ export interface GameAudioAsset {
   path: string;
   bytes: number;
   volume: number;
-  kind: 'music' | 'sfx';
+  kind: 'music' | 'sfx' | 'voice';
 }
 
 export const WEAPON_AUDIO_ASSETS: Record<WeaponSoundProfile, GameAudioAsset> = {

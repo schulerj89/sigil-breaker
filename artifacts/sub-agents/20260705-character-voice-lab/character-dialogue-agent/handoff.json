@@ -1,0 +1,56 @@
+{
+  "agentId": "character-dialogue-agent",
+  "status": "complete",
+  "selectedName": "Glyph",
+  "voiceModel": "eleven_v3",
+  "voiceId": "rHWSYoq8UlV0YIBKMryp",
+  "lines": [
+    {
+      "category": "catchphrase",
+      "assetId": "audio.voice.glyph.catchphrase.service.elevenlabs",
+      "text": "[confident] Glyph at your service!",
+      "rationale": "Clean mascot intro, short enough for menus or level starts, with upbeat hero energy."
+    },
+    {
+      "category": "level-complete",
+      "assetId": "audio.voice.glyph.level-complete.rift-sealed.elevenlabs",
+      "text": "[excited] Rift sealed! Nice work!",
+      "rationale": "Celebrates success and ties directly to the Gadget Rift theme."
+    },
+    {
+      "category": "level-complete",
+      "assetId": "audio.voice.glyph.level-complete.slick.elevenlabs",
+      "text": "[laughs] That was slick!",
+      "rationale": "Fast, playful praise that works after a stylish clear or combo."
+    },
+    {
+      "category": "encouragement",
+      "assetId": "audio.voice.glyph.encouragement.keep-moving.elevenlabs",
+      "text": "[determined] Keep moving, we got this!",
+      "rationale": "Mobile-game short, supportive, and action-forward."
+    },
+    {
+      "category": "encouragement",
+      "assetId": "audio.voice.glyph.encouragement.sparks-up.elevenlabs",
+      "text": "[playful] Sparks up, feet fast!",
+      "rationale": "Gives the character a punchy tech-magic flavor without overexplaining."
+    },
+    {
+      "category": "fail",
+      "assetId": "audio.voice.glyph.fail.reboot.elevenlabs",
+      "text": "[gasp] Oof! Reboot me!",
+      "rationale": "A light fail line that keeps defeat funny instead of frustrating."
+    },
+    {
+      "category": "fail",
+      "assetId": "audio.voice.glyph.fail.stars.elevenlabs",
+      "text": "[dizzy] Stars... sigils... snacks?",
+      "rationale": "Mascot-style comedy for death/fail states, weird but not derivative."
+    }
+  ],
+  "downstreamNotes": [
+    "Voice Lab should lazy-load previews after a user tap.",
+    "Future gameplay events should use these captions and committed audio IDs.",
+    "Do not expose ElevenLabs keys in browser code."
+  ]
+}

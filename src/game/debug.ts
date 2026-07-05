@@ -224,7 +224,7 @@ export function createDebugApi(
           movePointerActive: controllerSnapshot.controls.movePointerActive,
           moveVector: controllerSnapshot.controls.moveVector,
           keyboardVector: controllerSnapshot.controls.keyboardVector,
-          buttons: ['title-start', 'hold-fire-aim', 'weapon-cycle', 'music-toggle', 'debug-toggle'],
+          buttons: ['title-start', 'hero-lab', 'voice-lab', 'hold-fire-aim', 'weapon-cycle', 'music-toggle', 'debug-toggle'],
         },
         ui: uiSnapshot,
         budgets: PERFORMANCE_BUDGETS,

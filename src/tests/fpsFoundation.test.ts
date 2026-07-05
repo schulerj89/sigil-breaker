@@ -7,6 +7,7 @@ import {
   TITLE_MUSIC_ASSET,
   WEAPON_AUDIO_ASSETS,
 } from '../game/audioManifest';
+import { CHARACTER_VOICE_LINES, CHARACTER_VOICE_NAME } from '../game/characterVoice';
 import { ENEMY_ASSET_DEFINITIONS, ENEMY_ASSET_SOURCE } from '../game/enemies/enemyManifest';
 import { EnemySystem } from '../game/enemies/enemySystem';
 import { BOSS_LEVEL_CONFIG, LEVEL_CONFIGS } from '../game/levelConfigs';
@@ -499,6 +500,7 @@ describe('FPS foundation config', () => {
   it('registers generated ElevenLabs audio for the foundation level', () => {
     const audioIds = GAME_AUDIO_ASSETS.map((asset) => asset.id).sort();
     const totalAudioBytes = GAME_AUDIO_ASSETS.reduce((total, asset) => total + asset.bytes, 0);
+    const voiceAudioBytes = CHARACTER_VOICE_LINES.reduce((total, asset) => total + asset.bytes, 0);
 
     expect(audioIds).toEqual([
       'audio.music.foundation.elevenlabs',
@@ -524,6 +526,22 @@ describe('FPS foundation config', () => {
     expect(TITLE_MUSIC_ASSET.volume).toBe(0.3);
     expect(totalAudioBytes).toBe(2_298_666);
     expect(totalAudioBytes).toBeLessThan(5_000_000);
+    expect(CHARACTER_VOICE_NAME).toBe('Glyph');
+    expect(CHARACTER_VOICE_LINES).toHaveLength(7);
+    expect(CHARACTER_VOICE_LINES.map((line) => line.id)).toEqual([
+      'audio.voice.glyph.catchphrase.service.elevenlabs',
+      'audio.voice.glyph.level-complete.rift-sealed.elevenlabs',
+      'audio.voice.glyph.level-complete.slick.elevenlabs',
+      'audio.voice.glyph.encouragement.keep-moving.elevenlabs',
+      'audio.voice.glyph.encouragement.sparks-up.elevenlabs',
+      'audio.voice.glyph.fail.reboot.elevenlabs',
+      'audio.voice.glyph.fail.stars.elevenlabs',
+    ]);
+    expect(CHARACTER_VOICE_LINES.every((line) => line.path.startsWith('assets/audio/elevenlabs-foundation/glyph-'))).toBe(
+      true,
+    );
+    expect(CHARACTER_VOICE_LINES.every((line) => line.text.startsWith('['))).toBe(true);
+    expect(voiceAudioBytes).toBe(246_482);
   });
 
   it('derives shot effects from each weapon view pose', () => {
@@ -706,8 +724,11 @@ describe('FPS foundation config', () => {
     expect(publicAssetUrl('assets/audio/elevenlabs-foundation/spark-sidearm.mp3')).toMatch(
       /assets\/audio\/elevenlabs-foundation\/spark-sidearm\.mp3\?assetBuild=.+/,
     );
-    expect(publicAssetUrl('assets/title/sigilbreaker-title-bg.webp')).toMatch(
-      /assets\/title\/sigilbreaker-title-bg\.webp\?assetBuild=.+/,
+    expect(publicAssetUrl('assets/title/gadget-rift-title-bg.webp')).toMatch(
+      /assets\/title\/gadget-rift-title-bg\.webp\?assetBuild=.+/,
+    );
+    expect(publicAssetUrl('assets/audio/elevenlabs-foundation/glyph-at-your-service.mp3')).toMatch(
+      /assets\/audio\/elevenlabs-foundation\/glyph-at-your-service\.mp3\?assetBuild=.+/,
     );
     expect(withAssetVersion('Textures/colormap.png?assetBuild=already')).toBe(
       'Textures/colormap.png?assetBuild=already',

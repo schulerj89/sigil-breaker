@@ -30,7 +30,7 @@ const EXPECTED_LOADED_ASSET_IDS = [
 interface DebugSnapshot {
   buildId: string;
   scene: {
-    phase: 'loading' | 'title' | 'gameplay' | 'character-debug';
+    phase: 'loading' | 'title' | 'gameplay' | 'character-debug' | 'voice-lab';
     playerPosition: [number, number, number];
     yawRadians: number;
     pitchRadians: number;
@@ -233,7 +233,7 @@ interface DebugSnapshot {
   };
   ui: {
     debugVisible: boolean;
-    phase: 'loading' | 'title' | 'gameplay' | 'character-debug';
+    phase: 'loading' | 'title' | 'gameplay' | 'character-debug' | 'voice-lab';
     loading: {
       ready: boolean;
       loadedAssets: number;
@@ -304,6 +304,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   await expect(page.locator('[data-title-screen]')).toBeVisible();
   await expect(page.locator('[data-title-start]')).toBeEnabled();
   await expect(page.locator('[data-title-character-debug]')).toBeEnabled();
+  await expect(page.locator('[data-title-voice-lab]')).toBeEnabled();
 
   const titleSnapshot = await readDebugSnapshot(page);
   expect(titleSnapshot.scene.phase).toBe('title');
@@ -332,6 +333,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expectTitleHeroFitsViewport(page, titleSnapshot);
   expect(titleSnapshot.weapon.audio.activeMusicAssetId).toBe('audio.music.title.playful.elevenlabs');
   await expectTitleLinesFit(page);
+  await verifyVoiceLabPage(page, titleSnapshot.buildId);
   await verifyCharacterDebugPage(page);
   await startGameFromTitle(page);
 
@@ -839,6 +841,47 @@ async function verifyCharacterDebugPage(page: Page): Promise<void> {
   await expectCharacterDebugSceneDragToMoveCamera(page);
   await expectCharacterDebugUsesCombinedGlb(page);
   await page.locator('[data-character-debug-back]').click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('title');
+  await expect(page.locator('[data-title-screen]')).toBeVisible();
+}
+
+async function verifyVoiceLabPage(page: Page, buildId: string): Promise<void> {
+  await page.locator('[data-title-voice-lab]').click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('voice-lab');
+  await expect(page.locator('[data-voice-lab]')).toBeVisible();
+  await expect(page.locator('[data-voice-lab-status]')).toContainText('GLYPH VOICE READY');
+  await expect(page.locator('[data-voice-line-play]')).toHaveCount(7);
+
+  const voiceRows = await page.locator('[data-voice-line]').evaluateAll((elements) =>
+    elements.map((element) => ({
+      id: element.getAttribute('data-voice-line') ?? '',
+      text: element.textContent ?? '',
+    })),
+  );
+  expect(voiceRows.map((row) => row.id)).toEqual([
+    'audio.voice.glyph.catchphrase.service.elevenlabs',
+    'audio.voice.glyph.level-complete.rift-sealed.elevenlabs',
+    'audio.voice.glyph.level-complete.slick.elevenlabs',
+    'audio.voice.glyph.encouragement.keep-moving.elevenlabs',
+    'audio.voice.glyph.encouragement.sparks-up.elevenlabs',
+    'audio.voice.glyph.fail.reboot.elevenlabs',
+    'audio.voice.glyph.fail.stars.elevenlabs',
+  ]);
+  expect(voiceRows.map((row) => row.text).join(' ')).toContain('Glyph at your service');
+  expect(voiceRows.map((row) => row.text).join(' ')).toContain('Stars... sigils... snacks?');
+
+  const voiceSources = await page.locator('[data-voice-line-play]').evaluateAll((buttons) =>
+    buttons.map((button) => button.getAttribute('data-voice-src') ?? ''),
+  );
+  expect(voiceSources).toHaveLength(7);
+  for (const source of voiceSources) {
+    const url = new URL(source, page.url());
+    expect(url.pathname).toContain('/assets/audio/elevenlabs-foundation/glyph-');
+    expect(url.searchParams.get('assetBuild')).toBe(buildId);
+  }
+
+  await expectHudToFit(page);
+  await page.locator('[data-voice-lab-back]').click();
   await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('title');
   await expect(page.locator('[data-title-screen]')).toBeVisible();
 }

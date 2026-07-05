@@ -1,0 +1,18 @@
+{
+  "agentId": "elevenlabs-audio-music-agent",
+  "status": "complete",
+  "generatedAssets": [
+    "public/assets/audio/elevenlabs-foundation/glyph-at-your-service.mp3",
+    "public/assets/audio/elevenlabs-foundation/glyph-rift-sealed.mp3",
+    "public/assets/audio/elevenlabs-foundation/glyph-that-was-slick.mp3",
+    "public/assets/audio/elevenlabs-foundation/glyph-keep-moving.mp3",
+    "public/assets/audio/elevenlabs-foundation/glyph-sparks-up-feet-fast.mp3",
+    "public/assets/audio/elevenlabs-foundation/glyph-oof-reboot-me.mp3",
+    "public/assets/audio/elevenlabs-foundation/glyph-stars-sigils-snacks.mp3"
+  ],
+  "modelId": "eleven_v3",
+  "voiceId": "rHWSYoq8UlV0YIBKMryp",
+  "outputFormat": "mp3_44100_128",
+  "loadGroup": "character-voice-lab",
+  "runtimePolicy": "Committed assets only; lazy-load from cache-busted public URLs after user gesture."
+}

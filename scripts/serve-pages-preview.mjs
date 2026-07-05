@@ -91,6 +91,8 @@ function contentTypeFor(filePath) {
       return 'application/json; charset=utf-8';
     case '.glb':
       return 'model/gltf-binary';
+    case '.mp3':
+      return 'audio/mpeg';
     case '.png':
       return 'image/png';
     case '.webp':

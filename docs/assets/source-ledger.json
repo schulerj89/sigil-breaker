@@ -216,14 +216,14 @@
     },
     {
       "sourceId": "elevenlabs.foundation-audio.2026-07-04",
-      "name": "Foundation FPS ElevenLabs Audio",
+      "name": "Foundation FPS ElevenLabs Audio And Voice",
       "author": "ElevenLabs generated output",
       "provider": "ElevenLabs",
       "generated": true,
       "sourceUrl": "https://elevenlabs.io/docs/api-reference/text-to-sound-effects/convert",
       "secondarySourceUrl": "https://elevenlabs.io/docs/api-reference/music/compose",
       "downloadUrl": "build-time ElevenLabs API generation through local secret broker",
-      "downloadedAt": "2026-07-05T16:06:39.297Z",
+      "downloadedAt": "2026-07-05T17:35:00.000Z",
       "license": "ElevenLabs generated output terms",
       "licenseUrl": "https://elevenlabs.io/terms-of-use",
       "metadataFile": "public/assets/audio/elevenlabs-foundation/source-metadata.json",
@@ -233,16 +233,16 @@
       "attributionRequired": false,
       "notes": [
         "Generated build-time through the local secret broker; no ElevenLabs key is present in browser code or committed metadata.",
-        "Prompt, model, endpoint, settings, hashes, byte sizes, and intended use are recorded in source-metadata.json.",
-        "Runtime uses cache-busted committed MP3 assets only."
+        "Prompt, model, endpoint, voice ID, settings, hashes, byte sizes, and intended use are recorded in source-metadata.json.",
+        "Runtime uses cache-busted committed MP3 assets only; character voice previews are lazy-loaded from the title Voice Lab."
       ],
       "sharedFiles": [
         {
           "assetType": "metadata",
           "sourceFile": "generated source metadata",
           "path": "public/assets/audio/elevenlabs-foundation/source-metadata.json",
-          "bytes": 7074,
-          "sha256": "a8ee1ca6047e3c7c4dbaef034beae5a09e54e24bee81c14cebb7c6fbb20bd8ac",
+          "bytes": 14363,
+          "sha256": "33f5701494cfe1ac910b2350ad5f6d8d34e425fccaa42597fb867f4a0338097d",
           "gameUse": "metadata",
           "loadGroup": "foundation-audio"
         }
@@ -420,8 +420,233 @@
           "loopable": true,
           "lufsTarget": -20,
           "generatedAt": "2026-07-05T16:06:39.297Z"
+        },
+        {
+          "assetId": "audio.voice.glyph.catchphrase.service.elevenlabs",
+          "assetType": "audio",
+          "sourceFile": "ElevenLabs text-to-speech generated MP3",
+          "path": "public/assets/audio/elevenlabs-foundation/glyph-at-your-service.mp3",
+          "bytes": 31808,
+          "sha256": "ad31cb94b8f6fe94aeddac3a28ce18a7d852bdfdc5aac85387fbe1e562b33f6c",
+          "gameUse": "audio",
+          "loadGroup": "character-voice-lab",
+          "provider": "ElevenLabs",
+          "endpoint": "text-to-speech",
+          "modelId": "eleven_v3",
+          "voiceId": "rHWSYoq8UlV0YIBKMryp",
+          "characterName": "Glyph",
+          "category": "catchphrase",
+          "prompt": "[confident] Glyph at your service!",
+          "settings": {
+            "output_format": "mp3_44100_128",
+            "seed": 180501,
+            "voice_settings": {
+              "stability": 0.44,
+              "similarity_boost": 0.8,
+              "style": 0.62,
+              "use_speaker_boost": true
+            }
+          },
+          "intendedUse": "character-voice-preview-catchphrase",
+          "durationSeconds": 1.92,
+          "loopable": false,
+          "lufsTarget": -16,
+          "generatedAt": "2026-07-05T17:35:00.000Z"
+        },
+        {
+          "assetId": "audio.voice.glyph.level-complete.rift-sealed.elevenlabs",
+          "assetType": "audio",
+          "sourceFile": "ElevenLabs text-to-speech generated MP3",
+          "path": "public/assets/audio/elevenlabs-foundation/glyph-rift-sealed.mp3",
+          "bytes": 36824,
+          "sha256": "104003832542533536282c7fa8f39f5ffd4019daf83f539eee4f11da6c34fd6e",
+          "gameUse": "audio",
+          "loadGroup": "character-voice-lab",
+          "provider": "ElevenLabs",
+          "endpoint": "text-to-speech",
+          "modelId": "eleven_v3",
+          "voiceId": "rHWSYoq8UlV0YIBKMryp",
+          "characterName": "Glyph",
+          "category": "level-complete",
+          "prompt": "[excited] Rift sealed! Nice work!",
+          "settings": {
+            "output_format": "mp3_44100_128",
+            "seed": 180502,
+            "voice_settings": {
+              "stability": 0.44,
+              "similarity_boost": 0.8,
+              "style": 0.62,
+              "use_speaker_boost": true
+            }
+          },
+          "intendedUse": "character-voice-preview-level-complete",
+          "durationSeconds": 2.24,
+          "loopable": false,
+          "lufsTarget": -16,
+          "generatedAt": "2026-07-05T17:35:00.000Z"
+        },
+        {
+          "assetId": "audio.voice.glyph.level-complete.slick.elevenlabs",
+          "assetType": "audio",
+          "sourceFile": "ElevenLabs text-to-speech generated MP3",
+          "path": "public/assets/audio/elevenlabs-foundation/glyph-that-was-slick.mp3",
+          "bytes": 31808,
+          "sha256": "984479366692b022dbb142f61f8184d01172ff6d3df16c02c8dd8d9a098cba15",
+          "gameUse": "audio",
+          "loadGroup": "character-voice-lab",
+          "provider": "ElevenLabs",
+          "endpoint": "text-to-speech",
+          "modelId": "eleven_v3",
+          "voiceId": "rHWSYoq8UlV0YIBKMryp",
+          "characterName": "Glyph",
+          "category": "level-complete",
+          "prompt": "[laughs] That was slick!",
+          "settings": {
+            "output_format": "mp3_44100_128",
+            "seed": 180503,
+            "voice_settings": {
+              "stability": 0.44,
+              "similarity_boost": 0.8,
+              "style": 0.62,
+              "use_speaker_boost": true
+            }
+          },
+          "intendedUse": "character-voice-preview-level-complete",
+          "durationSeconds": 1.92,
+          "loopable": false,
+          "lufsTarget": -16,
+          "generatedAt": "2026-07-05T17:35:00.000Z"
+        },
+        {
+          "assetId": "audio.voice.glyph.encouragement.keep-moving.elevenlabs",
+          "assetType": "audio",
+          "sourceFile": "ElevenLabs text-to-speech generated MP3",
+          "path": "public/assets/audio/elevenlabs-foundation/glyph-keep-moving.mp3",
+          "bytes": 34316,
+          "sha256": "547b4c185ef1d7fed17ed3cf0b2f20b1ad1e00f6ef3cd9453672b5686a0c5139",
+          "gameUse": "audio",
+          "loadGroup": "character-voice-lab",
+          "provider": "ElevenLabs",
+          "endpoint": "text-to-speech",
+          "modelId": "eleven_v3",
+          "voiceId": "rHWSYoq8UlV0YIBKMryp",
+          "characterName": "Glyph",
+          "category": "encouragement",
+          "prompt": "[determined] Keep moving, we got this!",
+          "settings": {
+            "output_format": "mp3_44100_128",
+            "seed": 180504,
+            "voice_settings": {
+              "stability": 0.44,
+              "similarity_boost": 0.8,
+              "style": 0.62,
+              "use_speaker_boost": true
+            }
+          },
+          "intendedUse": "character-voice-preview-encouragement",
+          "durationSeconds": 2.08,
+          "loopable": false,
+          "lufsTarget": -16,
+          "generatedAt": "2026-07-05T17:35:00.000Z"
+        },
+        {
+          "assetId": "audio.voice.glyph.encouragement.sparks-up.elevenlabs",
+          "assetType": "audio",
+          "sourceFile": "ElevenLabs text-to-speech generated MP3",
+          "path": "public/assets/audio/elevenlabs-foundation/glyph-sparks-up-feet-fast.mp3",
+          "bytes": 29301,
+          "sha256": "f38eac9535095103289dc47be612faf3190febe4077fc287136ec2e7615df386",
+          "gameUse": "audio",
+          "loadGroup": "character-voice-lab",
+          "provider": "ElevenLabs",
+          "endpoint": "text-to-speech",
+          "modelId": "eleven_v3",
+          "voiceId": "rHWSYoq8UlV0YIBKMryp",
+          "characterName": "Glyph",
+          "category": "encouragement",
+          "prompt": "[playful] Sparks up, feet fast!",
+          "settings": {
+            "output_format": "mp3_44100_128",
+            "seed": 180505,
+            "voice_settings": {
+              "stability": 0.44,
+              "similarity_boost": 0.8,
+              "style": 0.62,
+              "use_speaker_boost": true
+            }
+          },
+          "intendedUse": "character-voice-preview-encouragement",
+          "durationSeconds": 1.76,
+          "loopable": false,
+          "lufsTarget": -16,
+          "generatedAt": "2026-07-05T17:35:00.000Z"
+        },
+        {
+          "assetId": "audio.voice.glyph.fail.reboot.elevenlabs",
+          "assetType": "audio",
+          "sourceFile": "ElevenLabs text-to-speech generated MP3",
+          "path": "public/assets/audio/elevenlabs-foundation/glyph-oof-reboot-me.mp3",
+          "bytes": 41839,
+          "sha256": "96279b71038dd538090025d357bd1e761ad3ace675130b018689de14ae521d8e",
+          "gameUse": "audio",
+          "loadGroup": "character-voice-lab",
+          "provider": "ElevenLabs",
+          "endpoint": "text-to-speech",
+          "modelId": "eleven_v3",
+          "voiceId": "rHWSYoq8UlV0YIBKMryp",
+          "characterName": "Glyph",
+          "category": "fail",
+          "prompt": "[gasp] Oof! Reboot me!",
+          "settings": {
+            "output_format": "mp3_44100_128",
+            "seed": 180506,
+            "voice_settings": {
+              "stability": 0.44,
+              "similarity_boost": 0.8,
+              "style": 0.62,
+              "use_speaker_boost": true
+            }
+          },
+          "intendedUse": "character-voice-preview-fail",
+          "durationSeconds": 2.56,
+          "loopable": false,
+          "lufsTarget": -16,
+          "generatedAt": "2026-07-05T17:35:00.000Z"
+        },
+        {
+          "assetId": "audio.voice.glyph.fail.stars.elevenlabs",
+          "assetType": "audio",
+          "sourceFile": "ElevenLabs text-to-speech generated MP3",
+          "path": "public/assets/audio/elevenlabs-foundation/glyph-stars-sigils-snacks.mp3",
+          "bytes": 40586,
+          "sha256": "ca4bc3216195d833d637d72c0d0590cf43b7e75e0ec11a8e22d2ffa3334596be",
+          "gameUse": "audio",
+          "loadGroup": "character-voice-lab",
+          "provider": "ElevenLabs",
+          "endpoint": "text-to-speech",
+          "modelId": "eleven_v3",
+          "voiceId": "rHWSYoq8UlV0YIBKMryp",
+          "characterName": "Glyph",
+          "category": "fail",
+          "prompt": "[dizzy] Stars... sigils... snacks?",
+          "settings": {
+            "output_format": "mp3_44100_128",
+            "seed": 180507,
+            "voice_settings": {
+              "stability": 0.44,
+              "similarity_boost": 0.8,
+              "style": 0.62,
+              "use_speaker_boost": true
+            }
+          },
+          "intendedUse": "character-voice-preview-fail",
+          "durationSeconds": 2.48,
+          "loopable": false,
+          "lufsTarget": -16,
+          "generatedAt": "2026-07-05T17:35:00.000Z"
         }
-      ]
+      ],
+      "textToSpeechSourceUrl": "https://elevenlabs.io/docs/api-reference/text-to-speech/convert"
     },
     {
       "sourceId": "openai.gpt-image-2.title-concepts.20260705",

@@ -6,6 +6,7 @@ import { EnemySystem } from './enemies/enemySystem';
 import { createFoundationLevelRuntime, type FoundationLevelRuntime } from './foundationLevelRuntime';
 import { FpsControls } from './fpsControls';
 import { Health } from './health';
+import { CHARACTER_VOICE_NAME, createCharacterVoiceLab } from './characterVoice';
 import { LEVEL_HEIGHT_TILES, LEVEL_WIDTH_TILES } from './levelMap';
 import { createMobileZoomGuard } from './mobileZoomGuard';
 import { createPlayerCharacterPoseHarness } from './playerCharacterPoseHarness';
@@ -82,6 +83,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     ),
   });
   const playerPoseHarness = createPlayerCharacterPoseHarness(root);
+  const characterVoiceLab = createCharacterVoiceLab(root);
   const titleHeroStage = new TitleHeroStage(TITLE_BACKGROUND_PATH);
   void titleHeroStage.load();
   weaponSystemRef.current = weaponSystem;
@@ -139,10 +141,13 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   const debugToggle = root.querySelector<HTMLButtonElement>('[data-debug-toggle]');
   const titleStartButton = root.querySelector<HTMLButtonElement>('[data-title-start]');
   const titleCharacterDebugButton = root.querySelector<HTMLButtonElement>('[data-title-character-debug]');
+  const titleVoiceLabButton = root.querySelector<HTMLButtonElement>('[data-title-voice-lab]');
   const characterDebugBackButton = root.querySelector<HTMLButtonElement>('[data-character-debug-back]');
+  const voiceLabBackButton = root.querySelector<HTMLButtonElement>('[data-voice-lab-back]');
   const loadingScreen = root.querySelector<HTMLElement>('[data-loading-screen]');
   const titleScreen = root.querySelector<HTMLElement>('[data-title-screen]');
   const characterDebugScreen = root.querySelector<HTMLElement>('[data-character-debug]');
+  const voiceLabScreen = root.querySelector<HTMLElement>('[data-voice-lab]');
   const applyGamePhase = (): void => {
     if (shell) {
       shell.dataset.gamePhase = gamePhase;
@@ -153,13 +158,17 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     if (titleCharacterDebugButton) {
       titleCharacterDebugButton.disabled = gamePhase !== 'title';
     }
+    if (titleVoiceLabButton) {
+      titleVoiceLabButton.disabled = gamePhase !== 'title';
+    }
     loadingScreen?.setAttribute('aria-hidden', String(gamePhase !== 'loading'));
     titleScreen?.setAttribute('aria-hidden', String(gamePhase !== 'title'));
     characterDebugScreen?.setAttribute('aria-hidden', String(gamePhase !== 'character-debug'));
+    voiceLabScreen?.setAttribute('aria-hidden', String(gamePhase !== 'voice-lab'));
     controls.setInputEnabled(gamePhase === 'gameplay');
     weaponSystem.setInputEnabled(gamePhase === 'gameplay');
     weaponSystem.setMusicPhase(gamePhase === 'gameplay' ? 'gameplay' : 'title');
-    titleHeroStage.setVisible(gamePhase === 'title');
+    titleHeroStage.setVisible(gamePhase === 'title' || gamePhase === 'voice-lab');
   };
   const startGameplay = (): void => {
     if (gamePhase !== 'title' || titleStartPending) {
@@ -172,6 +181,9 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     }
     if (titleCharacterDebugButton) {
       titleCharacterDebugButton.disabled = true;
+    }
+    if (titleVoiceLabButton) {
+      titleVoiceLabButton.disabled = true;
     }
     titleStartTransitionTimeout = window.setTimeout(() => {
       titleStartPending = false;
@@ -199,6 +211,22 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     gamePhase = 'title';
     applyGamePhase();
   };
+  const openVoiceLab = (): void => {
+    if (gamePhase !== 'title') {
+      return;
+    }
+    characterVoiceLab.open();
+    gamePhase = 'voice-lab';
+    applyGamePhase();
+  };
+  const closeVoiceLab = (): void => {
+    if (gamePhase !== 'voice-lab') {
+      return;
+    }
+    characterVoiceLab.close();
+    gamePhase = 'title';
+    applyGamePhase();
+  };
   const onTitleStartPointerDown = (event: PointerEvent): void => {
     event.preventDefault();
     startGameplay();
@@ -215,9 +243,21 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     event.preventDefault();
     openCharacterDebug();
   };
+  const onTitleVoiceLabPointerDown = (event: PointerEvent): void => {
+    event.preventDefault();
+    openVoiceLab();
+  };
+  const onTitleVoiceLabClick = (event: MouseEvent): void => {
+    event.preventDefault();
+    openVoiceLab();
+  };
   const onCharacterDebugBackPointerDown = (event: PointerEvent): void => {
     event.preventDefault();
     closeCharacterDebug();
+  };
+  const onVoiceLabBackPointerDown = (event: PointerEvent): void => {
+    event.preventDefault();
+    closeVoiceLab();
   };
   const updateDebugVisibility = (): void => {
     shell?.classList.toggle('game-shell--debug-hidden', !debugVisible);
@@ -236,7 +276,10 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   titleStartButton?.addEventListener('click', onTitleStartClick);
   titleCharacterDebugButton?.addEventListener('pointerdown', onTitleCharacterDebugPointerDown);
   titleCharacterDebugButton?.addEventListener('click', onTitleCharacterDebugClick);
+  titleVoiceLabButton?.addEventListener('pointerdown', onTitleVoiceLabPointerDown);
+  titleVoiceLabButton?.addEventListener('click', onTitleVoiceLabClick);
   characterDebugBackButton?.addEventListener('pointerdown', onCharacterDebugBackPointerDown);
+  voiceLabBackButton?.addEventListener('pointerdown', onVoiceLabBackPointerDown);
   debugToggle?.addEventListener('pointerdown', onDebugTogglePointerDown);
   applyGamePhase();
   updateDebugVisibility();
@@ -264,7 +307,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     if (gamePhase === 'character-debug') {
       playerPoseHarness.update(deltaSeconds);
       playerPoseHarness.render(renderer);
-    } else if (gamePhase === 'title') {
+    } else if (gamePhase === 'title' || gamePhase === 'voice-lab') {
       titleHeroStage.update(deltaSeconds, now / 1000);
       titleHeroStage.render(renderer);
     } else {
@@ -310,6 +353,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       enemySystem.dispose();
       levelRuntime.dispose();
       playerPoseHarness.dispose();
+      characterVoiceLab.dispose();
       titleHeroStage.dispose();
       titleBackgroundImage.onload = null;
       titleBackgroundImage.onerror = null;
@@ -318,7 +362,10 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       titleStartButton?.removeEventListener('click', onTitleStartClick);
       titleCharacterDebugButton?.removeEventListener('pointerdown', onTitleCharacterDebugPointerDown);
       titleCharacterDebugButton?.removeEventListener('click', onTitleCharacterDebugClick);
+      titleVoiceLabButton?.removeEventListener('pointerdown', onTitleVoiceLabPointerDown);
+      titleVoiceLabButton?.removeEventListener('click', onTitleVoiceLabClick);
       characterDebugBackButton?.removeEventListener('pointerdown', onCharacterDebugBackPointerDown);
+      voiceLabBackButton?.removeEventListener('pointerdown', onVoiceLabBackPointerDown);
       resizeObserver.disconnect();
       window.removeEventListener('orientationchange', resize);
       scene.traverse((object) => {
@@ -412,7 +459,35 @@ function createShellMarkup(): string {
             data-title-character-debug
             disabled
           >HERO LAB</button>
+          <button
+            class="title-screen__start title-screen__debug"
+            type="button"
+            data-ui-control
+            data-title-voice-lab
+            disabled
+          >VOICE LAB</button>
         </div>
+      </div>
+      <div class="voice-lab" data-voice-lab aria-hidden="true">
+        <div class="voice-lab__topbar">
+          <button
+            class="character-debug__button"
+            type="button"
+            data-ui-control
+            data-voice-lab-back
+          >BACK</button>
+          <div class="voice-lab__title">${CHARACTER_VOICE_NAME} VOICE</div>
+          <button
+            class="character-debug__button"
+            type="button"
+            data-ui-control
+            data-voice-lab-stop
+          >STOP</button>
+        </div>
+        <section class="voice-lab__panel" aria-label="${CHARACTER_VOICE_NAME} voice lines">
+          <div class="voice-lab__status" data-voice-lab-status>${CHARACTER_VOICE_NAME.toUpperCase()} VOICE READY</div>
+          <div class="voice-lab__list" data-voice-line-list></div>
+        </section>
       </div>
       <div class="character-debug" data-character-debug aria-hidden="true">
         <div class="character-debug__topbar">

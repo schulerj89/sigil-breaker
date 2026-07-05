@@ -34,7 +34,7 @@ The repo now has a clean Three.js/Vite foundation. These sub-agents are the plan
 
 - Coordination: `mobile-fps-coordinator`
 - Asset pipeline: `asset-pipeline-lead`, `external-asset-scout`, `license-provenance-curator`, `asset-registry-agent`, `level-kit-curator`, `enemy-asset-curator`, `weapon-upgrade-asset-curator`, `gltf-optimization-agent`, `asset-playground-qa-agent`
-- Game systems: `powerup-progression-agent`, `mobile-fps-game-feel-agent`, `touch-controls-agent`, `landscape-title-hud-agent`, `elevenlabs-audio-music-agent`, `camera-cutscene-agent`
+- Game systems: `powerup-progression-agent`, `mobile-fps-game-feel-agent`, `touch-controls-agent`, `landscape-title-hud-agent`, `elevenlabs-audio-music-agent`, `character-dialogue-agent`, `camera-cutscene-agent`
 - Review and QA: `performance-budget-agent`, `memory-lifecycle-agent`, `smoke-qa-agent`, `playthrough-qa-agent`
 
 See `registry.json` for the machine-readable registry.

@@ -1,0 +1,28 @@
+{
+  "agentId": "character-dialogue-agent",
+  "status": "ready",
+  "summary": "Owns Glyph's short mascot-style name, catchphrases, captions, and gameplay bark rationale.",
+  "downstreamConsumers": [
+    "elevenlabs-audio-music-agent",
+    "landscape-title-hud-agent",
+    "smoke-qa-agent",
+    "playthrough-qa-agent"
+  ],
+  "handoff": {
+    "characterName": "Glyph",
+    "lineCount": 7,
+    "lineCategories": [
+      "catchphrase",
+      "level-complete",
+      "encouragement",
+      "fail"
+    ],
+    "rules": [
+      "Keep lines short enough for mobile speakers and fast menu preview.",
+      "Store committed audio and transcript metadata; do not use runtime ElevenLabs API calls.",
+      "Avoid close imitation of any existing mascot game dialogue."
+    ],
+    "voiceModel": "eleven_v3",
+    "voiceId": "rHWSYoq8UlV0YIBKMryp"
+  }
+}

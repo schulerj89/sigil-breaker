@@ -137,6 +137,13 @@
       "primaryOutputs": ["audio-plan", "elevenlabs-prompt-ledger", "mix-risk-list"]
     },
     {
+      "id": "character-dialogue-agent",
+      "category": "narrative",
+      "folder": "docs/sub-agents/character-dialogue-agent",
+      "purpose": "Plans playable character names, catchphrases, gameplay barks, captions, and tone consistency.",
+      "primaryOutputs": ["name-shortlist", "dialogue-line-set", "caption-handoff"]
+    },
+    {
       "id": "camera-cutscene-agent",
       "category": "systems",
       "folder": "docs/sub-agents/camera-cutscene-agent",
@@ -145,4 +152,3 @@
     }
   ]
 }
-

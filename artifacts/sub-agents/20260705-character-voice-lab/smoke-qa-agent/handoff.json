@@ -1,0 +1,11 @@
+{
+  "agentId": "smoke-qa-agent",
+  "status": "complete",
+  "checks": [
+    "data-title-voice-lab is enabled on title",
+    "data-voice-lab is visible in voice-lab phase",
+    "data-voice-line-play count is 7",
+    "data-voice-src URLs include assetBuild",
+    "back button returns to title"
+  ]
+}
