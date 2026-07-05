@@ -93,6 +93,8 @@ function contentTypeFor(filePath) {
       return 'model/gltf-binary';
     case '.png':
       return 'image/png';
+    case '.webp':
+      return 'image/webp';
     case '.svg':
       return 'image/svg+xml';
     case '.txt':

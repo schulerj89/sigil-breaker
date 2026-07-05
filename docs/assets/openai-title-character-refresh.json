@@ -1,0 +1,179 @@
+{
+  "generatedAt": "2026-07-05T16:32:29.639Z",
+  "modelId": "gpt-image-2",
+  "selectedAssetId": "ui.title.character-refresh.mock-03.sigil-observatory",
+  "selectedRuntimeDirection": "Use mock 03 as the core composition, use the GPT Image 2 character-removed background plate as the runtime title background, and overlay the live Three.js idle-alt character plus HTML title/buttons.",
+  "subAgentDecision": {
+    "landscapeTitleHudAgent": "Use a live Three.js character on the right with HTML title/buttons on the left; avoid using the generated mocks as runtime backgrounds.",
+    "elevenlabsAudioMusicAgent": "Pair the title with lighter loopable instrumental music, separate from combat music, and keep browser audio unlock centralized.",
+    "performanceBudgetAgent": "Use one renderer and shared character GLB loading; do not create a second WebGL context or duplicate runtime character sources."
+  },
+  "assets": [
+    {
+      "assetId": "ui.title.character-refresh.mock-01.launch-bay",
+      "assetType": "image",
+      "sourceFile": "GPT Image 2 title-character mock 01",
+      "sourceArtifact": "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-01-launch-bay.png",
+      "path": "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-01-launch-bay.png",
+      "bytes": 2531897,
+      "sha256": "d67fb28d7199cfbac4719d2ebf960fc66b457a8c003942a5009e19aab8d4c2ae",
+      "gameUse": "ui",
+      "loadGroup": "title-screen-concept",
+      "provider": "OpenAI",
+      "endpoint": "images.edit",
+      "modelId": "gpt-image-2",
+      "prompt": "Use case: stylized-concept\nAsset type: mobile landscape game title screen mock reference\nInput image 1 role: selected main character visual reference only; preserve warm amber fur, cream face/tail tip, cobalt scarf/cloth, dark gear, lime tech accents, playful confident mascot energy.\nPrimary request: Create a polished mobile landscape title screen composition for Sigilbreaker, with this mascot hero as the visual anchor on the right side and a clean empty title/UI zone on the left for live HTML text and buttons.\nScene/backdrop: warm industrial sci-fi launch bay, brushed gunmetal floor, soft amber key lights, lime energy sigil aura behind the hero, subtle cobalt-blue accents.\nSubject: the gadget-gremlin mascot in a relaxed idle pose, smiling, readable full upper body, no weapon in hand.\nStyle/medium: high-detail stylized 3D game key art mock, mascot platformer energy mixed with mobile FPS UI restraint.\nComposition/framing: 2048x1024 wide phone landscape, hero on right third, left third intentionally darker and uncluttered, bottom area clear for start controls, safe margins for notches.\nLighting/mood: lighter playful adventure mood, warm rim light, lime aura glow, not horror, not gritty.\nColor palette: amber, cream, cobalt, lime, gunmetal, small magenta/coral energy sparks.\nConstraints: no text, no letters, no logos, no watermark, no UI labels; do not copy or reference existing franchises; no dark unreadable background; no extra characters.\nAvoid: fake buttons, fake title typography, unreadable clutter, realistic humans, gore, brand symbols.",
+      "settings": {
+        "size": "2048x1024",
+        "quality": "medium",
+        "inputReference": "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.selected-concept.png",
+        "outputFormat": "png"
+      },
+      "intendedUse": "title-screen-live-character-style-reference",
+      "outputFormat": "png",
+      "generatedAt": "2026-07-05T16:06:39.297Z",
+      "titleDirectionLabel": "Launch Bay",
+      "selectionRationale": "Strong readable left side and clear hero/aura placement, but slightly heavier industrial tone than the selected direction."
+    },
+    {
+      "assetId": "ui.title.character-refresh.mock-02.energy-platform",
+      "assetType": "image",
+      "sourceFile": "GPT Image 2 title-character mock 02",
+      "sourceArtifact": "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-02-energy-platform.png",
+      "path": "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-02-energy-platform.png",
+      "bytes": 2634940,
+      "sha256": "2a602c88e44fab74a9a691dc41abe96ce734d00ff8802c7956ee132b74785365",
+      "gameUse": "ui",
+      "loadGroup": "title-screen-concept",
+      "provider": "OpenAI",
+      "endpoint": "images.edit",
+      "modelId": "gpt-image-2",
+      "prompt": "Use case: stylized-concept\nAsset type: mobile landscape game title screen mock reference\nInput image 1 role: selected main character visual reference only; preserve warm amber fur, cream muzzle/tail, cobalt cloth, lime wrist/gear accents, mischievous brows.\nPrimary request: Create a title screen mock where the mascot stands on a floating steel platform with an animated-looking lime/cobalt aura ring and small bouncing-energy particles around where live title letters will appear.\nScene/backdrop: bright tech-temple chamber with curved metal panels, stylized energy rails, soft sky-blue highlights through vents.\nSubject: mascot hero on right side, idle-alt-like casual bounce posture, grin, tail visible, one hand on hip, one wrist bracer glowing.\nStyle/medium: stylized 3D game UI mock, energetic mascot adventure tone with clean mobile readability.\nComposition/framing: 2048x1024 wide, left side has empty layered panels and negative space for live title; right side hero large but not covering controls; bottom corners clear.\nLighting/mood: playful, inviting, energetic, launch-screen feel after loading completes.\nColor palette: cobalt blue, lime green, amber fur tones, warm cream, charcoal metal, small coral highlights.\nConstraints: no text, no letters, no logos, no watermark; no copyrighted franchise references; background must support real HTML title over it.\nAvoid: fake typography, fake interface copy, dark horror tone, over-busy neon noise, multiple mascots.",
+      "settings": {
+        "size": "2048x1024",
+        "quality": "medium",
+        "inputReference": "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.selected-concept.png",
+        "outputFormat": "png"
+      },
+      "intendedUse": "title-screen-live-character-style-reference",
+      "outputFormat": "png",
+      "generatedAt": "2026-07-05T16:06:39.297Z",
+      "titleDirectionLabel": "Energy Platform",
+      "selectionRationale": "Best playful cobalt/lime/amber color balance; useful palette reference, but the title zone is more visually active."
+    },
+    {
+      "assetId": "ui.title.character-refresh.mock-03.sigil-observatory",
+      "assetType": "image",
+      "sourceFile": "GPT Image 2 title-character mock 03",
+      "sourceArtifact": "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-03-sigil-observatory.png",
+      "path": "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-03-sigil-observatory.png",
+      "bytes": 2734936,
+      "sha256": "ebfd4d7c9b77c5a1e6e8998f2fb08cee0673ba291966d1f003c9f5621eb05f20",
+      "gameUse": "ui",
+      "loadGroup": "title-screen-concept",
+      "provider": "OpenAI",
+      "endpoint": "images.edit",
+      "modelId": "gpt-image-2",
+      "prompt": "Use case: stylized-concept\nAsset type: mobile landscape game title screen mock reference\nInput image 1 role: selected main character visual reference only; preserve the mascot's amber fur, swept hair, fox-like tail, cobalt scarf, dark utility gear, lime tech glow.\nPrimary request: Create a cleaner, more premium title screen mock with the mascot stepping forward from a circular lime sigil portal, designed for a live Three.js character to stand in the same place later.\nScene/backdrop: steel-and-glass sigil observatory, bright teal light shafts, polished floor reflections, soft amber uplight.\nSubject: mascot on right-center foreground, idle stance, expressive eyes, confident grin, full body visible with room above ears.\nStyle/medium: high-quality stylized 3D render mock, polished mobile game title composition.\nComposition/framing: 2048x1024 landscape, left 40 percent reserved as simple readable title/button space, hero centered right, aura behind but not covering face.\nLighting/mood: lighter wonder/adventure, clean, optimistic, not combat-heavy.\nColor palette: warm amber hero, cobalt scarf, lime aura, teal haze, graphite panels, cream title-zone glow.\nConstraints: no text, no letters, no logos, no watermark; do not imitate named games or existing characters; no weapons.\nAvoid: cluttered UI, dark bunker-only look, fake title words, overexposed face, cropped tail/ears.",
+      "settings": {
+        "size": "2048x1024",
+        "quality": "medium",
+        "inputReference": "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.selected-concept.png",
+        "outputFormat": "png"
+      },
+      "intendedUse": "title-screen-live-character-style-reference",
+      "outputFormat": "png",
+      "generatedAt": "2026-07-05T16:06:39.297Z",
+      "titleDirectionLabel": "Sigil Observatory",
+      "selectionRationale": "Selected direction because it keeps the left title zone clean while giving the hero a bright readable aura and premium title-screen framing."
+    },
+    {
+      "assetId": "ui.title.character-refresh.mock-04.arcade-garage",
+      "assetType": "image",
+      "sourceFile": "GPT Image 2 title-character mock 04",
+      "sourceArtifact": "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-04-arcade-garage.png",
+      "path": "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-04-arcade-garage.png",
+      "bytes": 3297382,
+      "sha256": "d26a43e82564e4b456ead5f642b3a11a5a5798eab3d3685d5e42906a3f6bcd06",
+      "gameUse": "ui",
+      "loadGroup": "title-screen-concept",
+      "provider": "OpenAI",
+      "endpoint": "images.edit",
+      "modelId": "gpt-image-2",
+      "prompt": "Use case: stylized-concept\nAsset type: mobile landscape game title screen mock reference\nInput image 1 role: selected main character visual reference only; preserve mascot identity and color scheme.\nPrimary request: Create an arcade-energy title screen mock with a playful transition feeling: empty metallic letter slots and glowing motion streaks implying the title will bounce in with CSS, while the mascot idles beside them.\nScene/backdrop: compact spaceship-garage arena, curved orange safety rails, cobalt panels, lime sigil sparks, clean metal floor.\nSubject: mascot hero on right, three-quarter pose, big silhouette, tail visible, wrist bracer glow, cheerful ready-to-play expression.\nStyle/medium: stylized 3D game key art mock with mobile landscape UI planning.\nComposition/framing: 2048x1024, title animation area on upper-left and center-left kept empty/no actual letters, start-button area below kept clear, hero right and slightly overlapping aura.\nLighting/mood: bright, upbeat, kinetic, more friendly than combat screen.\nColor palette: amber/cream/cobalt/lime with gunmetal base and small coral highlights.\nConstraints: no text, no letters, no logos, no watermark; no fake UI text; no existing franchise likenesses.\nAvoid: overly dark scene, dense particles over the UI zone, extra characters, blurry stock-art look.",
+      "settings": {
+        "size": "2048x1024",
+        "quality": "medium",
+        "inputReference": "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.selected-concept.png",
+        "outputFormat": "png"
+      },
+      "intendedUse": "title-screen-live-character-style-reference",
+      "outputFormat": "png",
+      "generatedAt": "2026-07-05T16:06:39.297Z",
+      "titleDirectionLabel": "Arcade Garage",
+      "selectionRationale": "Good kinetic streak and bounce-letter reference, but too busy and fake-UI heavy for the final runtime title."
+    },
+    {
+      "assetId": "ui.title.background.gadget-rift.source-plate",
+      "assetType": "image",
+      "sourceFile": "GPT Image 2 edited WebP background plate from selected mock 03 with character removed",
+      "sourceArtifact": "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-03-background-plate.webp",
+      "path": "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-03-background-plate.webp",
+      "bytes": 207428,
+      "sha256": "dfa2f831143c93a0008f47c8c1dc336c1686dcb4c8964394a6ce4397166d5ff0",
+      "gameUse": "ui",
+      "loadGroup": "title-screen-concept",
+      "provider": "OpenAI",
+      "endpoint": "images.edit",
+      "modelId": "gpt-image-2",
+      "prompt": "Edit the provided Sigilbreaker/Gadget Rift title mock into a clean runtime background plate. Remove the mascot character completely, including body, face, tail, hands, ears, hair, shadow, and any character silhouettes. Fill the removed area naturally with the same steel-and-glass sigil observatory environment, polished floor reflections, teal light shafts, graphite panels, and circular lime/cobalt/amber aura portal. Preserve the overall composition: left 40 percent must remain dark, simple, and readable for live HTML title text and buttons; right-center should keep a clear staging area where a live 3D character can stand later; the circular aura should sit behind that future character position without covering the face area. Keep the lighter playful adventure mood and warm amber/cobalt/lime/gunmetal palette. No text, no letters, no logos, no watermark, no fake UI, no characters, no weapons.",
+      "settings": {
+        "size": "2048x1024",
+        "quality": "medium",
+        "outputFormat": "webp",
+        "outputCompression": 82,
+        "inputReference": "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-03-sigil-observatory.png"
+      },
+      "intendedUse": "source-title-background-plate",
+      "outputFormat": "webp",
+      "generatedAt": "2026-07-05T16:32:29.639Z",
+      "derivedFromAssetId": "ui.title.character-refresh.mock-03.sigil-observatory",
+      "removedElements": [
+        "mascot character",
+        "character shadow",
+        "character silhouette"
+      ]
+    },
+    {
+      "assetId": "ui.title.background.gadget-rift.generated",
+      "assetType": "image",
+      "sourceFile": "GPT Image 2 edited WebP background plate from selected mock 03 with character removed",
+      "sourceArtifact": "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-03-background-plate.webp",
+      "path": "public/assets/title/gadget-rift-title-bg.webp",
+      "bytes": 207428,
+      "sha256": "dfa2f831143c93a0008f47c8c1dc336c1686dcb4c8964394a6ce4397166d5ff0",
+      "gameUse": "ui",
+      "loadGroup": "title-screen",
+      "provider": "OpenAI",
+      "endpoint": "images.edit",
+      "modelId": "gpt-image-2",
+      "prompt": "Edit the provided Sigilbreaker/Gadget Rift title mock into a clean runtime background plate. Remove the mascot character completely, including body, face, tail, hands, ears, hair, shadow, and any character silhouettes. Fill the removed area naturally with the same steel-and-glass sigil observatory environment, polished floor reflections, teal light shafts, graphite panels, and circular lime/cobalt/amber aura portal. Preserve the overall composition: left 40 percent must remain dark, simple, and readable for live HTML title text and buttons; right-center should keep a clear staging area where a live 3D character can stand later; the circular aura should sit behind that future character position without covering the face area. Keep the lighter playful adventure mood and warm amber/cobalt/lime/gunmetal palette. No text, no letters, no logos, no watermark, no fake UI, no characters, no weapons.",
+      "settings": {
+        "size": "2048x1024",
+        "quality": "medium",
+        "outputFormat": "webp",
+        "outputCompression": 82,
+        "inputReference": "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-03-sigil-observatory.png"
+      },
+      "intendedUse": "runtime-title-background-plate",
+      "outputFormat": "webp",
+      "generatedAt": "2026-07-05T16:32:29.639Z",
+      "derivedFromAssetId": "ui.title.character-refresh.mock-03.sigil-observatory",
+      "removedElements": [
+        "mascot character",
+        "character shadow",
+        "character silhouette"
+      ]
+    }
+  ]
+}

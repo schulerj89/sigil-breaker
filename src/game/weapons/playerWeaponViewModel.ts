@@ -1,15 +1,20 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { publicAssetUrl, type WeaponDefinition } from './weaponManifest';
+import {
+  PLAYER_CHARACTER_ASSET,
+  clonePlayerCharacterScene,
+  loadPlayerCharacterGltf,
+} from '../playerCharacterAsset';
+import type { WeaponDefinition } from './weaponManifest';
 import type { WeaponViewPoseState } from './weaponViewPose';
 
 export const PLAYER_WEAPON_VIEWMODEL_ASSET = {
-  id: 'player.hero.gadget-gremlin.apose.animated',
-  modelPath: 'assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb',
-  modelBytes: 10_983_096,
-  modelSha256: '80bf9362d7b452f94bcac5b439469b3e67cde1641a9956ad5927b22776c5be7b',
-  clipCount: 10,
-  observedTriangles: 81_375,
+  id: PLAYER_CHARACTER_ASSET.id,
+  modelPath: PLAYER_CHARACTER_ASSET.modelPath,
+  modelBytes: PLAYER_CHARACTER_ASSET.modelBytes,
+  modelSha256: PLAYER_CHARACTER_ASSET.modelSha256,
+  clipCount: PLAYER_CHARACTER_ASSET.clipCount,
+  observedTriangles: PLAYER_CHARACTER_ASSET.observedTriangles,
 } as const;
 
 const GUN_HOLD_BONE_POSE_DEGREES = {
@@ -73,8 +78,8 @@ export class PlayerWeaponViewModel {
 
   async load(): Promise<void> {
     try {
-      const gltf = await this.loader.loadAsync(publicAssetUrl(PLAYER_WEAPON_VIEWMODEL_ASSET.modelPath));
-      this.model = gltf.scene;
+      const gltf = await loadPlayerCharacterGltf(this.loader);
+      this.model = clonePlayerCharacterScene(gltf.scene);
       this.model.name = PLAYER_WEAPON_VIEWMODEL_ASSET.id;
       normalizeModel(this.model);
       this.armMaskSnapshot = applyWeaponArmMask(this.model);
@@ -194,7 +199,6 @@ function applyWeaponArmMask(model: THREE.Object3D): PlayerWeaponViewModelSnapsho
     object.renderOrder = PLAYER_ARM_RENDER_ORDER;
     visibleTriangles += getTriangleCount(maskedGeometry);
     maskedMeshCount++;
-    originalGeometry.dispose();
   });
 
   return {

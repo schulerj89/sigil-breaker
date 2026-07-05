@@ -13,6 +13,7 @@ import {
 } from './levelMap';
 import type { LevelStreamingSnapshot } from './levelStreaming';
 import type { MobileZoomGuardSnapshot } from './mobileZoomGuard';
+import type { TitleHeroStageSnapshot } from './titleHeroStage';
 import type { WeaponSystemSnapshot } from './weapons/weaponSystem';
 
 export interface DebugSnapshot {
@@ -86,6 +87,7 @@ export interface DebugSnapshot {
     debugVisible: boolean;
     phase: GamePhase;
     loading: UiLoadingSnapshot;
+    titleHero: TitleHeroStageSnapshot;
   };
   budgets: typeof PERFORMANCE_BUDGETS;
 }
@@ -96,6 +98,8 @@ export interface UiLoadingSnapshot {
   expectedAssets: number;
   titleBackgroundLoaded: boolean;
   titleBackgroundAssetId: string;
+  titleHeroLoaded: boolean;
+  titleHeroAssetId: string;
   assetLoadErrors: string[];
 }
 
@@ -103,6 +107,7 @@ export interface UiSnapshot {
   debugVisible: boolean;
   phase: GamePhase;
   loading: UiLoadingSnapshot;
+  titleHero: TitleHeroStageSnapshot;
 }
 
 export interface DebugApi {
@@ -150,6 +155,7 @@ export function createDebugApi(
         ...levelStreamingSnapshot.assetLoadErrors,
         ...weaponSnapshot.assetLoadErrors,
         ...enemySnapshot.assetLoadErrors,
+        ...uiSnapshot.titleHero.errors,
         ...uiSnapshot.loading.assetLoadErrors.filter((error) => error.startsWith('ui.')),
       ];
 

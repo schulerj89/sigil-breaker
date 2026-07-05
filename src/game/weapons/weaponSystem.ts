@@ -291,6 +291,10 @@ export class WeaponSystem {
     this.audio.playEnemyProjectile();
   }
 
+  setMusicPhase(phase: 'title' | 'gameplay'): void {
+    this.audio.setMusicPhase(phase);
+  }
+
   setInputEnabled(enabled: boolean): void {
     this.inputEnabled = enabled;
     if (!enabled) {

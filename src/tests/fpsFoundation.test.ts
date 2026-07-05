@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { DEBUG_SCENE_ID, MOBILE_VIEWPORTS, PERFORMANCE_BUDGETS } from '../game/config';
-import { FOUNDATION_MUSIC_ASSET, GAME_AUDIO_ASSETS, WEAPON_AUDIO_ASSETS } from '../game/audioManifest';
+import {
+  FOUNDATION_MUSIC_ASSET,
+  GAME_AUDIO_ASSETS,
+  TITLE_MUSIC_ASSET,
+  WEAPON_AUDIO_ASSETS,
+} from '../game/audioManifest';
 import { ENEMY_ASSET_DEFINITIONS, ENEMY_ASSET_SOURCE } from '../game/enemies/enemyManifest';
 import { EnemySystem } from '../game/enemies/enemySystem';
 import { BOSS_LEVEL_CONFIG, LEVEL_CONFIGS } from '../game/levelConfigs';
@@ -497,6 +502,7 @@ describe('FPS foundation config', () => {
 
     expect(audioIds).toEqual([
       'audio.music.foundation.elevenlabs',
+      'audio.music.title.playful.elevenlabs',
       'audio.weapon.bore.elevenlabs',
       'audio.weapon.rift.elevenlabs',
       'audio.weapon.spark.elevenlabs',
@@ -513,7 +519,10 @@ describe('FPS foundation config', () => {
       'assets/audio/elevenlabs-foundation/foundation-combat-loop-long.mp3',
     );
     expect(FOUNDATION_MUSIC_ASSET.kind).toBe('music');
-    expect(totalAudioBytes).toBe(858_752);
+    expect(TITLE_MUSIC_ASSET.path).toBe('assets/audio/elevenlabs-foundation/title-playful-loop.mp3');
+    expect(TITLE_MUSIC_ASSET.kind).toBe('music');
+    expect(TITLE_MUSIC_ASSET.volume).toBe(0.3);
+    expect(totalAudioBytes).toBe(2_298_666);
     expect(totalAudioBytes).toBeLessThan(5_000_000);
   });
 

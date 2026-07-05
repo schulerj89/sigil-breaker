@@ -1,0 +1,21 @@
+{
+  "agentId": "performance-budget-agent",
+  "status": "complete",
+  "decision": "Approve one live title character instance only when it shares the cached player GLB and existing renderer.",
+  "budgets": {
+    "playerCharacterRuntimeGlbBytes": 10983096,
+    "playerCharacterTriangleCap": 90000,
+    "titleMusicHardCapBytes": 2000000,
+    "foundationAudioHardCapBytes": 5000000
+  },
+  "runtimeGuidance": [
+    "Do not create a second WebGL context for title rendering.",
+    "Do not add runtime requests for per-animation GLBs.",
+    "Do not dispose shared GLB geometry while building the masked arm clone."
+  ],
+  "artifacts": [
+    "src/game/playerCharacterAsset.ts",
+    "src/game/titleHeroStage.ts",
+    "e2e/foundation-smoke.spec.ts"
+  ]
+}

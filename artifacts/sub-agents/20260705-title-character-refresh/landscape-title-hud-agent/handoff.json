@@ -1,0 +1,24 @@
+{
+  "agentId": "landscape-title-hud-agent",
+  "status": "complete",
+  "selectedMockAssetId": "ui.title.character-refresh.mock-03.sigil-observatory",
+  "decision": "Use mock 03 as the title composition, mock 02 for palette balance, and mock 04 only for the one-shot bounce/sweep motion idea.",
+  "runtimeGuidance": [
+    "Render the main character live on the right side of the title screen.",
+    "Keep title text and buttons as real DOM on the left.",
+    "Use amber, cobalt, lime, cream, and gunmetal rather than the previous cyan-only title treatment.",
+    "Keep the title split across two non-wrapping lines: GADGET and RIFT.",
+    "Use the character-removed background plate at public/assets/title/gadget-rift-title-bg.webp behind the live Three.js character.",
+    "Render the title character with local clipping disabled only for the title pass, then restore renderer.localClippingEnabled for gameplay."
+  ],
+  "artifacts": [
+    "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-01-launch-bay.png",
+    "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-02-energy-platform.png",
+    "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-03-sigil-observatory.png",
+    "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-04-arcade-garage.png",
+    "artifacts/sub-agents/20260705-title-character-refresh/landscape-title-hud-agent/generated-mocks/title-mock-03-background-plate.webp",
+    "public/assets/title/gadget-rift-title-bg.webp",
+    "artifacts/sub-agents/20260705-title-character-refresh/smoke-qa-agent/title-gadget-rift-844x390.png",
+    "docs/assets/openai-title-character-refresh.json"
+  ]
+}

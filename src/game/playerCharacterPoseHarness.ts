@@ -1,9 +1,12 @@
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { publicAssetUrl } from './assetUrls';
+import {
+  PLAYER_CHARACTER_ASSET,
+  clonePlayerCharacterScene,
+  loadPlayerCharacterGltf,
+} from './playerCharacterAsset';
 
-const CHARACTER_ASSET_ID = 'character.player.meshy.gadget-gremlin.apose.animated';
-const MODEL_PATH = 'assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb';
+const CHARACTER_ASSET_ID = PLAYER_CHARACTER_ASSET.id;
+const MODEL_PATH = PLAYER_CHARACTER_ASSET.modelPath;
 const POSE_FILE_NAME = 'gun-hold-draft.json';
 const POSE_EDIT_ANIMATION_ID = 'pose-edit';
 const CONTROLLED_BONES = [
@@ -101,7 +104,6 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
   floor.position.y = -0.02;
   scene.add(floor);
 
-  const loader = new GLTFLoader();
   const cleanup: Array<() => void> = [];
   const boneControls = new Map<ControlledBoneName, BoneControl>();
   const baseBoneRotations = new Map<THREE.Bone, THREE.Euler>();
@@ -196,10 +198,9 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
 
     status.textContent = 'LOADING RIG';
     controlsRoot.textContent = '';
-    loadPromise = loader
-      .loadAsync(publicAssetUrl(MODEL_PATH))
+    loadPromise = loadPlayerCharacterGltf()
       .then((gltf) => {
-        model = gltf.scene;
+        model = clonePlayerCharacterScene(gltf.scene);
         model.name = CHARACTER_ASSET_ID;
         model.position.set(0, 0, 0);
         model.rotation.y = 0;

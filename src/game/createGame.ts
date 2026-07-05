@@ -9,6 +9,7 @@ import { Health } from './health';
 import { LEVEL_HEIGHT_TILES, LEVEL_WIDTH_TILES } from './levelMap';
 import { createMobileZoomGuard } from './mobileZoomGuard';
 import { createPlayerCharacterPoseHarness } from './playerCharacterPoseHarness';
+import { TitleHeroStage, type TitleHeroStageSnapshot } from './titleHeroStage';
 import { WEAPON_DEFINITIONS } from './weapons/weaponManifest';
 import { WeaponSystem } from './weapons/weaponSystem';
 
@@ -17,9 +18,10 @@ export interface SigilbreakerApp {
   debug: DebugApi;
 }
 
-const TITLE_BACKGROUND_ASSET_ID = 'ui.title.background.sigilbreaker.generated';
-const TITLE_BACKGROUND_PATH = 'assets/title/sigilbreaker-title-bg.webp';
-const EXPECTED_GAMEPLAY_ASSET_COUNT = 18;
+const TITLE_BACKGROUND_ASSET_ID = 'ui.title.background.gadget-rift.generated';
+const TITLE_BACKGROUND_PATH = 'assets/title/gadget-rift-title-bg.webp';
+const TITLE_START_TRANSITION_MS = 360;
+const EXPECTED_GAMEPLAY_ASSET_COUNT = 19;
 const EXPECTED_BOOT_ASSET_COUNT = EXPECTED_GAMEPLAY_ASSET_COUNT + 1;
 
 declare global {
@@ -80,6 +82,8 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     ),
   });
   const playerPoseHarness = createPlayerCharacterPoseHarness(root);
+  const titleHeroStage = new TitleHeroStage(TITLE_BACKGROUND_PATH);
+  void titleHeroStage.load();
   weaponSystemRef.current = weaponSystem;
   levelRuntime.update(controls.getSnapshot().player.position);
 
@@ -89,6 +93,8 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   let fps = PERFORMANCE_BUDGETS.targetFps;
   let debugVisible = true;
   let gamePhase: GamePhase = 'loading';
+  let titleStartPending = false;
+  let titleStartTransitionTimeout = 0;
   let titleBackgroundLoaded = false;
   let titleBackgroundError: string | null = null;
 
@@ -108,9 +114,11 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
         levelRuntime,
         weaponSystem,
         enemySystem,
+        titleHeroStage.getSnapshot(),
         titleBackgroundLoaded,
         titleBackgroundError,
       ),
+      titleHero: titleHeroStage.getSnapshot(),
     }),
     (pose) => controls.setPose(pose),
   );
@@ -150,13 +158,30 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     characterDebugScreen?.setAttribute('aria-hidden', String(gamePhase !== 'character-debug'));
     controls.setInputEnabled(gamePhase === 'gameplay');
     weaponSystem.setInputEnabled(gamePhase === 'gameplay');
+    weaponSystem.setMusicPhase(gamePhase === 'gameplay' ? 'gameplay' : 'title');
+    titleHeroStage.setVisible(gamePhase === 'title');
   };
   const startGameplay = (): void => {
-    if (gamePhase !== 'title') {
+    if (gamePhase !== 'title' || titleStartPending) {
       return;
     }
-    gamePhase = 'gameplay';
-    applyGamePhase();
+    titleStartPending = true;
+    shell?.classList.add('game-shell--title-starting');
+    if (titleStartButton) {
+      titleStartButton.disabled = true;
+    }
+    if (titleCharacterDebugButton) {
+      titleCharacterDebugButton.disabled = true;
+    }
+    titleStartTransitionTimeout = window.setTimeout(() => {
+      titleStartPending = false;
+      shell?.classList.remove('game-shell--title-starting');
+      if (gamePhase !== 'title') {
+        return;
+      }
+      gamePhase = 'gameplay';
+      applyGamePhase();
+    }, TITLE_START_TRANSITION_MS);
   };
   const openCharacterDebug = (): void => {
     if (gamePhase !== 'title') {
@@ -224,6 +249,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     playerPoseHarness.resize(width, height);
+    titleHeroStage.resize(width, height);
   };
 
   const animate = (now: number): void => {
@@ -238,6 +264,9 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     if (gamePhase === 'character-debug') {
       playerPoseHarness.update(deltaSeconds);
       playerPoseHarness.render(renderer);
+    } else if (gamePhase === 'title') {
+      titleHeroStage.update(deltaSeconds, now / 1000);
+      titleHeroStage.render(renderer);
     } else {
       weaponSystem.update(deltaSeconds, now);
       levelRuntime.update(controls.getSnapshot().player.position);
@@ -251,6 +280,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
         levelRuntime,
         weaponSystem,
         enemySystem,
+        titleHeroStage.getSnapshot(),
         titleBackgroundLoaded,
         titleBackgroundError,
       );
@@ -274,11 +304,13 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     debug,
     dispose: () => {
       window.cancelAnimationFrame(animationFrame);
+      window.clearTimeout(titleStartTransitionTimeout);
       controls.dispose();
       weaponSystem.dispose();
       enemySystem.dispose();
       levelRuntime.dispose();
       playerPoseHarness.dispose();
+      titleHeroStage.dispose();
       titleBackgroundImage.onload = null;
       titleBackgroundImage.onerror = null;
       debugToggle?.removeEventListener('pointerdown', onDebugTogglePointerDown);
@@ -354,7 +386,7 @@ function createShellMarkup(): string {
       <div class="crosshair" aria-hidden="true"></div>
       <div class="loading-screen" data-loading-screen role="status" aria-live="polite">
         <div class="loading-screen__content">
-          <div class="loading-screen__brand">SIGILBREAKER</div>
+          <div class="loading-screen__brand">${GAME_TITLE}</div>
           <div class="loading-screen__label">LOADING ASSETS</div>
           <div class="loading-screen__bar" aria-hidden="true">
             <span class="loading-screen__fill" data-loading-fill></span>
@@ -364,22 +396,22 @@ function createShellMarkup(): string {
       </div>
       <div class="title-screen" data-title-screen aria-hidden="true">
         <div class="title-screen__copy">
-          <h1 class="title-screen__title">SIGILBREAKER</h1>
-          <p class="title-screen__tagline">BREACH THE STEEL SIGIL</p>
+          <h1 class="title-screen__title" aria-label="${GAME_TITLE}">${renderTitleLines(GAME_TITLE)}</h1>
+          <p class="title-screen__tagline">LOCK, LOAD, RIFT</p>
           <button
             class="title-screen__start"
             type="button"
             data-ui-control
             data-title-start
             disabled
-          >START</button>
+          >PLAY</button>
           <button
             class="title-screen__start title-screen__debug"
             type="button"
             data-ui-control
             data-title-character-debug
             disabled
-          >CHARACTER DEBUG</button>
+          >HERO LAB</button>
         </div>
       </div>
       <div class="character-debug" data-character-debug aria-hidden="true">
@@ -487,6 +519,7 @@ function readLoadingSnapshot(
   levelRuntime: FoundationLevelRuntime,
   weaponSystem: WeaponSystem,
   enemySystem: EnemySystem,
+  titleHeroSnapshot: TitleHeroStageSnapshot,
   titleBackgroundLoaded: boolean,
   titleBackgroundError: string | null,
 ): UiLoadingSnapshot {
@@ -502,6 +535,7 @@ function readLoadingSnapshot(
     ...levelSnapshot.assetLoadErrors,
     ...weaponSnapshot.assetLoadErrors,
     ...enemySnapshot.assetLoadErrors,
+    ...titleHeroSnapshot.errors,
   ];
   if (titleBackgroundError) {
     assetLoadErrors.push(titleBackgroundError);
@@ -512,7 +546,8 @@ function readLoadingSnapshot(
     assetLoadErrors.length === 0 &&
     weaponSnapshot.modelBytesLoaded > 0 &&
     enemySnapshot.modelBytesLoaded > 0 &&
-    titleBackgroundLoaded;
+    titleBackgroundLoaded &&
+    titleHeroSnapshot.loaded;
 
   return {
     ready,
@@ -520,8 +555,24 @@ function readLoadingSnapshot(
     expectedAssets: EXPECTED_BOOT_ASSET_COUNT,
     titleBackgroundLoaded,
     titleBackgroundAssetId: TITLE_BACKGROUND_ASSET_ID,
+    titleHeroLoaded: titleHeroSnapshot.loaded,
+    titleHeroAssetId: titleHeroSnapshot.assetId,
     assetLoadErrors,
   };
+}
+
+function renderTitleLines(title: string): string {
+  let letterIndex = 0;
+  return title
+    .toUpperCase()
+    .split(/\s+/)
+    .map((word) => {
+      const letters = [...word]
+        .map((letter) => `<span aria-hidden="true" style="--letter-index: ${letterIndex++}">${letter}</span>`)
+        .join('');
+      return `<span class="title-screen__line" aria-hidden="true">${letters}</span>`;
+    })
+    .join('');
 }
 
 function updateLoadingScreen(root: HTMLElement, snapshot: UiLoadingSnapshot): void {

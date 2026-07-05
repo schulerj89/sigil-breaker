@@ -1,0 +1,57 @@
+{
+  "title": "GADGETRIFT",
+  "lines": [
+    {
+      "text": "GADGET",
+      "rect": {
+        "x": 22,
+        "y": 24,
+        "width": 205.34375,
+        "height": 34.3125,
+        "right": 227.34375,
+        "bottom": 58.3125
+      }
+    },
+    {
+      "text": "RIFT",
+      "rect": {
+        "x": 22,
+        "y": 58.3125,
+        "width": 205.34375,
+        "height": 34.3125,
+        "right": 227.34375,
+        "bottom": 92.625
+      }
+    }
+  ],
+  "phase": "title",
+  "titleHero": {
+    "assetId": "player.hero.gadget-gremlin.apose.animated",
+    "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+    "loaded": true,
+    "modelBytesLoaded": 10983096,
+    "clipId": "idle-alt",
+    "clipDurationSeconds": 2.37,
+    "visible": true,
+    "errors": [],
+    "bounds": {
+      "width": 1.12,
+      "height": 1.9,
+      "depth": 1.07
+    },
+    "screenBounds": {
+      "left": 482.18,
+      "top": 51.73,
+      "right": 698.49,
+      "bottom": 384.77
+    }
+  },
+  "rendererMetrics": {
+    "fps": 29.2,
+    "calls": 2,
+    "triangles": 81377,
+    "geometries": 2,
+    "textures": 3
+  },
+  "assetLoadErrors": []
+}

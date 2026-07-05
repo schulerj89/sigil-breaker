@@ -54,11 +54,25 @@ export const FOUNDATION_MUSIC_ASSET: GameAudioAsset = {
   kind: 'music',
 };
 
+export const TITLE_MUSIC_ASSET: GameAudioAsset = {
+  id: 'audio.music.title.playful.elevenlabs',
+  path: 'assets/audio/elevenlabs-foundation/title-playful-loop.mp3',
+  bytes: 1_439_914,
+  volume: 0.3,
+  kind: 'music',
+};
+
+export const MUSIC_AUDIO_ASSETS = [
+  TITLE_MUSIC_ASSET,
+  FOUNDATION_MUSIC_ASSET,
+] as const;
+
 export const GAME_AUDIO_ASSETS = [
   WEAPON_AUDIO_ASSETS.sidearm,
   WEAPON_AUDIO_ASSETS.scatter,
   WEAPON_AUDIO_ASSETS.heavy,
   WEAPON_AUDIO_ASSETS.precision,
   WEAPON_AUDIO_ASSETS.burst,
+  TITLE_MUSIC_ASSET,
   FOUNDATION_MUSIC_ASSET,
 ] as const;

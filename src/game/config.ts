@@ -1,4 +1,4 @@
-export const GAME_TITLE = 'Sigilbreaker';
+export const GAME_TITLE = 'Gadget Rift';
 
 export const DEBUG_SCENE_ID = 'fps-level-foundation';
 

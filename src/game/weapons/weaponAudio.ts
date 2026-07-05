@@ -2,6 +2,8 @@ import type { WeaponSoundProfile } from './weaponManifest';
 import {
   FOUNDATION_MUSIC_ASSET,
   GAME_AUDIO_ASSETS,
+  MUSIC_AUDIO_ASSETS,
+  TITLE_MUSIC_ASSET,
   WEAPON_AUDIO_ASSETS,
   type GameAudioAsset,
 } from '../audioManifest';
@@ -17,6 +19,7 @@ export interface WeaponAudioSnapshot {
   musicMuted: boolean;
   musicPlaying: boolean;
   musicDecoded: boolean;
+  activeMusicAssetId: string;
   unlocked: boolean;
   sfxPoolProfiles: WeaponSoundProfile[];
   decodedSfxProfiles: WeaponSoundProfile[];
@@ -43,10 +46,22 @@ interface LoadedAudioAsset {
   nextIndex: number;
 }
 
+interface LoadedMusicAsset {
+  id: string;
+  url: string;
+  bytes: number;
+  volume: number;
+  sourceBytes: ArrayBuffer | null;
+  buffer: AudioBuffer | null;
+  decodePromise: Promise<void> | null;
+}
+
 interface SfxPlaybackOptions {
   gainMultiplier?: number;
   playbackRate?: number;
 }
+
+export type MusicPhase = 'title' | 'gameplay';
 
 type BrowserWindowWithAudioContext = Window & typeof globalThis & {
   webkitAudioContext?: typeof AudioContext;
@@ -57,12 +72,11 @@ export class WeaponAudio {
   private readonly loadedAssetIds = new Set<string>();
   private readonly assetLoadErrors: string[] = [];
   private readonly sfxByProfile = new Map<WeaponSoundProfile, LoadedAudioAsset>();
-  private readonly musicUrl = publicAssetUrl(FOUNDATION_MUSIC_ASSET.path);
-  private musicSourceBytes: ArrayBuffer | null = null;
-  private musicBuffer: AudioBuffer | null = null;
-  private musicDecodePromise: Promise<void> | null = null;
+  private readonly musicById = new Map<string, LoadedMusicAsset>();
+  private activeMusicAsset = TITLE_MUSIC_ASSET;
   private musicSource: AudioBufferSourceNode | null = null;
   private musicGain: GainNode | null = null;
+  private musicSourceAssetId: string | null = null;
   private musicMuted = readStoredMusicMuted();
   private unlocked = false;
   private playRequests = 0;
@@ -75,6 +89,7 @@ export class WeaponAudio {
 
   constructor() {
     this.createSfxPools();
+    this.createMusicCache();
     void this.preload();
   }
 
@@ -123,11 +138,27 @@ export class WeaponAudio {
     });
   }
 
+  setMusicPhase(phase: MusicPhase): void {
+    const nextAsset = phase === 'gameplay' ? FOUNDATION_MUSIC_ASSET : TITLE_MUSIC_ASSET;
+    if (nextAsset.id === this.activeMusicAsset.id) {
+      return;
+    }
+
+    this.activeMusicAsset = nextAsset;
+    this.stopMusic();
+    if (this.unlocked && !this.musicMuted) {
+      void this.ensureMusicPlaying();
+    }
+    this.updateMusicButtonState();
+  }
+
   getSnapshot(): WeaponAudioSnapshot {
+    const activeMusic = this.getActiveMusicAsset();
     return {
       musicMuted: this.musicMuted,
-      musicPlaying: this.musicSource !== null && !this.musicMuted,
-      musicDecoded: this.musicBuffer !== null,
+      musicPlaying: this.musicSource !== null && this.musicSourceAssetId === activeMusic.id && !this.musicMuted,
+      musicDecoded: activeMusic.buffer !== null,
+      activeMusicAssetId: this.activeMusicAsset.id,
       unlocked: this.unlocked,
       sfxPoolProfiles: [...this.sfxByProfile.keys()].sort(),
       decodedSfxProfiles: [...this.sfxByProfile.entries()]
@@ -164,9 +195,12 @@ export class WeaponAudio {
     }
     this.sfxByProfile.clear();
     this.stopMusic();
-    this.musicSourceBytes = null;
-    this.musicBuffer = null;
-    this.musicDecodePromise = null;
+    for (const asset of this.musicById.values()) {
+      asset.sourceBytes = null;
+      asset.buffer = null;
+      asset.decodePromise = null;
+    }
+    this.musicById.clear();
     if (this.audioContext?.state !== 'closed') {
       void this.audioContext?.close();
     }
@@ -179,9 +213,9 @@ export class WeaponAudio {
     >).map(async ([profile, definition]) => {
       await this.verifySfxAsset(profile, definition);
     });
-    const musicCheck = this.verifyMusicAsset();
+    const musicChecks = MUSIC_AUDIO_ASSETS.map((definition) => this.verifyMusicAsset(definition));
 
-    await Promise.all([...weaponChecks, musicCheck]);
+    await Promise.all([...weaponChecks, ...musicChecks]);
   }
 
   private createSfxPools(): void {
@@ -203,6 +237,20 @@ export class WeaponAudio {
     }
   }
 
+  private createMusicCache(): void {
+    for (const definition of MUSIC_AUDIO_ASSETS) {
+      this.musicById.set(definition.id, {
+        id: definition.id,
+        url: publicAssetUrl(definition.path),
+        bytes: definition.bytes,
+        volume: definition.volume,
+        sourceBytes: null,
+        buffer: null,
+        decodePromise: null,
+      });
+    }
+  }
+
   private async verifySfxAsset(profile: WeaponSoundProfile, definition: GameAudioAsset): Promise<void> {
     const asset = this.sfxByProfile.get(profile);
     const url = asset?.url ?? publicAssetUrl(definition.path);
@@ -215,18 +263,15 @@ export class WeaponAudio {
     void this.decodeSfxAsset(asset);
   }
 
-  private async verifyMusicAsset(): Promise<void> {
-    const sourceBytes = await this.fetchVerifiedAsset(
-      FOUNDATION_MUSIC_ASSET.id,
-      this.musicUrl,
-      FOUNDATION_MUSIC_ASSET.bytes,
-    );
-    if (!sourceBytes) {
+  private async verifyMusicAsset(definition: GameAudioAsset): Promise<void> {
+    const asset = this.musicById.get(definition.id);
+    const sourceBytes = await this.fetchVerifiedAsset(definition.id, asset?.url ?? publicAssetUrl(definition.path), definition.bytes);
+    if (!sourceBytes || !asset) {
       return;
     }
 
-    this.musicSourceBytes = sourceBytes;
-    void this.decodeMusicAsset().then(() => this.ensureMusicPlaying());
+    asset.sourceBytes = sourceBytes;
+    void this.decodeMusicAsset(asset).then(() => this.ensureMusicPlaying());
   }
 
   private async fetchVerifiedAsset(assetId: string, url: string, expectedBytes: number): Promise<ArrayBuffer | null> {
@@ -293,38 +338,39 @@ export class WeaponAudio {
     return asset.decodePromise;
   }
 
-  private async decodeMusicAsset(): Promise<void> {
+  private async decodeMusicAsset(asset = this.getActiveMusicAsset()): Promise<void> {
     const context = this.audioContext;
     if (
       !context ||
       context.state === 'closed' ||
-      this.musicBuffer ||
-      this.musicDecodePromise ||
-      !this.musicSourceBytes
+      asset.buffer ||
+      asset.decodePromise ||
+      !asset.sourceBytes
     ) {
-      return this.musicDecodePromise ?? Promise.resolve();
+      return asset.decodePromise ?? Promise.resolve();
     }
 
-    this.musicDecodePromise = context
-      .decodeAudioData(this.musicSourceBytes.slice(0))
+    asset.decodePromise = context
+      .decodeAudioData(asset.sourceBytes.slice(0))
       .then((buffer) => {
-        this.musicBuffer = buffer;
-        this.musicSourceBytes = null;
+        asset.buffer = buffer;
+        asset.sourceBytes = null;
       })
       .catch((error) => {
         const message = error instanceof Error ? error.message : String(error);
-        this.assetLoadErrors.push(`${FOUNDATION_MUSIC_ASSET.id}: decode failed: ${message}`);
-        this.musicSourceBytes = null;
+        this.assetLoadErrors.push(`${asset.id}: decode failed: ${message}`);
+        asset.sourceBytes = null;
       })
       .finally(() => {
-        this.musicDecodePromise = null;
+        asset.decodePromise = null;
       });
 
-    return this.musicDecodePromise;
+    return asset.decodePromise;
   }
 
   private async ensureMusicPlaying(): Promise<void> {
-    if (this.musicMuted || this.musicSource || !this.loadedAssetIds.has(FOUNDATION_MUSIC_ASSET.id)) {
+    const activeMusic = this.getActiveMusicAsset();
+    if (this.musicMuted || this.musicSource || !this.loadedAssetIds.has(activeMusic.id)) {
       this.updateMusicGain();
       return;
     }
@@ -337,8 +383,8 @@ export class WeaponAudio {
     if (context.state === 'suspended') {
       await context.resume().catch(() => undefined);
     }
-    await this.decodeMusicAsset();
-    if (this.musicMuted || this.musicSource || !this.musicBuffer || this.audioContext !== context) {
+    await this.decodeMusicAsset(activeMusic);
+    if (this.musicMuted || this.musicSource || !activeMusic.buffer || this.audioContext !== context) {
       this.updateMusicGain();
       return;
     }
@@ -346,23 +392,25 @@ export class WeaponAudio {
     try {
       const source = context.createBufferSource();
       const gain = context.createGain();
-      source.buffer = this.musicBuffer;
+      source.buffer = activeMusic.buffer;
       source.loop = true;
-      gain.gain.value = FOUNDATION_MUSIC_ASSET.volume;
+      gain.gain.value = activeMusic.volume;
       source.connect(gain).connect(context.destination);
       source.onended = () => {
         if (this.musicSource === source) {
           this.musicSource = null;
           this.musicGain = null;
+          this.musicSourceAssetId = null;
         }
       };
       source.start();
       this.musicSource = source;
       this.musicGain = gain;
+      this.musicSourceAssetId = activeMusic.id;
       this.updateMusicGain();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.assetLoadErrors.push(`${FOUNDATION_MUSIC_ASSET.id}: play failed: ${message}`);
+      this.assetLoadErrors.push(`${activeMusic.id}: play failed: ${message}`);
     }
   }
 
@@ -415,12 +463,13 @@ export class WeaponAudio {
       return;
     }
 
-    this.musicGain.gain.value = this.musicMuted ? 0 : FOUNDATION_MUSIC_ASSET.volume;
+    this.musicGain.gain.value = this.musicMuted ? 0 : this.getActiveMusicAsset().volume;
   }
 
   private stopMusic(): void {
     const source = this.musicSource;
     this.musicSource = null;
+    this.musicSourceAssetId = null;
     this.musicGain?.disconnect();
     this.musicGain = null;
     if (!source) {
@@ -461,6 +510,14 @@ export class WeaponAudio {
 
     this.unlock();
   };
+
+  private getActiveMusicAsset(): LoadedMusicAsset {
+    const asset = this.musicById.get(this.activeMusicAsset.id);
+    if (!asset) {
+      throw new Error(`Missing music asset ${this.activeMusicAsset.id}`);
+    }
+    return asset;
+  }
 }
 
 function createAudioPool(url: string, size: number): HTMLAudioElement[] {

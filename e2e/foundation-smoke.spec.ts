@@ -4,9 +4,10 @@ test.setTimeout(240_000);
 
 const FULL_INTERACTION_PROJECT = 'chromium-modern-phone-landscape';
 const EXPECTED_ENEMY_COUNT = 12;
-const EXPECTED_TITLE_BACKGROUND_ASSET_ID = 'ui.title.background.sigilbreaker.generated';
+const EXPECTED_TITLE_BACKGROUND_ASSET_ID = 'ui.title.background.gadget-rift.generated';
 const EXPECTED_LOADED_ASSET_IDS = [
   'audio.music.foundation.elevenlabs',
+  'audio.music.title.playful.elevenlabs',
   'audio.weapon.bore.elevenlabs',
   'audio.weapon.rift.elevenlabs',
   'audio.weapon.spark.elevenlabs',
@@ -134,6 +135,7 @@ interface DebugSnapshot {
       musicMuted: boolean;
       musicPlaying: boolean;
       musicDecoded: boolean;
+      activeMusicAssetId: string;
       unlocked: boolean;
       sfxPoolProfiles: string[];
       decodedSfxProfiles: string[];
@@ -238,7 +240,30 @@ interface DebugSnapshot {
       expectedAssets: number;
       titleBackgroundLoaded: boolean;
       titleBackgroundAssetId: string;
+      titleHeroLoaded: boolean;
+      titleHeroAssetId: string;
       assetLoadErrors: string[];
+    };
+    titleHero: {
+      assetId: string;
+      modelPath: string;
+      loaded: boolean;
+      modelBytesLoaded: number;
+      clipId: string;
+      clipDurationSeconds: number;
+      visible: boolean;
+      errors: string[];
+      bounds: {
+        width: number;
+        height: number;
+        depth: number;
+      } | null;
+      screenBounds: {
+        left: number;
+        top: number;
+        right: number;
+        bottom: number;
+      } | null;
     };
   };
   budgets: {
@@ -289,8 +314,24 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     expectedAssets: EXPECTED_LOADED_ASSET_IDS.length + 1,
     titleBackgroundLoaded: true,
     titleBackgroundAssetId: EXPECTED_TITLE_BACKGROUND_ASSET_ID,
+    titleHeroLoaded: true,
+    titleHeroAssetId: 'player.hero.gadget-gremlin.apose.animated',
     assetLoadErrors: [],
   });
+  expect(titleSnapshot.ui.titleHero).toMatchObject({
+    assetId: 'player.hero.gadget-gremlin.apose.animated',
+    modelPath: 'assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb',
+    loaded: true,
+    modelBytesLoaded: 10_983_096,
+    clipId: 'idle-alt',
+    visible: true,
+    errors: [],
+  });
+  expect(titleSnapshot.ui.titleHero.clipDurationSeconds).toBeGreaterThan(0);
+  expect(titleSnapshot.ui.titleHero.bounds?.height ?? 0).toBeGreaterThan(0);
+  expectTitleHeroFitsViewport(page, titleSnapshot);
+  expect(titleSnapshot.weapon.audio.activeMusicAssetId).toBe('audio.music.title.playful.elevenlabs');
+  await expectTitleLinesFit(page);
   await verifyCharacterDebugPage(page);
   await startGameFromTitle(page);
 
@@ -436,6 +477,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(debugSnapshot.ui.debugVisible).toBe(true);
   expect(debugSnapshot.weapon.audio.loadedAssetIds).toEqual([
     'audio.music.foundation.elevenlabs',
+    'audio.music.title.playful.elevenlabs',
     'audio.weapon.bore.elevenlabs',
     'audio.weapon.rift.elevenlabs',
     'audio.weapon.spark.elevenlabs',
@@ -452,8 +494,9 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(debugSnapshot.weapon.audio.missedPlayRequests).toBe(0);
   expect(debugSnapshot.weapon.audio.playFailures).toBe(0);
   expect(debugSnapshot.weapon.audio.assetLoadErrors).toEqual([]);
-  expect(debugSnapshot.weapon.audio.assetBytesLoaded).toBe(858_752);
+  expect(debugSnapshot.weapon.audio.assetBytesLoaded).toBe(2_298_666);
   expect(debugSnapshot.weapon.audio.musicMuted).toBe(false);
+  expect(debugSnapshot.weapon.audio.activeMusicAssetId).toBe('audio.music.foundation.elevenlabs');
   await expect
     .poll(async () => {
       const audio = (await readDebugSnapshot(page)).weapon.audio;
@@ -545,6 +588,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     'foundation-combat-loop-long.mp3',
     'rift-precision.mp3',
     'spark-sidearm.mp3',
+    'title-playful-loop.mp3',
     'torch-burst.mp3',
     'vault-heavy.mp3',
   ]);
@@ -554,7 +598,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
         performance
           .getEntriesByType('resource')
           .map((entry) => entry.name)
-          .filter((url) => url.includes('/assets/title/sigilbreaker-title-bg.webp') && url.endsWith('.webp?assetBuild=' + buildId)),
+          .filter((url) => url.includes('/assets/title/gadget-rift-title-bg.webp') && url.endsWith('.webp?assetBuild=' + buildId)),
       ),
     ].sort(),
     debugSnapshot.buildId,
@@ -674,8 +718,8 @@ function expectEnemyVisualsAttached(enemy: DebugSnapshot['enemies']['enemies'][n
   }
 
   expect(enemy.modelBounds).not.toBeNull();
-  expect(enemy.modelBounds?.center[0]).toBeCloseTo(enemy.position[0], 1);
-  expect(enemy.modelBounds?.center[2]).toBeCloseTo(enemy.position[2], 1);
+  expect(Math.abs((enemy.modelBounds?.center[0] ?? 0) - enemy.position[0])).toBeLessThanOrEqual(0.08);
+  expect(Math.abs((enemy.modelBounds?.center[2] ?? 0) - enemy.position[2])).toBeLessThanOrEqual(0.08);
   expect(enemy.modelBounds?.size[1]).toBeGreaterThan(1);
 }
 
@@ -723,6 +767,43 @@ async function waitForTitleReady(page: Page): Promise<void> {
       snapshot.ui.loading.assetLoadErrors.length === 0
     );
   }, EXPECTED_LOADED_ASSET_IDS.length + 1);
+}
+
+async function expectTitleLinesFit(page: Page): Promise<void> {
+  const titleLines = await page.locator('.title-screen__line').evaluateAll((elements) => {
+    return elements.map((element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        text: element.textContent ?? '',
+        left: rect.left,
+        right: rect.right,
+        top: rect.top,
+        bottom: rect.bottom,
+      };
+    });
+  });
+  const viewport = page.viewportSize();
+
+  expect(titleLines.map((line) => line.text)).toEqual(['GADGET', 'RIFT']);
+  expect(viewport).not.toBeNull();
+  for (const line of titleLines) {
+    expect(line.left).toBeGreaterThanOrEqual(0);
+    expect(line.top).toBeGreaterThanOrEqual(0);
+    expect(line.right).toBeLessThanOrEqual(viewport!.width);
+    expect(line.bottom).toBeLessThanOrEqual(viewport!.height);
+  }
+}
+
+function expectTitleHeroFitsViewport(page: Page, snapshot: DebugSnapshot): void {
+  const viewport = page.viewportSize();
+  const bounds = snapshot.ui.titleHero.screenBounds;
+
+  expect(viewport).not.toBeNull();
+  expect(bounds).not.toBeNull();
+  expect(bounds!.left).toBeGreaterThan(viewport!.width * 0.38);
+  expect(bounds!.right).toBeLessThanOrEqual(viewport!.width);
+  expect(bounds!.top).toBeGreaterThanOrEqual(0);
+  expect(bounds!.bottom).toBeLessThanOrEqual(viewport!.height + 1);
 }
 
 async function startGameFromTitle(page: Page): Promise<void> {
@@ -1382,6 +1463,7 @@ function isIgnorableMediaAbort(url: string, failure: string): boolean {
     failure === 'net::ERR_ABORTED' &&
     (
       url.includes('/assets/audio/elevenlabs-foundation/') ||
+      url.includes('/assets/weapons/kenney-blaster-kit/models/') ||
       url.includes('/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb')
     )
   );

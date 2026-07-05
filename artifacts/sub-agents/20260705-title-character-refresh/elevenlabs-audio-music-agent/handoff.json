@@ -1,0 +1,18 @@
+{
+  "agentId": "elevenlabs-audio-music-agent",
+  "status": "complete",
+  "assetId": "audio.music.title.playful.elevenlabs",
+  "path": "public/assets/audio/elevenlabs-foundation/title-playful-loop.mp3",
+  "bytes": 1439914,
+  "sha256": "79f8fa7a04911cee8da62457f0820b12f069e05d6625c08af366b0421999ed12",
+  "runtimeGuidance": [
+    "Use title music on title and character-debug phases.",
+    "Switch to foundation combat music when gameplay starts.",
+    "Keep all music on the shared Web Audio unlock path."
+  ],
+  "artifacts": [
+    "public/assets/audio/elevenlabs-foundation/title-playful-loop.mp3",
+    "public/assets/audio/elevenlabs-foundation/source-metadata.json",
+    "docs/assets/source-ledger.json"
+  ]
+}

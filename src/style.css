@@ -2,8 +2,9 @@
   color: #eef3f0;
   background: #0d1012;
   --sigil-font-display:
-    "Arial Narrow", "Segoe UI Condensed", Bahnschrift, "Roboto Condensed",
-    "Segoe UI", sans-serif;
+    "Trebuchet MS", "Arial Rounded MT Bold", "Segoe UI", system-ui, sans-serif;
+  --sigil-font-title:
+    "Arial Black", "Trebuchet MS", "Arial Rounded MT Bold", "Segoe UI", system-ui, sans-serif;
   --title-background-image: none;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -360,7 +361,9 @@ canvas {
   color: #f1fbff;
   font-size: 32px;
   font-weight: 900;
-  line-height: 0.92;
+  line-height: 0.96;
+  font-family: var(--sigil-font-title);
+  text-transform: uppercase;
   text-shadow:
     0 0 18px rgb(91 255 207 / 0.32),
     0 2px 0 rgb(0 0 0 / 0.75);
@@ -393,22 +396,36 @@ canvas {
 
 .title-screen {
   background:
-    linear-gradient(90deg, rgb(5 9 11 / 0.99) 0%, rgb(5 9 11 / 0.93) 32%, rgb(5 9 11 / 0.42) 55%, transparent 74%),
-    linear-gradient(180deg, rgb(7 11 14 / 0.28), rgb(7 11 14 / 0.72)),
-    var(--title-background-image),
-    #0d1012;
-  background-size: cover;
-  background-position: center center;
+    linear-gradient(90deg, rgb(6 9 11 / 0.96) 0%, rgb(6 9 11 / 0.84) 34%, rgb(6 9 11 / 0.34) 55%, transparent 76%),
+    radial-gradient(circle at 72% 48%, rgb(255 182 53 / 0.08), transparent 28%),
+    radial-gradient(circle at 61% 58%, rgb(111 255 195 / 0.1), transparent 30%);
+  pointer-events: none;
 }
 
+.title-screen::before,
 .title-screen::after {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
+}
+
+.title-screen::before {
+  opacity: 0;
+  transform: translateX(-115%) skewX(-14deg);
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.08), transparent 14%),
-    radial-gradient(circle at 27% 66%, rgb(33 220 174 / 0.12), transparent 28%);
+    linear-gradient(90deg, transparent, rgb(124 255 198 / 0.62), rgb(255 187 58 / 0.5), transparent);
+}
+
+.game-shell--title-starting .title-screen::before {
+  animation: sigil-start-sweep 360ms cubic-bezier(0.2, 0.9, 0.24, 1) both;
+}
+
+.title-screen::after {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.07), transparent 14%),
+    linear-gradient(0deg, rgb(0 0 0 / 0.46), transparent 22%),
+    radial-gradient(circle at 20% 67%, rgb(47 185 255 / 0.18), transparent 28%);
 }
 
 .title-screen__copy {
@@ -420,25 +437,42 @@ canvas {
   justify-items: start;
   gap: 12px;
   z-index: 1;
+  pointer-events: auto;
 }
 
 .title-screen__title {
   margin: 0;
-  color: #f5fdff;
-  font-size: 58px;
+  display: grid;
+  gap: 0;
+  color: #fff4d0;
+  max-width: 100%;
+  font-family: var(--sigil-font-title);
+  font-size: 60px;
   font-weight: 900;
-  line-height: 0.86;
+  line-height: 0.78;
   letter-spacing: 0;
   text-transform: uppercase;
   text-shadow:
-    0 0 18px rgb(93 241 223 / 0.34),
+    0 0 18px rgb(255 182 53 / 0.28),
+    0 0 26px rgb(81 255 195 / 0.2),
     0 3px 0 rgb(0 0 0 / 0.72),
-    2px 0 0 rgb(19 42 45 / 0.74);
+    2px 0 0 rgb(52 29 12 / 0.78);
+}
+
+.title-screen__line {
+  display: block;
+  white-space: nowrap;
+}
+
+.title-screen__title span {
+  display: inline-block;
+  animation: title-letter-bounce 720ms cubic-bezier(0.18, 0.9, 0.22, 1.18) both;
+  animation-delay: calc(var(--letter-index) * 34ms);
 }
 
 .title-screen__tagline {
   margin: 0;
-  color: #a9dfe4;
+  color: #94ffd3;
   font-size: 15px;
   font-weight: 900;
   line-height: 1;
@@ -448,23 +482,30 @@ canvas {
 }
 
 .title-screen__start {
-  width: 174px;
-  height: 50px;
+  position: relative;
+  width: 186px;
+  height: 54px;
   margin-top: 10px;
-  border: 1px solid rgb(122 246 211 / 0.82);
+  overflow: hidden;
+  border: 2px solid rgb(255 191 73 / 0.92);
+  border-radius: 8px;
   background:
-    linear-gradient(180deg, rgb(40 219 181 / 0.3), rgb(5 18 22 / 0.88)),
-    rgb(5 18 22 / 0.82);
-  color: #edfffb;
+    radial-gradient(circle at 22% 14%, rgb(255 244 208 / 0.24), transparent 30%),
+    linear-gradient(135deg, rgb(255 183 45 / 0.5), rgb(16 82 101 / 0.78) 50%, rgb(9 22 27 / 0.96)),
+    rgb(8 23 28 / 0.92);
+  color: #fff8dc;
   font: inherit;
-  font-size: 16px;
+  font-family: var(--sigil-font-title);
+  font-size: 18px;
   font-weight: 900;
   line-height: 1;
   letter-spacing: 0;
   text-transform: uppercase;
   box-shadow:
     inset 0 0 0 1px rgb(255 255 255 / 0.1),
-    0 0 18px rgb(70 243 198 / 0.22),
+    inset 0 -8px 18px rgb(0 0 0 / 0.28),
+    0 0 18px rgb(255 190 64 / 0.28),
+    0 0 28px rgb(82 255 196 / 0.13),
     0 8px 24px rgb(0 0 0 / 0.42);
   pointer-events: auto;
   touch-action: none;
@@ -472,11 +513,35 @@ canvas {
   appearance: none;
 }
 
+.title-screen__start::before,
+.title-screen__start::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.title-screen__start::before {
+  inset: 7px auto 7px 9px;
+  width: 5px;
+  border-radius: 999px;
+  background: #8fffd4;
+  box-shadow: 0 0 14px rgb(143 255 212 / 0.62);
+}
+
+.title-screen__start::after {
+  right: -22px;
+  top: -14px;
+  width: 64px;
+  height: 84px;
+  background: rgb(47 185 255 / 0.18);
+  transform: skewX(-18deg);
+}
+
 .title-screen__start:active {
-  transform: translateY(1px);
+  transform: translateY(2px) scale(0.99);
   box-shadow:
     inset 0 0 0 1px rgb(255 255 255 / 0.12),
-    0 0 24px rgb(70 243 198 / 0.32),
+    0 0 24px rgb(255 190 64 / 0.34),
     0 4px 14px rgb(0 0 0 / 0.5);
 }
 
@@ -485,16 +550,19 @@ canvas {
 }
 
 .title-screen__debug {
-  height: 42px;
+  height: 46px;
   margin-top: 0;
-  border-color: rgb(238 243 240 / 0.42);
+  border-color: rgb(89 198 255 / 0.58);
+  border-radius: 8px;
   background:
-    linear-gradient(180deg, rgb(238 243 240 / 0.16), rgb(5 18 22 / 0.84)),
-    rgb(5 18 22 / 0.72);
-  color: #d4ebe8;
-  font-size: 13px;
+    radial-gradient(circle at 85% 16%, rgb(148 255 211 / 0.16), transparent 34%),
+    linear-gradient(135deg, rgb(37 105 139 / 0.54), rgb(7 19 24 / 0.9)),
+    rgb(5 18 22 / 0.78);
+  color: #dff9ff;
+  font-size: 14px;
   box-shadow:
     inset 0 0 0 1px rgb(255 255 255 / 0.05),
+    0 0 16px rgb(47 185 255 / 0.16),
     0 8px 20px rgb(0 0 0 / 0.44);
 }
 
@@ -1075,6 +1143,40 @@ canvas {
   }
 }
 
+@keyframes title-letter-bounce {
+  0% {
+    opacity: 0;
+    transform: translateY(-18px) scale(0.92);
+  }
+
+  56% {
+    opacity: 1;
+    transform: translateY(4px) scale(1.04);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sigil-start-sweep {
+  0% {
+    opacity: 0;
+    transform: translateX(-115%) skewX(-14deg);
+  }
+
+  30%,
+  70% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(115%) skewX(-14deg);
+  }
+}
+
 @media (orientation: portrait) {
   .rotate-prompt {
     display: grid;
@@ -1172,12 +1274,12 @@ canvas {
   .title-screen__copy {
     left: max(22px, env(safe-area-inset-left));
     top: max(24px, env(safe-area-inset-top));
-    width: min(360px, 54%);
+    width: min(330px, 52%);
     gap: 9px;
   }
 
   .title-screen__title {
-    font-size: 43px;
+    font-size: 44px;
   }
 
   .title-screen__tagline {
@@ -1185,16 +1287,16 @@ canvas {
   }
 
   .title-screen__start {
-    width: 148px;
+    width: 160px;
     height: 42px;
     margin-top: 6px;
-    font-size: 14px;
+    font-size: 15px;
   }
 
   .title-screen__debug {
-    height: 36px;
+    height: 38px;
     margin-top: 0;
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .character-debug__topbar {
@@ -1272,5 +1374,10 @@ canvas {
 
   .rotate-prompt__phone {
     transform: rotate(90deg);
+  }
+
+  .title-screen__title span,
+  .game-shell--title-starting .title-screen::before {
+    animation: none;
   }
 }
