@@ -4,6 +4,12 @@
   "assetId": "player.hero.gadget-gremlin",
   "generatedAt": "2026-07-05T05:33:51.204Z",
   "modelId": "meshy-6",
+  "integrationStatus": "rejected-placeholder",
+  "reworkRequired": {
+    "reason": "The generated model drifted from the selected concept and was not created from a clean A-pose reference image.",
+    "nextPipeline": "Generate one front-facing A-pose image from the selected concept, run Meshy Image-to-3D from that reference, then rig and attach or merge animation clips.",
+    "runtimeAnimationTarget": "One optimized player GLB with multiple named animation clips, or a lightweight runtime clip bundle without duplicate mesh payloads."
+  },
   "selectedConcept": "artifacts/sub-agents/20260705-main-character-concepts/landscape-title-hud-agent/generated-concepts/002-gadget-gremlin-concept.png",
   "meshyDocs": {
     "textTo3d": "https://docs.meshy.ai/en/api/text-to-3d",
@@ -33,6 +39,7 @@
   "notes": [
     "Generated through the local secret broker; no API keys are stored in this metadata.",
     "Meshy output URLs are intentionally not stored because they expire and can include account-scoped paths.",
-    "Character is staged for asset playground QA before gameplay integration."
+    "Character is staged for asset playground QA before gameplay integration.",
+    "This generated character is a placeholder only; it should be replaced by an A-pose-image-driven Meshy pass before gameplay or title integration."
   ]
 }
