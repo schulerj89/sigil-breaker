@@ -542,12 +542,14 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   await expect(page.locator('[data-weapon-label]')).toBeHidden();
   await expect(page.locator('[data-weapon-ammo]')).toBeHidden();
   await expect(page.locator('[data-debug-death]')).toBeHidden();
+  await expect(page.locator('[data-debug-death-gameplay]')).toBeHidden();
   await expect(page.locator('[data-health-meter]')).toBeVisible();
   await page.locator('[data-debug-toggle]').tap();
   await expect.poll(async () => (await readDebugSnapshot(page)).ui.debugVisible).toBe(true);
   await expect.poll(async () => (await readDebugSnapshot(page)).enemies.enemies.some((enemy) => enemy.debugVisible)).toBe(true);
   await expect(page.locator('[data-debug-fps]')).toBeVisible();
   await expect(page.locator('[data-debug-death]')).toBeVisible();
+  await expect(page.locator('[data-debug-death-gameplay]')).toBeVisible();
   await expect(page.locator('[data-debug-toggle]')).toHaveText('DBG');
   await expect(page.locator('[data-debug-toggle]')).toHaveAttribute('aria-pressed', 'false');
   await expect(page.locator('[data-fire-button]')).not.toHaveText(/F/);
@@ -612,6 +614,8 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(audioFileNames).toEqual([
     'bore-scatter.mp3',
     'foundation-combat-loop-long.mp3',
+    'glyph-oof-reboot-me.mp3',
+    'glyph-stars-sigils-snacks.mp3',
     'rift-precision.mp3',
     'spark-sidearm.mp3',
     'title-playful-loop.mp3',
@@ -1099,8 +1103,8 @@ async function verifyDeathCinematic(page: Page): Promise<void> {
     await expect.poll(async () => (await readDebugSnapshot(page)).ui.debugVisible).toBe(true);
   }
 
-  await expect(page.locator('[data-debug-death]')).toBeVisible();
-  await page.locator('[data-debug-death]').tap();
+  await expect(page.locator('[data-debug-death-gameplay]')).toBeVisible();
+  await page.locator('[data-debug-death-gameplay]').tap();
 
   await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('death-cinematic');
   await expect(page.locator('[data-death-cinematic]')).toBeVisible();

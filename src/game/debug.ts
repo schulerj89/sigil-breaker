@@ -246,6 +246,7 @@ export function createDebugApi(
             'music-toggle',
             'debug-toggle',
             'debug-death',
+            'debug-death-gameplay',
           ],
         },
         ui: uiSnapshot,
