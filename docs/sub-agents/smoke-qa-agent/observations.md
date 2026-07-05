@@ -171,3 +171,5 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Browser smoke now treats `player.hero.gadget-gremlin.apose.animated` as a gameplay-loaded asset through `snapshot.weapon.playerViewModel`.
 - The smoke contract checks loaded state, active weapon grip matching, no weapon asset load errors, and per-weapon headed screenshots.
 - `VIEWMODEL_TUNING=1 npm run qa:headed:player-viewmodel` opens the same route with the live camera-space viewmodel tuner enabled and verifies the `VM` show/hide toggle.
+- Browser smoke now verifies the player viewmodel `armMask` contract: one source skinned mesh is reduced to a right-side arm mesh with fewer than 20000 visible triangles.
+- Latest headed player-viewmodel QA passed after the arm-only runtime mask and gun-priority render ordering update.

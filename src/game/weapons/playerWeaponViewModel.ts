@@ -17,6 +17,10 @@ const GUN_HOLD_BONE_POSE_DEGREES = {
   RightForeArm: { x: 0, y: 92, z: -35 },
 } as const;
 
+const WEAPON_ARM_BONE_MASK = ['RightShoulder', 'RightArm', 'RightForeArm', 'RightHand'] as const;
+const MIN_ALLOWED_BONE_WEIGHT = 0.42;
+const PLAYER_ARM_RENDER_ORDER = 1;
+
 type ControlledBoneName = keyof typeof GUN_HOLD_BONE_POSE_DEGREES;
 
 export interface PlayerWeaponViewModelSnapshot {
@@ -33,6 +37,14 @@ export interface PlayerWeaponViewModelSnapshot {
     scale: number;
   } | null;
   bonePoseDegrees: typeof GUN_HOLD_BONE_POSE_DEGREES;
+  armMask: {
+    enabled: boolean;
+    sourceMeshCount: number;
+    maskedMeshCount: number;
+    sourceTriangles: number;
+    visibleTriangles: number;
+    allowedBones: readonly string[];
+  };
   assetLoadErrors: string[];
 }
 
@@ -46,6 +58,14 @@ export class PlayerWeaponViewModel {
   private clippingEnabled = false;
   private model: THREE.Object3D | null = null;
   private activeGripSnapshot: PlayerWeaponViewModelSnapshot['activeGrip'] = null;
+  private armMaskSnapshot: PlayerWeaponViewModelSnapshot['armMask'] = {
+    enabled: false,
+    sourceMeshCount: 0,
+    maskedMeshCount: 0,
+    sourceTriangles: 0,
+    visibleTriangles: 0,
+    allowedBones: WEAPON_ARM_BONE_MASK,
+  };
 
   constructor(private readonly loader: GLTFLoader) {
     this.root.name = 'player-weapon-viewmodel-root';
@@ -57,6 +77,7 @@ export class PlayerWeaponViewModel {
       this.model = gltf.scene;
       this.model.name = PLAYER_WEAPON_VIEWMODEL_ASSET.id;
       normalizeModel(this.model);
+      this.armMaskSnapshot = applyWeaponArmMask(this.model);
       this.clippedMaterials.push(...collectViewModelClippingMaterials(this.model));
       applyGunHoldPose(this.model);
       this.root.add(this.model);
@@ -99,6 +120,7 @@ export class PlayerWeaponViewModel {
       observedTriangles: PLAYER_WEAPON_VIEWMODEL_ASSET.observedTriangles,
       activeGrip: this.activeGripSnapshot,
       bonePoseDegrees: GUN_HOLD_BONE_POSE_DEGREES,
+      armMask: this.armMaskSnapshot,
       assetLoadErrors: [...this.assetLoadErrors],
     };
   }
@@ -141,9 +163,140 @@ function normalizeModel(model: THREE.Object3D): void {
     if (object instanceof THREE.Mesh) {
       object.castShadow = false;
       object.receiveShadow = false;
-      object.renderOrder = 1;
+      object.renderOrder = PLAYER_ARM_RENDER_ORDER;
     }
   });
+}
+
+function applyWeaponArmMask(model: THREE.Object3D): PlayerWeaponViewModelSnapshot['armMask'] {
+  const allowedBones = new Set<string>(WEAPON_ARM_BONE_MASK);
+  let sourceMeshCount = 0;
+  let maskedMeshCount = 0;
+  let sourceTriangles = 0;
+  let visibleTriangles = 0;
+
+  model.traverse((object) => {
+    if (!isSkinnedMesh(object)) {
+      return;
+    }
+
+    sourceMeshCount++;
+    const originalGeometry = object.geometry;
+    sourceTriangles += getTriangleCount(originalGeometry);
+    const maskedGeometry = createBoneMaskedGeometry(object, allowedBones);
+    if (!maskedGeometry) {
+      object.visible = false;
+      return;
+    }
+
+    object.geometry = maskedGeometry;
+    object.frustumCulled = false;
+    object.renderOrder = PLAYER_ARM_RENDER_ORDER;
+    visibleTriangles += getTriangleCount(maskedGeometry);
+    maskedMeshCount++;
+    originalGeometry.dispose();
+  });
+
+  return {
+    enabled: maskedMeshCount > 0,
+    sourceMeshCount,
+    maskedMeshCount,
+    sourceTriangles,
+    visibleTriangles,
+    allowedBones: WEAPON_ARM_BONE_MASK,
+  };
+}
+
+function createBoneMaskedGeometry(
+  mesh: THREE.SkinnedMesh,
+  allowedBones: ReadonlySet<string>,
+): THREE.BufferGeometry | null {
+  const sourceGeometry = mesh.geometry.index ? mesh.geometry.toNonIndexed() : mesh.geometry.clone();
+  const position = sourceGeometry.getAttribute('position');
+  const skinIndex = sourceGeometry.getAttribute('skinIndex');
+  const skinWeight = sourceGeometry.getAttribute('skinWeight');
+  if (!position || !skinIndex || !skinWeight) {
+    sourceGeometry.dispose();
+    return null;
+  }
+
+  const keptVertexIndices: number[] = [];
+  for (let vertexIndex = 0; vertexIndex < position.count; vertexIndex += 3) {
+    const triangleVertices = [vertexIndex, vertexIndex + 1, vertexIndex + 2];
+    const keepTriangle = triangleVertices.every((index) => {
+      const allowedWeight = getAllowedSkinWeight(mesh.skeleton, skinIndex, skinWeight, index, allowedBones);
+      return allowedWeight >= MIN_ALLOWED_BONE_WEIGHT;
+    });
+    if (keepTriangle) {
+      keptVertexIndices.push(...triangleVertices);
+    }
+  }
+
+  if (keptVertexIndices.length === 0) {
+    sourceGeometry.dispose();
+    return null;
+  }
+
+  const filteredGeometry = new THREE.BufferGeometry();
+  for (const [name, attribute] of Object.entries(sourceGeometry.attributes)) {
+    if (attribute instanceof THREE.BufferAttribute) {
+      filteredGeometry.setAttribute(name, cloneAttributeForVertices(attribute, keptVertexIndices));
+    }
+  }
+
+  filteredGeometry.computeBoundingBox();
+  filteredGeometry.computeBoundingSphere();
+  sourceGeometry.dispose();
+  return filteredGeometry;
+}
+
+function cloneAttributeForVertices(
+  attribute: THREE.BufferAttribute,
+  vertexIndices: readonly number[],
+): THREE.BufferAttribute {
+  const ArrayType = attribute.array.constructor as new (length: number) => THREE.TypedArray;
+  const values = new ArrayType(vertexIndices.length * attribute.itemSize);
+  let targetOffset = 0;
+  for (const vertexIndex of vertexIndices) {
+    const sourceOffset = vertexIndex * attribute.itemSize;
+    for (let itemOffset = 0; itemOffset < attribute.itemSize; itemOffset++) {
+      values[targetOffset++] = attribute.array[sourceOffset + itemOffset] ?? 0;
+    }
+  }
+  return new THREE.BufferAttribute(values, attribute.itemSize, attribute.normalized);
+}
+
+function getAllowedSkinWeight(
+  skeleton: THREE.Skeleton,
+  skinIndex: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
+  skinWeight: THREE.BufferAttribute | THREE.InterleavedBufferAttribute,
+  vertexIndex: number,
+  allowedBones: ReadonlySet<string>,
+): number {
+  const jointIndices = [
+    skinIndex.getX(vertexIndex),
+    skinIndex.getY(vertexIndex),
+    skinIndex.getZ(vertexIndex),
+    skinIndex.getW(vertexIndex),
+  ];
+  const jointWeights = [
+    skinWeight.getX(vertexIndex),
+    skinWeight.getY(vertexIndex),
+    skinWeight.getZ(vertexIndex),
+    skinWeight.getW(vertexIndex),
+  ];
+
+  return jointIndices.reduce((total, jointIndex, index) => {
+    const bone = skeleton.bones[Math.round(jointIndex)];
+    return bone && allowedBones.has(bone.name) ? total + jointWeights[index] : total;
+  }, 0);
+}
+
+function getTriangleCount(geometry: THREE.BufferGeometry): number {
+  if (geometry.index) {
+    return Math.floor(geometry.index.count / 3);
+  }
+  return Math.floor((geometry.getAttribute('position')?.count ?? 0) / 3);
 }
 
 function collectViewModelClippingMaterials(model: THREE.Object3D): THREE.Material[] {
@@ -156,6 +309,7 @@ function collectViewModelClippingMaterials(model: THREE.Object3D): THREE.Materia
     const meshMaterials = Array.isArray(object.material) ? object.material : [object.material];
     for (const material of meshMaterials) {
       material.clipIntersection = false;
+      material.depthWrite = false;
       materials.push(material);
     }
   });
@@ -188,6 +342,10 @@ function applyGunHoldPose(model: THREE.Object3D): void {
 
 function isBone(object: THREE.Object3D): object is THREE.Bone {
   return (object as THREE.Bone).isBone === true;
+}
+
+function isSkinnedMesh(object: THREE.Object3D): object is THREE.SkinnedMesh {
+  return (object as THREE.SkinnedMesh).isSkinnedMesh === true;
 }
 
 function lerpTuple(

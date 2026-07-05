@@ -120,6 +120,14 @@ interface DebugSnapshot {
         RightArm: { x: number; y: number; z: number };
         RightForeArm: { x: number; y: number; z: number };
       };
+      armMask: {
+        enabled: boolean;
+        sourceMeshCount: number;
+        maskedMeshCount: number;
+        sourceTriangles: number;
+        visibleTriangles: number;
+        allowedBones: readonly string[];
+      };
       assetLoadErrors: string[];
     };
     audio: {
@@ -361,10 +369,24 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
       RightArm: { x: 36, y: -103, z: 72 },
       RightForeArm: { x: 0, y: 92, z: -35 },
     },
+    armMask: {
+      enabled: true,
+      sourceMeshCount: 1,
+      maskedMeshCount: 1,
+      sourceTriangles: 81_375,
+    },
     assetLoadErrors: [],
   });
   expect(debugSnapshot.weapon.playerViewModel.activeGrip?.position).toHaveLength(3);
   expect(debugSnapshot.weapon.playerViewModel.activeGrip?.scale).toBeGreaterThan(0.5);
+  expect(debugSnapshot.weapon.playerViewModel.armMask.visibleTriangles).toBeGreaterThan(0);
+  expect(debugSnapshot.weapon.playerViewModel.armMask.visibleTriangles).toBeLessThan(20_000);
+  expect(debugSnapshot.weapon.playerViewModel.armMask.allowedBones).toEqual([
+    'RightShoulder',
+    'RightArm',
+    'RightForeArm',
+    'RightHand',
+  ]);
   expect(debugSnapshot.player.health).toMatchObject({
     current: 100,
     max: 100,

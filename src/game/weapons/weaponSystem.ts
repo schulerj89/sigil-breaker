@@ -36,6 +36,7 @@ const AIM_FOV_OFFSET_DEGREES = 8;
 const MIN_AIM_FOV_DEGREES = 58;
 const AIM_IN_RESPONSE = 8;
 const AIM_OUT_RESPONSE = 6;
+const FIRST_PERSON_WEAPON_RENDER_ORDER = 3;
 
 export interface WeaponShotSnapshot {
   sequence: number;
@@ -338,6 +339,10 @@ export class WeaponSystem {
       object.name = definition.id;
       object.traverse((child) => {
         child.frustumCulled = false;
+        if (child instanceof THREE.Mesh) {
+          child.renderOrder = FIRST_PERSON_WEAPON_RENDER_ORDER;
+          setMaterialDepthWrite(child.material, true);
+        }
       });
       const loadedWeapon = { definition, object };
       this.loadedWeapons.set(definition.id, loadedWeapon);
@@ -814,8 +819,21 @@ function createFallbackWeapon(name: string): THREE.Group {
   );
   body.position.z = -0.2;
   barrel.position.set(0, 0.02, -0.72);
+  body.renderOrder = FIRST_PERSON_WEAPON_RENDER_ORDER;
+  barrel.renderOrder = FIRST_PERSON_WEAPON_RENDER_ORDER;
   group.add(body, barrel);
   return group;
+}
+
+function setMaterialDepthWrite(material: THREE.Material | THREE.Material[], depthWrite: boolean): void {
+  if (Array.isArray(material)) {
+    for (const item of material) {
+      setMaterialDepthWrite(item, depthWrite);
+    }
+    return;
+  }
+
+  material.depthWrite = depthWrite;
 }
 
 function disposeObject3D(

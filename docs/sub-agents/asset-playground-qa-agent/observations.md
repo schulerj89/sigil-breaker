@@ -87,3 +87,12 @@ Status: needs review after browser smoke.
 - The tuning panel has a `VM` button during gameplay; tap it to hide/show the sliders without losing the current active values.
 - Default gameplay keeps the character viewmodel loaded but placed conservatively out of the reticle until the arm/clip pose is manually dialed in through the tuner.
 - Latest default-safe headed capture is stored under `artifacts/sub-agents/20260705-player-viewmodel-default-safe/asset-playground-qa-agent/`.
+
+## 2026-07-05 - First-Person Arm Mask
+
+- Mesh inspection confirmed `player.hero.gadget-gremlin.apose.animated.glb` has one skinned mesh (`char1`) and one material, so body parts cannot be hidden by toggling separate mesh nodes.
+- Runtime now derives an FPS-only skinned geometry from the source mesh by keeping triangles weighted to `RightShoulder`, `RightArm`, `RightForeArm`, and `RightHand`.
+- The original GLB remains unchanged for title, character-debug, and cutscene use.
+- The latest headed QA pass reduced the FPS viewmodel from 81375 source triangles to 7641 visible arm-side triangles, removing head/hair/torso/legs from the weapon view.
+- First-person weapon meshes render after the arm mask so the gun visually wins over the hand when the two overlap.
+- Spark's default character grip was updated from the user's closest screenshot values while retaining `?viewmodelTuning=1` for further per-gun tuning.

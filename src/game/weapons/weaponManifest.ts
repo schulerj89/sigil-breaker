@@ -47,6 +47,7 @@ export interface WeaponDefinition {
 }
 
 const VIEW_FORWARD_YAW = 0;
+const degreesToRadians = (value: number): number => (value * Math.PI) / 180;
 
 export const WEAPON_ASSET_SOURCE = {
   sourceId: 'kenney.blaster-kit.2-1',
@@ -87,13 +88,13 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       aimScaleMultiplier: 1.04,
       muzzleLocalOffset: [0.02, 0.03, -0.46],
       characterGrip: {
-        position: [-0.18, -1.04, 0.46],
-        aimPosition: [-0.32, -1.08, 0.44],
-        rotation: [0.02, Math.PI, -0.03],
-        aimRotation: [0, Math.PI, -0.01],
+        position: [-0.05, -0.6, 0.71],
+        aimPosition: [-0.32, -1.36, 0.44],
+        rotation: [degreesToRadians(1.15), Math.PI, degreesToRadians(-1.72)],
+        aimRotation: [0, degreesToRadians(109), degreesToRadians(-0.57)],
         scale: 0.62,
         aimScaleMultiplier: 1.02,
-        clipTopY: null,
+        clipTopY: 0.28,
       },
     },
     effects: {
