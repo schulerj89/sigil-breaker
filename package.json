@@ -7,6 +7,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:cloudflare": "tsc && vite build --base=/",
+    "deploy:cloudflare": "wrangler deploy",
     "preview": "vite preview",
     "prepare:pages": "node scripts/prepare-pages-dist.mjs",
     "preview:pages": "node scripts/serve-pages-preview.mjs",
@@ -49,7 +51,8 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.50.0",
     "vite": "^7.2.7",
-    "vitest": "^4.0.16"
+    "vitest": "^4.0.16",
+    "wrangler": "^4.107.0"
   },
   "dependencies": {
     "three": "^0.185.1"
