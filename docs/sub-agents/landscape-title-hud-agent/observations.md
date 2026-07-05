@@ -94,3 +94,25 @@ Status: complete for debug coordinate, music mute, weapon cycle, and rotate prom
 
 - Smoke QA should continue covering `[data-title-character-debug]`, `[data-character-debug]`, and `[data-character-debug-back]`.
 - The latest run artifacts live under `artifacts/sub-agents/20260705-player-pose-harness/landscape-title-hud-agent/`.
+
+## 2026-07-05 Character Debug Usability Fix
+
+### What It Saw
+
+- The right-side character debug panel could hide the arm controls on phone landscape because all rig bones rendered in one scroll list.
+- The user needs to move one arm bone at a time and report coordinates/rotations, not hunt through every bone panel.
+- Animation inspection needs to live next to pose editing so bad clips and bad still poses can be compared in the same view.
+
+### Decisions
+
+- Add an animation dropdown to the character debug page.
+- Add a bone dropdown and show only the selected bone's X/Y/Z sliders with larger mobile touch targets.
+- Default the selected bone to `RightArm` when available.
+
+### Caught Issues
+
+- The previous smoke test only checked page reachability; it did not prove sliders were visible.
+
+### Next Handoff Notes
+
+- Smoke QA now needs to assert `[data-character-animation-select]`, `[data-character-bone-select]`, and visible selected-bone range sliders.

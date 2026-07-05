@@ -4,7 +4,9 @@ import { publicAssetUrl } from './assetUrls';
 
 const CHARACTER_ASSET_ID = 'character.player.meshy.gadget-gremlin.rigged';
 const MODEL_PATH = 'assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.rigged.glb';
+const ANIMATION_ROOT = 'assets/characters/meshy-gadget-gremlin/animations';
 const POSE_FILE_NAME = 'gun-hold-draft.json';
+const POSE_EDIT_ANIMATION_ID = 'pose-edit';
 const CONTROLLED_BONES = [
   'Spine',
   'Spine01',
@@ -21,15 +23,31 @@ const CONTROLLED_BONES = [
   'Head',
 ] as const;
 const AXES = ['x', 'y', 'z'] as const;
+const ANIMATION_DEFINITIONS = [
+  { id: POSE_EDIT_ANIMATION_ID, label: 'Pose Edit', path: null },
+  { id: 'idle', label: 'Idle', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.idle.glb` },
+  { id: 'idle-alt', label: 'Idle Alt', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.idle-alt.glb` },
+  { id: 'walking', label: 'Walking', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.walking.glb` },
+  { id: 'running', label: 'Running', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.running.glb` },
+  { id: 'run-and-shoot', label: 'Run + Shoot', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.run-and-shoot.glb` },
+  { id: 'gun-hold', label: 'Gun Hold', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.gun-hold.glb` },
+  { id: 'low-health', label: 'Low Health', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.low-health.glb` },
+  { id: 'out-of-hp', label: 'Out Of HP', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.out-of-hp.glb` },
+  { id: 'victory', label: 'Victory', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.victory.glb` },
+  { id: 'dance', label: 'Dance', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.dance.glb` },
+] as const;
 
 type ControlledBoneName = (typeof CONTROLLED_BONES)[number];
 type AxisName = (typeof AXES)[number];
+type AnimationId = (typeof ANIMATION_DEFINITIONS)[number]['id'];
 type BonePoseDegrees = Record<AxisName, number>;
 
 interface BoneControl {
   bone: THREE.Bone;
   baseRotation: THREE.Euler;
   inputs: Record<AxisName, HTMLInputElement>;
+  outputs: Record<AxisName, HTMLOutputElement>;
+  element: HTMLElement;
   values: BonePoseDegrees;
 }
 
@@ -51,6 +69,8 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
   const copyButton = requireElement<HTMLButtonElement>(root, '[data-character-pose-copy]');
   const resetButton = requireElement<HTMLButtonElement>(root, '[data-character-pose-reset]');
   const mirrorButton = requireElement<HTMLButtonElement>(root, '[data-character-pose-mirror]');
+  const animationSelect = requireElement<HTMLSelectElement>(root, '[data-character-animation-select]');
+  const boneSelect = requireElement<HTMLSelectElement>(root, '[data-character-bone-select]');
   const viewYawInput = requireElement<HTMLInputElement>(root, '[data-character-view-yaw]');
   const viewZoomInput = requireElement<HTMLInputElement>(root, '[data-character-view-zoom]');
 
@@ -85,7 +105,12 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
   const loader = new GLTFLoader();
   const cleanup: Array<() => void> = [];
   const boneControls = new Map<ControlledBoneName, BoneControl>();
+  const baseBoneRotations = new Map<THREE.Bone, THREE.Euler>();
+  const animationClips = new Map<AnimationId, THREE.AnimationClip>();
   let model: THREE.Object3D | null = null;
+  let mixer: THREE.AnimationMixer | null = null;
+  let activeAction: THREE.AnimationAction | null = null;
+  let activeAnimationId: AnimationId = POSE_EDIT_ANIMATION_ID;
   let skeletonHelper: THREE.SkeletonHelper | null = null;
   let loadPromise: Promise<void> | null = null;
   let isOpen = false;
@@ -101,6 +126,13 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
     refreshView();
   }, cleanup);
   addInputListener(viewZoomInput, 'input', refreshView, cleanup);
+  populateAnimationSelect(animationSelect);
+  addChangeListener(animationSelect, () => {
+    void playAnimation(animationSelect.value as AnimationId);
+  }, cleanup);
+  addChangeListener(boneSelect, () => {
+    setActiveBone(boneControls, boneSelect.value as ControlledBoneName);
+  }, cleanup);
 
   const ensureLoaded = (): Promise<void> => {
     if (loadPromise) {
@@ -119,6 +151,8 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
         model.scale.setScalar(1.08);
         normalizeModelMaterials(model);
         modelRoot.add(model);
+        captureBaseBoneRotations(model, baseBoneRotations);
+        mixer = new THREE.AnimationMixer(model);
         frameModel(model, camera, viewZoomInput, (targetY) => {
           cameraTargetY = targetY;
           refreshView();
@@ -129,8 +163,15 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
         skeletonHelper.visible = true;
         scene.add(skeletonHelper);
 
-        buildBoneControls(model, boneControls, controlsRoot, poseOutput);
-        updatePoseOutput(boneControls, poseOutput);
+        buildBoneControls(model, boneControls, controlsRoot, poseOutput, () => {
+          if (animationSelect.value !== POSE_EDIT_ANIMATION_ID) {
+            animationSelect.value = POSE_EDIT_ANIMATION_ID;
+            void playAnimation(POSE_EDIT_ANIMATION_ID);
+          }
+        });
+        populateBoneSelect(boneSelect, boneControls);
+        setActiveBone(boneControls, boneSelect.value as ControlledBoneName);
+        updatePoseOutput(boneControls, poseOutput, activeAnimationId);
         status.textContent = `READY ${boneControls.size} BONES`;
       })
       .catch((error: unknown) => {
@@ -142,14 +183,19 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
   };
 
   const resetPose = (): void => {
+    stopActiveAnimation();
+    activeAnimationId = POSE_EDIT_ANIMATION_ID;
+    animationSelect.value = POSE_EDIT_ANIMATION_ID;
+    resetSkeletonToBasePose(baseBoneRotations);
     for (const control of boneControls.values()) {
       for (const axis of AXES) {
         control.values[axis] = 0;
         control.inputs[axis].value = '0';
+        control.outputs[axis].textContent = '0';
       }
       applyBonePose(control);
     }
-    updatePoseOutput(boneControls, poseOutput);
+    updatePoseOutput(boneControls, poseOutput, activeAnimationId);
     status.textContent = 'POSE RESET';
   };
   addPointerButton(resetButton, resetPose, cleanup);
@@ -168,13 +214,13 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
       syncControlInputs(right);
       applyBonePose(right);
     }
-    updatePoseOutput(boneControls, poseOutput);
+    updatePoseOutput(boneControls, poseOutput, activeAnimationId);
     status.textContent = 'RIGHT SIDE MIRRORED';
   };
   addPointerButton(mirrorButton, mirrorPose, cleanup);
 
   const savePose = (): void => {
-    const poseJson = updatePoseOutput(boneControls, poseOutput);
+    const poseJson = updatePoseOutput(boneControls, poseOutput, activeAnimationId);
     window.localStorage.setItem('sigilbreaker.playerPoseDraft', poseJson);
     void postPoseIfAvailable(poseJson).then((savedToRepo) => {
       if (savedToRepo) {
@@ -189,7 +235,7 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
   addPointerButton(saveButton, savePose, cleanup);
 
   const copyPose = (): void => {
-    const poseJson = updatePoseOutput(boneControls, poseOutput);
+    const poseJson = updatePoseOutput(boneControls, poseOutput, activeAnimationId);
     void navigator.clipboard
       ?.writeText(poseJson)
       .then(() => {
@@ -204,7 +250,54 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
   addPointerButton(copyButton, copyPose, cleanup);
 
   refreshView();
-  updatePoseOutput(boneControls, poseOutput);
+  updatePoseOutput(boneControls, poseOutput, activeAnimationId);
+
+  async function playAnimation(animationId: AnimationId): Promise<void> {
+    activeAnimationId = animationId;
+    if (!model || !mixer) {
+      return;
+    }
+
+    if (animationId === POSE_EDIT_ANIMATION_ID) {
+      stopActiveAnimation();
+      resetSkeletonToBasePose(baseBoneRotations);
+      applyAllBonePoses(boneControls);
+      updatePoseOutput(boneControls, poseOutput, activeAnimationId);
+      status.textContent = 'POSE EDIT';
+      return;
+    }
+
+    const animationDefinition = ANIMATION_DEFINITIONS.find((definition) => definition.id === animationId);
+    if (!animationDefinition?.path) {
+      return;
+    }
+
+    status.textContent = `LOADING ${animationDefinition.label.toUpperCase()}`;
+    try {
+      const clip = await loadAnimationClip(animationDefinition.id, animationDefinition.path, loader, animationClips);
+      if (activeAnimationId !== animationId || !mixer || !model) {
+        return;
+      }
+
+      stopActiveAnimation();
+      activeAction = mixer.clipAction(clip, model);
+      activeAction.reset();
+      activeAction.setLoop(THREE.LoopRepeat, Infinity);
+      activeAction.fadeIn(0.12);
+      activeAction.play();
+      updatePoseOutput(boneControls, poseOutput, activeAnimationId);
+      status.textContent = `ANIM ${animationDefinition.label.toUpperCase()}`;
+    } catch (error: unknown) {
+      status.textContent = 'ANIM LOAD FAILED';
+      poseOutput.value = error instanceof Error ? error.message : String(error);
+    }
+  }
+
+  function stopActiveAnimation(): void {
+    activeAction?.stop();
+    activeAction = null;
+    mixer?.stopAllAction();
+  }
 
   return {
     open: () => {
@@ -227,10 +320,19 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
       }
 
       if (model && boneControls.size === 0) {
-        buildBoneControls(model, boneControls, controlsRoot, poseOutput);
+        buildBoneControls(model, boneControls, controlsRoot, poseOutput, () => {
+          if (animationSelect.value !== POSE_EDIT_ANIMATION_ID) {
+            animationSelect.value = POSE_EDIT_ANIMATION_ID;
+            void playAnimation(POSE_EDIT_ANIMATION_ID);
+          }
+        });
+        populateBoneSelect(boneSelect, boneControls);
+        setActiveBone(boneControls, boneSelect.value as ControlledBoneName);
       }
 
-      void deltaSeconds;
+      if (activeAnimationId !== POSE_EDIT_ANIMATION_ID) {
+        mixer?.update(deltaSeconds);
+      }
       refreshView();
       skeletonHelper?.updateMatrixWorld(true);
     },
@@ -267,6 +369,7 @@ function buildBoneControls(
   boneControls: Map<ControlledBoneName, BoneControl>,
   controlsRoot: HTMLElement,
   poseOutput: HTMLTextAreaElement,
+  onManualPoseEdit: () => void,
 ): void {
   if (boneControls.size > 0) {
     return;
@@ -290,10 +393,12 @@ function buildBoneControls(
       bone,
       baseRotation: bone.rotation.clone(),
       inputs: {} as Record<AxisName, HTMLInputElement>,
+      outputs: {} as Record<AxisName, HTMLOutputElement>,
+      element: document.createElement('section'),
       values: { x: 0, y: 0, z: 0 },
     };
     boneControls.set(boneName, control);
-    controlsRoot.appendChild(createBoneControl(boneName, control, boneControls, poseOutput));
+    controlsRoot.appendChild(createBoneControl(boneName, control, boneControls, poseOutput, onManualPoseEdit));
   }
 }
 
@@ -302,9 +407,11 @@ function createBoneControl(
   control: BoneControl,
   boneControls: Map<ControlledBoneName, BoneControl>,
   poseOutput: HTMLTextAreaElement,
+  onManualPoseEdit: () => void,
 ): HTMLElement {
-  const section = document.createElement('section');
+  const section = control.element;
   section.className = 'character-pose__bone';
+  section.dataset.poseBone = boneName;
 
   const title = document.createElement('div');
   title.className = 'character-pose__bone-title';
@@ -328,13 +435,15 @@ function createBoneControl(
     value.textContent = '0';
 
     input.addEventListener('input', () => {
+      onManualPoseEdit();
       control.values[axis] = Number(input.value);
       value.textContent = input.value;
       applyBonePose(control);
-      updatePoseOutput(boneControls, poseOutput);
+      updatePoseOutput(boneControls, poseOutput, POSE_EDIT_ANIMATION_ID);
     });
 
     control.inputs[axis] = input;
+    control.outputs[axis] = value;
     label.append(text, input, value);
     section.appendChild(label);
   }
@@ -353,16 +462,14 @@ function applyBonePose(control: BoneControl): void {
 function syncControlInputs(control: BoneControl): void {
   for (const axis of AXES) {
     control.inputs[axis].value = String(Math.round(control.values[axis]));
-    const output = control.inputs[axis].parentElement?.querySelector('output');
-    if (output) {
-      output.textContent = control.inputs[axis].value;
-    }
+    control.outputs[axis].textContent = control.inputs[axis].value;
   }
 }
 
 function updatePoseOutput(
   boneControls: Map<ControlledBoneName, BoneControl>,
   poseOutput: HTMLTextAreaElement,
+  activeAnimationId: AnimationId,
 ): string {
   const rotationsDegrees: Partial<Record<ControlledBoneName, BonePoseDegrees>> = {};
   const rotationsRadians: Partial<Record<ControlledBoneName, BonePoseDegrees>> = {};
@@ -389,6 +496,8 @@ function updatePoseOutput(
       assetId: CHARACTER_ASSET_ID,
       modelPath: MODEL_PATH,
       purpose: 'player-gun-hold-still-pose',
+      activeAnimationId,
+      activeAnimationLabel: ANIMATION_DEFINITIONS.find((definition) => definition.id === activeAnimationId)?.label ?? activeAnimationId,
       units: {
         rotationsDegrees: 'degrees relative to imported bind pose',
         rotationsRadians: 'radians relative to imported bind pose',
@@ -403,6 +512,68 @@ function updatePoseOutput(
   );
   poseOutput.value = payload;
   return payload;
+}
+
+async function loadAnimationClip(
+  animationId: AnimationId,
+  animationPath: string,
+  loader: GLTFLoader,
+  animationClips: Map<AnimationId, THREE.AnimationClip>,
+): Promise<THREE.AnimationClip> {
+  const cachedClip = animationClips.get(animationId);
+  if (cachedClip) {
+    return cachedClip;
+  }
+
+  const gltf = await loader.loadAsync(publicAssetUrl(animationPath));
+  const [clip] = gltf.animations;
+  disposeSceneGraph(gltf.scene);
+  if (!clip) {
+    throw new Error(`Animation GLB did not include clips: ${animationPath}`);
+  }
+
+  animationClips.set(animationId, clip);
+  return clip;
+}
+
+function populateAnimationSelect(animationSelect: HTMLSelectElement): void {
+  animationSelect.replaceChildren();
+  for (const definition of ANIMATION_DEFINITIONS) {
+    const option = document.createElement('option');
+    option.value = definition.id;
+    option.textContent = definition.label;
+    animationSelect.appendChild(option);
+  }
+  animationSelect.value = POSE_EDIT_ANIMATION_ID;
+}
+
+function populateBoneSelect(
+  boneSelect: HTMLSelectElement,
+  boneControls: Map<ControlledBoneName, BoneControl>,
+): void {
+  boneSelect.replaceChildren();
+  for (const boneName of boneControls.keys()) {
+    const option = document.createElement('option');
+    option.value = boneName;
+    option.textContent = boneName;
+    boneSelect.appendChild(option);
+  }
+  boneSelect.value = boneControls.has('RightArm') ? 'RightArm' : [...boneControls.keys()][0] ?? '';
+}
+
+function setActiveBone(
+  boneControls: Map<ControlledBoneName, BoneControl>,
+  activeBoneName: ControlledBoneName,
+): void {
+  for (const [boneName, control] of boneControls) {
+    control.element.classList.toggle('is-active', boneName === activeBoneName);
+  }
+}
+
+function applyAllBonePoses(boneControls: Map<ControlledBoneName, BoneControl>): void {
+  for (const control of boneControls.values()) {
+    applyBonePose(control);
+  }
 }
 
 async function postPoseIfAvailable(poseJson: string): Promise<boolean> {
@@ -438,6 +609,21 @@ function normalizeModelMaterials(model: THREE.Object3D): void {
     object.castShadow = false;
     object.receiveShadow = false;
   });
+}
+
+function captureBaseBoneRotations(model: THREE.Object3D, baseBoneRotations: Map<THREE.Bone, THREE.Euler>): void {
+  baseBoneRotations.clear();
+  model.traverse((object) => {
+    if (isBone(object)) {
+      baseBoneRotations.set(object, object.rotation.clone());
+    }
+  });
+}
+
+function resetSkeletonToBasePose(baseBoneRotations: Map<THREE.Bone, THREE.Euler>): void {
+  for (const [bone, rotation] of baseBoneRotations) {
+    bone.rotation.copy(rotation);
+  }
 }
 
 function frameModel(
@@ -504,6 +690,15 @@ function addInputListener(
   cleanup.push(() => input.removeEventListener(type, listener));
 }
 
+function addChangeListener(
+  select: HTMLSelectElement,
+  listener: () => void,
+  cleanup: Array<() => void>,
+): void {
+  select.addEventListener('change', listener);
+  cleanup.push(() => select.removeEventListener('change', listener));
+}
+
 function requireElement<ElementType extends Element>(root: HTMLElement, selector: string): ElementType {
   const element = root.querySelector<ElementType>(selector);
   if (!element) {
@@ -530,4 +725,13 @@ function disposeMaterial(material: THREE.Material | THREE.Material[] | undefined
   }
 
   material.dispose();
+}
+
+function disposeSceneGraph(object: THREE.Object3D): void {
+  object.traverse((child) => {
+    if (child instanceof THREE.Mesh) {
+      child.geometry.dispose();
+      disposeMaterial(child.material);
+    }
+  });
 }

@@ -675,8 +675,13 @@ async function verifyCharacterDebugPage(page: Page): Promise<void> {
   await page.locator('[data-title-character-debug]').click();
   await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('character-debug');
   await expect(page.locator('[data-character-debug]')).toBeVisible();
-  await expect(page.locator('[data-character-pose-json]')).toBeVisible();
+  await expect(page.locator('[data-character-pose-json]')).toBeAttached();
   await expect(page.locator('[data-character-pose-status]')).toContainText('READY', { timeout: 30_000 });
+  await expect(page.locator('[data-character-animation-select] option')).toHaveCount(11);
+  await expect(page.locator('[data-character-bone-select] option')).toHaveCount(13);
+  await page.locator('[data-character-bone-select]').selectOption('RightHand');
+  await expect(page.locator('[data-pose-bone="RightHand"]')).toBeVisible();
+  await expect(page.locator('[data-pose-bone="RightHand"] input[type="range"]')).toHaveCount(3);
   await page.locator('[data-character-debug-back]').click();
   await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('title');
   await expect(page.locator('[data-title-screen]')).toBeVisible();

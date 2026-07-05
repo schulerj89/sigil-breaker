@@ -529,7 +529,8 @@ canvas {
 .character-debug__status,
 .character-pose__bone-title,
 .character-pose__axis span,
-.character-debug__view span {
+.character-debug__view span,
+.character-debug__view select {
   font-family: var(--sigil-font-display);
   font-weight: 900;
   letter-spacing: 0;
@@ -581,9 +582,9 @@ canvas {
   top: calc(max(10px, env(safe-area-inset-top)) + 58px);
   right: max(12px, env(safe-area-inset-right));
   bottom: max(10px, env(safe-area-inset-bottom));
-  width: min(380px, 44vw);
+  width: min(430px, 50vw);
   display: grid;
-  grid-template-rows: auto auto auto minmax(0, 1fr) 96px;
+  grid-template-rows: auto auto auto minmax(172px, 1fr) 72px;
   gap: 8px;
   padding: 10px;
   border: 1px solid rgb(238 243 240 / 0.18);
@@ -607,24 +608,43 @@ canvas {
 .character-debug__view label,
 .character-pose__axis {
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) 36px;
+  grid-template-columns: 48px minmax(0, 1fr) 38px;
   align-items: center;
   gap: 8px;
-  min-height: 28px;
+  min-height: 34px;
+}
+
+.character-debug__view .character-debug__view-row--view,
+.character-debug__view .character-debug__view-row--zoom {
+  display: none;
 }
 
 .character-debug__view span,
 .character-pose__axis span,
 .character-pose__axis output {
   color: #d4ebe8;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1;
+}
+
+.character-debug__view select {
+  width: 100%;
+  min-width: 0;
+  height: 32px;
+  border: 1px solid rgb(238 243 240 / 0.22);
+  border-radius: 0;
+  background: rgb(5 12 15 / 0.9);
+  color: #edf9f6;
+  font-size: 12px;
+  touch-action: manipulation;
 }
 
 .character-debug__view input,
 .character-pose__axis input {
   width: 100%;
+  min-height: 30px;
   accent-color: #55e6c5;
+  touch-action: pan-x;
 }
 
 .character-pose {
@@ -637,16 +657,20 @@ canvas {
 }
 
 .character-pose__bone {
-  display: grid;
+  display: none;
   gap: 5px;
-  padding: 8px;
+  padding: 10px;
   border: 1px solid rgb(238 243 240 / 0.14);
   background: rgb(15 22 26 / 0.72);
 }
 
+.character-pose__bone.is-active {
+  display: grid;
+}
+
 .character-pose__bone-title {
   color: #f1fbff;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .character-pose__axis output {
@@ -661,7 +685,7 @@ canvas {
   border: 1px solid rgb(238 243 240 / 0.12);
   background: rgb(5 9 11 / 0.76);
   color: #a9dfe4;
-  font-size: 10px;
+  font-size: 9px;
   line-height: 1.35;
 }
 
@@ -1076,22 +1100,47 @@ canvas {
     top: calc(max(7px, env(safe-area-inset-top)) + 50px);
     right: max(8px, env(safe-area-inset-right));
     bottom: max(8px, env(safe-area-inset-bottom));
-    width: min(330px, 46vw);
-    grid-template-rows: auto auto auto minmax(0, 1fr) 72px;
+    width: min(360px, 48vw);
+    grid-template-rows: auto auto auto minmax(0, 1fr);
     gap: 6px;
     padding: 8px;
   }
 
+  .character-debug__json {
+    display: none;
+  }
+
   .character-debug__view label,
   .character-pose__axis {
-    grid-template-columns: 34px minmax(0, 1fr) 30px;
+    grid-template-columns: 40px minmax(0, 1fr) 30px;
     gap: 6px;
-    min-height: 24px;
+    min-height: 29px;
+  }
+
+  .character-debug__view-row--view,
+  .character-debug__view-row--zoom {
+    display: none;
   }
 
   .character-pose__bone {
     gap: 4px;
-    padding: 6px;
+    padding: 7px;
+  }
+
+  .character-debug__view span,
+  .character-pose__axis span,
+  .character-pose__axis output,
+  .character-debug__view select {
+    font-size: 10px;
+  }
+
+  .character-debug__view select {
+    height: 28px;
+  }
+
+  .character-debug__view input,
+  .character-pose__axis input {
+    min-height: 26px;
   }
 }
 

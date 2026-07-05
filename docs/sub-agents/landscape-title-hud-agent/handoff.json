@@ -3,7 +3,7 @@
   "agentId": "landscape-title-hud-agent",
   "status": "complete",
   "updatedAt": "2026-07-05T00:00:00-05:00",
-  "summary": "Landscape title screen now includes a character debug route with mobile pose controls, while preserving the compressed WebP title background, loading asset gate, and debug-exposed phases.",
+  "summary": "Landscape title screen includes a character debug route with mobile pose controls, selected-bone sliders, and an animation dropdown, while preserving the compressed WebP title background, loading asset gate, and debug-exposed phases.",
   "observations": [
     "Center metrics HUD includes FPS, XYZ coordinates, JS heap, level triangle count, and chunk count.",
     "Coordinates use the player's debug scene position with one decimal precision.",
@@ -21,7 +21,9 @@
     "The loading screen waits for 18 boot assets: 17 gameplay assets plus ui.title.background.sigilbreaker.generated.",
     "The debug snapshot now exposes snapshot.scene.phase and snapshot.ui.loading for title/start QA.",
     "The title screen now exposes [data-title-character-debug] for the player pose harness.",
-    "The character debug page uses the existing portrait rotate prompt and disables combat touch zones outside gameplay."
+    "The character debug page uses the existing portrait rotate prompt and disables combat touch zones outside gameplay.",
+    "The character debug page now exposes an animation dropdown and a selected-bone dropdown.",
+    "The selected bone shows three visible X/Y/Z range sliders instead of rendering every bone panel at once."
   ],
   "decisions": [
     "Landscape is the playable orientation.",
@@ -38,7 +40,8 @@
     "Use the condensed sci-fi sans font direction for title and loading UI.",
     "Keep the title and start button anchored left, away from the center-right portal and right thumb combat controls.",
     "Ship the title background as compressed WebP instead of the full generated PNG.",
-    "Route debug tools through explicit game phases instead of stacking them over gameplay controls."
+    "Route debug tools through explicit game phases instead of stacking them over gameplay controls.",
+    "Use selected-bone editing for mobile character posing so arm sliders are reachable on phone landscape."
   ],
   "caughtIssues": [
     "Initial coordinate badge sizing risked crowding the 667 px landscape HUD; CSS now uses auto/minmax/auto grid columns and wrapped center metrics.",
@@ -47,7 +50,8 @@
     "The bottom weapon tray competed with viewmodel framing and should not return without a new mobile layout review.",
     "The first title screenshot caught the loading overlay ghosting beneath the title; hidden full-screen overlays now use display none.",
     "The selected art needed a stronger left-side title-safe dark gradient so generated background details do not read as stray UI.",
-    "The look zone needed to be disabled outside gameplay so the character debug page can receive mobile touches cleanly."
+    "The look zone needed to be disabled outside gameplay so the character debug page can receive mobile touches cleanly.",
+    "Smoke coverage did not previously prove the sliders were visible."
   ],
   "risks": [
     "Reward UI can become unreadable if powerup names and stat copy are not constrained early.",
@@ -148,6 +152,9 @@
       "screenSelector": "[data-character-debug]",
       "backButtonSelector": "[data-character-debug-back]",
       "poseJsonSelector": "[data-character-pose-json]",
+      "animationSelector": "[data-character-animation-select]",
+      "boneSelector": "[data-character-bone-select]",
+      "selectedBoneSliderSelector": "[data-pose-bone].is-active input[type=\"range\"]",
       "combatControlsEnabled": false,
       "portraitPlayable": false
     }

@@ -406,11 +406,19 @@ function createShellMarkup(): string {
         <aside class="character-debug__panel">
           <div class="character-debug__status" data-character-pose-status>LOAD</div>
           <div class="character-debug__view">
-            <label>
+            <label class="character-debug__view-row character-debug__view-row--animation">
+              <span>ANIM</span>
+              <select data-ui-control data-character-animation-select></select>
+            </label>
+            <label class="character-debug__view-row character-debug__view-row--bone">
+              <span>BONE</span>
+              <select data-ui-control data-character-bone-select></select>
+            </label>
+            <label class="character-debug__view-row character-debug__view-row--view">
               <span>VIEW</span>
               <input data-ui-control data-character-view-yaw type="range" min="-180" max="180" step="1" value="0" />
             </label>
-            <label>
+            <label class="character-debug__view-row character-debug__view-row--zoom">
               <span>ZOOM</span>
               <input data-ui-control data-character-view-zoom type="range" min="2.1" max="5.5" step="0.1" value="3.2" />
             </label>

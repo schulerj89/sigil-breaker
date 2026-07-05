@@ -1,0 +1,18 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "landscape-title-hud-agent",
+  "status": "complete",
+  "updatedAt": "2026-07-05T00:00:00-05:00",
+  "summary": "Character debug page now has animation selection and mobile-visible selected-bone sliders.",
+  "jsonForAgents": {
+    "animationSelector": "[data-character-animation-select]",
+    "boneSelector": "[data-character-bone-select]",
+    "selectedBonePanelSelector": "[data-pose-bone].is-active",
+    "selectedBoneSliderSelector": "[data-pose-bone].is-active input[type=\"range\"]",
+    "defaultEditableBone": "RightArm"
+  },
+  "nextAgents": [
+    "smoke-qa-agent",
+    "touch-controls-agent"
+  ]
+}

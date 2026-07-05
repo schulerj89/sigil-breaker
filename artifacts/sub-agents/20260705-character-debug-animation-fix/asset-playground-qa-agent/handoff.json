@@ -1,0 +1,23 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "asset-playground-qa-agent",
+  "status": "complete-with-blocker",
+  "updatedAt": "2026-07-05T00:00:00-05:00",
+  "summary": "Current Meshy character is explicitly rejected as a placeholder; animation preview remains available, but the replacement pipeline must start from a single A-pose concept image.",
+  "jsonForAgents": {
+    "currentCharacterIntegrationStatus": "rejected-placeholder",
+    "requiredNextReferenceImage": "selected-concept-a-pose.png",
+    "requiredReferencePose": "front-facing A-pose",
+    "currentAnimationGlbShape": "separate full GLB per action",
+    "runtimeTarget": "single optimized multi-clip player GLB or lightweight clip bundle",
+    "officialMeshyDocsChecked": [
+      "https://docs.meshy.ai/en/api/rigging",
+      "https://docs.meshy.ai/en/api/animation"
+    ]
+  },
+  "nextAgents": [
+    "asset-pipeline-lead",
+    "gltf-optimization-agent",
+    "performance-budget-agent"
+  ]
+}

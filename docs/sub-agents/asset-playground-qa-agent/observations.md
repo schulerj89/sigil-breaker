@@ -46,3 +46,28 @@ Status: needs review after browser smoke.
 
 - Weapon and camera agents should use the exported hand world positions to create a stable weapon socket.
 - The latest run artifacts live under `artifacts/sub-agents/20260705-player-pose-harness/asset-playground-qa-agent/`.
+
+## 2026-07-05 Character Debug Animation Fix
+
+### What It Saw
+
+- The current Meshy character does not match the selected concept closely enough and was not generated from a single clean A-pose reference.
+- Meshy animation outputs are currently staged as separate GLBs, which duplicates the character payload for each animation file.
+- The title character debug page showed only a cramped scroll panel, so the arm sliders were effectively hidden on mobile landscape.
+
+### Decisions
+
+- Treat the current character as a rejected placeholder for gameplay/title integration.
+- Require the next Meshy pass to use the winning concept to generate one front-facing A-pose image before Image-to-3D, rigging, and animation.
+- Keep the debug page able to preview the current separate animation GLBs, but mark a single optimized multi-clip GLB as the runtime target.
+- Change mobile pose editing to a selected-bone workflow with a bone dropdown and three large visible sliders.
+
+### Caught Issues
+
+- The previous handoff overstated visual acceptance; the character reads as a useful rig/debug placeholder only.
+- Separate full animation GLBs are acceptable for QA preview but not for final runtime loading.
+
+### Next Handoff Notes
+
+- Future Meshy generation must produce and approve `selected-concept-a-pose.png` before requesting a new model.
+- GLTF optimization should merge or repack approved clips into one player character asset, or produce a lightweight clip-only bundle if the skeleton names match.
