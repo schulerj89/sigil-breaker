@@ -148,3 +148,10 @@ Status: complete for debug coordinate, music mute, weapon cycle, and rotate prom
 - The switch mark is now an inline SVG with two stylized blasters and a swap stroke instead of CSS pseudo-element blocks.
 - The icon remains code-native, color-inheriting, and asset-free, so it does not add licensing or payload overhead.
 - Smoke QA should keep checking `.gun-icon` visibility and `data-active-weapon-id` after each cycle tap.
+
+## 2026-07-05 - Normal Ammo HUD
+
+- Ammo is now visible in the normal gameplay HUD instead of being hidden with debug badges.
+- The ammo widget shows the current magazine count and a small reload bar under the number.
+- During reload, the ammo text changes to `LOAD Ns` and the widget gets `ammo-meter--reloading`.
+- The compact short-landscape CSS keeps health, ammo, mute, debug toggle, and combat buttons readable on phone widths.

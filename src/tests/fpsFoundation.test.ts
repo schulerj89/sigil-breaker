@@ -506,6 +506,43 @@ describe('FPS foundation config', () => {
     enemies.dispose();
   });
 
+  it('lets enemies deal lower cooldown-gated contact damage when the player collides with them', () => {
+    const scene = new THREE.Scene();
+    const playerHealth = new Health(25);
+    const damageEvents: Array<{ amount: number; type: string }> = [];
+    const enemies = new EnemySystem(scene, {
+      damagePlayer: (amount, source) => {
+        damageEvents.push({ amount, type: source.damageType });
+        return playerHealth.damage(amount);
+      },
+    });
+    const firstEnemy = enemies.getSnapshot().enemies[0];
+    const playerPosition: [number, number, number] = [firstEnemy.origin[0], 1.62, firstEnemy.origin[2]];
+
+    enemies.update(0.05, playerPosition, true);
+    const firstContact = enemies.getSnapshot();
+    enemies.update(0.05, playerPosition, true);
+    const cooldownSnapshot = enemies.getSnapshot();
+
+    for (let frame = 0; frame < 14 && enemies.getSnapshot().contactDamage.hits < 2; frame++) {
+      enemies.update(0.08, playerPosition, true);
+    }
+
+    const secondContact = enemies.getSnapshot();
+    expect(firstContact.contactDamage.hits).toBe(1);
+    expect(cooldownSnapshot.contactDamage.hits).toBe(1);
+    expect(secondContact.contactDamage.hits).toBe(2);
+    expect(damageEvents.slice(0, 2)).toEqual([
+      { amount: 3, type: 'contact' },
+      { amount: 3, type: 'contact' },
+    ]);
+    expect(damageEvents[0].amount).toBeLessThan(firstContact.enemies[0].health.max);
+    expect(damageEvents[0].amount).toBeLessThan(7);
+    expect(playerHealth.getSnapshot().current).toBe(19);
+
+    enemies.dispose();
+  });
+
   it('registers generated ElevenLabs audio for the foundation level', () => {
     const audioIds = GAME_AUDIO_ASSETS.map((asset) => asset.id).sort();
     const totalAudioBytes = GAME_AUDIO_ASSETS.reduce((total, asset) => total + asset.bytes, 0);

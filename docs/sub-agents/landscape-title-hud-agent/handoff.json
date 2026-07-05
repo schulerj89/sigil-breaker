@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "landscape-title-hud-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T21:35:56Z",
-  "summary": "Landscape title screen includes character debug tools and the gameplay HUD now keeps a right-thumb SVG weapon switch button for the SPARK/BORE starting cycle.",
+  "updatedAt": "2026-07-05T22:54:00Z",
+  "summary": "Landscape title screen includes character debug tools, a right-thumb SVG weapon switch button for the SPARK/BORE starting cycle, and a normal gameplay ammo HUD with reload progress.",
   "observations": [
     "Center metrics HUD includes FPS, XYZ coordinates, JS heap, level triangle count, and chunk count.",
     "Coordinates use the player's debug scene position with one decimal precision.",
@@ -29,7 +29,10 @@
     "Smoke QA verified that character debug no longer requests per-animation GLBs.",
     "The right-thumb weapon switch remains beside the fire button and now cycles only the starting weapons: SPARK and BORE.",
     "The switch mark is now an inline SVG with two stylized blasters and a swap stroke instead of CSS pseudo-element blocks.",
-    "The icon remains code-native, color-inheriting, and asset-free, so it does not add licensing or payload overhead."
+    "The icon remains code-native, color-inheriting, and asset-free, so it does not add licensing or payload overhead.",
+    "Ammo is now visible in the normal gameplay HUD instead of being hidden with debug badges.",
+    "The ammo widget shows current magazine count and a small reload bar under the number.",
+    "During reload, the ammo text changes to LOAD Ns and the widget gets ammo-meter--reloading."
   ],
   "decisions": [
     "Landscape is the playable orientation.",
@@ -48,7 +51,8 @@
     "Ship the title background as compressed WebP instead of the full generated PNG.",
     "Route debug tools through explicit game phases instead of stacking them over gameplay controls.",
     "Use selected-bone editing for mobile character posing so arm sliders are reachable on phone landscape.",
-    "Keep the character debug page title-accessible and mobile landscape-first while using the combined A-pose runtime GLB."
+    "Keep the character debug page title-accessible and mobile landscape-first while using the combined A-pose runtime GLB.",
+    "Keep ammo visible with health in the normal HUD because reload state is core combat feedback, not debug-only telemetry."
   ],
   "caughtIssues": [
     "Initial coordinate badge sizing risked crowding the 667 px landscape HUD; CSS now uses auto/minmax/auto grid columns and wrapped center metrics.",
@@ -58,7 +62,8 @@
     "The first title screenshot caught the loading overlay ghosting beneath the title; hidden full-screen overlays now use display none.",
     "The selected art needed a stronger left-side title-safe dark gradient so generated background details do not read as stray UI.",
     "The look zone needed to be disabled outside gameplay so the character debug page can receive mobile touches cleanly.",
-    "Smoke coverage did not previously prove the sliders were visible."
+    "Smoke coverage did not previously prove the sliders were visible.",
+    "Keeping ammo visible adds top-right HUD width, so short landscape CSS needs to stay compact."
   ],
   "risks": [
     "Reward UI can become unreadable if powerup names and stat copy are not constrained early.",
@@ -90,6 +95,22 @@
       "pause",
       "rewardChoices"
     ],
+    "ammoHud": {
+      "selector": "[data-weapon-ammo-meter]",
+      "valueSelector": "[data-weapon-ammo]",
+      "reloadFillSelector": "[data-weapon-reload-fill]",
+      "normalTextFormat": "current / magazine",
+      "reloadingTextFormat": "LOAD Ns",
+      "reloadingClass": "ammo-meter--reloading",
+      "visibleWhenDebugHidden": true,
+      "debugFields": [
+        "snapshot.weapon.ammoInMagazine",
+        "snapshot.weapon.magazineSize",
+        "snapshot.weapon.isReloading",
+        "snapshot.weapon.reloadRemainingMs",
+        "snapshot.weapon.reloadProgress"
+      ]
+    },
     "musicMuteButton": {
       "selector": "[data-music-toggle]",
       "iconSelector": ".music-icon",

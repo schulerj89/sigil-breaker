@@ -76,6 +76,8 @@ export interface WeaponSystemSnapshot {
   ammoInMagazine: number;
   magazineSize: number;
   isReloading: boolean;
+  reloadRemainingMs: number;
+  reloadProgress: number;
   isFireHeld: boolean;
   aimBlend: number;
   cameraFovDegrees: number;
@@ -154,6 +156,7 @@ export class WeaponSystem {
   private activeWeapon = DEFAULT_STARTING_WEAPON;
   private activeLoadedWeapon: LoadedWeapon | null = null;
   private nextShotAt = 0;
+  private reloadStartedAt = 0;
   private reloadCompleteAt = 0;
   private muzzleFlashUntil = 0;
   private shotFeedbackUntil = 0;
@@ -210,6 +213,7 @@ export class WeaponSystem {
   update(deltaSeconds: number, now: number): void {
     if (this.reloadCompleteAt > 0 && now >= this.reloadCompleteAt) {
       this.ammoByWeapon.set(this.activeWeapon.id, this.activeWeapon.magazineSize);
+      this.reloadStartedAt = 0;
       this.reloadCompleteAt = 0;
     }
 
@@ -265,6 +269,8 @@ export class WeaponSystem {
       ...audioSnapshot.assetLoadErrors,
     ];
 
+    const reloadSnapshot = this.getReloadSnapshot(performance.now());
+
     return {
       weaponIds: STARTING_WEAPON_DEFINITIONS.map((weapon) => weapon.id),
       activeWeaponId: this.activeWeapon.id,
@@ -279,6 +285,8 @@ export class WeaponSystem {
       ammoInMagazine: this.ammoByWeapon.get(this.activeWeapon.id) ?? 0,
       magazineSize: this.activeWeapon.magazineSize,
       isReloading: this.reloadCompleteAt > 0,
+      reloadRemainingMs: reloadSnapshot.remainingMs,
+      reloadProgress: reloadSnapshot.progress,
       isFireHeld: this.isFiringHeld(),
       aimBlend: roundMetric(this.getEasedAimBlend()),
       cameraFovDegrees: roundMetric(this.camera.fov),
@@ -330,6 +338,10 @@ export class WeaponSystem {
     this.audio.stopVoice();
   }
 
+  isReloading(): boolean {
+    return this.reloadCompleteAt > 0;
+  }
+
   setInputEnabled(enabled: boolean): void {
     this.inputEnabled = enabled;
     if (!enabled) {
@@ -348,6 +360,7 @@ export class WeaponSystem {
       this.ammoByWeapon.set(weapon.id, weapon.magazineSize);
     }
     this.nextShotAt = 0;
+    this.reloadStartedAt = 0;
     this.reloadCompleteAt = 0;
     this.muzzleFlashUntil = 0;
     this.shotFeedbackUntil = 0;
@@ -438,6 +451,7 @@ export class WeaponSystem {
     }
 
     this.activeWeapon = nextWeapon;
+    this.reloadStartedAt = 0;
     this.reloadCompleteAt = 0;
     this.updateEffectStyle();
     const loadedWeapon = this.loadedWeapons.get(nextWeapon.id);
@@ -464,13 +478,18 @@ export class WeaponSystem {
 
     const ammo = this.ammoByWeapon.get(this.activeWeapon.id) ?? 0;
     if (ammo <= 0) {
-      this.reloadCompleteAt = now + this.activeWeapon.reloadMs;
+      this.startReload(now);
       return;
     }
 
     this.ammoByWeapon.set(this.activeWeapon.id, ammo - 1);
     this.nextShotAt = now + this.activeWeapon.fireIntervalMs;
-    this.reloadCompleteAt = ammo - 1 <= 0 ? now + this.activeWeapon.reloadMs : 0;
+    if (ammo - 1 <= 0) {
+      this.startReload(now);
+    } else {
+      this.reloadStartedAt = 0;
+      this.reloadCompleteAt = 0;
+    }
     this.muzzleFlashUntil = now + this.activeWeapon.effects.flashMs;
     this.recoil = Math.min(0.18, this.recoil + this.activeWeapon.recoilKick);
     this.shotCount++;
@@ -587,6 +606,24 @@ export class WeaponSystem {
     this.shotProjectile.orb.material.opacity = effects.projectile.opacity;
     this.wallImpact.material.color.setHex(effects.impactColor);
     this.wallImpact.scale.setScalar(effects.impactScale);
+  }
+
+  private startReload(now: number): void {
+    this.reloadStartedAt = now;
+    this.reloadCompleteAt = now + this.activeWeapon.reloadMs;
+  }
+
+  private getReloadSnapshot(now: number): { remainingMs: number; progress: number } {
+    if (this.reloadCompleteAt <= 0) {
+      return { remainingMs: 0, progress: 0 };
+    }
+
+    const duration = Math.max(1, this.reloadCompleteAt - this.reloadStartedAt);
+    const elapsed = Math.max(0, now - this.reloadStartedAt);
+    return {
+      remainingMs: Math.max(0, Math.round(this.reloadCompleteAt - now)),
+      progress: roundMetric(clamp01(elapsed / duration)),
+    };
   }
 
   private attachLoadedWeapon(loadedWeapon: LoadedWeapon): void {

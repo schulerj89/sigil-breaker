@@ -32,6 +32,10 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - Enemy movement speed increased 25% for all current behaviors: Mushnub 1.6, slime 1.775, and Goleling 1.275 units per second.
 - Enemies now use a short first-shot delay when they newly enter tracking, so the first projectile appears quickly instead of waiting on the spawn-staggered cooldown.
 - Enemy projectiles were enlarged and depth-tested off so they read more clearly in the first-person view.
+- Player max health is now 25 for the current MVP combat tuning baseline.
+- Enemies now deal lower contact damage when the player overlaps their body: Mushnub 3, slime 3, and Goleling 4.
+- Contact damage is cooldown-gated per enemy so collision does not damage every frame.
+- The weapon debug snapshot now includes reload remaining time and reload progress for HUD feedback.
 
 ## Decisions
 
@@ -49,6 +53,7 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - Use low-damage, cadence-gated enemy projectiles for the MVP so combat pressure is readable without sudden unavoidable health loss.
 - Keep projectiles blocked by tile walls; enemies briefly retry instead of shooting through closed rooms.
 - Keep first-shot tracking response fast, then return to the normal cooldown cadence for follow-up shots.
+- Keep contact damage below projectile damage and cadence-gated so accidental collision is a warning, not an instant death spiral.
 
 ## Caught Issues
 
@@ -60,6 +65,7 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - The first hold-fire zoom response felt too abrupt; future changes should keep the eased damping behavior or replace it with a better measured transition.
 - Enemy movement and health existed before enemy offense, so playthrough QA had no way to verify player damage from enemies.
 - Spawn-staggered projectile cooldowns made enemies feel like they were not shooting when first acquired; the first tracking shot now has its own shorter delay.
+- Player-enemy overlap previously had no consequence, so running through enemies could bypass room pressure.
 
 ## Next Handoff Notes
 
@@ -70,3 +76,4 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - Playthrough QA should re-check SPARK cyan, BORE orange, and VAULT violet shot readability in landscape phone view.
 - Playthrough QA should check whether projectile speed, damage, and cooldown feel fair when the player enters rooms with multiple tracking enemies.
 - Playthrough QA should re-check whether the 25% faster enemy movement still leaves enough mobile aiming time in small rooms.
+- Playthrough QA should verify 25 HP, projectile damage, and contact damage together so multi-enemy rooms feel punishing but recoverable.

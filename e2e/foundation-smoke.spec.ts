@@ -83,6 +83,9 @@ interface DebugSnapshot {
     };
     ammoInMagazine: number;
     magazineSize: number;
+    isReloading: boolean;
+    reloadRemainingMs: number;
+    reloadProgress: number;
     isFireHeld: boolean;
     aimBlend: number;
     cameraFovDegrees: number;
@@ -196,6 +199,9 @@ interface DebugSnapshot {
         damage: number;
         remainingLifetimeSeconds: number;
       }>;
+    };
+    contactDamage: {
+      hits: number;
     };
     enemies: Array<{
       id: string;
@@ -429,6 +435,9 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     rangeUnits: 28,
   });
   expect(debugSnapshot.weapon.ammoInMagazine).toBe(debugSnapshot.weapon.magazineSize);
+  expect(debugSnapshot.weapon.isReloading).toBe(false);
+  expect(debugSnapshot.weapon.reloadRemainingMs).toBe(0);
+  expect(debugSnapshot.weapon.reloadProgress).toBe(0);
   expect(debugSnapshot.weapon.isFireHeld).toBe(false);
   expect(debugSnapshot.weapon.aimBlend).toBe(0);
   expect(debugSnapshot.weapon.cameraFovDegrees).toBeCloseTo(70);
@@ -468,8 +477,8 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     'RightHand',
   ]);
   expect(debugSnapshot.player.health).toMatchObject({
-    current: 100,
-    max: 100,
+    current: 25,
+    max: 25,
     ratio: 1,
     isAlive: true,
   });
@@ -489,6 +498,9 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     hitWall: 0,
     shotsBlockedByWall: 0,
     list: [],
+  });
+  expect(debugSnapshot.enemies.contactDamage).toEqual({
+    hits: 0,
   });
   expect(debugSnapshot.enemies.enemies[0]).toMatchObject({
     id: 'enemy.monster.mushnub.vanguard',
@@ -569,15 +581,18 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   const coordinateText = await page.locator('[data-debug-coordinates]').textContent();
   expect(coordinateText).toBe(formatCoordinates(debugSnapshot.scene.playerPosition));
   await expect(page.locator('[data-health-meter]')).toBeVisible();
-  await expect(page.locator('[data-health-value]')).toHaveText('100 / 100');
+  await expect(page.locator('[data-health-value]')).toHaveText('25 / 25');
   await expect(page.locator('[data-health-fill]')).toHaveCSS('width', /.+px/);
+  await expect(page.locator('[data-weapon-ammo-meter]')).toBeVisible();
+  await expect(page.locator('[data-weapon-ammo]')).toHaveText('18 / 18');
+  await expect(page.locator('[data-weapon-reload-fill]')).toHaveCSS('width', /.+px/);
   await expectHudToFit(page);
   await expectControlsToFit(page);
   await expect(page.locator('[data-debug-toggle]')).toHaveText('HUD');
   await expect(page.locator('[data-debug-toggle]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('[data-debug-fps]')).toBeHidden();
   await expect(page.locator('[data-weapon-label]')).toBeHidden();
-  await expect(page.locator('[data-weapon-ammo]')).toBeHidden();
+  await expect(page.locator('[data-weapon-ammo-meter]')).toBeVisible();
   await expect(page.locator('[data-debug-death]')).toBeHidden();
   await expect(page.locator('[data-debug-death-gameplay]')).toBeHidden();
   await expect(page.locator('[data-health-meter]')).toBeVisible();

@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { clone as cloneSkinnedModel } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { Health, type HealthSnapshot } from '../health';
 import { collidesWithLevel, getEnemySpawnTiles, raycastLevel, resolveLevelCollision, tileToWorld } from '../levelMap';
+import { PLAYER_COLLISION_RADIUS } from '../fpsControls';
 import {
   ENEMY_ASSET_DEFINITIONS,
   publicAssetUrl,
@@ -68,6 +69,9 @@ export interface EnemySystemSnapshot {
     shotsBlockedByWall: number;
     list: EnemyProjectileSnapshot[];
   };
+  contactDamage: {
+    hits: number;
+  };
   modelBytesLoaded: number;
   loadedAssetIds: string[];
   assetLoadErrors: string[];
@@ -83,7 +87,8 @@ export interface EnemyShotHit {
 
 export interface EnemyPlayerDamageSource {
   enemyId: string;
-  projectileSequence: number;
+  damageType: 'projectile' | 'contact';
+  projectileSequence?: number;
   position: [number, number, number];
 }
 
@@ -112,6 +117,8 @@ interface EnemyBehaviorDefinition {
   projectileSpeedUnitsPerSecond: number;
   projectileCooldownSeconds: number;
   projectileRangeUnits: number;
+  contactDamage: number;
+  contactDamageCooldownSeconds: number;
   patrolOffsets: ReadonlyArray<readonly [number, number]>;
   motionStyle: EnemyMotionStyle;
 }
@@ -150,6 +157,7 @@ interface RuntimeEnemy {
   time: number;
   hitFlashSeconds: number;
   projectileCooldownSeconds: number;
+  contactDamageCooldownSeconds: number;
   assetLoaded: boolean;
 }
 
@@ -178,6 +186,7 @@ const PROJECTILE_SPAWN_FORWARD_UNITS = 0.72;
 const PROJECTILE_PLAYER_TARGET_Y = 1.35;
 const PROJECTILE_LINE_OF_SIGHT_PADDING_UNITS = 0.35;
 const FIRST_TRACKING_PROJECTILE_DELAY_SECONDS = 0.08;
+const CONTACT_DAMAGE_RADIUS_UNITS = ENEMY_COLLISION_RADIUS + PLAYER_COLLISION_RADIUS + 0.12;
 const ROLE_NAMES = [
   'vanguard',
   'lane-anchor',
@@ -206,6 +215,8 @@ const MUSHROOM_BEHAVIOR: EnemyBehaviorDefinition = {
   projectileSpeedUnitsPerSecond: 7.2,
   projectileCooldownSeconds: 1.35,
   projectileRangeUnits: 8.8,
+  contactDamage: 3,
+  contactDamageCooldownSeconds: 0.9,
   patrolOffsets: [
     [-1.2, -0.95],
     [1.2, -0.95],
@@ -227,6 +238,8 @@ const SLIME_BEHAVIOR: EnemyBehaviorDefinition = {
   projectileSpeedUnitsPerSecond: 8.1,
   projectileCooldownSeconds: 1.12,
   projectileRangeUnits: 8.2,
+  contactDamage: 3,
+  contactDamageCooldownSeconds: 0.85,
   patrolOffsets: [
     [-1.45, 0],
     [1.45, 0],
@@ -246,6 +259,8 @@ const GOLEM_BEHAVIOR: EnemyBehaviorDefinition = {
   projectileSpeedUnitsPerSecond: 6.2,
   projectileCooldownSeconds: 1.75,
   projectileRangeUnits: 9.4,
+  contactDamage: 4,
+  contactDamageCooldownSeconds: 1.05,
   patrolOffsets: [
     [-1.15, -1.15],
     [1.15, -1.15],
@@ -303,6 +318,7 @@ export class EnemySystem {
   private projectilesHitPlayer = 0;
   private projectilesHitWall = 0;
   private projectileShotsBlockedByWall = 0;
+  private contactDamageHits = 0;
 
   constructor(scene: THREE.Scene, private readonly options: EnemySystemOptions = {}) {
     this.root.name = 'enemy-system';
@@ -335,6 +351,7 @@ export class EnemySystem {
         this.faceEnemyToward(enemy, target.x, target.z, cappedDelta);
       }
       this.tryFireProjectile(enemy, cappedDelta);
+      this.applyContactDamage(enemy, cappedDelta);
       this.applyVisualMotion(enemy);
       this.updateHitFlash(enemy, cappedDelta);
       this.updateDebugVisuals(enemy, debugVisible);
@@ -408,6 +425,7 @@ export class EnemySystem {
         enemy.marker.row,
         enemy.behavior,
       );
+      enemy.contactDamageCooldownSeconds = 0;
       enemy.proxy.material.emissiveIntensity = 0.18;
       enemy.proxy.visible = true;
       enemy.visualSlot.visible = true;
@@ -424,6 +442,7 @@ export class EnemySystem {
     this.projectilesHitPlayer = 0;
     this.projectilesHitWall = 0;
     this.projectileShotsBlockedByWall = 0;
+    this.contactDamageHits = 0;
   }
 
   getSnapshot(): EnemySystemSnapshot {
@@ -477,6 +496,9 @@ export class EnemySystem {
           damage: projectile.damage,
           remainingLifetimeSeconds: roundMetric(projectile.remainingLifetimeSeconds),
         })),
+      },
+      contactDamage: {
+        hits: this.contactDamageHits,
       },
       modelBytesLoaded: [...this.loadedAssetIds].reduce((total, assetId) => {
         const asset = ENEMY_ASSET_DEFINITIONS.find((definition) => definition.id === assetId);
@@ -566,6 +588,7 @@ export class EnemySystem {
       time: 0,
       hitFlashSeconds: 0,
       projectileCooldownSeconds: getInitialProjectileCooldown(definition.column, definition.row, definition.behavior),
+      contactDamageCooldownSeconds: 0,
       assetLoaded: false,
     };
   }
@@ -811,6 +834,7 @@ export class EnemySystem {
         this.projectilesHitPlayer++;
         this.options.damagePlayer?.(projectile.damage, {
           enemyId: projectile.ownerEnemyId,
+          damageType: 'projectile',
           projectileSequence: projectile.sequence,
           position: vectorSnapshot(projectile.position),
         });
@@ -858,6 +882,25 @@ export class EnemySystem {
       raycastLevel(previousX, previousZ, deltaX, deltaZ, distance + PROJECTILE_RADIUS_UNITS) !== null ||
       collidesWithLevel(projectile.position.x, projectile.position.z, PROJECTILE_RADIUS_UNITS)
     );
+  }
+
+  private applyContactDamage(enemy: RuntimeEnemy, deltaSeconds: number): void {
+    enemy.contactDamageCooldownSeconds = Math.max(0, enemy.contactDamageCooldownSeconds - deltaSeconds);
+    if (enemy.contactDamageCooldownSeconds > 0 || enemy.behavior.contactDamage <= 0) {
+      return;
+    }
+
+    if (flatDistanceSquared(enemy.position, this.player) > CONTACT_DAMAGE_RADIUS_UNITS * CONTACT_DAMAGE_RADIUS_UNITS) {
+      return;
+    }
+
+    this.contactDamageHits++;
+    enemy.contactDamageCooldownSeconds = enemy.behavior.contactDamageCooldownSeconds;
+    this.options.damagePlayer?.(enemy.behavior.contactDamage, {
+      enemyId: enemy.id,
+      damageType: 'contact',
+      position: vectorSnapshot(enemy.position),
+    });
   }
 
   private acquireProjectileMesh(sequence: number): THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial> {

@@ -29,6 +29,9 @@ const TITLE_BACKGROUND_ASSET_ID = 'ui.title.background.gadget-rift.generated';
 const TITLE_BACKGROUND_PATH = 'assets/title/gadget-rift-title-bg.webp';
 const TITLE_START_TRANSITION_MS = 360;
 const DEATH_ACTIONS_REVEAL_SECONDS = 3.2;
+const PLAYER_MAX_HEALTH = 25;
+const HUD_UPDATE_INTERVAL_MS = 250;
+const HUD_RELOAD_UPDATE_INTERVAL_MS = 50;
 const EXPECTED_GAMEPLAY_ASSET_COUNT = 23;
 const EXPECTED_BOOT_ASSET_COUNT = EXPECTED_GAMEPLAY_ASSET_COUNT + 1;
 const DEATH_VOICE_LINES: readonly CharacterVoiceLine[] = CHARACTER_VOICE_LINES.filter(
@@ -78,7 +81,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   const levelRuntime = createFoundationLevelRuntime(scene, track);
   const zoomGuard = track(createMobileZoomGuard(root));
   const controls = new FpsControls(root, camera);
-  const playerHealth = new Health(100);
+  const playerHealth = new Health(PLAYER_MAX_HEALTH);
   const weaponSystemRef: { current: WeaponSystem | null } = { current: null };
   const enemySystem = new EnemySystem(scene, {
     damagePlayer: (amount) => playerHealth.damage(amount),
@@ -476,7 +479,8 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       renderer.render(scene, camera);
     }
 
-    if (now - lastHudUpdate >= 250) {
+    const hudUpdateInterval = weaponSystem.isReloading() ? HUD_RELOAD_UPDATE_INTERVAL_MS : HUD_UPDATE_INTERVAL_MS;
+    if (now - lastHudUpdate >= hudUpdateInterval) {
       lastHudUpdate = now;
       updateDebugHud(root, debug);
       const loadingSnapshot = readLoadingSnapshot(
@@ -565,7 +569,7 @@ function createShellMarkup(): string {
             <span class="health-meter__track" aria-hidden="true">
               <span class="health-meter__fill" data-health-fill></span>
             </span>
-            <span class="health-meter__value" data-health-value>100 / 100</span>
+            <span class="health-meter__value" data-health-value>${PLAYER_MAX_HEALTH} / ${PLAYER_MAX_HEALTH}</span>
           </div>
         </div>
         <div class="hud__center">
@@ -611,7 +615,13 @@ function createShellMarkup(): string {
             <span class="music-icon" aria-hidden="true"></span>
           </button>
           <span class="hud__badge hud__badge--weapon" data-debug-ui data-weapon-label>${WEAPON_DEFINITIONS[0].label}</span>
-          <span class="hud__badge hud__badge--ammo" data-debug-ui data-weapon-ammo>-- / --</span>
+          <div class="ammo-meter" data-weapon-ammo-meter>
+            <span class="ammo-meter__label">AMMO</span>
+            <span class="ammo-meter__value" data-weapon-ammo>-- / --</span>
+            <span class="ammo-meter__track" aria-hidden="true">
+              <span class="ammo-meter__fill" data-weapon-reload-fill></span>
+            </span>
+          </div>
           <span class="hud__badge hud__badge--build" data-debug-ui>${__SIGILBREAKER_BUILD_ID__}</span>
         </div>
       </div>
@@ -889,8 +899,12 @@ function updateDebugHud(root: HTMLElement, debug: DebugApi): void {
   setHudText(
     root,
     '[data-weapon-ammo]',
-    snapshot.weapon.isReloading ? 'LOAD' : `${snapshot.weapon.ammoInMagazine} / ${snapshot.weapon.magazineSize}`,
+    snapshot.weapon.isReloading
+      ? `LOAD ${Math.ceil(snapshot.weapon.reloadRemainingMs / 1000)}s`
+      : `${snapshot.weapon.ammoInMagazine} / ${snapshot.weapon.magazineSize}`,
   );
+  setHudWidth(root, '[data-weapon-reload-fill]', `${snapshot.weapon.reloadProgress * 100}%`);
+  setHudClass(root, '[data-weapon-ammo-meter]', 'ammo-meter--reloading', snapshot.weapon.isReloading);
   setHudText(
     root,
     '[data-debug-chunks]',
@@ -915,6 +929,13 @@ function setHudWidth(root: HTMLElement, selector: string, width: string): void {
   const element = root.querySelector<HTMLElement>(selector);
   if (element) {
     element.style.width = width;
+  }
+}
+
+function setHudClass(root: HTMLElement, selector: string, className: string, enabled: boolean): void {
+  const element = root.querySelector<HTMLElement>(selector);
+  if (element) {
+    element.classList.toggle(className, enabled);
   }
 }
 
