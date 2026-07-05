@@ -471,7 +471,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     },
   });
   expect(debugSnapshot.enemies.enemies[0].state).toBe('patrolling');
-  expect(debugSnapshot.enemies.enemies[0].debugVisible).toBe(true);
+  expect(debugSnapshot.enemies.enemies[0].debugVisible).toBe(false);
   expect(debugSnapshot.enemies.enemies[0].detectRadiusUnits).toBeGreaterThan(5);
   for (const enemy of debugSnapshot.enemies.enemies) {
     expect(tileSymbolAt(debugSnapshot, enemy.marker.column, enemy.marker.row)).toBe('E');
@@ -479,7 +479,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     expectEnemyVisualsAttached(enemy);
     expect(enemy.loseRadiusUnits).toBeGreaterThan(enemy.detectRadiusUnits);
   }
-  expect(debugSnapshot.ui.debugVisible).toBe(true);
+  expect(debugSnapshot.ui.debugVisible).toBe(false);
   expect(debugSnapshot.weapon.audio.loadedAssetIds).toEqual([
     'audio.music.foundation.elevenlabs',
     'audio.music.title.playful.elevenlabs',
@@ -518,9 +518,8 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   await expect(page.locator('[data-health-fill]')).toHaveCSS('width', /.+px/);
   await expectHudToFit(page);
   await expectControlsToFit(page);
-  await page.locator('[data-debug-toggle]').tap();
-  await expect.poll(async () => (await readDebugSnapshot(page)).ui.debugVisible).toBe(false);
-  await expect.poll(async () => (await readDebugSnapshot(page)).enemies.enemies.some((enemy) => enemy.debugVisible)).toBe(false);
+  await expect(page.locator('[data-debug-toggle]')).toHaveText('HUD');
+  await expect(page.locator('[data-debug-toggle]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('[data-debug-fps]')).toBeHidden();
   await expect(page.locator('[data-weapon-label]')).toBeHidden();
   await expect(page.locator('[data-weapon-ammo]')).toBeHidden();
@@ -529,6 +528,8 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   await expect.poll(async () => (await readDebugSnapshot(page)).ui.debugVisible).toBe(true);
   await expect.poll(async () => (await readDebugSnapshot(page)).enemies.enemies.some((enemy) => enemy.debugVisible)).toBe(true);
   await expect(page.locator('[data-debug-fps]')).toBeVisible();
+  await expect(page.locator('[data-debug-toggle]')).toHaveText('DBG');
+  await expect(page.locator('[data-debug-toggle]')).toHaveAttribute('aria-pressed', 'false');
   await expect(page.locator('[data-fire-button]')).not.toHaveText(/F/);
   await expect(page.locator('[data-fire-button] .reticle-icon')).toBeVisible();
   await expect(page.locator('[data-weapon-cycle-button] .gun-icon')).toBeVisible();

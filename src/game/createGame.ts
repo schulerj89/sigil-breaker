@@ -93,7 +93,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   let lastTime = performance.now();
   let lastHudUpdate = 0;
   let fps = PERFORMANCE_BUDGETS.targetFps;
-  let debugVisible = true;
+  let debugVisible = false;
   let gamePhase: GamePhase = 'loading';
   let titleStartPending = false;
   let titleStartTransitionTimeout = 0;
