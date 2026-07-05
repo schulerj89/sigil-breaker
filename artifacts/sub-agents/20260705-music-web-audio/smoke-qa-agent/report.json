@@ -1,0 +1,35 @@
+{
+  "runId": "20260705-music-web-audio",
+  "status": "complete",
+  "checks": [
+    {
+      "name": "local repository gates",
+      "status": "passed",
+      "commands": [
+        "npm test",
+        "npm run lint",
+        "npm run build",
+        "npm run validate:assets",
+        "npm run validate:levels"
+      ]
+    },
+    {
+      "name": "browser music playback smoke",
+      "command": "npm run validate:browser",
+      "status": "passed",
+      "projects": 5,
+      "assertions": [
+        "musicDecoded is true after title start",
+        "musicPlaying is true after title start",
+        "decoded weapon SFX profiles are still reported",
+        "held fire still increments Web Audio play requests",
+        "enemy projectile SFX requests still increase"
+      ]
+    }
+  ],
+  "handoffs": [
+    "docs/sub-agents/elevenlabs-audio-music-agent/handoff.json",
+    "docs/sub-agents/performance-budget-agent/handoff.json",
+    "docs/sub-agents/smoke-qa-agent/handoff.json"
+  ]
+}

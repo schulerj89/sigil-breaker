@@ -102,6 +102,7 @@ interface DebugSnapshot {
     audio: {
       musicMuted: boolean;
       musicPlaying: boolean;
+      musicDecoded: boolean;
       unlocked: boolean;
       sfxPoolProfiles: string[];
       decodedSfxProfiles: string[];
@@ -385,6 +386,13 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(debugSnapshot.weapon.audio.assetLoadErrors).toEqual([]);
   expect(debugSnapshot.weapon.audio.assetBytesLoaded).toBe(858_752);
   expect(debugSnapshot.weapon.audio.musicMuted).toBe(false);
+  await expect
+    .poll(async () => {
+      const audio = (await readDebugSnapshot(page)).weapon.audio;
+
+      return audio.musicDecoded && audio.musicPlaying;
+    })
+    .toBe(true);
   expect(debugSnapshot.controls.viewportScale).toBe(1);
 
   const coordinateText = await page.locator('[data-debug-coordinates]').textContent();

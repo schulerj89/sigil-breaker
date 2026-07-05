@@ -117,3 +117,6 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - The compressed MP3 `ArrayBuffer` is released after decode, so gameplay keeps decoded buffers plus the existing fallback media elements rather than retaining both raw fetch bytes and decoded buffers.
 - Enemy projectile sound reuses the existing RIFT MP3 with playback-rate/gain changes, adding no new network payload in this pass.
 - Latest `npm run validate:browser` passed all five landscape viewport projects after the decoded SFX pass; production JS chunk reported about 686.64 kB minified.
+- Music now shares the Web Audio graph as a decoded loop, replacing the separate `HTMLAudioElement` path without adding network payload.
+- Audio asset fetch/verification for music and SFX runs in parallel with `Promise.all`; the decoded music buffer is the only added long-lived audio buffer beyond existing SFX buffers.
+- Latest `npm run validate:browser` passed all five landscape viewport projects after the Web Audio music pass; production JS chunk reported about 688.31 kB minified.

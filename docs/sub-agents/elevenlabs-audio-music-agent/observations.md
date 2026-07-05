@@ -23,6 +23,9 @@ Status: complete for foundation weapon SFX and music slice.
 - VAULT keeps the same generated MP3 file, but runtime gain and source metadata volume were raised to `1.8` because it was still too quiet in gameplay.
 - Enemy projectile SFX currently reuses the committed ElevenLabs RIFT precision MP3 through Web Audio at lower gain and playback rate, giving projectiles a distinct cue without adding a new asset payload.
 - Latest `npm run validate:browser` passed all five landscape viewport projects with decoded profiles, Web Audio shot playback, zero SFX play failures, and projectile sound request coverage.
+- Foundation music now also uses the Web Audio graph: the MP3 is fetched, byte-verified, decoded after audio unlock, and looped with a dedicated gain node instead of relying on `HTMLAudioElement.play()`.
+- Audio loading is parallelized with `Promise.all`; playback concurrency comes from separate Web Audio source nodes mixed by the browser audio context, not from awaiting multiple play promises.
+- Browser smoke now checks `snapshot.weapon.audio.musicDecoded` and `musicPlaying` so losing the music loop is a test failure.
 
 ## Decisions
 
@@ -35,6 +38,7 @@ Status: complete for foundation weapon SFX and music slice.
 - Keep audio byte verification as the provenance/load gate, but do not block creation of local SFX playback pools on that async check.
 - Prefer decoded Web Audio buffer playback for repeated combat SFX; keep `HTMLAudioElement` pools only as a pre-decode fallback.
 - Reuse the RIFT sound for enemy projectiles for this MVP pass, but generate a dedicated ElevenLabs projectile/impact SFX pair before finalizing enemy audio identity.
+- Use Web Audio for both looping music and one-shot SFX so all combat audio shares one unlock and mix path.
 
 ## Caught Issues
 
@@ -44,6 +48,7 @@ Status: complete for foundation weapon SFX and music slice.
 - The longer loop roughly doubles the foundation audio payload but stays well under the 5 MB MVP audio budget.
 - The earlier SFX preload path created weapon audio pools only after async fetch verification, so very early shots could miss sound until a later cadence shot.
 - Small HTML media pools can cut off or delay rapid overlapping shots on mobile; Web Audio one-shot sources are a better fit for held-fire combat cadence.
+- `HTMLAudioElement.play()` can fail or remain silent under gesture/autoplay edge cases; the music loop should stay on Web Audio where the same gesture unlock starts the context and all sources.
 
 ## Next Handoff Notes
 
@@ -53,4 +58,5 @@ Status: complete for foundation weapon SFX and music slice.
 - Audio QA should compare RIFT and TORCH against the original three weapons on device speakers because small MP3 SFX can sound similar at phone volume.
 - Mobile smoke should keep checking `missedPlayRequests` and `playFailures` stay at zero during hold-fire.
 - Future audio generation should add dedicated ElevenLabs projectile launch, projectile hit, enemy hit, and enemy death cues so reused weapon sounds do not become confusing.
+- Music smoke should keep checking both decoded and playing state after the title start gesture.
 - Any voice line must include captions before gameplay use.

@@ -157,3 +157,5 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Browser smoke now waits for decoded weapon SFX profiles, verifies held-fire increments Web Audio play requests, and verifies `playFailures` stays flat.
 - Browser projectile smoke now verifies `snapshot.weapon.audio.enemyProjectilePlayRequests` increases when an enemy projectile fires.
 - Latest `npm run validate:browser` passed all five landscape viewport projects after the decoded Web Audio SFX and enemy projectile SFX counter changes.
+- Browser smoke now verifies `snapshot.weapon.audio.musicDecoded` and `musicPlaying` after the title start gesture, covering the music loop on the Web Audio path.
+- Latest `npm run validate:browser` passed all five landscape viewport projects after moving music off `HTMLAudioElement` and into the shared Web Audio graph.

@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T04:05:00Z",
-  "summary": "Local Playwright smoke covers title/start flow, weapons, decoded SFX, projectile SFX counters, map-authored GLB enemies, debug toggles, cache-busting, zoom guards, and the latest level access/exit changes.",
+  "updatedAt": "2026-07-05T05:32:00Z",
+  "summary": "Local Playwright smoke covers title/start flow, weapons, decoded music/SFX, projectile SFX counters, map-authored GLB enemies, debug toggles, cache-busting, zoom guards, and the latest level access/exit changes.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -101,7 +101,9 @@
     "Unit smoke now verifies every spawned enemy projectile requests a projectile SFX callback.",
     "Browser smoke now waits for decoded weapon SFX profiles, verifies held-fire increments Web Audio play requests, and verifies playFailures stays flat.",
     "Browser projectile smoke now verifies snapshot.weapon.audio.enemyProjectilePlayRequests increases when an enemy projectile fires.",
-    "Latest npm run validate:browser passed all five landscape viewport projects after the decoded Web Audio SFX and enemy projectile SFX counter changes."
+    "Latest npm run validate:browser passed all five landscape viewport projects after the decoded Web Audio SFX and enemy projectile SFX counter changes.",
+    "Browser smoke now verifies snapshot.weapon.audio.musicDecoded and musicPlaying after the title start gesture, covering the music loop on the Web Audio path.",
+    "Latest npm run validate:browser passed all five landscape viewport projects after moving music off HTMLAudioElement and into the shared Web Audio graph."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -165,7 +167,8 @@
     "A closed room with an enemy and cover passed the prior spawn-to-exit-only validator.",
     "Enemy projectile behavior needs state-based smoke because projectile visuals are short lived.",
     "Single-map level validation would miss invalid future boss level JSON files.",
-    "HTML media element pools can still be a timing-sensitive fallback on mobile, so smoke now watches decodedSfxProfiles and Web Audio play request growth."
+    "HTML media element pools can still be a timing-sensitive fallback on mobile, so smoke now watches decodedSfxProfiles and Web Audio play request growth.",
+    "Music can silently regress when only mute state is asserted; smoke now checks decoded plus playing state."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
@@ -202,7 +205,8 @@
     "docs/level-boss.md",
     "artifacts/sub-agents/20260705-boss-level-config/smoke-qa-agent/report.json",
     "artifacts/sub-agents/20260705-enemy-projectile-speed-fix/smoke-qa-agent/report.json",
-    "artifacts/sub-agents/20260705-audio-consistency/smoke-qa-agent/report.json"
+    "artifacts/sub-agents/20260705-audio-consistency/smoke-qa-agent/report.json",
+    "artifacts/sub-agents/20260705-music-web-audio/smoke-qa-agent/report.json"
   ],
   "jsonForAgents": {
     "latestManualSmoke": {
@@ -321,6 +325,8 @@
       "webAudioPlayRequestsIncreaseOnHoldFire": true,
       "missedSfxPlayRequests": 0,
       "sfxPlayFailures": 0,
+      "musicDecodedChecked": true,
+      "musicPlayingChecked": true,
       "enemyProjectileSoundRequestsChecked": true,
       "titleScreenGateChecked": true,
       "titleStartFlowChecked": true,
@@ -338,7 +344,8 @@
       "playerDamageFromProjectileUnitChecked": true,
       "enemyProjectileAttackDamagesPlayerChecked": true,
       "enemyProjectilePoseRestoredBeforeMovementRoute": true,
-      "latestAudioConsistencyValidationPassed": true
+      "latestAudioConsistencyValidationPassed": true,
+      "latestMusicWebAudioValidationPassed": true
     },
     "latestHealthEnemySmoke": {
       "playerHealth": {
@@ -425,6 +432,7 @@
       "firstShotSfxPoolAvailable",
       "firstShotSfxPlayRequestNotMissed",
       "decodedWeaponSfxProfiles",
+      "decodedMusicLoopPlaying",
       "weaponSfxUsesWebAudioAfterDecode",
       "enemyProjectileSfxRequestCounter",
       "titleScreenVisibleAfterLoading",

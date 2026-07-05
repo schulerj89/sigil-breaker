@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-05T04:05:00Z",
-  "summary": "Enemy projectile timing, 25% faster movement, and decoded Web Audio SFX stay within the current pooled-primitive projectile, kinematic movement, and 858752B audio payload budgets; latest browser smoke passed with the production JS chunk at about 686.64 kB minified.",
+  "updatedAt": "2026-07-05T05:32:00Z",
+  "summary": "Enemy projectile timing, 25% faster movement, and decoded Web Audio music/SFX stay within the current pooled-primitive projectile, kinematic movement, and 858752B audio payload budgets; latest browser smoke passed with the production JS chunk at about 688.31 kB minified.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -76,7 +76,10 @@
     "Weapon and projectile SFX now use decoded Web Audio one-shot sources after gesture unlock; this creates one source/gain pair per play but avoids HTML media pool clipping for rapid fire.",
     "The compressed MP3 ArrayBuffer is released after decode, so gameplay keeps decoded buffers plus the existing fallback media elements rather than retaining both raw fetch bytes and decoded buffers.",
     "Enemy projectile sound reuses the existing RIFT MP3 with playback-rate/gain changes, adding no new network payload in this pass.",
-    "Latest npm run validate:browser passed all five landscape viewport projects after the decoded SFX pass; production JS chunk reported about 686.64 kB minified."
+    "Latest npm run validate:browser passed all five landscape viewport projects after the decoded SFX pass; production JS chunk reported about 686.64 kB minified.",
+    "Music now shares the Web Audio graph as a decoded loop, replacing the separate HTMLAudioElement path without adding network payload.",
+    "Audio asset fetch/verification for music and SFX runs in parallel with Promise.all; the decoded music buffer is the only added long-lived audio buffer beyond existing SFX buffers.",
+    "Latest npm run validate:browser passed all five landscape viewport projects after the Web Audio music pass; production JS chunk reported about 688.31 kB minified."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -103,7 +106,8 @@
     "Keep enemy separation as a tiny runtime steering correction while the enemy count is low; revisit broader avoidance only when rooms contain larger groups.",
     "Keep headed enemy visual QA as a local runner rather than a deploy workflow gate.",
     "Keep enemy projectile visuals as pooled primitive placeholders until final external VFX assets are sourced.",
-    "Keep enemy projectile sound reuse temporary; add a dedicated generated SFX only when the audio budget and provenance ledger are updated together."
+    "Keep enemy projectile sound reuse temporary; add a dedicated generated SFX only when the audio budget and provenance ledger are updated together.",
+    "Keep music and SFX on the same Web Audio graph so browser autoplay/unlock behavior is centralized."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
@@ -134,7 +138,8 @@
     "Debug enemy line visuals add draw calls while debug is visible; future debug geometry should stay lightweight.",
     "Direct steering can fail in more complex multi-room layouts and may need a navmesh or A* path layer later.",
     "The O(n^2) separation pass should be revisited if the level grows beyond a few dozen active enemies.",
-    "Future dedicated projectile/impact audio will increase payload unless it replaces the temporary RIFT reuse."
+    "Future dedicated projectile/impact audio will increase payload unless it replaces the temporary RIFT reuse.",
+    "Decoded long music loops consume more runtime audio memory than streamed HTML media, so future longer tracks should be budgeted before increasing duration."
   ],
   "blockers": [],
   "artifacts": [
@@ -148,7 +153,8 @@
     "src/game/health.ts",
     "src/game/enemies/enemySystem.ts",
     "artifacts/sub-agents/20260705-enemy-projectiles/performance-budget-agent/observations.md",
-    "artifacts/sub-agents/20260705-audio-consistency/performance-budget-agent/observations.md"
+    "artifacts/sub-agents/20260705-audio-consistency/performance-budget-agent/observations.md",
+    "artifacts/sub-agents/20260705-music-web-audio/performance-budget-agent/observations.md"
   ],
   "jsonForAgents": {
     "visibleFpsTarget": 60,
@@ -176,7 +182,7 @@
     "movementCollisionCost": "nearby solid-tile circle resolver while movement input is active",
     "weaponClearanceCost": "one weapon wall ray/probe for visual viewmodel avoidance",
     "shotEffectPoseCost": "shot-time and short-lived visible-effect camera-local vector/scalar math",
-    "productionJsChunkKb": 686.64,
+    "productionJsChunkKb": 688.31,
     "publicAssetCacheParam": "assetBuild",
     "browserSmokeCommand": "npm run validate:browser",
     "headedEnemyQaCommand": "npm run qa:headed:enemies",
@@ -220,7 +226,8 @@
     "reticleControlCost": "css-dom-only",
     "foundationAudioBytes": 858752,
     "decodedSfxPlayback": {
-      "mode": "Web Audio AudioBufferSourceNode per SFX play",
+      "musicMode": "Web Audio looping AudioBufferSourceNode",
+      "sfxMode": "Web Audio AudioBufferSourceNode per SFX play",
       "fallback": "existing HTMLAudioElement pool before decode",
       "newNetworkPayloadBytes": 0,
       "rawFetchBytesReleasedAfterDecode": true,
@@ -245,13 +252,13 @@
       "projectileRadiusUnits": 0.2,
       "depthTestDisabledForReadability": true
     },
-    "latestProductionJsChunkKb": 686.64,
+    "latestProductionJsChunkKb": 688.31,
     "latestBrowserValidation": {
       "command": "npm run validate:browser",
       "result": "passed",
       "projects": 5,
       "durationSeconds": 154,
-      "productionJsChunkKb": 686.64
+      "productionJsChunkKb": 688.31
     },
     "enemyMovementBudget": {
       "speedMultiplierApplied": 1.25,
