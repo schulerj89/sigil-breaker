@@ -294,6 +294,9 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     failedRequests.push(`${request.url()} ${failure}`);
   });
 
+  await page.addInitScript(() => {
+    window.localStorage.setItem('sigilbreaker.foundation.musicMuted', '1');
+  });
   await page.goto('/sigil-breaker/?qaCapture=1', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.game-canvas')).toBeVisible();
   await expect(page.locator('[data-loading-screen]')).toBeAttached();
@@ -849,6 +852,13 @@ async function verifyCharacterDebugPage(page: Page): Promise<void> {
 async function verifyVoiceLabPage(page: Page, buildId: string): Promise<void> {
   await page.locator('[data-title-voice-lab]').click();
   await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('voice-lab');
+  await expect
+    .poll(async () => {
+      const audio = (await readDebugSnapshot(page)).weapon.audio;
+
+      return audio.unlocked && audio.activeMusicAssetId === 'audio.music.title.playful.elevenlabs' && audio.musicPlaying;
+    })
+    .toBe(true);
   await expect(page.locator('[data-voice-lab]')).toBeVisible();
   await expect(page.locator('[data-voice-lab-status]')).toContainText('GLYPH VOICE READY');
   await expect(page.locator('[data-voice-line-play]')).toHaveCount(7);

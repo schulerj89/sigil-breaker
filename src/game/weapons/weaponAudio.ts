@@ -9,7 +9,6 @@ import {
 } from '../audioManifest';
 import { publicAssetUrl } from '../assetUrls';
 
-const MUSIC_MUTED_STORAGE_KEY = 'sigilbreaker.foundation.musicMuted';
 const SFX_POOL_SIZE = 4;
 const ENEMY_PROJECTILE_SOURCE_PROFILE: WeaponSoundProfile = 'precision';
 const ENEMY_PROJECTILE_GAIN = 0.54;
@@ -77,7 +76,7 @@ export class WeaponAudio {
   private musicSource: AudioBufferSourceNode | null = null;
   private musicGain: GainNode | null = null;
   private musicSourceAssetId: string | null = null;
-  private musicMuted = readStoredMusicMuted();
+  private musicMuted = false;
   private unlocked = false;
   private playRequests = 0;
   private enemyProjectilePlayRequests = 0;
@@ -450,7 +449,6 @@ export class WeaponAudio {
 
   private toggleMusic(): void {
     this.musicMuted = !this.musicMuted;
-    storeMusicMuted(this.musicMuted);
     this.updateMusicGain();
     if (!this.musicMuted) {
       this.unlock();
@@ -527,20 +525,4 @@ function createAudioPool(url: string, size: number): HTMLAudioElement[] {
     audio.load();
     return audio;
   });
-}
-
-function readStoredMusicMuted(): boolean {
-  try {
-    return window.localStorage.getItem(MUSIC_MUTED_STORAGE_KEY) === '1';
-  } catch {
-    return false;
-  }
-}
-
-function storeMusicMuted(value: boolean): void {
-  try {
-    window.localStorage.setItem(MUSIC_MUTED_STORAGE_KEY, value ? '1' : '0');
-  } catch {
-    // Storage can be unavailable in privacy modes; mute still works for this session.
-  }
 }
