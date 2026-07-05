@@ -85,6 +85,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     () => enemySystem.getSnapshot(),
     () => zoomGuard.getSnapshot(),
     () => ({ debugVisible }),
+    (pose) => controls.setPose(pose),
   );
   window.__SIGILBREAKER_DEBUG__ = debug;
 

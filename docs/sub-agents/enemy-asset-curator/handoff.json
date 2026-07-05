@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "enemy-asset-curator",
   "status": "complete",
-  "updatedAt": "2026-07-04T22:10:00Z",
-  "summary": "Foundation enemies now use three Quaternius CC0 monster GLBs across 12 spaced map-authored enemy markers with kinematic patrol, tracking, return-home behavior, debug radius/front cones, larger silhouette hit proxies, visible hit flash, separation, health, ray-hit damage, and destruction preserved.",
+  "updatedAt": "2026-07-05T00:20:00Z",
+  "summary": "Foundation enemies now use three Quaternius CC0 skinned monster GLBs across 12 spaced map-authored enemy markers with skeleton-safe cloning, kinematic patrol, tracking, return-home behavior, debug radius/front cones, larger silhouette hit proxies, visible attached hit flash, separation, health, ray-hit damage, and destruction preserved.",
   "observations": [
     "The earlier cube placeholder pass has been superseded by external GLB enemies.",
     "Each external enemy owns a shared Health instance and reports through the debug enemy snapshot.",
@@ -19,7 +19,11 @@
     "Debug mode draws a detection radius and front cone on each living enemy, using red while tracking and green otherwise.",
     "The first smoke target moved to marker row 1, column 12 so it starts patrolling at range instead of instantly clustering beside the player.",
     "Weapon rays now hit a 2.15 x 2.35 x 2.15 invisible enemy proxy and briefly show an additive hit flash on damage.",
-    "Living enemies now get a lightweight separation correction so multiple trackers do not stack on the same player-adjacent spot."
+    "Living enemies now get a lightweight separation correction so multiple trackers do not stack on the same player-adjacent spot.",
+    "Quaternius enemy GLBs are skinned meshes and now use SkeletonUtils.clone for repeated runtime instances.",
+    "The hit flash is parented to the animated visual slot so it follows the GLB bob/scale.",
+    "Enemy snapshots report attachment anchors and model bounds so detachment can be tested.",
+    "Repeatable headed enemy QA now confirms the skinned bodies are visibly present, moving, and attached to their hit/debug proxies."
   ],
   "decisions": [
     "Enemy assets must be judged by silhouette, animation coverage, hit proxies, audio hooks, and mobile performance.",
@@ -29,20 +33,24 @@
     "Use procedural transform motion for MVP enemy readability until authored animation clips are sourced.",
     "Keep enemy behavior data in runtime code for now; keep enemyManifest.ts as source/license/model metadata only.",
     "Use map-authored E markers as the source of truth for exact enemy spawn coordinates.",
-    "Keep enemy-to-enemy overlap handling as a lightweight runtime separation pass until authored navigation or avoidance is needed."
+    "Keep enemy-to-enemy overlap handling as a lightweight runtime separation pass until authored navigation or avoidance is needed.",
+    "Keep SkeletonUtils.clone for skinned enemy GLB reuse; do not return to raw Object3D.clone(true) for these assets."
   ],
   "caughtIssues": [
     "Current external enemies validate damage and destruction only; they do not block player movement or animate authored hit/death states.",
     "Enemy GLBs still lack authored attack, hit, and death animations; current motion is procedural transform animation only.",
     "Future asset imports must preserve separate hit proxies so combat does not depend on mesh raycasts.",
     "The earlier first marker was too close to spawn and made the opening read as enemy overlap or stuck behavior.",
-    "The original hit proxy was too narrow for the external silhouettes, making some player-visible shots feel like misses."
+    "The original hit proxy was too narrow for the external silhouettes, making some player-visible shots feel like misses.",
+    "Raw Object3D.clone(true) produced valid-looking bounds while the skinned enemy body did not render reliably in headed QA.",
+    "Single-frame movement assertions can false-fail on looping patrols; use the headed QA runner's sampled movement window."
   ],
   "risks": [
     "Enemy assets without readable attack and hit states will make mobile combat feel unfair.",
     "Replacing cubes with external assets can break ray-hit readability if hit proxies are not authored deliberately.",
     "Static enemy models may read as props without later animation, hit flash, or death feedback.",
-    "Shrinking the current enemy hit proxy can reintroduce visible-hit misses on mobile."
+    "Shrinking the current enemy hit proxy can reintroduce visible-hit misses on mobile.",
+    "Future skinned enemy assets can appear detached or invisible if cloned without SkeletonUtils."
   ],
   "blockers": [],
   "artifacts": [
@@ -87,9 +95,12 @@
       "exitMarkerSymbol": "X",
       "movementEnabled": true,
       "movementModel": "kinematic patrol/tracking/return-home with transform-only visual motion",
+      "skinnedModelClone": "SkeletonUtils.clone",
+      "modelBoundsAttachmentChecked": true,
+      "headedQaCommand": "npm run qa:headed:enemies",
       "separationEnabled": true,
       "debugVisuals": "detection radius plus front cone, red while tracking and green otherwise",
-      "hitFeedback": "brief additive sphere flash on successful damage"
+      "hitFeedback": "brief additive sphere flash on successful damage, parented to the enemy visual slot"
     }
   },
   "nextAgents": [

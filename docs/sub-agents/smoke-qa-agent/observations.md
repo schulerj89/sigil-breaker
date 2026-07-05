@@ -78,6 +78,7 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Use deterministic synthetic DOM events for zoom-guard assertions when browser chrome or input emulation is not the thing being tested.
 - Use Playwright `tap()` for mobile-only UI controls when click suppression is the bug class being tested.
 - Keep enemy movement smoke state-based rather than frame-exact; positions are animated and should not be asserted to exact frame values after boot.
+- Use the `qaCapture` debug pose hook for deterministic enemy screenshots instead of manual movement when checking model placement.
 
 ## Caught Issues
 
@@ -100,6 +101,7 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - `Dbg` looked clickable under Playwright `click()`, but mobile touch could suppress the synthetic click; smoke now covers the real tap path.
 - The first enemy marker was too close to spawn and made the opening read as enemy overlap or stuck behavior.
 - Tight enemy ray proxies let visible hits feel like misses; unit smoke now checks the hit flash turns visible on a landed shot.
+- Raw skinned-GLB cloning made bounds look valid while the visible model body was missing in headed screenshots.
 
 ## Next Handoff Notes
 
@@ -129,3 +131,9 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Browser smoke now expects the first enemy marker at row 1, column 12 with state `patrolling` from spawn, so enemy placement does not immediately cluster beside the player.
 - Latest `npm run validate:browser` passed all five landscape viewports after the enemy spacing, larger hit proxy, hit flash, and enemy separation fixes.
 - Focused Pages-preview QA at 844 x 390 reported the first two enemies 18.09 units apart and confirmed hold-fire destroyed `enemy.monster.mushnub.vanguard` through the normal fire button path.
+- Browser smoke now checks every enemy's visual/proxy/debug/flash attachment anchors and GLB model bounds against the runtime enemy position.
+- Headed Chromium QA (`headless: false`) confirmed all 12 enemies moved over 1200 ms, no attachment/model bounds detached, and the posed screenshot shows the Mushnub body on its debug radius.
+- The headed QA report is stored under `artifacts/sub-agents/20260704-enemy-headed/smoke-qa-agent/`.
+- Added `npm run qa:headed:enemies` as a repeatable local visible-Chromium enemy QA runner.
+- Latest headed enemy QA passed with no console errors, no failed requests, all 12 enemies moving within a sampled 1200 ms window, and no detached attachment/model bounds.
+- The headed enemy movement check uses maximum displacement across intermediate samples because looping patrols can return near their start on the final frame.

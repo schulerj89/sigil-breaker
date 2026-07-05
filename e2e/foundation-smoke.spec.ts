@@ -137,6 +137,16 @@ interface DebugSnapshot {
       detectRadiusUnits: number;
       loseRadiusUnits: number;
       debugVisible: boolean;
+      attachments: {
+        visual: [number, number, number];
+        hitProxy: [number, number, number];
+        hitFlash: [number, number, number];
+        debug: [number, number, number];
+      };
+      modelBounds: {
+        center: [number, number, number];
+        size: [number, number, number];
+      } | null;
       health: {
         current: number;
         max: number;
@@ -284,6 +294,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   for (const enemy of debugSnapshot.enemies.enemies) {
     expect(tileSymbolAt(debugSnapshot, enemy.marker.column, enemy.marker.row)).toBe('E');
     expect(enemy.assetLoaded).toBe(true);
+    expectEnemyVisualsAttached(enemy);
     expect(enemy.loseRadiusUnits).toBeGreaterThan(enemy.detectRadiusUnits);
   }
   expect(debugSnapshot.ui.debugVisible).toBe(true);
@@ -474,6 +485,18 @@ function countMapSymbol(map: readonly string[], symbol: string): number {
 
 function tileSymbolAt(snapshot: DebugSnapshot, column: number, row: number): string {
   return snapshot.level.map[row]?.[column] ?? '';
+}
+
+function expectEnemyVisualsAttached(enemy: DebugSnapshot['enemies']['enemies'][number]): void {
+  for (const attachment of Object.values(enemy.attachments)) {
+    expect(attachment[0]).toBeCloseTo(enemy.position[0], 2);
+    expect(attachment[2]).toBeCloseTo(enemy.position[2], 2);
+  }
+
+  expect(enemy.modelBounds).not.toBeNull();
+  expect(enemy.modelBounds?.center[0]).toBeCloseTo(enemy.position[0], 1);
+  expect(enemy.modelBounds?.center[2]).toBeCloseTo(enemy.position[2], 1);
+  expect(enemy.modelBounds?.size[1]).toBeGreaterThan(1);
 }
 
 function readCanvasSamples(): { supported: boolean; nonBlankSamples: number } {

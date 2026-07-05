@@ -29,6 +29,13 @@ export interface FpsControllerSnapshot {
   controls: FpsControlState;
 }
 
+export interface FpsControllerPoseInput {
+  x: number;
+  z: number;
+  yawRadians?: number;
+  pitchRadians?: number;
+}
+
 type KeyName = 'forward' | 'backward' | 'left' | 'right';
 
 export class FpsControls {
@@ -112,6 +119,18 @@ export class FpsControls {
         movePointerActive: this.movePointerId !== null,
       },
     };
+  }
+
+  setPose(pose: FpsControllerPoseInput): void {
+    this.player.x = pose.x;
+    this.player.z = pose.z;
+    if (pose.yawRadians !== undefined) {
+      this.yaw = pose.yawRadians;
+    }
+    if (pose.pitchRadians !== undefined) {
+      this.pitch = clamp(pose.pitchRadians, MIN_PITCH, MAX_PITCH);
+    }
+    this.syncCamera();
   }
 
   private readonly onPointerDown = (event: PointerEvent): void => {

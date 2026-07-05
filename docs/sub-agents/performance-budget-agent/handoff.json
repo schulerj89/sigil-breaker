@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-04T22:10:00Z",
-  "summary": "The five-gun and 12-marker enemy movement slice stays within MVP payload and renderer budgets by cloning three shared enemy GLB templates, using kinematic movement plus lightweight separation, and keeping local browser smoke passing with the production JS chunk at about 675.88 kB minified.",
+  "updatedAt": "2026-07-05T00:20:00Z",
+  "summary": "The five-gun and 12-marker enemy movement slice stays within MVP payload and renderer budgets by cloning three shared skinned enemy GLB templates with SkeletonUtils, using kinematic movement plus lightweight separation, and keeping local browser and headed enemy smoke passing with the production JS chunk at about 676.65 kB minified.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -59,7 +59,13 @@
     "Enemy hit feedback adds one shared small sphere geometry and per-enemy additive material that only becomes visible briefly on damage.",
     "Enemy overlap handling adds an O(n^2) separation pass across 12 living enemies; this remains acceptable for the MVP marker count.",
     "Latest npm run validate:browser passed all five landscape viewport gates after enemy spacing, hit-proxy, hit-flash, and separation fixes.",
-    "Latest production JS chunk is about 675.88 kB minified."
+    "Latest production JS chunk is about 675.88 kB minified.",
+    "Enemy GLB reuse now uses SkeletonUtils.clone, which is required for skinned monster visibility and does not increase network payload.",
+    "Debug snapshots now compute attachment/model bounds for QA; this is debug-readback work, not animation-loop rendering work.",
+    "Latest npm run validate:browser passed all five landscape viewport gates after skeleton-safe clone and model-bounds checks.",
+    "Latest production JS chunk is about 676.65 kB minified.",
+    "npm run qa:headed:enemies is a local-only visible Chromium check that reuses the production preview and adds no runtime game payload.",
+    "The favicon fix prevents browser 404 console noise in headed QA and adds no WebGL resources."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -78,11 +84,13 @@
     "Use renderer budget counters as the MVP gate until visible-device FPS profiling is repeated.",
     "Keep the roof as one shared plane and keep floor, wall, and roof textures shared by material to avoid per-chunk texture duplication.",
     "Keep external enemy render meshes separate from simple shared hit proxies.",
+    "Keep SkeletonUtils.clone for skinned enemy GLB reuse despite the small helper import because raw Object3D.clone can break visible skinned bodies.",
     "Keep enemy render meshes separate from hit proxies and avoid mesh raycast collision for this slice.",
     "Clone repeated enemies from shared GLB templates until level streaming or LOD requires a stronger pooling system.",
     "Keep enemy steering direct and room-local for MVP; revisit navmesh/A* only when levels need pathing around multi-room obstacles.",
     "Keep scene debug enemy visuals as lightweight lines and hide them with the debug toggle during normal play.",
-    "Keep enemy separation as a tiny runtime steering correction while the enemy count is low; revisit broader avoidance only when rooms contain larger groups."
+    "Keep enemy separation as a tiny runtime steering correction while the enemy count is low; revisit broader avoidance only when rooms contain larger groups.",
+    "Keep headed enemy visual QA as a local runner rather than a deploy workflow gate."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
@@ -94,7 +102,8 @@
     "Vite's large chunk warning still needs a future code-splitting review before the asset roster grows.",
     "The earlier all-viewport full interaction smoke repeated the same route and gesture work five times, which was disproportionate for MVP CI.",
     "Continuous fire increases audio/effect churn by cadence, but current visible primitives are reused instead of recreated per shot.",
-    "The wider enemy hit proxy slightly increases raycast intersection volume, but candidate count is still limited to living enemies and only evaluated when firing."
+    "The wider enemy hit proxy slightly increases raycast intersection volume, but candidate count is still limited to living enemies and only evaluated when firing.",
+    "Raw Object3D.clone(true) is not safe for these skinned enemy GLBs even though it appears cheaper; it can make the visible body fail while bounds still report."
   ],
   "risks": [
     "Future larger weapon sets should not all preload by default without level/load-group gating.",
@@ -149,9 +158,12 @@
     "movementCollisionCost": "nearby solid-tile circle resolver while movement input is active",
     "weaponClearanceCost": "one weapon wall ray/probe for visual viewmodel avoidance",
     "shotEffectPoseCost": "shot-time and short-lived visible-effect camera-local vector/scalar math",
-    "productionJsChunkKb": 675.88,
+    "productionJsChunkKb": 676.65,
     "publicAssetCacheParam": "assetBuild",
     "browserSmokeCommand": "npm run validate:browser",
+    "headedEnemyQaCommand": "npm run qa:headed:enemies",
+    "headedEnemyQaHeadless": false,
+    "headedEnemyQaSampleWindowMs": 1200,
     "browserSmokeWorkers": 2,
     "fullInteractionProject": "chromium-modern-phone-landscape",
     "mvpFastViewportSplit": true,
@@ -192,9 +204,11 @@
     "foundationEnemyModelBytes": 347884,
     "enemyCollisionCost": "one 2.15 x 2.35 x 2.15 invisible box proxy raycast candidate per alive enemy during weapon shots only",
     "enemyMovementCost": "kinematic seek/patrol/return using squared-distance checks, tile collision resolution, and low-count O(n^2) enemy separation",
-    "enemyRenderReuse": "12 runtime enemies clone three shared loaded GLB templates",
+    "enemyRenderReuse": "12 runtime enemies clone three shared loaded skinned GLB templates via SkeletonUtils.clone",
     "enemyDebugVisualCost": "one prebuilt LineSegments radius/front-cone object per enemy, visible only when debug UI is on",
-    "enemyHitFeedbackCost": "one shared sphere geometry plus one small additive material per enemy, visible briefly only on hit"
+    "enemyHitFeedbackCost": "one shared sphere geometry plus one small additive material per enemy, visible briefly only on hit",
+    "enemyModelBoundsSnapshotCost": "Box3 bounds checks run only when debug snapshots are requested",
+    "faviconWebglCost": "none"
   },
   "nextAgents": [
     "memory-lifecycle-agent",

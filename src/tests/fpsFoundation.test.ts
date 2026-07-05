@@ -338,8 +338,25 @@ describe('FPS foundation config', () => {
       debugVisible: false,
     });
     expect(Math.hypot(first.origin[0] + 21, first.origin[2] + 21)).toBeGreaterThan(9);
+    expectEnemyAttachmentsAligned(first);
 
-    for (let frame = 0; frame < 20; frame++) {
+    for (let frame = 0; frame < 15; frame++) {
+      enemies.update(0.05, [22, 1.62, 21], true);
+    }
+
+    const allPatrolSnapshot = enemies.getSnapshot();
+    const movedEnemyIds = allPatrolSnapshot.enemies
+      .filter((enemy, index) => {
+        const start = initialSnapshot.enemies[index];
+        return Math.hypot(enemy.position[0] - start.position[0], enemy.position[2] - start.position[2]) > 0.25;
+      })
+      .map((enemy) => enemy.id);
+    expect(movedEnemyIds).toHaveLength(spawns.length);
+    for (const enemy of allPatrolSnapshot.enemies) {
+      expectEnemyAttachmentsAligned(enemy);
+    }
+
+    for (let frame = 0; frame < 5; frame++) {
       enemies.update(0.05, [22, 1.62, 21], true);
     }
 
@@ -1019,4 +1036,13 @@ function getWeaponById(id: string) {
   }
 
   return weapon;
+}
+
+type EnemySnapshotForTest = ReturnType<EnemySystem['getSnapshot']>['enemies'][number];
+
+function expectEnemyAttachmentsAligned(enemy: EnemySnapshotForTest): void {
+  for (const attachment of Object.values(enemy.attachments)) {
+    expect(attachment[0]).toBeCloseTo(enemy.position[0], 3);
+    expect(attachment[2]).toBeCloseTo(enemy.position[2], 3);
+  }
 }

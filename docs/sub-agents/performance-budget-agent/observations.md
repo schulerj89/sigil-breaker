@@ -69,6 +69,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Continuous fire increases audio/effect churn by cadence, but the current visible primitives are reused and not recreated per shot.
 - Scene debug enemy lines add draw calls while debug is visible; keep them hidden with `Dbg` for normal play and avoid adding heavier debug meshes.
 - The wider enemy hit proxy slightly increases raycast intersection volume, but candidate count is still limited to living enemies and only evaluated when firing.
+- Raw `Object3D.clone(true)` is not safe for these skinned enemy GLBs even though it appears cheaper; it can make the visible body fail while bounds still report.
 
 ## Next Handoff Notes
 
@@ -100,3 +101,8 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Enemy overlap handling adds an O(n^2) separation pass across 12 living enemies; this is acceptable for the MVP marker count and avoids a navmesh/physics dependency.
 - Latest `npm run validate:browser` passed all five landscape viewports after the enemy spacing and hit-proxy fixes; production JS chunk reported about 675.88 kB minified.
 - Future profiling should watch the O(n^2) separation pass if the level grows beyond a few dozen active enemies.
+- Enemy GLB reuse now uses `SkeletonUtils.clone`, which is required for skinned monster visibility and does not increase network payload.
+- Debug snapshots now compute attachment/model bounds for QA; this is debug-readback work, not animation-loop rendering work.
+- Latest `npm run validate:browser` passed all five landscape viewports after the skeleton-safe clone and model-bounds checks; production JS chunk reported about 676.65 kB minified.
+- `npm run qa:headed:enemies` is a local-only visible Chromium check that reuses the production preview and adds no runtime game payload.
+- The favicon fix prevents browser 404 console noise in headed QA and adds no WebGL resources.

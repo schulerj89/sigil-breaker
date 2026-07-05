@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { clone as cloneSkinnedModel } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { Health, type HealthSnapshot } from '../health';
 import { collidesWithLevel, getEnemySpawnTiles, resolveLevelCollision, tileToWorld } from '../levelMap';
 import {
@@ -28,6 +29,16 @@ export interface EnemySnapshot {
   detectRadiusUnits: number;
   loseRadiusUnits: number;
   debugVisible: boolean;
+  attachments: {
+    visual: [number, number, number];
+    hitProxy: [number, number, number];
+    hitFlash: [number, number, number];
+    debug: [number, number, number];
+  };
+  modelBounds: {
+    center: [number, number, number];
+    size: [number, number, number];
+  } | null;
 }
 
 export interface EnemySystemSnapshot {
@@ -88,6 +99,7 @@ interface RuntimeEnemy {
   debugLines: THREE.LineSegments<THREE.BufferGeometry, THREE.LineBasicMaterial>;
   hitFlash: THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial>;
   proxy: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial>;
+  modelObject: THREE.Object3D | null;
   origin: THREE.Vector3;
   position: THREE.Vector3;
   state: EnemyAiState;
@@ -288,6 +300,7 @@ export class EnemySystem {
   }
 
   getSnapshot(): EnemySystemSnapshot {
+    this.root.updateMatrixWorld(true);
     const enemies = this.enemies.map((enemy) => ({
       id: enemy.id,
       assetId: enemy.asset.id,
@@ -303,6 +316,13 @@ export class EnemySystem {
       detectRadiusUnits: enemy.behavior.detectRadiusUnits,
       loseRadiusUnits: enemy.behavior.loseRadiusUnits,
       debugVisible: enemy.debugGroup.visible,
+      attachments: {
+        visual: objectWorldSnapshot(enemy.visualSlot),
+        hitProxy: objectWorldSnapshot(enemy.proxy),
+        hitFlash: objectWorldSnapshot(enemy.hitFlash),
+        debug: objectWorldSnapshot(enemy.debugGroup),
+      },
+      modelBounds: objectBoundsSnapshot(enemy.modelObject),
     }));
     const alive = enemies.filter((enemy) => enemy.health.isAlive).length;
 
@@ -359,7 +379,8 @@ export class EnemySystem {
     const visualSlot = new THREE.Group();
     visualSlot.name = `${definition.id}-visual-slot`;
 
-    const hitFlash = createHitFlash(this.hitFlashGeometry, definition.id);
+    const hitFlash = createHitFlash(this.hitFlashGeometry, definition.id, definition.asset.targetHeightUnits);
+    visualSlot.add(hitFlash);
     const debug = createDebugVisuals(definition.id, definition.behavior);
     debug.group.visible = false;
 
@@ -367,7 +388,7 @@ export class EnemySystem {
     group.name = definition.id;
     const position = new THREE.Vector3(worldX, 0, worldZ);
     group.position.copy(position);
-    group.add(proxy, visualSlot, hitFlash, debug.group);
+    group.add(proxy, visualSlot, debug.group);
     this.root.add(group);
 
     return {
@@ -385,6 +406,7 @@ export class EnemySystem {
       debugLines: debug.lines,
       hitFlash,
       proxy,
+      modelObject: null,
       origin: position.clone(),
       position,
       state: 'patrolling',
@@ -430,9 +452,13 @@ export class EnemySystem {
       return;
     }
 
-    const object = template.clone(true);
+    const object = cloneSkinnedModel(template);
     object.name = `${enemy.id}-visual`;
+    object.traverse((child) => {
+      child.frustumCulled = false;
+    });
     enemy.visualSlot.add(object);
+    enemy.modelObject = object;
     enemy.proxy.material.opacity = 0;
     enemy.assetLoaded = true;
   }
@@ -705,17 +731,19 @@ function createDebugVisuals(
 function createHitFlash(
   geometry: THREE.SphereGeometry,
   enemyId: string,
+  targetHeightUnits: number,
 ): THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial> {
   const material = new THREE.MeshBasicMaterial({
     color: 0xfff3a3,
     transparent: true,
     opacity: 0,
     depthWrite: false,
+    depthTest: false,
     blending: THREE.AdditiveBlending,
   });
   const mesh = new THREE.Mesh(geometry, material);
   mesh.name = `${enemyId}-hit-flash`;
-  mesh.position.y = ENEMY_HIT_HEIGHT_UNITS * 0.48;
+  mesh.position.y = targetHeightUnits * 0.55;
   mesh.visible = false;
   mesh.renderOrder = 6;
 
@@ -728,6 +756,28 @@ function roundMetric(value: number): number {
 
 function vectorSnapshot(vector: THREE.Vector3): [number, number, number] {
   return [roundMetric(vector.x), roundMetric(vector.y), roundMetric(vector.z)];
+}
+
+function objectWorldSnapshot(object: THREE.Object3D): [number, number, number] {
+  return vectorSnapshot(object.getWorldPosition(new THREE.Vector3()));
+}
+
+function objectBoundsSnapshot(
+  object: THREE.Object3D | null,
+): { center: [number, number, number]; size: [number, number, number] } | null {
+  if (!object) {
+    return null;
+  }
+
+  const bounds = new THREE.Box3().setFromObject(object);
+  if (bounds.isEmpty()) {
+    return null;
+  }
+
+  return {
+    center: vectorSnapshot(bounds.getCenter(new THREE.Vector3())),
+    size: vectorSnapshot(bounds.getSize(new THREE.Vector3())),
+  };
 }
 
 function flatDistanceSquared(first: THREE.Vector3, second: THREE.Vector3): number {

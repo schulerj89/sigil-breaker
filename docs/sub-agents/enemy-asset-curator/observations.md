@@ -19,6 +19,10 @@ Status: needs visual review after first external enemy asset replacement.
 - The first smoke target moved from the immediate spawn lane to marker row 1, column 12 so it patrols at range instead of instantly clustering beside the player.
 - Weapon rays now hit a larger invisible enemy silhouette proxy, and successful hits briefly show an additive flash before destruction.
 - Runtime enemy separation now pushes living enemies apart so multiple trackers do not stack on the same player-adjacent spot.
+- Quaternius enemy GLBs are skinned meshes; repeated runtime instances now use `SkeletonUtils.clone` so the visible body renders with the moving enemy.
+- The hit flash now lives under the same animated visual slot as the GLB, so it follows model bob/scale instead of only the root transform.
+- Enemy debug snapshots now include attachment anchors and model bounds, which makes visual/proxy/debug/flash detachment testable.
+- Repeatable headed enemy QA now confirms the skinned bodies are visibly present, moving, and attached to their hit/debug proxies.
 
 ## Decisions
 
@@ -29,6 +33,7 @@ Status: needs visual review after first external enemy asset replacement.
 - Keep enemy behavior data in the runtime for now and keep asset metadata in `enemyManifest.ts`.
 - Keep map-authored enemy markers as the source of truth for exact spawn coordinates.
 - Keep enemy-to-enemy overlap handling as a lightweight runtime separation pass until authored navigation or avoidance is needed.
+- Keep `SkeletonUtils.clone` for skinned enemy GLB reuse; do not return to raw `Object3D.clone(true)` for these assets.
 
 ## Caught Issues
 
@@ -39,9 +44,12 @@ Status: needs visual review after first external enemy asset replacement.
 - These are still procedural transform animations, not authored GLB animation clips; attack, hit, and death animation assets remain open.
 - The earlier first marker was too close to spawn, so the enemy read as stuck/stacked instead of patrolling.
 - The first hit proxy was too narrow for the external silhouettes, making player-visible shots feel like misses.
+- Raw `Object3D.clone(true)` produced valid-looking bounds while the skinned enemy body did not render reliably in headed QA.
+- Single-frame movement assertions can false-fail on looping patrols; use the headed QA runner's sampled movement window.
 
 ## Next Handoff Notes
 
 - Use the current enemy system as the behavior contract: GLB visuals, health, ray hits, destruction, cache-busted loading, and debug snapshot reporting must remain intact.
 - Future enemy assets should provide authored idle/move/attack/hit/death clips, but they must keep the current separate hit-proxy contract and map-marker spawn contract.
 - Future enemy replacements should be checked against the current 2.15 x 2.35 unit hit proxy before shrinking combat collision.
+- Future enemy assets should record whether they are skinned; skinned models need the skeleton-safe clone path and a headed visual capture.

@@ -11,6 +11,7 @@
     "preview:pages": "node scripts/serve-pages-preview.mjs",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "qa:headed:enemies": "npm run build && node scripts/run-headed-enemy-qa.mjs",
     "validate:browser": "npm run build && playwright test",
     "validate:assets": "node scripts/validate-assets.mjs",
     "validate:levels": "node scripts/validate-levels.mjs",

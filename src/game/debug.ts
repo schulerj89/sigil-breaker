@@ -90,6 +90,7 @@ export interface DebugSnapshot {
 
 export interface DebugApi {
   getSnapshot: () => DebugSnapshot;
+  setPlayerPose: (pose: { x: number; z: number; yawRadians?: number; pitchRadians?: number }) => boolean;
 }
 
 export function createDebugApi(
@@ -102,8 +103,17 @@ export function createDebugApi(
   getEnemySnapshot: () => EnemySystemSnapshot,
   getZoomGuardSnapshot: () => MobileZoomGuardSnapshot,
   getUiSnapshot: () => { debugVisible: boolean },
+  setPlayerPose: (pose: { x: number; z: number; yawRadians?: number; pitchRadians?: number }) => void,
 ): DebugApi {
   return {
+    setPlayerPose: (pose) => {
+      if (!new URLSearchParams(window.location.search).has('qaCapture')) {
+        return false;
+      }
+
+      setPlayerPose(pose);
+      return true;
+    },
     getSnapshot: () => {
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
