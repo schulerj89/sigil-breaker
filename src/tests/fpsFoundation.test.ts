@@ -403,6 +403,39 @@ describe('FPS foundation config', () => {
     enemies.dispose();
   });
 
+  it('lets tracking enemies fire visible projectiles that damage the player', () => {
+    const scene = new THREE.Scene();
+    const playerHealth = new Health(100);
+    const damageEvents: number[] = [];
+    const enemies = new EnemySystem(scene, {
+      damagePlayer: (amount) => {
+        damageEvents.push(amount);
+        return playerHealth.damage(amount);
+      },
+    });
+    const firstEnemy = enemies.getSnapshot().enemies[0];
+    const playerPosition: [number, number, number] = [firstEnemy.origin[0] - 4.8, 1.62, firstEnemy.origin[2]];
+
+    let sawActiveProjectile = false;
+    for (let frame = 0; frame < 160 && damageEvents.length === 0; frame++) {
+      enemies.update(0.05, playerPosition, true);
+      const projectileSnapshot = enemies.getSnapshot().projectiles;
+      sawActiveProjectile = sawActiveProjectile || projectileSnapshot.active > 0;
+    }
+
+    const snapshot = enemies.getSnapshot();
+    expect(snapshot.enemies[0].state).toBe('tracking');
+    expect(snapshot.projectiles.fired).toBeGreaterThan(0);
+    expect(snapshot.projectiles.hitPlayer).toBeGreaterThan(0);
+    expect(snapshot.projectiles.pooled).toBeGreaterThan(0);
+    expect(sawActiveProjectile).toBe(true);
+    expect(damageEvents).toEqual(expect.arrayContaining([7]));
+    expect(playerHealth.getSnapshot().current).toBeLessThan(100);
+    expect(scene.getObjectByName('enemy-projectiles')).not.toBeNull();
+
+    enemies.dispose();
+  });
+
   it('registers generated ElevenLabs audio for the foundation level', () => {
     const audioIds = GAME_AUDIO_ASSETS.map((asset) => asset.id).sort();
     const totalAudioBytes = GAME_AUDIO_ASSETS.reduce((total, asset) => total + asset.bytes, 0);

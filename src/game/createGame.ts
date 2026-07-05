@@ -64,7 +64,9 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   const zoomGuard = track(createMobileZoomGuard(root));
   const controls = new FpsControls(root, camera);
   const playerHealth = new Health(100);
-  const enemySystem = new EnemySystem(scene);
+  const enemySystem = new EnemySystem(scene, {
+    damagePlayer: (amount) => playerHealth.damage(amount),
+  });
   const weaponSystem = new WeaponSystem(root, camera, {
     resolveTargetHit: (request) => enemySystem.resolveShotHit(
       request.origin,

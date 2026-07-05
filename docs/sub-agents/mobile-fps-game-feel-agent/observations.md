@@ -27,6 +27,8 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - SPARK, BORE, and VAULT now have distinct placeholder shot colors and effect sizes for readability while final external VFX assets are pending.
 - The foundation level now uses steel-toned Kenney CC0 prototype textures for floor, walls, and roof, with a full-level roof plane above the wall height.
 - Debug state now exposes `weapon.isFireHeld`, `weapon.aimBlend`, and `weapon.cameraFovDegrees` for QA and tuning.
+- Tracking enemies now fire visible energy-orb projectiles when the player is in range and line of sight.
+- Enemy projectiles damage the shared player `Health` instance, so the existing HP bar reflects enemy hits without adding a separate damage model.
 
 ## Decisions
 
@@ -41,6 +43,8 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - Use eased aim blend for camera FOV and weapon pose rather than a linear step.
 - Keep fire-button drag aiming slower than the main right-side look zone for controllability.
 - Keep per-weapon aim poses in the manifest because the three starter guns have different silhouettes.
+- Use low-damage, cadence-gated enemy projectiles for the MVP so combat pressure is readable without sudden unavoidable health loss.
+- Keep projectiles blocked by tile walls; enemies briefly retry instead of shooting through closed rooms.
 
 ## Caught Issues
 
@@ -50,6 +54,7 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - A 5-tile entry can still feel like two 2-tile branches when a continuing divider post sits just inside the opening.
 - Tap-only fire did not give enough FPS feel; the hold action needed aim zoom, continuous cadence, and centered weapon framing.
 - The first hold-fire zoom response felt too abrupt; future changes should keep the eased damping behavior or replace it with a better measured transition.
+- Enemy movement and health existed before enemy offense, so playthrough QA had no way to verify player damage from enemies.
 
 ## Next Handoff Notes
 
@@ -58,3 +63,4 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - Do not let future gesture recognizers replace active move/look pointer IDs; multi-touch combat depends on stable pointer ownership.
 - Playthrough QA should re-check hold-fire while turning and moving because fire now owns aim, cadence, FOV, and pose state.
 - Playthrough QA should re-check SPARK cyan, BORE orange, and VAULT violet shot readability in landscape phone view.
+- Playthrough QA should check whether projectile speed, damage, and cooldown feel fair when the player enters rooms with multiple tracking enemies.

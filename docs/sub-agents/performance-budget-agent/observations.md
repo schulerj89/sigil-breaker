@@ -106,3 +106,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Latest `npm run validate:browser` passed all five landscape viewports after the skeleton-safe clone and model-bounds checks; production JS chunk reported about 676.65 kB minified.
 - `npm run qa:headed:enemies` is a local-only visible Chromium check that reuses the production preview and adds no runtime game payload.
 - The favicon fix prevents browser 404 console noise in headed QA and adds no WebGL resources.
+- Enemy projectiles use one shared `SphereGeometry`, one shared additive `MeshBasicMaterial`, and a small mesh pool; firing does not create per-shot geometry or materials.
+- Projectile updates are simple vector integration plus tile raycasts and flat player segment checks, scoped to active projectiles only.
+- Projectile debug counters are exposed under `snapshot.enemies.projectiles` so smoke/performance checks can track active count and hit totals.
+- Latest `npm run validate:browser` passed all five landscape viewports after adding enemy projectiles; production JS chunk reported about 684.03 kB minified.

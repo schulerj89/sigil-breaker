@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { clone as cloneSkinnedModel } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import { Health, type HealthSnapshot } from '../health';
-import { collidesWithLevel, getEnemySpawnTiles, resolveLevelCollision, tileToWorld } from '../levelMap';
+import { collidesWithLevel, getEnemySpawnTiles, raycastLevel, resolveLevelCollision, tileToWorld } from '../levelMap';
 import {
   ENEMY_ASSET_DEFINITIONS,
   publicAssetUrl,
@@ -41,12 +41,30 @@ export interface EnemySnapshot {
   } | null;
 }
 
+export interface EnemyProjectileSnapshot {
+  sequence: number;
+  ownerEnemyId: string;
+  position: [number, number, number];
+  velocity: [number, number, number];
+  damage: number;
+  remainingLifetimeSeconds: number;
+}
+
 export interface EnemySystemSnapshot {
   total: number;
   alive: number;
   destroyed: number;
   enemyMarkerCount: number;
   enemies: EnemySnapshot[];
+  projectiles: {
+    active: number;
+    pooled: number;
+    fired: number;
+    hitPlayer: number;
+    hitWall: number;
+    shotsBlockedByWall: number;
+    list: EnemyProjectileSnapshot[];
+  };
   modelBytesLoaded: number;
   loadedAssetIds: string[];
   assetLoadErrors: string[];
@@ -60,6 +78,16 @@ export interface EnemyShotHit {
   destroyed: boolean;
 }
 
+export interface EnemyPlayerDamageSource {
+  enemyId: string;
+  projectileSequence: number;
+  position: [number, number, number];
+}
+
+export interface EnemySystemOptions {
+  damagePlayer?: (amount: number, source: EnemyPlayerDamageSource) => HealthSnapshot;
+}
+
 type EnemyMotionStyle = 'mushroom-hop' | 'slime-sway' | 'golem-stomp';
 
 interface EnemyBehaviorDefinition {
@@ -70,6 +98,10 @@ interface EnemyBehaviorDefinition {
   loseRadiusUnits: number;
   stopDistanceUnits: number;
   patrolReachUnits: number;
+  projectileDamage: number;
+  projectileSpeedUnitsPerSecond: number;
+  projectileCooldownSeconds: number;
+  projectileRangeUnits: number;
   patrolOffsets: ReadonlyArray<readonly [number, number]>;
   motionStyle: EnemyMotionStyle;
 }
@@ -107,7 +139,18 @@ interface RuntimeEnemy {
   facingYawRadians: number;
   time: number;
   hitFlashSeconds: number;
+  projectileCooldownSeconds: number;
   assetLoaded: boolean;
+}
+
+interface RuntimeProjectile {
+  sequence: number;
+  ownerEnemyId: string;
+  mesh: THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial>;
+  position: THREE.Vector3;
+  velocity: THREE.Vector3;
+  damage: number;
+  remainingLifetimeSeconds: number;
 }
 
 const ENEMY_WIDTH_UNITS = 0.86;
@@ -119,6 +162,11 @@ const ENEMY_RETURN_REACHED_UNITS = 0.16;
 const ENEMY_HIT_FLASH_SECONDS = 0.16;
 const DEBUG_RING_SEGMENTS = 40;
 const DEBUG_FRONT_CONE_RADIANS = Math.PI / 7;
+const PLAYER_PROJECTILE_HIT_RADIUS_UNITS = 0.48;
+const PROJECTILE_RADIUS_UNITS = 0.13;
+const PROJECTILE_SPAWN_FORWARD_UNITS = 0.72;
+const PROJECTILE_PLAYER_TARGET_Y = 1.35;
+const PROJECTILE_LINE_OF_SIGHT_PADDING_UNITS = 0.35;
 const ROLE_NAMES = [
   'vanguard',
   'lane-anchor',
@@ -143,6 +191,10 @@ const MUSHROOM_BEHAVIOR: EnemyBehaviorDefinition = {
   loseRadiusUnits: 8,
   stopDistanceUnits: 0.82,
   patrolReachUnits: 0.18,
+  projectileDamage: 7,
+  projectileSpeedUnitsPerSecond: 7.2,
+  projectileCooldownSeconds: 1.35,
+  projectileRangeUnits: 8.8,
   patrolOffsets: [
     [-1.2, -0.95],
     [1.2, -0.95],
@@ -160,6 +212,10 @@ const SLIME_BEHAVIOR: EnemyBehaviorDefinition = {
   loseRadiusUnits: 7.4,
   stopDistanceUnits: 0.78,
   patrolReachUnits: 0.16,
+  projectileDamage: 6,
+  projectileSpeedUnitsPerSecond: 8.1,
+  projectileCooldownSeconds: 1.12,
+  projectileRangeUnits: 8.2,
   patrolOffsets: [
     [-1.45, 0],
     [1.45, 0],
@@ -175,6 +231,10 @@ const GOLEM_BEHAVIOR: EnemyBehaviorDefinition = {
   loseRadiusUnits: 8.6,
   stopDistanceUnits: 0.95,
   patrolReachUnits: 0.22,
+  projectileDamage: 10,
+  projectileSpeedUnitsPerSecond: 6.2,
+  projectileCooldownSeconds: 1.75,
+  projectileRangeUnits: 9.4,
   patrolOffsets: [
     [-1.15, -1.15],
     [1.15, -1.15],
@@ -206,19 +266,36 @@ export class EnemySystem {
   private readonly loadingManager = new THREE.LoadingManager();
   private readonly loader = new GLTFLoader(this.loadingManager);
   private readonly root = new THREE.Group();
+  private readonly projectileRoot = new THREE.Group();
   private readonly raycaster = new THREE.Raycaster();
   private readonly hitGeometry = new THREE.BoxGeometry(ENEMY_HIT_WIDTH_UNITS, ENEMY_HIT_HEIGHT_UNITS, ENEMY_HIT_WIDTH_UNITS);
   private readonly hitFlashGeometry = new THREE.SphereGeometry(0.92, 16, 8);
+  private readonly projectileGeometry = new THREE.SphereGeometry(PROJECTILE_RADIUS_UNITS, 12, 8);
+  private readonly projectileMaterial = new THREE.MeshBasicMaterial({
+    color: 0xff5c8a,
+    transparent: true,
+    opacity: 0.88,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+  });
   private readonly enemies: RuntimeEnemy[] = [];
+  private readonly projectiles: RuntimeProjectile[] = [];
+  private readonly projectileMeshPool: Array<THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial>> = [];
   private readonly modelTemplates = new Map<string, THREE.Object3D>();
   private readonly loadedAssetIds = new Set<string>();
   private readonly assetLoadErrors: string[] = [];
   private readonly target = new THREE.Vector3();
   private readonly player = new THREE.Vector3();
+  private projectileSequence = 0;
+  private projectilesFired = 0;
+  private projectilesHitPlayer = 0;
+  private projectilesHitWall = 0;
+  private projectileShotsBlockedByWall = 0;
 
-  constructor(scene: THREE.Scene) {
+  constructor(scene: THREE.Scene, private readonly options: EnemySystemOptions = {}) {
     this.root.name = 'enemy-system';
-    scene.add(this.root);
+    this.projectileRoot.name = 'enemy-projectiles';
+    scene.add(this.root, this.projectileRoot);
     this.loadingManager.setURLModifier((url) => url);
 
     for (const definition of createEnemyDefinitions()) {
@@ -245,11 +322,13 @@ export class EnemySystem {
       if (enemy.state === 'tracking' || moved) {
         this.faceEnemyToward(enemy, target.x, target.z, cappedDelta);
       }
+      this.tryFireProjectile(enemy, cappedDelta);
       this.applyVisualMotion(enemy);
       this.updateHitFlash(enemy, cappedDelta);
       this.updateDebugVisuals(enemy, debugVisible);
     }
 
+    this.updateProjectiles(cappedDelta, playerPosition);
     this.separateLivingEnemies();
   }
 
@@ -332,6 +411,22 @@ export class EnemySystem {
       destroyed: enemies.length - alive,
       enemyMarkerCount: this.enemies.length,
       enemies,
+      projectiles: {
+        active: this.projectiles.length,
+        pooled: this.projectileMeshPool.length,
+        fired: this.projectilesFired,
+        hitPlayer: this.projectilesHitPlayer,
+        hitWall: this.projectilesHitWall,
+        shotsBlockedByWall: this.projectileShotsBlockedByWall,
+        list: this.projectiles.map((projectile) => ({
+          sequence: projectile.sequence,
+          ownerEnemyId: projectile.ownerEnemyId,
+          position: vectorSnapshot(projectile.position),
+          velocity: vectorSnapshot(projectile.velocity),
+          damage: projectile.damage,
+          remainingLifetimeSeconds: roundMetric(projectile.remainingLifetimeSeconds),
+        })),
+      },
       modelBytesLoaded: [...this.loadedAssetIds].reduce((total, assetId) => {
         const asset = ENEMY_ASSET_DEFINITIONS.find((definition) => definition.id === assetId);
         return total + (asset?.modelBytes ?? 0);
@@ -351,6 +446,11 @@ export class EnemySystem {
     for (const template of this.modelTemplates.values()) {
       disposeObject3D(template, disposedGeometries, disposedMaterials);
     }
+    this.projectileRoot.removeFromParent();
+    this.projectiles.length = 0;
+    this.projectileMeshPool.length = 0;
+    this.projectileGeometry.dispose();
+    this.projectileMaterial.dispose();
     this.enemies.length = 0;
     this.modelTemplates.clear();
     this.loadedAssetIds.clear();
@@ -414,6 +514,7 @@ export class EnemySystem {
       facingYawRadians: 0,
       time: 0,
       hitFlashSeconds: 0,
+      projectileCooldownSeconds: getInitialProjectileCooldown(definition.column, definition.row, definition.behavior),
       assetLoaded: false,
     };
   }
@@ -584,6 +685,138 @@ export class EnemySystem {
     enemy.debugLines.material.opacity = enemy.state === 'returning' ? 0.56 : 0.84;
   }
 
+  private tryFireProjectile(enemy: RuntimeEnemy, deltaSeconds: number): void {
+    enemy.projectileCooldownSeconds = Math.max(0, enemy.projectileCooldownSeconds - deltaSeconds);
+    if (enemy.state !== 'tracking' || enemy.projectileCooldownSeconds > 0) {
+      return;
+    }
+
+    const deltaX = this.player.x - enemy.position.x;
+    const deltaZ = this.player.z - enemy.position.z;
+    const flatDistance = Math.hypot(deltaX, deltaZ);
+    if (flatDistance <= 0.001 || flatDistance > enemy.behavior.projectileRangeUnits) {
+      return;
+    }
+
+    if (!this.hasLineOfSightToPlayer(enemy, deltaX, deltaZ, flatDistance)) {
+      enemy.projectileCooldownSeconds = Math.min(enemy.behavior.projectileCooldownSeconds, 0.32);
+      this.projectileShotsBlockedByWall++;
+      return;
+    }
+
+    const direction = new THREE.Vector3(
+      deltaX,
+      PROJECTILE_PLAYER_TARGET_Y - enemy.asset.targetHeightUnits * 0.58,
+      deltaZ,
+    ).normalize();
+    const position = new THREE.Vector3(
+      enemy.position.x + (deltaX / flatDistance) * PROJECTILE_SPAWN_FORWARD_UNITS,
+      enemy.asset.targetHeightUnits * 0.58,
+      enemy.position.z + (deltaZ / flatDistance) * PROJECTILE_SPAWN_FORWARD_UNITS,
+    );
+    const velocity = direction.multiplyScalar(enemy.behavior.projectileSpeedUnitsPerSecond);
+    const sequence = ++this.projectileSequence;
+    const projectile: RuntimeProjectile = {
+      sequence,
+      ownerEnemyId: enemy.id,
+      mesh: this.acquireProjectileMesh(sequence),
+      position,
+      velocity,
+      damage: enemy.behavior.projectileDamage,
+      remainingLifetimeSeconds: enemy.behavior.projectileRangeUnits / enemy.behavior.projectileSpeedUnitsPerSecond,
+    };
+    projectile.mesh.position.copy(position);
+    this.projectiles.push(projectile);
+    this.projectilesFired++;
+    enemy.projectileCooldownSeconds = enemy.behavior.projectileCooldownSeconds;
+  }
+
+  private hasLineOfSightToPlayer(enemy: RuntimeEnemy, deltaX: number, deltaZ: number, flatDistance: number): boolean {
+    const hit = raycastLevel(enemy.position.x, enemy.position.z, deltaX, deltaZ, flatDistance);
+    return !hit || hit.distance >= flatDistance - PROJECTILE_LINE_OF_SIGHT_PADDING_UNITS;
+  }
+
+  private updateProjectiles(deltaSeconds: number, playerPosition: readonly [number, number, number]): void {
+    for (let index = this.projectiles.length - 1; index >= 0; index--) {
+      const projectile = this.projectiles[index];
+      const previousX = projectile.position.x;
+      const previousZ = projectile.position.z;
+      projectile.remainingLifetimeSeconds -= deltaSeconds;
+      projectile.position.addScaledVector(projectile.velocity, deltaSeconds);
+      projectile.mesh.position.copy(projectile.position);
+
+      if (this.projectileHitsPlayer(projectile, previousX, previousZ, playerPosition)) {
+        this.projectilesHitPlayer++;
+        this.options.damagePlayer?.(projectile.damage, {
+          enemyId: projectile.ownerEnemyId,
+          projectileSequence: projectile.sequence,
+          position: vectorSnapshot(projectile.position),
+        });
+        this.releaseProjectile(index);
+        continue;
+      }
+
+      if (
+        projectile.remainingLifetimeSeconds <= 0 ||
+        this.projectileHitsWall(projectile, previousX, previousZ)
+      ) {
+        this.projectilesHitWall += projectile.remainingLifetimeSeconds > 0 ? 1 : 0;
+        this.releaseProjectile(index);
+      }
+    }
+  }
+
+  private projectileHitsPlayer(
+    projectile: RuntimeProjectile,
+    previousX: number,
+    previousZ: number,
+    playerPosition: readonly [number, number, number],
+  ): boolean {
+    return (
+      flatSegmentDistanceSquared(
+        playerPosition[0],
+        playerPosition[2],
+        previousX,
+        previousZ,
+        projectile.position.x,
+        projectile.position.z,
+      ) <= PLAYER_PROJECTILE_HIT_RADIUS_UNITS * PLAYER_PROJECTILE_HIT_RADIUS_UNITS
+    );
+  }
+
+  private projectileHitsWall(projectile: RuntimeProjectile, previousX: number, previousZ: number): boolean {
+    const deltaX = projectile.position.x - previousX;
+    const deltaZ = projectile.position.z - previousZ;
+    const distance = Math.hypot(deltaX, deltaZ);
+    if (distance <= 0.0001) {
+      return collidesWithLevel(projectile.position.x, projectile.position.z, PROJECTILE_RADIUS_UNITS);
+    }
+
+    return (
+      raycastLevel(previousX, previousZ, deltaX, deltaZ, distance + PROJECTILE_RADIUS_UNITS) !== null ||
+      collidesWithLevel(projectile.position.x, projectile.position.z, PROJECTILE_RADIUS_UNITS)
+    );
+  }
+
+  private acquireProjectileMesh(sequence: number): THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial> {
+    const mesh = this.projectileMeshPool.pop() ?? new THREE.Mesh(this.projectileGeometry, this.projectileMaterial);
+    mesh.name = `enemy-projectile-${sequence}`;
+    mesh.visible = true;
+    this.projectileRoot.add(mesh);
+    return mesh;
+  }
+
+  private releaseProjectile(index: number): void {
+    const [projectile] = this.projectiles.splice(index, 1);
+    if (!projectile) {
+      return;
+    }
+
+    projectile.mesh.visible = false;
+    projectile.mesh.removeFromParent();
+    this.projectileMeshPool.push(projectile.mesh);
+  }
+
   private updateHitFlash(enemy: RuntimeEnemy, deltaSeconds: number): void {
     if (enemy.hitFlashSeconds <= 0) {
       enemy.hitFlash.visible = false;
@@ -661,6 +894,15 @@ function createEnemyDefinitions(): EnemyDefinition[] {
       behavior,
     };
   });
+}
+
+function getInitialProjectileCooldown(
+  column: number,
+  row: number,
+  behavior: EnemyBehaviorDefinition,
+): number {
+  const stagger = ((column * 17 + row * 31) % 100) / 100;
+  return 0.35 + stagger * behavior.projectileCooldownSeconds;
 }
 
 function createDebugVisuals(
@@ -784,6 +1026,33 @@ function flatDistanceSquared(first: THREE.Vector3, second: THREE.Vector3): numbe
   const deltaX = first.x - second.x;
   const deltaZ = first.z - second.z;
 
+  return deltaX * deltaX + deltaZ * deltaZ;
+}
+
+function flatSegmentDistanceSquared(
+  pointX: number,
+  pointZ: number,
+  segmentStartX: number,
+  segmentStartZ: number,
+  segmentEndX: number,
+  segmentEndZ: number,
+): number {
+  const segmentX = segmentEndX - segmentStartX;
+  const segmentZ = segmentEndZ - segmentStartZ;
+  const segmentLengthSq = segmentX * segmentX + segmentZ * segmentZ;
+  if (segmentLengthSq <= 0.0001) {
+    const deltaX = pointX - segmentEndX;
+    const deltaZ = pointZ - segmentEndZ;
+    return deltaX * deltaX + deltaZ * deltaZ;
+  }
+
+  const amount = clamp01(
+    ((pointX - segmentStartX) * segmentX + (pointZ - segmentStartZ) * segmentZ) / segmentLengthSq,
+  );
+  const closestX = segmentStartX + segmentX * amount;
+  const closestZ = segmentStartZ + segmentZ * amount;
+  const deltaX = pointX - closestX;
+  const deltaZ = pointZ - closestZ;
   return deltaX * deltaX + deltaZ * deltaZ;
 }
 

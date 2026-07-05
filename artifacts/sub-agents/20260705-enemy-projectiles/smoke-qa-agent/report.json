@@ -1,0 +1,26 @@
+{
+  "runId": "20260705-enemy-projectiles",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "enemy projectile unit smoke",
+      "command": "npm run test -- --run src/tests/fpsFoundation.test.ts",
+      "result": "passed",
+      "assertions": [
+        "tracking enemy fired at least one projectile",
+        "projectile debug snapshot reported active projectile state",
+        "player Health current value dropped below 100",
+        "projectile mesh pool received spent projectile"
+      ]
+    },
+    {
+      "name": "browser debug contract",
+      "command": "npm run validate:browser",
+      "result": "passed",
+      "assertions": [
+        "snapshot.enemies.projectiles exists at boot",
+        "projectile counters start at zero before gameplay contact"
+      ]
+    }
+  ]
+}

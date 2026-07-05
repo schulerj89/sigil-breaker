@@ -125,6 +125,22 @@ interface DebugSnapshot {
     modelBytesLoaded: number;
     loadedAssetIds: string[];
     assetLoadErrors: string[];
+    projectiles: {
+      active: number;
+      pooled: number;
+      fired: number;
+      hitPlayer: number;
+      hitWall: number;
+      shotsBlockedByWall: number;
+      list: Array<{
+        sequence: number;
+        ownerEnemyId: string;
+        position: [number, number, number];
+        velocity: [number, number, number];
+        damage: number;
+        remainingLifetimeSeconds: number;
+      }>;
+    };
     enemies: Array<{
       id: string;
       assetId: string;
@@ -306,6 +322,14 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     modelBytesLoaded: 347_884,
     loadedAssetIds: ['enemy.monster.goleling', 'enemy.monster.mushnub', 'enemy.monster.pink-slime'],
     assetLoadErrors: [],
+  });
+  expect(debugSnapshot.enemies.projectiles).toMatchObject({
+    active: 0,
+    fired: 0,
+    hitPlayer: 0,
+    hitWall: 0,
+    shotsBlockedByWall: 0,
+    list: [],
   });
   expect(debugSnapshot.enemies.enemies[0]).toMatchObject({
     id: 'enemy.monster.mushnub.vanguard',

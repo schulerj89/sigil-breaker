@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-05T01:33:52Z",
-  "summary": "The five-gun and 12-marker enemy movement slice stays within MVP payload and renderer budgets by cloning three shared skinned enemy GLB templates with SkeletonUtils, using kinematic movement plus lightweight separation, and keeping local browser and headed enemy smoke passing with the production JS chunk at about 676.65 kB minified.",
+  "updatedAt": "2026-07-05T02:49:00Z",
+  "summary": "The five-gun, 12-marker enemy movement, and enemy projectile slice stays within MVP payload and renderer budgets by cloning three shared skinned enemy GLB templates, using kinematic movement plus lightweight separation, and pooling primitive projectile meshes; latest local browser smoke passed with the production JS chunk at about 684.03 kB minified.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -66,7 +66,10 @@
     "Latest production JS chunk is about 676.65 kB minified.",
     "npm run qa:headed:enemies is a local-only visible Chromium check that reuses the production preview and adds no runtime game payload.",
     "The favicon fix prevents browser 404 console noise in headed QA and adds no WebGL resources.",
-    "Foundation walkable tile count is now 1658 after opening the isolated right-side room."
+    "Foundation walkable tile count is now 1658 after opening the isolated right-side room.",
+    "Enemy projectiles use one shared SphereGeometry, one shared additive MeshBasicMaterial, and pooled meshes.",
+    "Projectile collision uses tile raycasts and flat segment checks against the player; no physics engine or mesh collision was added.",
+    "Latest npm run validate:browser passed all five landscape viewports after adding enemy projectiles; production JS chunk reported about 684.03 kB minified."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -91,7 +94,8 @@
     "Keep enemy steering direct and room-local for MVP; revisit navmesh/A* only when levels need pathing around multi-room obstacles.",
     "Keep scene debug enemy visuals as lightweight lines and hide them with the debug toggle during normal play.",
     "Keep enemy separation as a tiny runtime steering correction while the enemy count is low; revisit broader avoidance only when rooms contain larger groups.",
-    "Keep headed enemy visual QA as a local runner rather than a deploy workflow gate."
+    "Keep headed enemy visual QA as a local runner rather than a deploy workflow gate.",
+    "Keep enemy projectile visuals as pooled primitive placeholders until final external VFX assets are sourced."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
@@ -104,7 +108,8 @@
     "The earlier all-viewport full interaction smoke repeated the same route and gesture work five times, which was disproportionate for MVP CI.",
     "Continuous fire increases audio/effect churn by cadence, but current visible primitives are reused instead of recreated per shot.",
     "The wider enemy hit proxy slightly increases raycast intersection volume, but candidate count is still limited to living enemies and only evaluated when firing.",
-    "Raw Object3D.clone(true) is not safe for these skinned enemy GLBs even though it appears cheaper; it can make the visible body fail while bounds still report."
+    "Raw Object3D.clone(true) is not safe for these skinned enemy GLBs even though it appears cheaper; it can make the visible body fail while bounds still report.",
+    "Enemy offense can add many active meshes if future rooms stack enemies; debug projectile active counts should be watched."
   ],
   "risks": [
     "Future larger weapon sets should not all preload by default without level/load-group gating.",
@@ -131,7 +136,8 @@
     "e2e/foundation-smoke.spec.ts",
     "src/game/mobileZoomGuard.ts",
     "src/game/health.ts",
-    "src/game/enemies/enemySystem.ts"
+    "src/game/enemies/enemySystem.ts",
+    "artifacts/sub-agents/20260705-enemy-projectiles/performance-budget-agent/observations.md"
   ],
   "jsonForAgents": {
     "visibleFpsTarget": 60,
@@ -209,7 +215,24 @@
     "enemyDebugVisualCost": "one prebuilt LineSegments radius/front-cone object per enemy, visible only when debug UI is on",
     "enemyHitFeedbackCost": "one shared sphere geometry plus one small additive material per enemy, visible briefly only on hit",
     "enemyModelBoundsSnapshotCost": "Box3 bounds checks run only when debug snapshots are requested",
-    "faviconWebglCost": "none"
+    "faviconWebglCost": "none",
+    "enemyProjectileBudget": {
+      "geometryCountAdded": 1,
+      "materialCountAdded": 1,
+      "perShotGeometryAllocation": false,
+      "perShotMaterialAllocation": false,
+      "pooling": true,
+      "debugPath": "snapshot.enemies.projectiles",
+      "activeCountField": "snapshot.enemies.projectiles.active"
+    },
+    "latestProductionJsChunkKb": 684.03,
+    "latestBrowserValidation": {
+      "command": "npm run validate:browser",
+      "result": "passed",
+      "projects": 5,
+      "durationSeconds": 159,
+      "productionJsChunkKb": 684.03
+    }
   },
   "nextAgents": [
     "memory-lifecycle-agent",

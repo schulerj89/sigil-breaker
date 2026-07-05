@@ -2,7 +2,7 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T01:33:52Z",
+  "updatedAt": "2026-07-05T02:49:00Z",
   "summary": "Local Playwright smoke covers title/start flow, weapons, SFX, map-authored GLB enemies, debug toggles, cache-busting, zoom guards, and the latest level access/exit changes.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
@@ -89,7 +89,10 @@
     "Focused title screenshot is stored at artifacts/sub-agents/20260705-title-screen/smoke-qa-agent/title-screen-844x390.png.",
     "Latest npm run validate:browser passed all five landscape viewport projects after opening the isolated right-side room and moving X to row 43 column 43.",
     "Latest npm run validate:levels reports 1658 walkable tiles, all walkable tiles reachable from spawn, and 12 enemy markers.",
-    "The level validator now rejects unreachable walkable rooms, not only unreachable exits."
+    "The level validator now rejects unreachable walkable rooms, not only unreachable exits.",
+    "Unit smoke verifies a tracking enemy fires a projectile and damages the shared player Health instance.",
+    "Browser smoke asserts snapshot.enemies.projectiles exists and starts with zero active/fired/hit counters at boot.",
+    "Latest npm run validate:browser passed all five landscape viewport projects after adding enemy projectile debug counters and player-damage wiring."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -121,7 +124,8 @@
     "Keep first-shot audio smoke state-based through sfxPoolProfiles/playRequests/missedPlayRequests until a physical-device audio latency gate exists.",
     "Treat the title screen start flow as part of the smoke gate before gameplay interaction checks.",
     "Keep title background cache-busting in browser smoke because Pages can hard-cache public assets.",
-    "Keep all-walkable reachability in the level gate because isolated enemy rooms can pass spawn-to-exit checks."
+    "Keep all-walkable reachability in the level gate because isolated enemy rooms can pass spawn-to-exit checks.",
+    "Use debug counters for enemy projectile smoke instead of timing-dependent screenshot flashes."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
@@ -148,7 +152,8 @@
     "The old SFX path could miss very early shots because playback pools were created only after async asset verification completed.",
     "Initial title screenshot caught loading overlay ghosting under the title before hidden overlays switched to display none.",
     "Title-safe left gradient needed strengthening to prevent generated image details from reading as stray UI near the title.",
-    "A closed room with an enemy and cover passed the prior spawn-to-exit-only validator."
+    "A closed room with an enemy and cover passed the prior spawn-to-exit-only validator.",
+    "Enemy projectile behavior needs state-based smoke because projectile visuals are short lived."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
@@ -177,7 +182,9 @@
     "artifacts/sub-agents/20260705-enemy-facing-audio/smoke-qa-agent",
     "artifacts/sub-agents/20260705-title-screen/smoke-qa-agent",
     "artifacts/sub-agents/20260705-title-screen/smoke-qa-agent/title-screen-844x390.png",
-    "artifacts/sub-agents/20260705-level-access-exit/smoke-qa-agent/report.json"
+    "artifacts/sub-agents/20260705-level-access-exit/smoke-qa-agent/report.json",
+    "src/tests/fpsFoundation.test.ts",
+    "artifacts/sub-agents/20260705-enemy-projectiles/smoke-qa-agent/report.json"
   ],
   "jsonForAgents": {
     "latestManualSmoke": {
@@ -269,7 +276,7 @@
       "mvpFastViewportSplit": true,
       "visualViewportScaleAfterZoomGestures": 1,
       "assetLoadErrors": 0,
-      "latestDurationSeconds": 152,
+      "latestDurationSeconds": 159,
       "testTimeoutSeconds": 240,
       "loadedAssetIdCount": 17,
       "weaponCycleCount": 5,
@@ -303,7 +310,10 @@
         "column": 43
       },
       "allWalkableReachabilityChecked": true,
-      "foundationWalkableTiles": 1658
+      "foundationWalkableTiles": 1658,
+      "enemyProjectileDebugCountersChecked": true,
+      "enemyProjectileBootCountersZero": true,
+      "playerDamageFromProjectileUnitChecked": true
     },
     "latestHealthEnemySmoke": {
       "playerHealth": {
@@ -393,7 +403,8 @@
       "titleStartButtonEntersGameplay",
       "titleBackgroundCacheBusted",
       "allWalkableTilesReachableFromSpawn",
-      "exitMarkerOppositeSpawnCorner"
+      "exitMarkerOppositeSpawnCorner",
+      "enemyProjectileDebugCounters"
     ],
     "screenshotNames": [
       "boot-mobile-landscape.png",
@@ -460,6 +471,23 @@
       "reachableWalkableTiles": 1658,
       "unreachableWalkableTiles": 0,
       "enemyMarkerCount": 12
+    },
+    "enemyProjectileSmoke": {
+      "unitTest": "lets tracking enemies fire visible projectiles that damage the player",
+      "browserDebugPath": "snapshot.enemies.projectiles",
+      "bootExpected": {
+        "active": 0,
+        "fired": 0,
+        "hitPlayer": 0,
+        "hitWall": 0,
+        "shotsBlockedByWall": 0,
+        "listLength": 0
+      },
+      "lastValidated": {
+        "command": "npm run validate:browser",
+        "result": "passed",
+        "projects": 5
+      }
     }
   },
   "nextAgents": [

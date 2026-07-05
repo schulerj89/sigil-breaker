@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "mobile-fps-game-feel-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T18:24:54Z",
-  "summary": "Basic mobile FPS weapon feel now includes faster movement, body-only resolved player collision, wall-shot detection, full-surface zoom-safe touch input, visual weapon wall clearance, wider structural entries, splitter-post clearance, shared shot-effect pose alignment, smoothed hold-fire ADS-style zoom/centering, distinct per-weapon shot colors, larger centered guns, and steel foundation room surfaces.",
+  "updatedAt": "2026-07-05T02:44:00Z",
+  "summary": "Basic mobile FPS weapon feel now includes faster movement, body-only resolved player collision, wall-shot detection, full-surface zoom-safe touch input, visual weapon wall clearance, wider structural entries, splitter-post clearance, shared shot-effect pose alignment, smoothed hold-fire ADS-style zoom/centering, distinct per-weapon shot colors, larger centered guns, and steel foundation room surfaces. Enemy offense now includes line-of-sight, cadence-gated projectiles that damage player health.",
   "observations": [
     "The right-side fire button calls the weapon system without stealing aim drags elsewhere on the look zone.",
     "SPARK, BORE, and VAULT use different cadence and recoil values.",
@@ -28,7 +28,9 @@
     "SPARK, BORE, and VAULT now have distinct placeholder shot colors and effect sizes for readability while final external VFX assets are pending.",
     "Weapon debug state now includes isFireHeld, aimBlend, and cameraFovDegrees.",
     "The foundation level now uses steel-toned Kenney CC0 prototype textures for floor, walls, and roof.",
-    "A full-level roof plane sits above the wall height."
+    "A full-level roof plane sits above the wall height.",
+    "Tracking enemies fire visible energy-orb projectiles when the player is in range and line of sight.",
+    "Enemy projectiles damage the shared player Health instance, so the HP bar updates from enemy hits."
   ],
   "decisions": [
     "Keep one fire button for now.",
@@ -42,13 +44,16 @@
     "Treat the fire button as the current mobile ADS-plus-trigger hold for MVP.",
     "Use eased aim blend for camera FOV and weapon pose rather than a linear step.",
     "Keep fire-button drag aiming slower than the main look zone.",
-    "Keep per-weapon aim poses in the manifest because starter gun silhouettes differ."
+    "Keep per-weapon aim poses in the manifest because starter gun silhouettes differ.",
+    "Use low-damage MVP enemy projectiles before adding final external projectile VFX assets.",
+    "Block enemy projectile firing through tile walls and retry after a short cooldown."
   ],
   "caughtIssues": [
     "Fast repeated fire and full-canvas look taps needed explicit double-tap zoom prevention.",
     "Weapon-only movement blocking caused unrecoverable stuck states when the player turned near entries.",
     "Tap-only fire did not provide enough FPS feel; the fire action needed continuous cadence, aim zoom, and centered weapon framing.",
-    "The first hold-fire zoom response felt too abrupt; future changes should keep the eased damping behavior or replace it with a better measured transition."
+    "The first hold-fire zoom response felt too abrupt; future changes should keep the eased damping behavior or replace it with a better measured transition.",
+    "Enemies previously had movement and health but no offensive pressure against the player."
   ],
   "risks": [
     "Without hit detection or enemy response, weapon feel can only be judged on cadence, recoil, audio, and UI responsiveness.",
@@ -69,7 +74,9 @@
     "src/game/mobileZoomGuard.ts",
     "src/game/createGame.ts",
     "src/tests/fpsFoundation.test.ts",
-    "e2e/foundation-smoke.spec.ts"
+    "e2e/foundation-smoke.spec.ts",
+    "src/game/enemies/enemySystem.ts",
+    "artifacts/sub-agents/20260705-enemy-projectiles/mobile-fps-game-feel-agent/observations.md"
   ],
   "jsonForAgents": {
     "inputLatencyTargetMs": 50,
@@ -154,7 +161,31 @@
       "hitFeedback",
       "recoil",
       "powerupFeel"
-    ]
+    ],
+    "enemyProjectiles": {
+      "source": "src/game/enemies/enemySystem.ts",
+      "debugPath": "snapshot.enemies.projectiles",
+      "lineOfSightRequired": true,
+      "wallBlocked": true,
+      "damagesPlayerHealth": true,
+      "hitRadiusUnits": 0.48,
+      "projectileRadiusUnits": 0.13,
+      "damageByBehavior": {
+        "mushroom-hop-square": 7,
+        "slime-side-sway": 6,
+        "goleling-heavy-square": 10
+      },
+      "cooldownSecondsByBehavior": {
+        "mushroom-hop-square": 1.35,
+        "slime-side-sway": 1.12,
+        "goleling-heavy-square": 1.75
+      },
+      "speedUnitsPerSecondByBehavior": {
+        "mushroom-hop-square": 7.2,
+        "slime-side-sway": 8.1,
+        "goleling-heavy-square": 6.2
+      }
+    }
   },
   "nextAgents": [
     "touch-controls-agent",
