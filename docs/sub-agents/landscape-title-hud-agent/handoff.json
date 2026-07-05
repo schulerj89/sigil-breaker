@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "landscape-title-hud-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T18:24:54Z",
-  "summary": "Landscape debug HUD now includes compact player coordinates, a music mute icon, a right-thumb weapon cycle button, and phone-only animated portrait rotate prompt coverage.",
+  "updatedAt": "2026-07-05T01:16:00Z",
+  "summary": "Landscape title screen now uses selected GPT Image 2 concept 002 with a compressed WebP background, live DOM title/start UI, loading asset gate, and debug-exposed loading/title/gameplay phases.",
   "observations": [
     "Center metrics HUD includes FPS, XYZ coordinates, JS heap, level triangle count, and chunk count.",
     "Coordinates use the player's debug scene position with one decimal precision.",
@@ -14,7 +14,12 @@
     "The rotate prompt arrow was removed; the phone animation is the only orientation visual.",
     "The bottom weapon preview tray was removed and replaced by a single [data-weapon-cycle-button] beside the fire button.",
     "The weapon cycle button exposes the active weapon through data-active-weapon-id and an updated ARIA label.",
-    "Screenshot QA for this pass is stored under artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/."
+    "Screenshot QA for this pass is stored under artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/.",
+    "GPT Image 2 generated three no-text landscape title concepts under artifacts/sub-agents/20260705-title-screen/landscape-title-hud-agent/generated-designs/.",
+    "Concept 002 was selected because it leaves the cleanest left-side title/start zone and matches the metallic FPS foundation.",
+    "The runtime title background is public/assets/title/sigilbreaker-title-bg.webp and is loaded through publicAssetUrl for assetBuild cache busting.",
+    "The loading screen waits for 18 boot assets: 17 gameplay assets plus ui.title.background.sigilbreaker.generated.",
+    "The debug snapshot now exposes snapshot.scene.phase and snapshot.ui.loading for title/start QA."
   ],
   "decisions": [
     "Landscape is the playable orientation.",
@@ -26,16 +31,23 @@
     "Portrait prompt must cover the viewport because portrait is not playable.",
     "Weapon switching should stay in the right thumb zone beside held-fire so the bottom center remains clear for the first-person viewmodel.",
     "The rotate prompt should remain CSS-driven and respect prefers-reduced-motion.",
-    "The rotate prompt should stay phone-only unless a future screenshot review proves another cue is needed."
+    "The rotate prompt should stay phone-only unless a future screenshot review proves another cue is needed.",
+    "Use live DOM title and start button text over generated no-text background art.",
+    "Use the condensed sci-fi sans font direction for title and loading UI.",
+    "Keep the title and start button anchored left, away from the center-right portal and right thumb combat controls.",
+    "Ship the title background as compressed WebP instead of the full generated PNG."
   ],
   "caughtIssues": [
     "Initial coordinate badge sizing risked crowding the 667 px landscape HUD; CSS now uses auto/minmax/auto grid columns and wrapped center metrics.",
     "HUD safe-area and reward-choice rules are still future work.",
     "Adding more right-side HUD controls can crowd the build, weapon, and ammo badges on 667px landscape viewports.",
-    "The bottom weapon tray competed with viewmodel framing and should not return without a new mobile layout review."
+    "The bottom weapon tray competed with viewmodel framing and should not return without a new mobile layout review.",
+    "The first title screenshot caught the loading overlay ghosting beneath the title; hidden full-screen overlays now use display none.",
+    "The selected art needed a stronger left-side title-safe dark gradient so generated background details do not read as stray UI."
   ],
   "risks": [
-    "Reward UI can become unreadable if powerup names and stat copy are not constrained early."
+    "Reward UI can become unreadable if powerup names and stat copy are not constrained early.",
+    "Future title or reward UI can become unreadable if placed over the center-right portal detail."
   ],
   "blockers": [],
   "artifacts": [
@@ -43,7 +55,11 @@
     "src/style.css",
     "e2e/foundation-smoke.spec.ts",
     "artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent",
-    "artifacts/sub-agents/20260704-weapon-effects-smoothing/smoke-qa-agent"
+    "artifacts/sub-agents/20260704-weapon-effects-smoothing/smoke-qa-agent",
+    "public/assets/title/sigilbreaker-title-bg.webp",
+    "docs/assets/openai-title-concepts.json",
+    "artifacts/sub-agents/20260705-title-screen/landscape-title-hud-agent",
+    "artifacts/sub-agents/20260705-title-screen/smoke-qa-agent/title-screen-844x390.png"
   ],
   "jsonForAgents": {
     "hudElements": [
@@ -100,12 +116,33 @@
       ]
     },
     "screenshotArtifacts": "artifacts/sub-agents/20260704-weapon-effects-smoothing/smoke-qa-agent",
-    "portraitPlayable": false
+    "portraitPlayable": false,
+    "titleScreen": {
+      "selector": "[data-title-screen]",
+      "startSelector": "[data-title-start]",
+      "loadingSelector": "[data-loading-screen]",
+      "phaseDebugPath": "snapshot.scene.phase",
+      "loadingDebugPath": "snapshot.ui.loading",
+      "runtimeBackgroundAssetId": "ui.title.background.sigilbreaker.generated",
+      "runtimeBackgroundPath": "public/assets/title/sigilbreaker-title-bg.webp",
+      "selectedConcept": "artifacts/sub-agents/20260705-title-screen/landscape-title-hud-agent/generated-designs/002-no-text-no-letters-no-logos-no-watermark-create-a-mobile-lan.png",
+      "fontDirection": "wide condensed sci-fi sans, all caps, squared cuts",
+      "colorScheme": [
+        "gunmetal",
+        "charcoal",
+        "cyan-teal",
+        "toxic green",
+        "small amber highlights",
+        "near-white title text"
+      ],
+      "cacheBustedWith": "assetBuild"
+    }
   },
   "nextAgents": [
     "touch-controls-agent",
     "powerup-progression-agent",
     "smoke-qa-agent",
-    "playthrough-qa-agent"
+    "playthrough-qa-agent",
+    "performance-budget-agent"
   ]
 }

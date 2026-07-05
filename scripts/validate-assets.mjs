@@ -14,6 +14,7 @@ const ledgerPath = path.join(repoRoot, 'docs', 'assets', 'source-ledger.json');
 const maxInitialWeaponPayloadBytes = 1_000_000;
 const maxInitialEnvironmentPayloadBytes = 1_000_000;
 const maxInitialAudioPayloadBytes = 5_000_000;
+const generatedProvidersWithOutputTerms = new Set(['ElevenLabs', 'OpenAI']);
 const execFileAsync = promisify(execFile);
 
 const ledger = JSON.parse(await readFile(ledgerPath, 'utf8'));
@@ -61,8 +62,12 @@ async function validateAssetLedger(assetLedger) {
     if (!source.sourceId || typeof source.sourceId !== 'string') {
       errors.push('Source is missing a sourceId.');
     }
-    const isGeneratedElevenLabsSource = source.generated === true && source.provider === 'ElevenLabs';
-    if (!isGeneratedElevenLabsSource && source.license !== 'Creative Commons Zero, CC0') {
+    const isGeneratedSource = source.generated === true;
+    const sourceProvider = typeof source.provider === 'string' ? source.provider : '';
+    if (isGeneratedSource && !generatedProvidersWithOutputTerms.has(sourceProvider)) {
+      errors.push(`${source.sourceId} generated source must use an approved generated provider.`);
+    }
+    if (!isGeneratedSource && source.license !== 'Creative Commons Zero, CC0') {
       errors.push(`${source.sourceId} must be CC0 for the current external asset intake gate.`);
     }
     if (source.attributionRequired !== false) {
@@ -71,11 +76,11 @@ async function validateAssetLedger(assetLedger) {
     if (source.commercialUseAllowed !== true || source.redistributionAllowed !== true) {
       errors.push(`${source.sourceId} must allow commercial use and redistribution.`);
     }
-    if (isGeneratedElevenLabsSource && (!source.licenseUrl || typeof source.licenseUrl !== 'string')) {
-      errors.push(`${source.sourceId} generated source must include an ElevenLabs terms URL.`);
+    if (isGeneratedSource && (!source.licenseUrl || typeof source.licenseUrl !== 'string')) {
+      errors.push(`${source.sourceId} generated source must include a provider terms URL.`);
     }
 
-    if (isGeneratedElevenLabsSource) {
+    if (isGeneratedSource) {
       await expectCommittedFile(source.metadataFile, errors, `${source.sourceId} metadata file`);
     } else {
       await expectCommittedFile(source.licenseFile, errors, `${source.sourceId} license file`);
@@ -161,6 +166,28 @@ async function validateAssetLedger(assetLedger) {
         }
         if (typeof asset.lufsTarget !== 'number') {
           errors.push(`${asset.assetId} must include a lufsTarget number.`);
+        }
+        continue;
+      }
+
+      if (asset.assetType === 'image') {
+        if (asset.provider !== 'OpenAI') {
+          errors.push(`${asset.assetId} generated image provider must be OpenAI.`);
+        }
+        if (!asset.prompt || typeof asset.prompt !== 'string') {
+          errors.push(`${asset.assetId} must include the generation prompt.`);
+        }
+        if (!asset.modelId || typeof asset.modelId !== 'string') {
+          errors.push(`${asset.assetId} must include the OpenAI image modelId.`);
+        }
+        if (!asset.generatedAt || typeof asset.generatedAt !== 'string') {
+          errors.push(`${asset.assetId} must include generatedAt.`);
+        }
+        if (!asset.sourceArtifact || typeof asset.sourceArtifact !== 'string') {
+          errors.push(`${asset.assetId} must include the selected source artifact path.`);
+        }
+        if (!asset.outputFormat || typeof asset.outputFormat !== 'string') {
+          errors.push(`${asset.assetId} must include outputFormat.`);
         }
         continue;
       }

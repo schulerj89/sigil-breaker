@@ -1,5 +1,5 @@
 import type { WebGLRenderer } from 'three';
-import { DEBUG_SCENE_ID, PERFORMANCE_BUDGETS, type CameraMode } from './config';
+import { DEBUG_SCENE_ID, PERFORMANCE_BUDGETS, type CameraMode, type GamePhase } from './config';
 import { FOUNDATION_ENVIRONMENT_TEXTURE_DECODED_BYTES } from './foundationLevelRuntime';
 import type { FpsControllerSnapshot } from './fpsControls';
 import type { EnemySystemSnapshot } from './enemies/enemySystem';
@@ -19,7 +19,7 @@ export interface DebugSnapshot {
   buildId: string;
   scene: {
     sceneId: string;
-    phase: 'gameplay';
+    phase: GamePhase;
     cameraMode: CameraMode;
     playerPosition: [number, number, number];
     yawRadians: number;
@@ -84,8 +84,25 @@ export interface DebugSnapshot {
   };
   ui: {
     debugVisible: boolean;
+    phase: GamePhase;
+    loading: UiLoadingSnapshot;
   };
   budgets: typeof PERFORMANCE_BUDGETS;
+}
+
+export interface UiLoadingSnapshot {
+  ready: boolean;
+  loadedAssets: number;
+  expectedAssets: number;
+  titleBackgroundLoaded: boolean;
+  titleBackgroundAssetId: string;
+  assetLoadErrors: string[];
+}
+
+export interface UiSnapshot {
+  debugVisible: boolean;
+  phase: GamePhase;
+  loading: UiLoadingSnapshot;
 }
 
 export interface DebugApi {
@@ -102,7 +119,7 @@ export function createDebugApi(
   getPlayerHealthSnapshot: () => HealthSnapshot,
   getEnemySnapshot: () => EnemySystemSnapshot,
   getZoomGuardSnapshot: () => MobileZoomGuardSnapshot,
-  getUiSnapshot: () => { debugVisible: boolean },
+  getUiSnapshot: () => UiSnapshot,
   setPlayerPose: (pose: { x: number; z: number; yawRadians?: number; pitchRadians?: number }) => void,
 ): DebugApi {
   return {
@@ -133,14 +150,15 @@ export function createDebugApi(
         ...levelStreamingSnapshot.assetLoadErrors,
         ...weaponSnapshot.assetLoadErrors,
         ...enemySnapshot.assetLoadErrors,
+        ...uiSnapshot.loading.assetLoadErrors.filter((error) => error.startsWith('ui.')),
       ];
 
       return {
         buildId: __SIGILBREAKER_BUILD_ID__,
         scene: {
           sceneId: DEBUG_SCENE_ID,
-          phase: 'gameplay',
-          cameraMode: 'gameplay',
+          phase: uiSnapshot.phase,
+          cameraMode: getCameraMode(uiSnapshot.phase),
           playerPosition: controllerSnapshot.player.position,
           yawRadians: controllerSnapshot.player.yawRadians,
           pitchRadians: controllerSnapshot.player.pitchRadians,
@@ -200,13 +218,17 @@ export function createDebugApi(
           movePointerActive: controllerSnapshot.controls.movePointerActive,
           moveVector: controllerSnapshot.controls.moveVector,
           keyboardVector: controllerSnapshot.controls.keyboardVector,
-          buttons: ['hold-fire-aim', 'weapon-cycle', 'music-toggle', 'debug-toggle'],
+          buttons: ['title-start', 'hold-fire-aim', 'weapon-cycle', 'music-toggle', 'debug-toggle'],
         },
         ui: uiSnapshot,
         budgets: PERFORMANCE_BUDGETS,
       };
     },
   };
+}
+
+function getCameraMode(phase: GamePhase): CameraMode {
+  return phase === 'gameplay' ? 'gameplay' : 'title';
 }
 
 function readHeapMb(): number | null {

@@ -1,0 +1,55 @@
+{
+  "metadataVersion": "1.0.0",
+  "sourceId": "openai.gpt-image-2.title-concepts.20260705",
+  "provider": "OpenAI",
+  "modelId": "gpt-image-2",
+  "generatedAt": "2026-07-05T00:54:00.7267471Z",
+  "termsReviewedAt": "2026-07-05T00:54:00.7267471Z",
+  "termsUrl": "https://openai.com/policies/row-terms-of-use/",
+  "apiCopyrightFaqUrl": "https://help.openai.com/en/articles/5008634-will-openai-claim-copyright-over-what-outputs-i-generate-with-the-api",
+  "batchSettings": {
+    "size": "2048x1152",
+    "quality": "medium",
+    "outputFormat": "png",
+    "concurrency": 3
+  },
+  "runtimeConversion": {
+    "selectedSourceFormat": "png",
+    "runtimeFormat": "webp",
+    "webpQuality": 78,
+    "runtimeBytes": 212252,
+    "runtimeSha256": "26900935816e32aaa716deef3e3515a73e0179316ea38773f26f3da09e347e0f"
+  },
+  "selection": {
+    "selectedConcept": "002-no-text-no-letters-no-logos-no-watermark-create-a-mobile-lan.png",
+    "runnerUp": "001-no-text-no-letters-no-logos-no-watermark-create-a-mobile-lan.png",
+    "selectedRuntimePath": "public/assets/title/sigilbreaker-title-bg.webp",
+    "selectedReason": "Concept 002 has the clearest dark left-side title zone, a readable start-button area, no fake UI or title text, and a metallic facility style that matches the current FPS foundation."
+  },
+  "styleDecision": {
+    "font": "Wide condensed sci-fi sans, all caps, squared cuts, no decorative rune font for core UI.",
+    "colorScheme": "Gunmetal and charcoal base, cyan-teal emissive accents, restrained toxic green portal glow, small amber warning highlights, near-white title text with dark shadow."
+  },
+  "concepts": [
+    {
+      "id": "concept-001",
+      "artifactPath": "artifacts/sub-agents/20260705-title-screen/landscape-title-hud-agent/generated-designs/001-no-text-no-letters-no-logos-no-watermark-create-a-mobile-lan.png",
+      "prompt": "No text, no letters, no logos, no watermark. Create a mobile landscape game title background for a stylized Three.js first-person shooter called Sigilbreaker. A steel corridor opens into a fractured neon-green sigil gate, with low-poly industrial metal walls, tiled floor, faint enemy silhouettes far away, and room for a crisp HTML title in the upper-left third. Keep it readable on a small phone screen, high contrast, not too busy."
+    },
+    {
+      "id": "concept-002",
+      "artifactPath": "artifacts/sub-agents/20260705-title-screen/landscape-title-hud-agent/generated-designs/002-no-text-no-letters-no-logos-no-watermark-create-a-mobile-lan.png",
+      "prompt": "No text, no letters, no logos, no watermark. Create a mobile landscape game title background for Sigilbreaker: a ritual-tech foundry hall with a shattered metallic glyph machine embedded in the far wall, steel catwalk pieces, gridded concrete floor, and a small first-person weapon silhouette at bottom-right. Leave a clean title zone along the left side and a start-button zone under it. The image should feel like a playable FPS level, not a marketing poster."
+    },
+    {
+      "id": "concept-003",
+      "artifactPath": "artifacts/sub-agents/20260705-title-screen/landscape-title-hud-agent/generated-designs/003-no-text-no-letters-no-logos-no-watermark-create-a-mobile-lan.png",
+      "prompt": "No text, no letters, no logos, no watermark. Create a mobile landscape FPS title background for Sigilbreaker set inside a monster-infested steel bunker room. The room has tall metallic walls, a roof grid, floor tiles, glowing green sigil cracks on one wall, and abstract small creature shapes held back by light. Leave central and upper-left negative space for live HTML title and a start button. It should match a mobile arcade shooter that uses external 3D assets."
+    }
+  ],
+  "risks": [
+    "Use object-fit-style cover testing across phone landscape widths because edge cropping is expected.",
+    "Do not place title or start UI over the circular portal detail on the center-right.",
+    "Keep the runtime image compressed; avoid stacking additional full-screen animated assets during boot."
+  ]
+}

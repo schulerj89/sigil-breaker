@@ -42,3 +42,32 @@ Status: complete for debug coordinate, music mute, weapon cycle, and rotate prom
 - Smoke QA should keep checking the metrics row at phone landscape widths when more badges or controls are added.
 - Future HUD changes should keep `[data-music-toggle]` reachable and avoid placing it under `aria-hidden`.
 - Future touch-control work should keep `[data-weapon-cycle-button]` near `[data-fire-button]` and preserve the no-bottom-tray contract.
+
+## 2026-07-05 Title Screen Pass
+
+### What It Saw
+
+- GPT Image 2 generated three no-text landscape title concepts under `artifacts/sub-agents/20260705-title-screen/landscape-title-hud-agent/generated-designs/`.
+- Concept 002 has the cleanest left-side title/start zone and the best metallic FPS match.
+- Concept 001 was the runner-up because the sigil read is strong, but it competes more with the title zone.
+- The selected runtime title background is `public/assets/title/sigilbreaker-title-bg.webp`.
+- `snapshot.scene.phase` and `snapshot.ui.loading` now expose `loading`, `title`, and `gameplay` state for QA.
+
+### Decisions
+
+- Use live DOM text and buttons over generated art instead of baking words into the image.
+- Use a wide condensed sci-fi sans style with all-caps title treatment; do not use decorative rune fonts for primary UI.
+- Use gunmetal, charcoal, cyan-teal, restrained green, and small amber accents as the title/loading palette.
+- Keep title/start left anchored and avoid the center-right portal detail.
+- Compress the runtime image to WebP; keep the full generated PNG concepts only as sub-agent artifacts.
+
+### Caught Issues
+
+- The first title screenshot caught the loading overlay ghosting beneath the title during a fade transition; hidden full-screen overlays now use `display: none`.
+- The left edge of the selected concept needed a stronger dark title-safe gradient so generated background details do not read as stray UI.
+
+### Next Handoff Notes
+
+- Future title/HUD work should keep `[data-title-screen]`, `[data-title-start]`, and `[data-loading-screen]` stable for smoke QA.
+- Future powerup/reward screens should follow the same condensed font direction and cyan/green/charcoal palette unless the game direction agent intentionally revisits the visual identity.
+- Browser smoke should continue checking title background cache busting through `assetBuild`.

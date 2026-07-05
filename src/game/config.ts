@@ -20,4 +20,6 @@ export const PERFORMANCE_BUDGETS = {
   initialScenePayloadMbMax: 40,
 } as const;
 
+export type GamePhase = 'loading' | 'title' | 'gameplay';
+
 export type CameraMode = 'title' | 'gameplay' | 'aim' | 'sprint' | 'hit' | 'death' | 'cinematic';

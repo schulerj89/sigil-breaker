@@ -1,6 +1,6 @@
 {
   "ledgerVersion": "1.0.0",
-  "updatedAt": "2026-07-04T20:32:58Z",
+  "updatedAt": "2026-07-05T00:54:00Z",
   "sources": [
     {
       "sourceId": "kenney.blaster-kit.2-1",
@@ -392,6 +392,53 @@
           "loopable": true,
           "lufsTarget": -18,
           "generatedAt": "2026-07-04T20:32:58.431Z"
+        }
+      ]
+    },
+    {
+      "sourceId": "openai.gpt-image-2.title-concepts.20260705",
+      "name": "Sigilbreaker Title Screen Concept Batch",
+      "author": "OpenAI GPT Image 2",
+      "provider": "OpenAI",
+      "generated": true,
+      "sourceUrl": "https://openai.com/policies/row-terms-of-use/",
+      "license": "OpenAI generated output ownership per Terms of Use",
+      "licenseUrl": "https://openai.com/policies/row-terms-of-use/",
+      "metadataFile": "docs/assets/openai-title-concepts.json",
+      "commercialUseAllowed": true,
+      "redistributionAllowed": true,
+      "modificationAllowed": true,
+      "attributionRequired": false,
+      "notes": [
+        "Concept images were generated through the local secret broker with gpt-image-2.",
+        "The selected PNG concept is stored as a sub-agent artifact; the runtime image is a compressed WebP.",
+        "OpenAI terms and copyright FAQ were checked on 2026-07-05; do not represent the image as human-generated."
+      ],
+      "assets": [
+        {
+          "assetId": "ui.title.background.sigilbreaker.generated",
+          "assetType": "image",
+          "sourceFile": "GPT Image 2 generated PNG concept 002",
+          "sourceArtifact": "artifacts/sub-agents/20260705-title-screen/landscape-title-hud-agent/generated-designs/002-no-text-no-letters-no-logos-no-watermark-create-a-mobile-lan.png",
+          "path": "public/assets/title/sigilbreaker-title-bg.webp",
+          "bytes": 212252,
+          "sha256": "26900935816e32aaa716deef3e3515a73e0179316ea38773f26f3da09e347e0f",
+          "gameUse": "ui",
+          "loadGroup": "title-screen",
+          "provider": "OpenAI",
+          "endpoint": "images.generate",
+          "modelId": "gpt-image-2",
+          "prompt": "No text, no letters, no logos, no watermark. Create a mobile landscape game title background for Sigilbreaker: a ritual-tech foundry hall with a shattered metallic glyph machine embedded in the far wall, steel catwalk pieces, gridded concrete floor, and a small first-person weapon silhouette at bottom-right. Leave a clean title zone along the left side and a start-button zone under it. The image should feel like a playable FPS level, not a marketing poster.",
+          "settings": {
+            "size": "2048x1152",
+            "quality": "medium",
+            "sourceOutputFormat": "png",
+            "runtimeOutputFormat": "webp",
+            "webpQuality": 78
+          },
+          "intendedUse": "title-screen-background",
+          "outputFormat": "webp",
+          "generatedAt": "2026-07-05T00:54:00.7267471Z"
         }
       ]
     }

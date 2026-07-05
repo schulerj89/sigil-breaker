@@ -1,8 +1,9 @@
 import * as THREE from 'three';
-import { DEBUG_SCENE_ID, GAME_TITLE, PERFORMANCE_BUDGETS } from './config';
-import { createDebugApi, type DebugApi } from './debug';
+import { publicAssetUrl } from './assetUrls';
+import { DEBUG_SCENE_ID, GAME_TITLE, PERFORMANCE_BUDGETS, type GamePhase } from './config';
+import { createDebugApi, type DebugApi, type UiLoadingSnapshot } from './debug';
 import { EnemySystem } from './enemies/enemySystem';
-import { createFoundationLevelRuntime } from './foundationLevelRuntime';
+import { createFoundationLevelRuntime, type FoundationLevelRuntime } from './foundationLevelRuntime';
 import { FpsControls } from './fpsControls';
 import { Health } from './health';
 import { LEVEL_HEIGHT_TILES, LEVEL_WIDTH_TILES } from './levelMap';
@@ -14,6 +15,11 @@ export interface SigilbreakerApp {
   dispose: () => void;
   debug: DebugApi;
 }
+
+const TITLE_BACKGROUND_ASSET_ID = 'ui.title.background.sigilbreaker.generated';
+const TITLE_BACKGROUND_PATH = 'assets/title/sigilbreaker-title-bg.webp';
+const EXPECTED_GAMEPLAY_ASSET_COUNT = 17;
+const EXPECTED_BOOT_ASSET_COUNT = EXPECTED_GAMEPLAY_ASSET_COUNT + 1;
 
 declare global {
   interface Window {
@@ -74,6 +80,9 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   let lastHudUpdate = 0;
   let fps = PERFORMANCE_BUDGETS.targetFps;
   let debugVisible = true;
+  let gamePhase: GamePhase = 'loading';
+  let titleBackgroundLoaded = false;
+  let titleBackgroundError: string | null = null;
 
   const debug = createDebugApi(
     renderer,
@@ -84,13 +93,62 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     () => playerHealth.getSnapshot(),
     () => enemySystem.getSnapshot(),
     () => zoomGuard.getSnapshot(),
-    () => ({ debugVisible }),
+    () => ({
+      debugVisible,
+      phase: gamePhase,
+      loading: readLoadingSnapshot(
+        levelRuntime,
+        weaponSystem,
+        enemySystem,
+        titleBackgroundLoaded,
+        titleBackgroundError,
+      ),
+    }),
     (pose) => controls.setPose(pose),
   );
   window.__SIGILBREAKER_DEBUG__ = debug;
 
   const shell = root.querySelector<HTMLElement>('.game-shell');
+  const titleBackgroundUrl = publicAssetUrl(TITLE_BACKGROUND_PATH);
+  shell?.style.setProperty('--title-background-image', `url("${titleBackgroundUrl}")`);
+  const titleBackgroundImage = new Image();
+  titleBackgroundImage.onload = () => {
+    titleBackgroundLoaded = true;
+  };
+  titleBackgroundImage.onerror = () => {
+    titleBackgroundError = `${TITLE_BACKGROUND_ASSET_ID}: failed to load`;
+  };
+  titleBackgroundImage.src = titleBackgroundUrl;
+
   const debugToggle = root.querySelector<HTMLButtonElement>('[data-debug-toggle]');
+  const titleStartButton = root.querySelector<HTMLButtonElement>('[data-title-start]');
+  const loadingScreen = root.querySelector<HTMLElement>('[data-loading-screen]');
+  const titleScreen = root.querySelector<HTMLElement>('[data-title-screen]');
+  const applyGamePhase = (): void => {
+    if (shell) {
+      shell.dataset.gamePhase = gamePhase;
+    }
+    if (titleStartButton) {
+      titleStartButton.disabled = gamePhase !== 'title';
+    }
+    loadingScreen?.setAttribute('aria-hidden', String(gamePhase !== 'loading'));
+    titleScreen?.setAttribute('aria-hidden', String(gamePhase !== 'title'));
+  };
+  const startGameplay = (): void => {
+    if (gamePhase !== 'title') {
+      return;
+    }
+    gamePhase = 'gameplay';
+    applyGamePhase();
+  };
+  const onTitleStartPointerDown = (event: PointerEvent): void => {
+    event.preventDefault();
+    startGameplay();
+  };
+  const onTitleStartClick = (event: MouseEvent): void => {
+    event.preventDefault();
+    startGameplay();
+  };
   const updateDebugVisibility = (): void => {
     shell?.classList.toggle('game-shell--debug-hidden', !debugVisible);
     if (debugToggle) {
@@ -104,7 +162,10 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     debugVisible = !debugVisible;
     updateDebugVisibility();
   };
+  titleStartButton?.addEventListener('pointerdown', onTitleStartPointerDown);
+  titleStartButton?.addEventListener('click', onTitleStartClick);
   debugToggle?.addEventListener('pointerdown', onDebugTogglePointerDown);
+  applyGamePhase();
   updateDebugVisibility();
 
   const resize = (): void => {
@@ -121,8 +182,10 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     lastTime = now;
     fps = fps * 0.9 + (1 / Math.max(deltaSeconds, 0.001)) * 0.1;
 
-    controls.update(deltaSeconds);
-    enemySystem.update(deltaSeconds, controls.getSnapshot().player.position, debugVisible);
+    if (gamePhase === 'gameplay') {
+      controls.update(deltaSeconds);
+      enemySystem.update(deltaSeconds, controls.getSnapshot().player.position, debugVisible);
+    }
     weaponSystem.update(deltaSeconds, now);
     levelRuntime.update(controls.getSnapshot().player.position);
     renderer.render(scene, camera);
@@ -130,6 +193,18 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     if (now - lastHudUpdate >= 250) {
       lastHudUpdate = now;
       updateDebugHud(root, debug);
+      const loadingSnapshot = readLoadingSnapshot(
+        levelRuntime,
+        weaponSystem,
+        enemySystem,
+        titleBackgroundLoaded,
+        titleBackgroundError,
+      );
+      updateLoadingScreen(root, loadingSnapshot);
+      if (gamePhase === 'loading' && loadingSnapshot.ready) {
+        gamePhase = 'title';
+        applyGamePhase();
+      }
     }
 
     animationFrame = window.requestAnimationFrame(animate);
@@ -149,7 +224,11 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       weaponSystem.dispose();
       enemySystem.dispose();
       levelRuntime.dispose();
+      titleBackgroundImage.onload = null;
+      titleBackgroundImage.onerror = null;
       debugToggle?.removeEventListener('pointerdown', onDebugTogglePointerDown);
+      titleStartButton?.removeEventListener('pointerdown', onTitleStartPointerDown);
+      titleStartButton?.removeEventListener('click', onTitleStartClick);
       resizeObserver.disconnect();
       window.removeEventListener('orientationchange', resize);
       scene.traverse((object) => {
@@ -169,7 +248,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
 
 function createShellMarkup(): string {
   return `
-    <div class="game-shell">
+    <div class="game-shell" data-game-phase="loading">
       <canvas class="game-canvas" aria-label="${GAME_TITLE} prototype render"></canvas>
       <div class="look-zone" aria-hidden="true"></div>
       <div class="hud">
@@ -215,6 +294,29 @@ function createShellMarkup(): string {
         </div>
       </div>
       <div class="crosshair" aria-hidden="true"></div>
+      <div class="loading-screen" data-loading-screen role="status" aria-live="polite">
+        <div class="loading-screen__content">
+          <div class="loading-screen__brand">SIGILBREAKER</div>
+          <div class="loading-screen__label">LOADING ASSETS</div>
+          <div class="loading-screen__bar" aria-hidden="true">
+            <span class="loading-screen__fill" data-loading-fill></span>
+          </div>
+          <div class="loading-screen__count" data-loading-count>0 / ${EXPECTED_BOOT_ASSET_COUNT}</div>
+        </div>
+      </div>
+      <div class="title-screen" data-title-screen aria-hidden="true">
+        <div class="title-screen__copy">
+          <h1 class="title-screen__title">SIGILBREAKER</h1>
+          <p class="title-screen__tagline">BREACH THE STEEL SIGIL</p>
+          <button
+            class="title-screen__start"
+            type="button"
+            data-ui-control
+            data-title-start
+            disabled
+          >START</button>
+        </div>
+      </div>
       <div class="touch-zones">
         <div class="stick" data-move-stick>
           <div class="stick__knob" data-stick-knob></div>
@@ -252,6 +354,60 @@ function createShellMarkup(): string {
       </div>
     </div>
   `;
+}
+
+function readLoadingSnapshot(
+  levelRuntime: FoundationLevelRuntime,
+  weaponSystem: WeaponSystem,
+  enemySystem: EnemySystem,
+  titleBackgroundLoaded: boolean,
+  titleBackgroundError: string | null,
+): UiLoadingSnapshot {
+  const levelSnapshot = levelRuntime.getSnapshot();
+  const weaponSnapshot = weaponSystem.getSnapshot();
+  const enemySnapshot = enemySystem.getSnapshot();
+  const loadedGameplayAssetIds = new Set([
+    ...levelSnapshot.loadedTextureAssetIds,
+    ...weaponSnapshot.loadedAssetIds,
+    ...enemySnapshot.loadedAssetIds,
+  ]);
+  const assetLoadErrors = [
+    ...levelSnapshot.assetLoadErrors,
+    ...weaponSnapshot.assetLoadErrors,
+    ...enemySnapshot.assetLoadErrors,
+  ];
+  if (titleBackgroundError) {
+    assetLoadErrors.push(titleBackgroundError);
+  }
+  const loadedAssets = loadedGameplayAssetIds.size + (titleBackgroundLoaded ? 1 : 0);
+  const ready =
+    loadedAssets >= EXPECTED_BOOT_ASSET_COUNT &&
+    assetLoadErrors.length === 0 &&
+    weaponSnapshot.modelBytesLoaded > 0 &&
+    enemySnapshot.modelBytesLoaded > 0 &&
+    titleBackgroundLoaded;
+
+  return {
+    ready,
+    loadedAssets,
+    expectedAssets: EXPECTED_BOOT_ASSET_COUNT,
+    titleBackgroundLoaded,
+    titleBackgroundAssetId: TITLE_BACKGROUND_ASSET_ID,
+    assetLoadErrors,
+  };
+}
+
+function updateLoadingScreen(root: HTMLElement, snapshot: UiLoadingSnapshot): void {
+  const count = root.querySelector<HTMLElement>('[data-loading-count]');
+  const fill = root.querySelector<HTMLElement>('[data-loading-fill]');
+  if (count) {
+    count.textContent = snapshot.assetLoadErrors.length > 0
+      ? 'LOAD ISSUE'
+      : `${snapshot.loadedAssets} / ${snapshot.expectedAssets}`;
+  }
+  if (fill) {
+    fill.style.width = `${Math.max(0, Math.min(1, snapshot.loadedAssets / snapshot.expectedAssets)) * 100}%`;
+  }
 }
 
 function shouldPreserveDrawingBuffer(): boolean {

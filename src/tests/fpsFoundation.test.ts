@@ -598,6 +598,9 @@ describe('FPS foundation config', () => {
     expect(publicAssetUrl('assets/audio/elevenlabs-foundation/spark-sidearm.mp3')).toMatch(
       /assets\/audio\/elevenlabs-foundation\/spark-sidearm\.mp3\?assetBuild=.+/,
     );
+    expect(publicAssetUrl('assets/title/sigilbreaker-title-bg.webp')).toMatch(
+      /assets\/title\/sigilbreaker-title-bg\.webp\?assetBuild=.+/,
+    );
     expect(withAssetVersion('Textures/colormap.png?assetBuild=already')).toBe(
       'Textures/colormap.png?assetBuild=already',
     );

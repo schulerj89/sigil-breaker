@@ -4,6 +4,7 @@ test.setTimeout(240_000);
 
 const FULL_INTERACTION_PROJECT = 'chromium-modern-phone-landscape';
 const EXPECTED_ENEMY_COUNT = 12;
+const EXPECTED_TITLE_BACKGROUND_ASSET_ID = 'ui.title.background.sigilbreaker.generated';
 const EXPECTED_LOADED_ASSET_IDS = [
   'audio.music.foundation.elevenlabs',
   'audio.weapon.bore.elevenlabs',
@@ -27,6 +28,7 @@ const EXPECTED_LOADED_ASSET_IDS = [
 interface DebugSnapshot {
   buildId: string;
   scene: {
+    phase: 'loading' | 'title' | 'gameplay';
     playerPosition: [number, number, number];
   };
   level: {
@@ -171,6 +173,15 @@ interface DebugSnapshot {
   };
   ui: {
     debugVisible: boolean;
+    phase: 'loading' | 'title' | 'gameplay';
+    loading: {
+      ready: boolean;
+      loadedAssets: number;
+      expectedAssets: number;
+      titleBackgroundLoaded: boolean;
+      titleBackgroundAssetId: string;
+      assetLoadErrors: string[];
+    };
   };
   budgets: {
     drawCallsMax: number;
@@ -202,9 +213,26 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
 
   await page.goto('/sigil-breaker/?qaCapture=1', { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.game-canvas')).toBeVisible();
+  await expect(page.locator('[data-loading-screen]')).toBeAttached();
   await expect(page.locator('[data-debug-coordinates]')).toHaveText(
     /^XYZ -?\d+\.\d -?\d+\.\d -?\d+\.\d$/,
   );
+  await waitForTitleReady(page);
+  await expect(page.locator('[data-title-screen]')).toBeVisible();
+  await expect(page.locator('[data-title-start]')).toBeEnabled();
+
+  const titleSnapshot = await readDebugSnapshot(page);
+  expect(titleSnapshot.scene.phase).toBe('title');
+  expect(titleSnapshot.ui.phase).toBe('title');
+  expect(titleSnapshot.ui.loading).toMatchObject({
+    ready: true,
+    loadedAssets: EXPECTED_LOADED_ASSET_IDS.length + 1,
+    expectedAssets: EXPECTED_LOADED_ASSET_IDS.length + 1,
+    titleBackgroundLoaded: true,
+    titleBackgroundAssetId: EXPECTED_TITLE_BACKGROUND_ASSET_ID,
+    assetLoadErrors: [],
+  });
+  await startGameFromTitle(page);
 
   await page.waitForFunction((expectedAssetCount) => {
     const snapshot = window.__SIGILBREAKER_DEBUG__?.getSnapshot();
@@ -225,6 +253,8 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   const debugSnapshot = snapshot as DebugSnapshot;
   const viewport = page.viewportSize();
   expect(debugSnapshot.buildId).toMatch(/^\d{14}$/);
+  expect(debugSnapshot.scene.phase).toBe('gameplay');
+  expect(debugSnapshot.ui.phase).toBe('gameplay');
   expect(debugSnapshot.device.orientation).toBe('landscape');
   expect(debugSnapshot.device.viewport).toMatchObject(viewport ?? {});
   expect(debugSnapshot.level).toMatchObject({
@@ -401,13 +431,34 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     'torch-burst.mp3',
     'vault-heavy.mp3',
   ]);
+  const titleBackgroundUrls = await page.evaluate((buildId) =>
+    [
+      ...new Set(
+        performance
+          .getEntriesByType('resource')
+          .map((entry) => entry.name)
+          .filter((url) => url.includes('/assets/title/sigilbreaker-title-bg.webp') && url.endsWith('.webp?assetBuild=' + buildId)),
+      ),
+    ].sort(),
+    debugSnapshot.buildId,
+  );
+  expect(titleBackgroundUrls).toHaveLength(1);
 
-  for (const url of [...previewUrls, ...modelUrls, ...enemyModelUrls, ...textureUrls, ...environmentTextureUrls, ...audioUrls]) {
+  for (const url of [
+    ...previewUrls,
+    ...modelUrls,
+    ...enemyModelUrls,
+    ...textureUrls,
+    ...environmentTextureUrls,
+    ...audioUrls,
+    ...titleBackgroundUrls,
+  ]) {
     expect(new URL(url).searchParams.get('assetBuild')).toBe(debugSnapshot.buildId);
   }
 
   if (testInfo.project.name === FULL_INTERACTION_PROJECT) {
     await verifyRestartLoopDoesNotGrowRendererMetrics(page, debugSnapshot);
+    await startGameFromTitle(page);
   }
 
   const preShotSnapshot = await readDebugSnapshot(page);
@@ -539,6 +590,32 @@ async function readDebugSnapshot(page: Page): Promise<DebugSnapshot> {
   return snapshot as DebugSnapshot;
 }
 
+async function waitForTitleReady(page: Page): Promise<void> {
+  await page.waitForFunction((expectedAssetCount) => {
+    const snapshot = window.__SIGILBREAKER_DEBUG__?.getSnapshot();
+
+    return (
+      snapshot !== undefined &&
+      snapshot.scene.phase === 'title' &&
+      snapshot.ui.loading.ready === true &&
+      snapshot.ui.loading.loadedAssets === expectedAssetCount &&
+      snapshot.ui.loading.assetLoadErrors.length === 0
+    );
+  }, EXPECTED_LOADED_ASSET_IDS.length + 1);
+}
+
+async function startGameFromTitle(page: Page): Promise<void> {
+  const snapshot = await readDebugSnapshot(page);
+  if (snapshot.scene.phase === 'gameplay') {
+    return;
+  }
+
+  await waitForTitleReady(page);
+  await page.locator('[data-title-start]').click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('gameplay');
+  await expect(page.locator('[data-title-screen]')).toBeHidden();
+}
+
 async function verifyRestartLoopDoesNotGrowRendererMetrics(page: Page, baseline: DebugSnapshot): Promise<void> {
   for (let index = 0; index < 5; index++) {
     await page.evaluate(() => {
@@ -552,6 +629,7 @@ async function verifyRestartLoopDoesNotGrowRendererMetrics(page: Page, baseline:
     const snapshot = await readDebugSnapshot(page);
 
     expect(snapshot.assetLoadErrors).toEqual([]);
+    expect(snapshot.ui.loading.assetLoadErrors).toEqual([]);
     expect(snapshot.memoryMetrics.loadedAssetIds).toEqual(baseline.memoryMetrics.loadedAssetIds);
     expect(snapshot.rendererMetrics.calls).toBeLessThanOrEqual(snapshot.budgets.drawCallsMax);
     expect(snapshot.rendererMetrics.triangles).toBeLessThanOrEqual(snapshot.budgets.trianglesMax);

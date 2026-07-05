@@ -139,3 +139,7 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - The headed enemy movement check uses maximum displacement across intermediate samples because looping patrols can return near their start on the final frame.
 - Latest headed enemy facing/audio run stored under `artifacts/sub-agents/20260705-enemy-facing-audio/smoke-qa-agent/` includes `headed-first-enemy-facing-close.png`, which shows the Mushnub eyes facing the player and aligned with the red debug cone.
 - Latest `npm run validate:browser` passed all five landscape viewports after adding SFX pool/debug counters; browser smoke checks SFX pool profiles, play request growth, audio unlock, and zero missed SFX play requests during hold-fire.
+- Latest `npm run validate:browser` passed all five landscape viewports after adding the generated title screen, asset-loading gate, and start button flow.
+- Browser smoke now waits for `snapshot.scene.phase === "title"`, verifies 18 boot assets including `ui.title.background.sigilbreaker.generated`, clicks `[data-title-start]`, and verifies `snapshot.scene.phase === "gameplay"`.
+- Browser smoke verifies the title background WebP URL is cache-busted with `assetBuild`.
+- Focused title screenshot is stored under `artifacts/sub-agents/20260705-title-screen/smoke-qa-agent/title-screen-844x390.png`.

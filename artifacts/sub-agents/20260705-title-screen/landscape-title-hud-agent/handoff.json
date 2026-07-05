@@ -1,0 +1,33 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "landscape-title-hud-agent",
+  "status": "complete",
+  "updatedAt": "2026-07-05T01:16:00Z",
+  "summary": "Selected GPT Image 2 concept 002 for the title screen, recommended the condensed sci-fi font direction, and approved the gunmetal/cyan/green title palette for the runtime title and loading screen.",
+  "selectedConcept": "generated-designs/002-no-text-no-letters-no-logos-no-watermark-create-a-mobile-lan.png",
+  "runnerUp": "generated-designs/001-no-text-no-letters-no-logos-no-watermark-create-a-mobile-lan.png",
+  "runtimeAsset": "public/assets/title/sigilbreaker-title-bg.webp",
+  "fontDirection": "Wide condensed sci-fi sans, all caps, squared cuts, no decorative rune font for core UI.",
+  "colorScheme": [
+    "gunmetal",
+    "charcoal",
+    "cyan-teal",
+    "toxic green",
+    "small amber highlights",
+    "near-white title text"
+  ],
+  "notesForAgents": {
+    "titleSelector": "[data-title-screen]",
+    "startSelector": "[data-title-start]",
+    "loadingSelector": "[data-loading-screen]",
+    "loadingDebugPath": "snapshot.ui.loading",
+    "phaseDebugPath": "snapshot.scene.phase",
+    "runtimeTitleAssetId": "ui.title.background.sigilbreaker.generated",
+    "avoid": [
+      "center-right title placement over the portal",
+      "fake HUD panels on the title image",
+      "decorative rune font for primary UI",
+      "uncompressed full-size PNG runtime background"
+    ]
+  }
+}

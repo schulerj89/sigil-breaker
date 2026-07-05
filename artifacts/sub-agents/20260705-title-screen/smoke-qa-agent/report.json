@@ -1,0 +1,37 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "smoke-qa-agent",
+  "status": "complete",
+  "updatedAt": "2026-07-05T01:16:00Z",
+  "commands": [
+    "npm run build",
+    "npm run validate:browser"
+  ],
+  "browserSmoke": {
+    "projectsPassed": 5,
+    "viewports": [
+      "667x375",
+      "740x360",
+      "844x390",
+      "932x430",
+      "1024x768"
+    ],
+    "titlePhaseChecked": true,
+    "startButtonChecked": true,
+    "gameplayPhaseChecked": true,
+    "titleAssetCacheBustingChecked": true,
+    "expectedBootAssets": 18,
+    "runtimeTitleAssetId": "ui.title.background.sigilbreaker.generated"
+  },
+  "screenshots": [
+    "title-screen-844x390.png"
+  ],
+  "caughtIssues": [
+    "Loading overlay ghosted under the first title screenshot before hidden full-screen overlays switched to display none.",
+    "Left-side generated background detail needed a stronger title-safe dark gradient."
+  ],
+  "nextAgents": [
+    "performance-budget-agent",
+    "playthrough-qa-agent"
+  ]
+}
