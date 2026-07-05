@@ -1,0 +1,503 @@
+{
+  "runId": "20260705-player-viewmodel-default-safe",
+  "headless": false,
+  "target": "http://127.0.0.1:61028/sigil-breaker/?qaCapture=1&headedPlayerViewmodelQa=1",
+  "buildId": "20260705150016",
+  "screenshots": [
+    "weapon-1-idle.png",
+    "weapon-1-held-fire.png",
+    "weapon-2-idle.png",
+    "weapon-2-held-fire.png",
+    "weapon-3-idle.png",
+    "weapon-3-held-fire.png",
+    "weapon-4-idle.png",
+    "weapon-4-held-fire.png",
+    "weapon-5-idle.png",
+    "weapon-5-held-fire.png"
+  ],
+  "weaponSnapshots": [
+    {
+      "screenshot": "weapon-1-idle.png",
+      "activeWeaponId": "weapon.blaster.spark",
+      "aimBlend": 0,
+      "rendererMetrics": {
+        "fps": 59.2,
+        "calls": 81,
+        "triangles": 107065,
+        "geometries": 31,
+        "textures": 55
+      },
+      "playerViewModel": {
+        "assetId": "player.hero.gadget-gremlin.apose.animated",
+        "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+        "loaded": true,
+        "modelBytesLoaded": 10983096,
+        "clipCount": 10,
+        "observedTriangles": 81375,
+        "activeGrip": {
+          "weaponId": "weapon.blaster.spark",
+          "position": [
+            -0.18,
+            -1.04,
+            0.46
+          ],
+          "rotation": [
+            0.02,
+            3.142,
+            -0.03
+          ],
+          "scale": 0.62
+        },
+        "bonePoseDegrees": {
+          "RightArm": {
+            "x": 36,
+            "y": -103,
+            "z": 72
+          },
+          "RightForeArm": {
+            "x": 0,
+            "y": 92,
+            "z": -35
+          }
+        },
+        "assetLoadErrors": []
+      },
+      "assetLoadErrors": []
+    },
+    {
+      "screenshot": "weapon-1-held-fire.png",
+      "activeWeaponId": "weapon.blaster.spark",
+      "aimBlend": 0.23,
+      "rendererMetrics": {
+        "fps": 55.8,
+        "calls": 74,
+        "triangles": 105805,
+        "geometries": 35,
+        "textures": 55
+      },
+      "playerViewModel": {
+        "assetId": "player.hero.gadget-gremlin.apose.animated",
+        "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+        "loaded": true,
+        "modelBytesLoaded": 10983096,
+        "clipCount": 10,
+        "observedTriangles": 81375,
+        "activeGrip": {
+          "weaponId": "weapon.blaster.spark",
+          "position": [
+            -0.213,
+            -1.049,
+            0.455
+          ],
+          "rotation": [
+            0.015,
+            3.142,
+            -0.025
+          ],
+          "scale": 0.623
+        },
+        "bonePoseDegrees": {
+          "RightArm": {
+            "x": 36,
+            "y": -103,
+            "z": 72
+          },
+          "RightForeArm": {
+            "x": 0,
+            "y": 92,
+            "z": -35
+          }
+        },
+        "assetLoadErrors": []
+      },
+      "assetLoadErrors": []
+    },
+    {
+      "screenshot": "weapon-2-idle.png",
+      "activeWeaponId": "weapon.blaster.bore",
+      "aimBlend": 0,
+      "rendererMetrics": {
+        "fps": 55.5,
+        "calls": 75,
+        "triangles": 105643,
+        "geometries": 36,
+        "textures": 56
+      },
+      "playerViewModel": {
+        "assetId": "player.hero.gadget-gremlin.apose.animated",
+        "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+        "loaded": true,
+        "modelBytesLoaded": 10983096,
+        "clipCount": 10,
+        "observedTriangles": 81375,
+        "activeGrip": {
+          "weaponId": "weapon.blaster.bore",
+          "position": [
+            -0.2,
+            -1.08,
+            0.45
+          ],
+          "rotation": [
+            0.03,
+            3.142,
+            -0.05
+          ],
+          "scale": 0.66
+        },
+        "bonePoseDegrees": {
+          "RightArm": {
+            "x": 36,
+            "y": -103,
+            "z": 72
+          },
+          "RightForeArm": {
+            "x": 0,
+            "y": 92,
+            "z": -35
+          }
+        },
+        "assetLoadErrors": []
+      },
+      "assetLoadErrors": []
+    },
+    {
+      "screenshot": "weapon-2-held-fire.png",
+      "activeWeaponId": "weapon.blaster.bore",
+      "aimBlend": 0.24,
+      "rendererMetrics": {
+        "fps": 55.5,
+        "calls": 75,
+        "triangles": 105643,
+        "geometries": 36,
+        "textures": 56
+      },
+      "playerViewModel": {
+        "assetId": "player.hero.gadget-gremlin.apose.animated",
+        "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+        "loaded": true,
+        "modelBytesLoaded": 10983096,
+        "clipCount": 10,
+        "observedTriangles": 81375,
+        "activeGrip": {
+          "weaponId": "weapon.blaster.bore",
+          "position": [
+            -0.238,
+            -1.089,
+            0.445
+          ],
+          "rotation": [
+            0.025,
+            3.142,
+            -0.043
+          ],
+          "scale": 0.665
+        },
+        "bonePoseDegrees": {
+          "RightArm": {
+            "x": 36,
+            "y": -103,
+            "z": 72
+          },
+          "RightForeArm": {
+            "x": 0,
+            "y": 92,
+            "z": -35
+          }
+        },
+        "assetLoadErrors": []
+      },
+      "assetLoadErrors": []
+    },
+    {
+      "screenshot": "weapon-3-idle.png",
+      "activeWeaponId": "weapon.blaster.vault",
+      "aimBlend": 0,
+      "rendererMetrics": {
+        "fps": 55.7,
+        "calls": 76,
+        "triangles": 106229,
+        "geometries": 38,
+        "textures": 57
+      },
+      "playerViewModel": {
+        "assetId": "player.hero.gadget-gremlin.apose.animated",
+        "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+        "loaded": true,
+        "modelBytesLoaded": 10983096,
+        "clipCount": 10,
+        "observedTriangles": 81375,
+        "activeGrip": {
+          "weaponId": "weapon.blaster.vault",
+          "position": [
+            -0.2,
+            -1.1,
+            0.48
+          ],
+          "rotation": [
+            0.03,
+            3.142,
+            -0.05
+          ],
+          "scale": 0.68
+        },
+        "bonePoseDegrees": {
+          "RightArm": {
+            "x": 36,
+            "y": -103,
+            "z": 72
+          },
+          "RightForeArm": {
+            "x": 0,
+            "y": 92,
+            "z": -35
+          }
+        },
+        "assetLoadErrors": []
+      },
+      "assetLoadErrors": []
+    },
+    {
+      "screenshot": "weapon-3-held-fire.png",
+      "activeWeaponId": "weapon.blaster.vault",
+      "aimBlend": 0.24,
+      "rendererMetrics": {
+        "fps": 55.8,
+        "calls": 75,
+        "triangles": 106217,
+        "geometries": 38,
+        "textures": 57
+      },
+      "playerViewModel": {
+        "assetId": "player.hero.gadget-gremlin.apose.animated",
+        "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+        "loaded": true,
+        "modelBytesLoaded": 10983096,
+        "clipCount": 10,
+        "observedTriangles": 81375,
+        "activeGrip": {
+          "weaponId": "weapon.blaster.vault",
+          "position": [
+            -0.238,
+            -1.11,
+            0.475
+          ],
+          "rotation": [
+            0.025,
+            3.142,
+            -0.043
+          ],
+          "scale": 0.685
+        },
+        "bonePoseDegrees": {
+          "RightArm": {
+            "x": 36,
+            "y": -103,
+            "z": 72
+          },
+          "RightForeArm": {
+            "x": 0,
+            "y": 92,
+            "z": -35
+          }
+        },
+        "assetLoadErrors": []
+      },
+      "assetLoadErrors": []
+    },
+    {
+      "screenshot": "weapon-4-idle.png",
+      "activeWeaponId": "weapon.blaster.rift",
+      "aimBlend": 0,
+      "rendererMetrics": {
+        "fps": 56.3,
+        "calls": 74,
+        "triangles": 105937,
+        "geometries": 39,
+        "textures": 58
+      },
+      "playerViewModel": {
+        "assetId": "player.hero.gadget-gremlin.apose.animated",
+        "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+        "loaded": true,
+        "modelBytesLoaded": 10983096,
+        "clipCount": 10,
+        "observedTriangles": 81375,
+        "activeGrip": {
+          "weaponId": "weapon.blaster.rift",
+          "position": [
+            -0.2,
+            -1.08,
+            0.48
+          ],
+          "rotation": [
+            0.025,
+            3.142,
+            -0.04
+          ],
+          "scale": 0.66
+        },
+        "bonePoseDegrees": {
+          "RightArm": {
+            "x": 36,
+            "y": -103,
+            "z": 72
+          },
+          "RightForeArm": {
+            "x": 0,
+            "y": 92,
+            "z": -35
+          }
+        },
+        "assetLoadErrors": []
+      },
+      "assetLoadErrors": []
+    },
+    {
+      "screenshot": "weapon-4-held-fire.png",
+      "activeWeaponId": "weapon.blaster.rift",
+      "aimBlend": 0.23,
+      "rendererMetrics": {
+        "fps": 55.7,
+        "calls": 73,
+        "triangles": 105937,
+        "geometries": 39,
+        "textures": 58
+      },
+      "playerViewModel": {
+        "assetId": "player.hero.gadget-gremlin.apose.animated",
+        "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+        "loaded": true,
+        "modelBytesLoaded": 10983096,
+        "clipCount": 10,
+        "observedTriangles": 81375,
+        "activeGrip": {
+          "weaponId": "weapon.blaster.rift",
+          "position": [
+            -0.237,
+            -1.089,
+            0.475
+          ],
+          "rotation": [
+            0.02,
+            3.142,
+            -0.034
+          ],
+          "scale": 0.665
+        },
+        "bonePoseDegrees": {
+          "RightArm": {
+            "x": 36,
+            "y": -103,
+            "z": 72
+          },
+          "RightForeArm": {
+            "x": 0,
+            "y": 92,
+            "z": -35
+          }
+        },
+        "assetLoadErrors": []
+      },
+      "assetLoadErrors": []
+    },
+    {
+      "screenshot": "weapon-5-idle.png",
+      "activeWeaponId": "weapon.blaster.torch",
+      "aimBlend": 0,
+      "rendererMetrics": {
+        "fps": 55.9,
+        "calls": 74,
+        "triangles": 105787,
+        "geometries": 40,
+        "textures": 59
+      },
+      "playerViewModel": {
+        "assetId": "player.hero.gadget-gremlin.apose.animated",
+        "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+        "loaded": true,
+        "modelBytesLoaded": 10983096,
+        "clipCount": 10,
+        "observedTriangles": 81375,
+        "activeGrip": {
+          "weaponId": "weapon.blaster.torch",
+          "position": [
+            -0.18,
+            -1.06,
+            0.45
+          ],
+          "rotation": [
+            0.02,
+            3.142,
+            -0.035
+          ],
+          "scale": 0.64
+        },
+        "bonePoseDegrees": {
+          "RightArm": {
+            "x": 36,
+            "y": -103,
+            "z": 72
+          },
+          "RightForeArm": {
+            "x": 0,
+            "y": 92,
+            "z": -35
+          }
+        },
+        "assetLoadErrors": []
+      },
+      "assetLoadErrors": []
+    },
+    {
+      "screenshot": "weapon-5-held-fire.png",
+      "activeWeaponId": "weapon.blaster.torch",
+      "aimBlend": 0.28,
+      "rendererMetrics": {
+        "fps": 55.8,
+        "calls": 73,
+        "triangles": 105775,
+        "geometries": 40,
+        "textures": 59
+      },
+      "playerViewModel": {
+        "assetId": "player.hero.gadget-gremlin.apose.animated",
+        "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+        "loaded": true,
+        "modelBytesLoaded": 10983096,
+        "clipCount": 10,
+        "observedTriangles": 81375,
+        "activeGrip": {
+          "weaponId": "weapon.blaster.torch",
+          "position": [
+            -0.225,
+            -1.071,
+            0.444
+          ],
+          "rotation": [
+            0.014,
+            3.142,
+            -0.029
+          ],
+          "scale": 0.644
+        },
+        "bonePoseDegrees": {
+          "RightArm": {
+            "x": 36,
+            "y": -103,
+            "z": 72
+          },
+          "RightForeArm": {
+            "x": 0,
+            "y": 92,
+            "z": -35
+          }
+        },
+        "assetLoadErrors": []
+      },
+      "assetLoadErrors": []
+    }
+  ],
+  "consoleMessages": [],
+  "failedRequests": [],
+  "passed": true
+}

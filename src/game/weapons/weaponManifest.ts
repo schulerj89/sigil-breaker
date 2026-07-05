@@ -24,6 +24,15 @@ export interface WeaponDefinition {
     scale: number;
     aimScaleMultiplier: number;
     muzzleLocalOffset: [number, number, number];
+    characterGrip: {
+      position: [number, number, number];
+      aimPosition: [number, number, number];
+      rotation: [number, number, number];
+      aimRotation: [number, number, number];
+      scale: number;
+      aimScaleMultiplier: number;
+      clipTopY: number | null;
+    };
   };
   effects: {
     muzzleColor: number;
@@ -77,6 +86,15 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       scale: 0.9,
       aimScaleMultiplier: 1.04,
       muzzleLocalOffset: [0.02, 0.03, -0.46],
+      characterGrip: {
+        position: [-0.18, -1.04, 0.46],
+        aimPosition: [-0.32, -1.08, 0.44],
+        rotation: [0.02, Math.PI, -0.03],
+        aimRotation: [0, Math.PI, -0.01],
+        scale: 0.62,
+        aimScaleMultiplier: 1.02,
+        clipTopY: null,
+      },
     },
     effects: {
       muzzleColor: 0x8df7ff,
@@ -112,6 +130,15 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       scale: 1.09,
       aimScaleMultiplier: 1.04,
       muzzleLocalOffset: [-0.05, 0.08, -0.4],
+      characterGrip: {
+        position: [-0.2, -1.08, 0.45],
+        aimPosition: [-0.36, -1.12, 0.43],
+        rotation: [0.03, Math.PI, -0.05],
+        aimRotation: [0.01, Math.PI, -0.02],
+        scale: 0.66,
+        aimScaleMultiplier: 1.03,
+        clipTopY: null,
+      },
     },
     effects: {
       muzzleColor: 0xff8a3d,
@@ -147,6 +174,15 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       scale: 0.95,
       aimScaleMultiplier: 1.04,
       muzzleLocalOffset: [-0.06, 0.05, -0.52],
+      characterGrip: {
+        position: [-0.2, -1.1, 0.48],
+        aimPosition: [-0.36, -1.14, 0.46],
+        rotation: [0.03, Math.PI, -0.05],
+        aimRotation: [0.01, Math.PI, -0.02],
+        scale: 0.68,
+        aimScaleMultiplier: 1.03,
+        clipTopY: null,
+      },
     },
     effects: {
       muzzleColor: 0xc084fc,
@@ -182,6 +218,15 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       scale: 1.02,
       aimScaleMultiplier: 1.06,
       muzzleLocalOffset: [-0.04, 0.08, -0.55],
+      characterGrip: {
+        position: [-0.2, -1.08, 0.48],
+        aimPosition: [-0.36, -1.12, 0.46],
+        rotation: [0.025, Math.PI, -0.04],
+        aimRotation: [0.005, Math.PI, -0.015],
+        scale: 0.66,
+        aimScaleMultiplier: 1.03,
+        clipTopY: null,
+      },
     },
     effects: {
       muzzleColor: 0x34d399,
@@ -217,6 +262,15 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       scale: 1.06,
       aimScaleMultiplier: 1.05,
       muzzleLocalOffset: [-0.02, 0.07, -0.45],
+      characterGrip: {
+        position: [-0.18, -1.06, 0.45],
+        aimPosition: [-0.34, -1.1, 0.43],
+        rotation: [0.02, Math.PI, -0.035],
+        aimRotation: [0, Math.PI, -0.015],
+        scale: 0.64,
+        aimScaleMultiplier: 1.02,
+        clipTopY: null,
+      },
     },
     effects: {
       muzzleColor: 0xfb7185,

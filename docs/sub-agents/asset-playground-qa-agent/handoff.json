@@ -66,7 +66,11 @@
     "artifacts/sub-agents/20260705-main-character-apose/asset-playground-qa-agent/player-character-rigged-front.png",
     "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
     "tools/meshy/generated/meshy-gadget-gremlin-apose/combined-runtime.json",
-    "tools/meshy/manifests/main-character-gadget-gremlin-apose.json"
+    "tools/meshy/manifests/main-character-gadget-gremlin-apose.json",
+    "src/game/weapons/playerWeaponViewModel.ts",
+    "src/game/weapons/weaponViewModelTuner.ts",
+    "scripts/run-headed-player-viewmodel-qa.mjs",
+    "artifacts/sub-agents/20260705-player-viewmodel-default-safe/asset-playground-qa-agent/report.json"
   ],
   "jsonForAgents": {
     "temporaryLiveLevelQa": true,
@@ -147,6 +151,28 @@
       "meshyRoute": "Image-to-3D from approved A-pose reference, then rigging, then animation tasks",
       "runtimeTarget": "one optimized player GLB with multiple named animation clips or a lightweight clip bundle without duplicate mesh payloads",
       "currentSeparateAnimationGlbsArePreviewOnly": true
+    },
+    "latestPlayerViewmodelQa": {
+      "command": "npm run qa:headed:player-viewmodel",
+      "tuningCommand": "VIEWMODEL_TUNING=1 npm run qa:headed:player-viewmodel",
+      "tuningUrlParam": "viewmodelTuning=1",
+      "result": "passed-default-safe",
+      "assetId": "player.hero.gadget-gremlin.apose.animated",
+      "modelPath": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+      "defaultGameplayBehavior": "character GLB is loaded and posed with supplied right arm rotations, but placed conservatively out of the reticle until a clean first-person arm grip is tuned",
+      "limitation": "Meshy exported the character as one skinned mesh; clean FPS arms require camera-space grip tuning, mesh clipping, or a future arm-only mesh.",
+      "tunerControls": [
+        "position",
+        "aimPosition",
+        "rotationDegrees",
+        "aimRotationDegrees",
+        "scale",
+        "aimScaleMultiplier",
+        "clipTopY"
+      ],
+      "latestArtifacts": "artifacts/sub-agents/20260705-player-viewmodel-default-safe/asset-playground-qa-agent/",
+      "tunerToggle": "Tap the VM button during gameplay to hide/show the slider panel while keeping current slider values active.",
+      "latestToggleArtifacts": "artifacts/sub-agents/20260705-player-viewmodel-toggle2/asset-playground-qa-agent/"
     }
   },
   "nextAgents": [

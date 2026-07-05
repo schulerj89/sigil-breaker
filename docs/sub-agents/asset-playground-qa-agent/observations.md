@@ -78,3 +78,12 @@ Status: needs review after browser smoke.
 - The debug runtime now loads `player.hero.gadget-gremlin.apose.animated.glb`, which contains ten embedded animation clips.
 - The animation dropdown is wired to embedded clips, not separate `animations/*.glb` runtime requests.
 - QA passed with warnings: 81375 triangles and 10983096B remain above the gameplay/cutscene integration target.
+
+## 2026-07-05 - First-Person Viewmodel Tuning
+
+- Headed gameplay QA now loads the Meshy player character through the weapon system and captures each gun idle and held-fire pose with `npm run qa:headed:player-viewmodel`.
+- The full Meshy character is one skinned mesh, so simple camera-space offsets either reveal the head/body or hide the asset before a clean arm silhouette appears.
+- Added the `?viewmodelTuning=1` mobile-landscape debug panel with position, aim position, rotation, aim rotation, scale, aim scale, and clipping controls plus live JSON output.
+- The tuning panel has a `VM` button during gameplay; tap it to hide/show the sliders without losing the current active values.
+- Default gameplay keeps the character viewmodel loaded but placed conservatively out of the reticle until the arm/clip pose is manually dialed in through the tuner.
+- Latest default-safe headed capture is stored under `artifacts/sub-agents/20260705-player-viewmodel-default-safe/asset-playground-qa-agent/`.

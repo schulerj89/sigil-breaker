@@ -19,7 +19,7 @@ export interface SigilbreakerApp {
 
 const TITLE_BACKGROUND_ASSET_ID = 'ui.title.background.sigilbreaker.generated';
 const TITLE_BACKGROUND_PATH = 'assets/title/sigilbreaker-title-bg.webp';
-const EXPECTED_GAMEPLAY_ASSET_COUNT = 17;
+const EXPECTED_GAMEPLAY_ASSET_COUNT = 18;
 const EXPECTED_BOOT_ASSET_COUNT = EXPECTED_GAMEPLAY_ASSET_COUNT + 1;
 
 declare global {
@@ -43,6 +43,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     powerPreference: 'high-performance',
     preserveDrawingBuffer: shouldPreserveDrawingBuffer(),
   });
+  renderer.localClippingEnabled = true;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.setClearColor(0x0d1012, 1);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, PERFORMANCE_BUDGETS.maxDevicePixelRatio));

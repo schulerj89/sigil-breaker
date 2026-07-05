@@ -2,8 +2,18 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { collidesWithLevel, raycastLevel } from '../levelMap';
 import { WEAPON_COLLISION_RADIUS, getWeaponWallProbeLocalPosition } from './weaponClearance';
+import {
+  PLAYER_WEAPON_VIEWMODEL_ASSET,
+  PlayerWeaponViewModel,
+  type PlayerWeaponViewModelSnapshot,
+} from './playerWeaponViewModel';
 import { WeaponAudio, type WeaponAudioSnapshot } from './weaponAudio';
 import { WEAPON_DEFINITIONS, publicAssetUrl, withAssetVersion, type WeaponDefinition } from './weaponManifest';
+import {
+  WeaponViewModelTuner,
+  shouldEnableWeaponViewModelTuner,
+  type WeaponViewModelTunerSnapshot,
+} from './weaponViewModelTuner';
 import {
   getCameraSpaceShotDistance,
   getHorizontalRaycastDistance,
@@ -60,6 +70,8 @@ export interface WeaponSystemSnapshot {
   modelBytesLoaded: number;
   loadedAssetIds: string[];
   assetLoadErrors: string[];
+  playerViewModel: PlayerWeaponViewModelSnapshot;
+  playerViewModelTuner: WeaponViewModelTunerSnapshot;
   audio: WeaponAudioSnapshot;
   effectPose: WeaponShotEffectPositions;
   effectStyle: {
@@ -96,6 +108,7 @@ export class WeaponSystem {
   private readonly loadingManager = new THREE.LoadingManager();
   private readonly loader = new GLTFLoader(this.loadingManager);
   private readonly audio = new WeaponAudio();
+  private readonly playerViewModel = new PlayerWeaponViewModel(this.loader);
   private readonly viewRoot = new THREE.Group();
   private readonly modelSlot = new THREE.Group();
   private readonly muzzleFlash: THREE.Mesh<THREE.CircleGeometry, THREE.MeshBasicMaterial>;
@@ -110,6 +123,7 @@ export class WeaponSystem {
   private readonly loadedAssetIds = new Set<string>();
   private readonly assetLoadErrors: string[] = [];
   private readonly ammoByWeapon = new Map<string, number>();
+  private readonly playerViewModelTuner: WeaponViewModelTuner | null;
   private activeWeapon = WEAPON_DEFINITIONS[0];
   private activeLoadedWeapon: LoadedWeapon | null = null;
   private nextShotAt = 0;
@@ -141,10 +155,13 @@ export class WeaponSystem {
     this.shotTracer = createShotTracer();
     this.wallImpact = createWallImpact();
     this.updateEffectStyle();
-    this.viewRoot.add(this.modelSlot);
+    this.viewRoot.add(this.playerViewModel.root, this.modelSlot);
     this.shotFeedbackRoot.add(this.muzzleFlash, this.shotTracer, this.wallImpact);
     this.camera.add(this.viewRoot, this.shotFeedbackRoot);
     this.audio.bind(root);
+    this.playerViewModelTuner = shouldEnableWeaponViewModelTuner()
+      ? new WeaponViewModelTuner(root, () => this.activeWeapon)
+      : null;
 
     for (const weapon of WEAPON_DEFINITIONS) {
       this.ammoByWeapon.set(weapon.id, weapon.magazineSize);
@@ -190,9 +207,11 @@ export class WeaponSystem {
 
     const view = this.activeWeapon.view;
     const pose = this.getViewPose();
+    this.playerViewModelTuner?.update();
     this.viewRoot.position.set(...getWeaponRootCameraPosition(view, pose));
     this.viewRoot.rotation.set(...getWeaponRootCameraRotation(view, pose));
     this.viewRoot.scale.setScalar(getWeaponRootCameraScale(view, pose));
+    this.playerViewModel.update(this.activeWeapon, pose, this.playerViewModelTuner?.getActiveGrip());
     const effectPositions = getWeaponShotEffectPositions(
       view,
       this.shotFeedbackDistance > 0 ? this.shotFeedbackDistance : this.activeWeapon.rangeUnits,
@@ -207,6 +226,17 @@ export class WeaponSystem {
 
   getSnapshot(): WeaponSystemSnapshot {
     const audioSnapshot = this.audio.getSnapshot();
+    const playerViewModelSnapshot = this.playerViewModel.getSnapshot();
+    const loadedAssetIds = [
+      ...this.loadedAssetIds,
+      ...(playerViewModelSnapshot.loaded ? [PLAYER_WEAPON_VIEWMODEL_ASSET.id] : []),
+      ...audioSnapshot.loadedAssetIds,
+    ].sort();
+    const assetLoadErrors = [
+      ...this.assetLoadErrors,
+      ...playerViewModelSnapshot.assetLoadErrors,
+      ...audioSnapshot.assetLoadErrors,
+    ];
 
     return {
       weaponIds: WEAPON_DEFINITIONS.map((weapon) => weapon.id),
@@ -227,12 +257,18 @@ export class WeaponSystem {
       cameraFovDegrees: roundMetric(this.camera.fov),
       shotCount: this.shotCount,
       wallAvoidance: roundMetric(this.wallAvoidance),
-      modelBytesLoaded: [...this.loadedWeapons.values()].reduce(
-        (total, weapon) => total + weapon.definition.modelBytes,
-        0,
-      ),
-      loadedAssetIds: [...this.loadedAssetIds, ...audioSnapshot.loadedAssetIds].sort(),
-      assetLoadErrors: [...this.assetLoadErrors, ...audioSnapshot.assetLoadErrors],
+      modelBytesLoaded:
+        [...this.loadedWeapons.values()].reduce((total, weapon) => total + weapon.definition.modelBytes, 0) +
+        playerViewModelSnapshot.modelBytesLoaded,
+      loadedAssetIds,
+      assetLoadErrors,
+      playerViewModel: playerViewModelSnapshot,
+      playerViewModelTuner: this.playerViewModelTuner?.getSnapshot() ?? {
+        enabled: false,
+        panelVisible: false,
+        activeWeaponId: null,
+        activeGrip: null,
+      },
       audio: audioSnapshot,
       effectPose: roundEffectPose(
         getWeaponShotEffectPositions(
@@ -272,6 +308,7 @@ export class WeaponSystem {
     window.removeEventListener('keyup', this.onKeyUp);
     window.removeEventListener('blur', this.onWindowBlur);
     this.releaseFireState();
+    this.playerViewModelTuner?.dispose();
     this.camera.fov = this.baseCameraFov;
     this.camera.updateProjectionMatrix();
     this.audio.dispose();
@@ -280,6 +317,7 @@ export class WeaponSystem {
     for (const loadedWeapon of this.loadedWeapons.values()) {
       disposeObject3D(loadedWeapon.object, disposedGeometries, disposedMaterials);
     }
+    this.playerViewModel.dispose(disposedGeometries, disposedMaterials);
     disposeObject3D(this.viewRoot, disposedGeometries, disposedMaterials);
     disposeObject3D(this.shotFeedbackRoot, disposedGeometries, disposedMaterials);
     this.viewRoot.removeFromParent();
@@ -289,7 +327,7 @@ export class WeaponSystem {
   }
 
   private async preloadWeapons(): Promise<void> {
-    await Promise.all(WEAPON_DEFINITIONS.map((weapon) => this.loadWeapon(weapon)));
+    await Promise.all([...WEAPON_DEFINITIONS.map((weapon) => this.loadWeapon(weapon)), this.playerViewModel.load()]);
     this.switchWeapon(this.activeWeapon.id);
   }
 

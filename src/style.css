@@ -689,6 +689,127 @@ canvas {
   line-height: 1.35;
 }
 
+.viewmodel-tuner {
+  position: absolute;
+  left: max(14px, env(safe-area-inset-left));
+  bottom: max(14px, env(safe-area-inset-bottom));
+  z-index: 6;
+  width: min(360px, 44vw);
+  max-height: calc(100vh - 112px);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 7px;
+  padding: 10px;
+  overflow: auto;
+  border: 1px solid rgb(125 211 252 / 0.34);
+  background: rgb(5 9 11 / 0.82);
+  box-shadow: 0 16px 44px rgb(0 0 0 / 0.34);
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.viewmodel-tuner-toggle {
+  position: absolute;
+  left: calc(max(14px, env(safe-area-inset-left)) + min(360px, 44vw) + 8px);
+  bottom: max(14px, env(safe-area-inset-bottom));
+  z-index: 7;
+  width: 48px;
+  height: 42px;
+  border: 1px solid rgb(125 211 252 / 0.5);
+  background: rgb(5 9 11 / 0.78);
+  color: #8df7ff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.28);
+  pointer-events: auto;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.viewmodel-tuner-toggle--active {
+  background: rgb(14 116 144 / 0.46);
+  border-color: rgb(141 247 255 / 0.78);
+  color: #eef3f0;
+}
+
+.game-shell:not([data-game-phase="gameplay"]) .viewmodel-tuner,
+.game-shell:not([data-game-phase="gameplay"]) .viewmodel-tuner-toggle {
+  display: none;
+}
+
+.viewmodel-tuner__title,
+.viewmodel-tuner__weapon {
+  color: #e6fbff;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.viewmodel-tuner__weapon {
+  color: #8df7ff;
+}
+
+.viewmodel-tuner__controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 10px;
+}
+
+.viewmodel-tuner__row {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 34px;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  color: #d8f4f7;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.viewmodel-tuner__row input {
+  width: 100%;
+  min-width: 0;
+  accent-color: #7dd3fc;
+  touch-action: none;
+}
+
+.viewmodel-tuner__row output {
+  color: #a9dfe4;
+  font-size: 8px;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+.viewmodel-tuner__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.viewmodel-tuner__button {
+  min-width: 64px;
+  height: 34px;
+  border: 1px solid rgb(238 243 240 / 0.22);
+  background: rgb(15 23 30 / 0.72);
+  color: #eef3f0;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 900;
+  touch-action: none;
+}
+
+.viewmodel-tuner__output {
+  width: 100%;
+  min-height: 78px;
+  resize: none;
+  border: 1px solid rgb(238 243 240 / 0.12);
+  background: rgb(0 0 0 / 0.42);
+  color: #a9dfe4;
+  font-size: 8px;
+  line-height: 1.25;
+}
+
 .touch-zones {
   position: absolute;
   inset:

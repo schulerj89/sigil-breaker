@@ -18,6 +18,7 @@ const EXPECTED_LOADED_ASSET_IDS = [
   'environment.foundation.floor-grid-steel',
   'environment.foundation.roof-flat-steel',
   'environment.foundation.wall-panel-steel',
+  'player.hero.gadget-gremlin.apose.animated',
   'weapon.blaster.bore',
   'weapon.blaster.rift',
   'weapon.blaster.spark',
@@ -80,6 +81,9 @@ interface DebugSnapshot {
     aimBlend: number;
     cameraFovDegrees: number;
     shotCount: number;
+    modelBytesLoaded: number;
+    loadedAssetIds: string[];
+    assetLoadErrors: string[];
     effectPose: {
       muzzle: [number, number, number];
       tracerEnd: [number, number, number];
@@ -99,6 +103,25 @@ interface DebugSnapshot {
       distanceUnits: number;
       tile: [number, number] | null;
     } | null;
+    playerViewModel: {
+      assetId: string;
+      modelPath: string;
+      loaded: boolean;
+      modelBytesLoaded: number;
+      clipCount: number;
+      observedTriangles: number;
+      activeGrip: {
+        weaponId: string;
+        position: [number, number, number];
+        rotation: [number, number, number];
+        scale: number;
+      } | null;
+      bonePoseDegrees: {
+        RightArm: { x: number; y: number; z: number };
+        RightForeArm: { x: number; y: number; z: number };
+      };
+      assetLoadErrors: string[];
+    };
     audio: {
       musicMuted: boolean;
       musicPlaying: boolean;
@@ -321,6 +344,27 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(debugSnapshot.weapon.isFireHeld).toBe(false);
   expect(debugSnapshot.weapon.aimBlend).toBe(0);
   expect(debugSnapshot.weapon.cameraFovDegrees).toBeCloseTo(70);
+  expect(debugSnapshot.weapon.loadedAssetIds).toContain('player.hero.gadget-gremlin.apose.animated');
+  expect(debugSnapshot.weapon.assetLoadErrors).toEqual([]);
+  expect(debugSnapshot.weapon.modelBytesLoaded).toBeGreaterThan(10_983_096);
+  expect(debugSnapshot.weapon.playerViewModel).toMatchObject({
+    assetId: 'player.hero.gadget-gremlin.apose.animated',
+    modelPath: 'assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb',
+    loaded: true,
+    modelBytesLoaded: 10_983_096,
+    clipCount: 10,
+    observedTriangles: 81_375,
+    activeGrip: {
+      weaponId: 'weapon.blaster.spark',
+    },
+    bonePoseDegrees: {
+      RightArm: { x: 36, y: -103, z: 72 },
+      RightForeArm: { x: 0, y: 92, z: -35 },
+    },
+    assetLoadErrors: [],
+  });
+  expect(debugSnapshot.weapon.playerViewModel.activeGrip?.position).toHaveLength(3);
+  expect(debugSnapshot.weapon.playerViewModel.activeGrip?.scale).toBeGreaterThan(0.5);
   expect(debugSnapshot.player.health).toMatchObject({
     current: 100,
     max: 100,

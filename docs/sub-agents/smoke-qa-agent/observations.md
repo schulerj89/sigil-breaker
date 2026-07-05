@@ -164,3 +164,10 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - The texture screenshot and report are stored under `artifacts/sub-agents/20260705-foundation-metal-textures/smoke-qa-agent/`.
 
 - Latest `npm run validate:browser` passed all five landscape viewport projects after staging the Meshy main-character source pack without wiring it into gameplay loading.
+
+## 2026-07-05 - Player Viewmodel Smoke
+
+- Added `npm run qa:headed:player-viewmodel` for visible Chromium production-preview captures of all five weapons in idle and held-fire states.
+- Browser smoke now treats `player.hero.gadget-gremlin.apose.animated` as a gameplay-loaded asset through `snapshot.weapon.playerViewModel`.
+- The smoke contract checks loaded state, active weapon grip matching, no weapon asset load errors, and per-weapon headed screenshots.
+- `VIEWMODEL_TUNING=1 npm run qa:headed:player-viewmodel` opens the same route with the live camera-space viewmodel tuner enabled and verifies the `VM` show/hide toggle.

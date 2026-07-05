@@ -595,6 +595,20 @@
       "projects": 5,
       "durationSeconds": 161,
       "runtimeIntegrated": false
+    },
+    "latestPlayerViewmodelSmoke": {
+      "command": "npm run qa:headed:player-viewmodel",
+      "result": "passed",
+      "verifies": [
+        "all five weapons captured in headed production preview",
+        "snapshot.weapon.playerViewModel.loaded === true",
+        "snapshot.weapon.playerViewModel.activeGrip.weaponId matches active weapon",
+        "no weapon asset load errors",
+        "benign shutdown aborts ignored only after loaded snapshot exists"
+      ],
+      "latestArtifacts": "artifacts/sub-agents/20260705-player-viewmodel-default-safe/asset-playground-qa-agent/",
+      "tuningToggleVerified": true,
+      "latestToggleArtifacts": "artifacts/sub-agents/20260705-player-viewmodel-toggle2/asset-playground-qa-agent/"
     }
   },
   "nextAgents": [

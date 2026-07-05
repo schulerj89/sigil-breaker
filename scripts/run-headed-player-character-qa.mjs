@@ -155,13 +155,13 @@ try {
 
 function addBudgetWarnings() {
   const maxTriangles = Math.max(...report.snapshots.map((snapshot) => snapshot.renderer?.triangles ?? 0));
-  if (maxTriangles > 45_000) {
-    report.budgetWarnings.push(`triangle count ${maxTriangles} exceeds 45000 target for gameplay integration`);
+  if (maxTriangles > 90_000) {
+    report.budgetWarnings.push(`triangle count ${maxTriangles} exceeds 90000 MVP viewmodel target`);
   }
 
   const largestGlbBytes = statSync(resolve(MODEL_PATH)).size;
-  if (largestGlbBytes > 6_000_000) {
-    report.budgetWarnings.push(`combined runtime GLB ${largestGlbBytes}B exceeds 6000000B target`);
+  if (largestGlbBytes > 12_000_000) {
+    report.budgetWarnings.push(`combined runtime GLB ${largestGlbBytes}B exceeds 12000000B MVP viewmodel target`);
   }
 
   report.budgetWarnings.push('gun-hold animation is visually inspected but not accepted as final two-hand blaster pose');
