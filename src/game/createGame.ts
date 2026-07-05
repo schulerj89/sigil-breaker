@@ -449,7 +449,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
         revealDeathActions();
       }
       levelRuntime.update(controls.getSnapshot().player.position);
-      renderer.render(scene, camera);
+      deathCinematicStage.render(renderer);
     } else {
       weaponSystem.update(deltaSeconds, now);
       levelRuntime.update(controls.getSnapshot().player.position);

@@ -18,6 +18,8 @@ const DEATH_START_ANGLE_OFFSET = THREE.MathUtils.degToRad(135);
 const DEATH_CAMERA_WALL_PADDING = 0.5;
 const DEATH_MIN_CAMERA_DISTANCE = 2.35;
 const DEATH_CAMERA_SEARCH_STEP = Math.PI / 8;
+const LEVEL_RENDER_LAYER = 0;
+const DEATH_CINEMATIC_RENDER_LAYER = 1;
 
 export interface DeathCinematicOpenInput {
   playerPosition: readonly [number, number, number];
@@ -66,6 +68,9 @@ export class DeathCinematicStage {
     this.modelRoot.name = 'death-cinematic-model-root';
     this.lightRoot.name = 'death-cinematic-light-root';
     this.lightRoot.add(...createDeathLights());
+    setObjectLayer(this.root, DEATH_CINEMATIC_RENDER_LAYER);
+    setObjectLayer(this.modelRoot, DEATH_CINEMATIC_RENDER_LAYER);
+    setObjectLayer(this.lightRoot, DEATH_CINEMATIC_RENDER_LAYER);
     this.root.visible = false;
     this.root.add(this.modelRoot, this.lightRoot);
     this.scene.add(this.root);
@@ -77,6 +82,7 @@ export class DeathCinematicStage {
         this.model = clonePlayerCharacterScene(gltf.scene);
         this.model.name = `${PLAYER_CHARACTER_ASSET.id}.death-cinematic`;
         normalizeDeathModel(this.model);
+        setObjectLayer(this.model, DEATH_CINEMATIC_RENDER_LAYER);
         this.model.scale.setScalar(readDeathScale(this.model) * DEATH_CHARACTER_SKINNED_SCALE_CORRECTION);
         centerModelOnDeathOrigin(this.model);
         this.modelRoot.add(this.model);
@@ -151,6 +157,26 @@ export class DeathCinematicStage {
     }
     this.mixer?.update(deltaSeconds);
     this.updateCamera();
+  }
+
+  render(renderer: THREE.WebGLRenderer): void {
+    const previousAutoClear = renderer.autoClear;
+    const previousLayerMask = this.camera.layers.mask;
+    const previousBackground = this.scene.background;
+
+    renderer.autoClear = true;
+    this.camera.layers.set(LEVEL_RENDER_LAYER);
+    renderer.render(this.scene, this.camera);
+
+    renderer.autoClear = false;
+    renderer.clearDepth();
+    this.scene.background = null;
+    this.camera.layers.set(DEATH_CINEMATIC_RENDER_LAYER);
+    renderer.render(this.scene, this.camera);
+
+    this.scene.background = previousBackground;
+    renderer.autoClear = previousAutoClear;
+    this.camera.layers.mask = previousLayerMask;
   }
 
   getSnapshot(): DeathCinematicStageSnapshot {
@@ -263,7 +289,7 @@ function normalizeDeathModel(model: THREE.Object3D): void {
       object.visible = true;
       object.castShadow = false;
       object.receiveShadow = false;
-      object.renderOrder = 80;
+      object.renderOrder = 10;
       object.material = Array.isArray(object.material)
         ? object.material.map((material) => createDeathDisplayMaterial(material))
         : createDeathDisplayMaterial(object.material);
@@ -275,10 +301,12 @@ function createDeathDisplayMaterial(source: THREE.Material): THREE.Material {
   const material = source.clone();
   material.name = source.name ? `${source.name}.death-display` : 'death-display-character-material';
   material.side = THREE.DoubleSide;
-  material.depthTest = false;
-  material.depthWrite = false;
+  material.depthTest = true;
+  material.depthWrite = true;
   material.transparent = false;
   material.opacity = 1;
+  material.clippingPlanes = null;
+  material.clipIntersection = false;
   if (material instanceof THREE.MeshStandardMaterial || material instanceof THREE.MeshPhysicalMaterial) {
     material.roughness = Math.max(material.roughness, 0.66);
     material.metalness = Math.min(material.metalness, 0.12);
@@ -292,6 +320,12 @@ function createDeathDisplayMaterial(source: THREE.Material): THREE.Material {
   }
   material.needsUpdate = true;
   return material;
+}
+
+function setObjectLayer(object: THREE.Object3D, layer: number): void {
+  object.traverse((child) => {
+    child.layers.set(layer);
+  });
 }
 
 function readDeathScale(model: THREE.Object3D): number {
