@@ -12,6 +12,15 @@ export interface CharacterVoiceLine {
   volume: number;
 }
 
+export interface CharacterVoicePlaybackOptions {
+  onEnded?: () => void;
+}
+
+export interface CharacterVoicePlayer {
+  playVoice: (line: CharacterVoiceLine, options?: CharacterVoicePlaybackOptions) => boolean;
+  stopVoice: () => void;
+}
+
 export const CHARACTER_VOICE_NAME = 'Glyph';
 
 export const CHARACTER_VOICE_LINES = [
@@ -94,8 +103,8 @@ export const CHARACTER_VOICE_LINES = [
   },
 ] as const satisfies readonly CharacterVoiceLine[];
 
-export function createCharacterVoiceLab(root: HTMLElement): CharacterVoiceLab {
-  return new CharacterVoiceLab(root);
+export function createCharacterVoiceLab(root: HTMLElement, player: CharacterVoicePlayer): CharacterVoiceLab {
+  return new CharacterVoiceLab(root, player);
 }
 
 class CharacterVoiceLab {
@@ -103,10 +112,9 @@ class CharacterVoiceLab {
   private readonly list: HTMLElement | null;
   private readonly status: HTMLElement | null;
   private readonly stopButton: HTMLButtonElement | null;
-  private currentAudio: HTMLAudioElement | null = null;
   private currentLineId: string | null = null;
 
-  constructor(root: HTMLElement) {
+  constructor(root: HTMLElement, private readonly player: CharacterVoicePlayer) {
     this.screen = root.querySelector<HTMLElement>('[data-voice-lab]');
     this.list = root.querySelector<HTMLElement>('[data-voice-line-list]');
     this.status = root.querySelector<HTMLElement>('[data-voice-lab-status]');
@@ -177,7 +185,7 @@ class CharacterVoiceLab {
     event.preventDefault();
     const line = CHARACTER_VOICE_LINES.find((candidate) => candidate.id === lineId);
     if (line) {
-      void this.play(line);
+      this.play(line);
     }
   };
 
@@ -187,42 +195,26 @@ class CharacterVoiceLab {
     this.setStatus(`${CHARACTER_VOICE_NAME.toUpperCase()} VOICE READY`);
   };
 
-  private async play(line: CharacterVoiceLine): Promise<void> {
+  private play(line: CharacterVoiceLine): void {
     this.stop();
-    const audio = new Audio(publicAssetUrl(line.path));
-    audio.preload = 'auto';
-    audio.volume = line.volume;
-    audio.addEventListener('ended', this.onAudioEnded);
-    this.currentAudio = audio;
     this.currentLineId = line.id;
     this.setStatus(`PLAYING ${line.label.toUpperCase()}`);
     this.updateActiveRow();
 
-    try {
-      await audio.play();
-    } catch {
-      if (this.currentAudio === audio) {
-        this.setStatus('VOICE PLAYBACK BLOCKED');
-        this.stop();
-      }
+    if (!this.player.playVoice(line, { onEnded: this.onAudioEnded })) {
+      this.setStatus('VOICE PLAYBACK UNAVAILABLE');
+      this.currentLineId = null;
+      this.updateActiveRow();
     }
   }
 
   private stop(): void {
-    const audio = this.currentAudio;
-    if (audio) {
-      audio.removeEventListener('ended', this.onAudioEnded);
-      audio.pause();
-      audio.removeAttribute('src');
-      audio.load();
-    }
-    this.currentAudio = null;
+    this.player.stopVoice();
     this.currentLineId = null;
     this.updateActiveRow();
   }
 
   private readonly onAudioEnded = (): void => {
-    this.currentAudio = null;
     this.currentLineId = null;
     this.setStatus(`${CHARACTER_VOICE_NAME.toUpperCase()} VOICE READY`);
     this.updateActiveRow();

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import type { CharacterVoiceLine, CharacterVoicePlaybackOptions } from '../characterVoice';
 import { collidesWithLevel, raycastLevel } from '../levelMap';
 import { WEAPON_COLLISION_RADIUS, getWeaponWallProbeLocalPosition } from './weaponClearance';
 import {
@@ -293,6 +294,14 @@ export class WeaponSystem {
 
   setMusicPhase(phase: 'title' | 'gameplay'): void {
     this.audio.setMusicPhase(phase);
+  }
+
+  playVoice(line: CharacterVoiceLine, options?: CharacterVoicePlaybackOptions): boolean {
+    return this.audio.playVoice(line, options);
+  }
+
+  stopVoice(): void {
+    this.audio.stopVoice();
   }
 
   setInputEnabled(enabled: boolean): void {

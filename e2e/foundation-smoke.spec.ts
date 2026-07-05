@@ -8,6 +8,13 @@ const EXPECTED_TITLE_BACKGROUND_ASSET_ID = 'ui.title.background.gadget-rift.gene
 const EXPECTED_LOADED_ASSET_IDS = [
   'audio.music.foundation.elevenlabs',
   'audio.music.title.playful.elevenlabs',
+  'audio.voice.glyph.catchphrase.service.elevenlabs',
+  'audio.voice.glyph.encouragement.keep-moving.elevenlabs',
+  'audio.voice.glyph.encouragement.sparks-up.elevenlabs',
+  'audio.voice.glyph.fail.reboot.elevenlabs',
+  'audio.voice.glyph.fail.stars.elevenlabs',
+  'audio.voice.glyph.level-complete.rift-sealed.elevenlabs',
+  'audio.voice.glyph.level-complete.slick.elevenlabs',
   'audio.weapon.bore.elevenlabs',
   'audio.weapon.rift.elevenlabs',
   'audio.weapon.spark.elevenlabs',
@@ -136,11 +143,14 @@ interface DebugSnapshot {
       musicPlaying: boolean;
       musicDecoded: boolean;
       activeMusicAssetId: string;
+      activeVoiceAssetId: string | null;
       unlocked: boolean;
       sfxPoolProfiles: string[];
       decodedSfxProfiles: string[];
+      decodedVoiceAssetIds: string[];
       playRequests: number;
       enemyProjectilePlayRequests: number;
+      voicePlayRequests: number;
       webAudioPlayRequests: number;
       htmlFallbackPlayRequests: number;
       missedPlayRequests: number;
@@ -501,6 +511,13 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(debugSnapshot.weapon.audio.loadedAssetIds).toEqual([
     'audio.music.foundation.elevenlabs',
     'audio.music.title.playful.elevenlabs',
+    'audio.voice.glyph.catchphrase.service.elevenlabs',
+    'audio.voice.glyph.encouragement.keep-moving.elevenlabs',
+    'audio.voice.glyph.encouragement.sparks-up.elevenlabs',
+    'audio.voice.glyph.fail.reboot.elevenlabs',
+    'audio.voice.glyph.fail.stars.elevenlabs',
+    'audio.voice.glyph.level-complete.rift-sealed.elevenlabs',
+    'audio.voice.glyph.level-complete.slick.elevenlabs',
     'audio.weapon.bore.elevenlabs',
     'audio.weapon.rift.elevenlabs',
     'audio.weapon.spark.elevenlabs',
@@ -514,10 +531,24 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
       intervals: [80, 120, 160],
     })
     .toEqual(['burst', 'heavy', 'precision', 'scatter', 'sidearm']);
+  await expect
+    .poll(async () => (await readDebugSnapshot(page)).weapon.audio.decodedVoiceAssetIds, {
+      timeout: 3000,
+      intervals: [80, 120, 160],
+    })
+    .toEqual([
+      'audio.voice.glyph.catchphrase.service.elevenlabs',
+      'audio.voice.glyph.encouragement.keep-moving.elevenlabs',
+      'audio.voice.glyph.encouragement.sparks-up.elevenlabs',
+      'audio.voice.glyph.fail.reboot.elevenlabs',
+      'audio.voice.glyph.fail.stars.elevenlabs',
+      'audio.voice.glyph.level-complete.rift-sealed.elevenlabs',
+      'audio.voice.glyph.level-complete.slick.elevenlabs',
+    ]);
   expect(debugSnapshot.weapon.audio.missedPlayRequests).toBe(0);
   expect(debugSnapshot.weapon.audio.playFailures).toBe(0);
   expect(debugSnapshot.weapon.audio.assetLoadErrors).toEqual([]);
-  expect(debugSnapshot.weapon.audio.assetBytesLoaded).toBe(2_298_666);
+  expect(debugSnapshot.weapon.audio.assetBytesLoaded).toBe(2_545_148);
   expect(debugSnapshot.weapon.audio.musicMuted).toBe(false);
   expect(debugSnapshot.weapon.audio.activeMusicAssetId).toBe('audio.music.foundation.elevenlabs');
   await expect
@@ -614,8 +645,13 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(audioFileNames).toEqual([
     'bore-scatter.mp3',
     'foundation-combat-loop-long.mp3',
+    'glyph-at-your-service.mp3',
+    'glyph-keep-moving.mp3',
     'glyph-oof-reboot-me.mp3',
+    'glyph-rift-sealed.mp3',
+    'glyph-sparks-up-feet-fast.mp3',
     'glyph-stars-sigils-snacks.mp3',
+    'glyph-that-was-slick.mp3',
     'rift-precision.mp3',
     'spark-sidearm.mp3',
     'title-playful-loop.mp3',
@@ -916,6 +952,18 @@ async function verifyVoiceLabPage(page: Page, buildId: string): Promise<void> {
     expect(url.pathname).toContain('/assets/audio/elevenlabs-foundation/glyph-');
     expect(url.searchParams.get('assetBuild')).toBe(buildId);
   }
+
+  const beforeVoice = await readDebugSnapshot(page);
+  await page.locator('[data-voice-line-play]').first().click();
+  await expect(page.locator('[data-voice-lab-status]')).toContainText('PLAYING AT YOUR SERVICE');
+  await expect
+    .poll(async () => (await readDebugSnapshot(page)).weapon.audio.voicePlayRequests)
+    .toBeGreaterThan(beforeVoice.weapon.audio.voicePlayRequests);
+  await expect
+    .poll(async () => (await readDebugSnapshot(page)).weapon.audio.activeVoiceAssetId)
+    .toBe('audio.voice.glyph.catchphrase.service.elevenlabs');
+  await page.locator('[data-voice-lab-stop]').click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).weapon.audio.activeVoiceAssetId).toBeNull();
 
   await expectHudToFit(page);
   await page.locator('[data-voice-lab-back]').click();

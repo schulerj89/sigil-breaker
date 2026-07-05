@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:cloudflare": "tsc && vite build --base=/",
+    "build:cloudflare": "tsc && vite build --base=/ && npm run prepare:pages",
     "deploy:cloudflare": "wrangler deploy",
     "preview": "vite preview",
     "prepare:pages": "node scripts/prepare-pages-dist.mjs",

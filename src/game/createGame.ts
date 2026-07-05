@@ -29,18 +29,11 @@ const TITLE_BACKGROUND_ASSET_ID = 'ui.title.background.gadget-rift.generated';
 const TITLE_BACKGROUND_PATH = 'assets/title/gadget-rift-title-bg.webp';
 const TITLE_START_TRANSITION_MS = 360;
 const DEATH_ACTIONS_REVEAL_SECONDS = 3.2;
-const EXPECTED_GAMEPLAY_ASSET_COUNT = 19;
+const EXPECTED_GAMEPLAY_ASSET_COUNT = 26;
 const EXPECTED_BOOT_ASSET_COUNT = EXPECTED_GAMEPLAY_ASSET_COUNT + 1;
 const DEATH_VOICE_LINES: readonly CharacterVoiceLine[] = CHARACTER_VOICE_LINES.filter(
   (line) => line.category === 'fail',
 );
-
-interface DeathVoiceAudioEntry {
-  line: CharacterVoiceLine;
-  audio: HTMLAudioElement;
-  unlocked: boolean;
-  unlockPromise: Promise<void> | null;
-}
 
 declare global {
   interface Window {
@@ -100,7 +93,10 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     ),
   });
   const playerPoseHarness = createPlayerCharacterPoseHarness(root);
-  const characterVoiceLab = createCharacterVoiceLab(root);
+  const characterVoiceLab = createCharacterVoiceLab(root, {
+    playVoice: (line, options) => weaponSystem.playVoice(line, options),
+    stopVoice: () => weaponSystem.stopVoice(),
+  });
   const titleHeroStage = new TitleHeroStage(TITLE_BACKGROUND_PATH);
   const deathCinematicStage = new DeathCinematicStage(scene, camera);
   void titleHeroStage.load();
@@ -118,10 +114,8 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   let titleStartTransitionTimeout = 0;
   let titleBackgroundLoaded = false;
   let titleBackgroundError: string | null = null;
-  let deathVoiceAudioEntry: DeathVoiceAudioEntry | null = null;
   let lastDeathVoiceLineId: string | null = null;
   let deathActionsVisible = false;
-  const deathVoiceAudioPool = createDeathVoiceAudioPool(DEATH_VOICE_LINES);
 
   const debug = createDebugApi(
     renderer,
@@ -245,11 +239,6 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     weaponSystem.resetCombatState();
     levelRuntime.update(controls.getSnapshot().player.position);
   };
-  const unlockDeathVoiceAudio = (): void => {
-    for (const entry of deathVoiceAudioPool) {
-      void unlockDeathVoiceAudioEntry(entry);
-    }
-  };
   const chooseDeathVoiceLine = (): CharacterVoiceLine | null => {
     if (DEATH_VOICE_LINES.length === 0) {
       return null;
@@ -263,23 +252,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     return line;
   };
   const playDeathVoice = (line: CharacterVoiceLine): void => {
-    const entry = deathVoiceAudioPool.find((candidate) => candidate.line.id === line.id);
-    if (!entry) {
-      return;
-    }
-
-    deathVoiceAudioEntry?.audio.pause();
-    deathVoiceAudioEntry = entry;
-    const audio = entry.audio;
-    audio.pause();
-    audio.currentTime = 0;
-    audio.muted = false;
-    audio.volume = line.volume;
-    void audio.play().catch(() => {
-      if (deathVoiceAudioEntry === entry) {
-        deathVoiceAudioEntry = null;
-      }
-    });
+    weaponSystem.playVoice(line);
   };
   const openDeathCinematic = (): void => {
     const deathVoiceLine = chooseDeathVoiceLine();
@@ -313,8 +286,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       return;
     }
 
-    deathVoiceAudioEntry?.audio.pause();
-    deathVoiceAudioEntry = null;
+    weaponSystem.stopVoice();
     deathCinematicStage.close();
     deathActionsVisible = false;
     resetCombatState();
@@ -326,8 +298,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       return;
     }
 
-    deathVoiceAudioEntry?.audio.pause();
-    deathVoiceAudioEntry = null;
+    weaponSystem.stopVoice();
     deathCinematicStage.close();
     deathActionsVisible = false;
     resetCombatState();
@@ -444,7 +415,6 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
 
     playerHealth.damage(playerHealth.max);
   };
-  root.addEventListener('pointerdown', unlockDeathVoiceAudio, { capture: true });
   titleStartButton?.addEventListener('pointerdown', onTitleStartPointerDown);
   titleStartButton?.addEventListener('click', onTitleStartClick);
   titleCharacterDebugButton?.addEventListener('pointerdown', onTitleCharacterDebugPointerDown);
@@ -539,25 +509,20 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     dispose: () => {
       window.cancelAnimationFrame(animationFrame);
       window.clearTimeout(titleStartTransitionTimeout);
+      characterVoiceLab.dispose();
+      weaponSystem.stopVoice();
       controls.dispose();
       weaponSystem.dispose();
       enemySystem.dispose();
       levelRuntime.dispose();
       playerPoseHarness.dispose();
-      characterVoiceLab.dispose();
       titleHeroStage.dispose();
       deathCinematicStage.dispose();
-      deathVoiceAudioEntry?.audio.pause();
-      deathVoiceAudioEntry = null;
-      for (const entry of deathVoiceAudioPool) {
-        disposeDeathVoiceAudioEntry(entry);
-      }
       titleBackgroundImage.onload = null;
       titleBackgroundImage.onerror = null;
       debugToggle?.removeEventListener('pointerdown', onDebugTogglePointerDown);
       debugDeathButton?.removeEventListener('pointerdown', onDebugDeathPointerDown);
       debugDeathGameplayButton?.removeEventListener('pointerdown', onDebugDeathGameplayPointerDown);
-      root.removeEventListener('pointerdown', unlockDeathVoiceAudio, { capture: true });
       titleStartButton?.removeEventListener('pointerdown', onTitleStartPointerDown);
       titleStartButton?.removeEventListener('click', onTitleStartClick);
       titleCharacterDebugButton?.removeEventListener('pointerdown', onTitleCharacterDebugPointerDown);
@@ -967,61 +932,6 @@ function formatCoordinate(value: number): string {
 
 function stripVoiceDirectionTags(text: string): string {
   return text.replace(/\[[^\]]+\]\s*/g, '').trim();
-}
-
-function createDeathVoiceAudioPool(lines: readonly CharacterVoiceLine[]): DeathVoiceAudioEntry[] {
-  return lines.map((line) => {
-    const audio = new Audio(publicAssetUrl(line.path));
-    audio.preload = 'auto';
-    audio.volume = line.volume;
-    audio.load();
-    return {
-      line,
-      audio,
-      unlocked: false,
-      unlockPromise: null,
-    };
-  });
-}
-
-async function unlockDeathVoiceAudioEntry(entry: DeathVoiceAudioEntry): Promise<void> {
-  if (entry.unlocked) {
-    return;
-  }
-
-  entry.unlockPromise ??= unlockDeathVoiceAudioElement(entry)
-    .then(() => {
-      entry.unlocked = true;
-    })
-    .finally(() => {
-      entry.unlockPromise = null;
-    });
-
-  return entry.unlockPromise;
-}
-
-async function unlockDeathVoiceAudioElement(entry: DeathVoiceAudioEntry): Promise<void> {
-  const { audio, line } = entry;
-  audio.pause();
-  audio.currentTime = 0;
-  audio.muted = true;
-  audio.volume = 0;
-
-  try {
-    await audio.play();
-    audio.pause();
-    audio.currentTime = 0;
-  } finally {
-    audio.muted = false;
-    audio.volume = line.volume;
-  }
-}
-
-function disposeDeathVoiceAudioEntry(entry: DeathVoiceAudioEntry): void {
-  entry.audio.pause();
-  entry.audio.removeAttribute('src');
-  entry.audio.load();
-  entry.unlockPromise = null;
 }
 
 function readRandomIndex(length: number): number {

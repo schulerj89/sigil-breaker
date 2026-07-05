@@ -1,6 +1,6 @@
 # Observations: elevenlabs-audio-music-agent
 
-Status: complete for foundation weapon SFX and music slice.
+Status: complete for centralized runtime audio manager slice.
 
 ## What It Saw
 
@@ -26,6 +26,11 @@ Status: complete for foundation weapon SFX and music slice.
 - Foundation music now also uses the Web Audio graph: the MP3 is fetched, byte-verified, decoded after audio unlock, and looped with a dedicated gain node instead of relying on `HTMLAudioElement.play()`.
 - Audio loading is parallelized with `Promise.all`; playback concurrency comes from separate Web Audio source nodes mixed by the browser audio context, not from awaiting multiple play promises.
 - Browser smoke now checks `snapshot.weapon.audio.musicDecoded` and `musicPlaying` so losing the music loop is a test failure.
+- Title music, gameplay music, weapon SFX, enemy projectile SFX, and Glyph voice lines now share one gesture-unlocked runtime audio manager.
+- The previous gameplay death voice path used a separate `HTMLAudioElement` pool, so death barks could work from the debug button while failing during real gameplay timing.
+- Character Voice Lab playback now routes through the same runtime audio manager as gameplay voices and reports active voice state through the debug snapshot.
+- Runtime audio snapshots now report active voice asset ID, decoded voice asset IDs, and voice play request count so smoke QA can catch missing voice playback.
+- Cloudflare builds now run the same dist preparation step used for Pages, which prunes source-only character GLBs before publishing.
 
 ## Decisions
 
@@ -39,6 +44,11 @@ Status: complete for foundation weapon SFX and music slice.
 - Prefer decoded Web Audio buffer playback for repeated combat SFX; keep `HTMLAudioElement` pools only as a pre-decode fallback.
 - Reuse the RIFT sound for enemy projectiles for this MVP pass, but generate a dedicated ElevenLabs projectile/impact SFX pair before finalizing enemy audio identity.
 - Use Web Audio for both looping music and one-shot SFX so all combat audio shares one unlock and mix path.
+- Keep all runtime music, SFX, and voice playback on one `AudioContext` unlock path after user interaction.
+- Decode voice MP3s into Web Audio buffers and stop the separate death-voice HTML media pool.
+- Keep the Voice Lab as the player-facing audition page, but make it exercise the same manager APIs used by gameplay.
+- Only music decode completion should attempt to start a loop; SFX and voice decode should not re-enter the music startup path.
+- Disconnect one-shot Web Audio SFX nodes on `ended` so repeated held-fire playback does not retain finished nodes.
 
 ## Caught Issues
 
@@ -49,6 +59,9 @@ Status: complete for foundation weapon SFX and music slice.
 - The earlier SFX preload path created weapon audio pools only after async fetch verification, so very early shots could miss sound until a later cadence shot.
 - Small HTML media pools can cut off or delay rapid overlapping shots on mobile; Web Audio one-shot sources are a better fit for held-fire combat cadence.
 - `HTMLAudioElement.play()` can fail or remain silent under gesture/autoplay edge cases; the music loop should stay on Web Audio where the same gesture unlock starts the context and all sources.
+- A debug-only death trigger was not enough coverage because it did not reproduce the same timing as projectile-driven player death.
+- Voice playback had no debug snapshot counters before this slice, so a missing death bark was hard to distinguish from a muted device or browser autoplay block.
+- Publishing all `public` source assets to Cloudflare would ship roughly 136 MB; prepared `dist` is roughly 16 MB after pruning source-only character assets.
 
 ## Next Handoff Notes
 
@@ -60,3 +73,5 @@ Status: complete for foundation weapon SFX and music slice.
 - Future audio generation should add dedicated ElevenLabs projectile launch, projectile hit, enemy hit, and enemy death cues so reused weapon sounds do not become confusing.
 - Music smoke should keep checking both decoded and playing state after the title start gesture.
 - Any voice line must include captions before gameplay use.
+- Browser smoke should continue to verify title/gameplay music decoded and playing after a start gesture, and verify Voice Lab playback increments the shared voice counters.
+- Future death, level-complete, and cutscene barks should call the shared runtime audio manager instead of creating page-local audio elements.

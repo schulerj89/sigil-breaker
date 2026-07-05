@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "elevenlabs-audio-music-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T05:32:00Z",
-  "summary": "Five weapon SFX and a 48 second foundation combat loop are committed as ElevenLabs-generated MP3 assets; music and SFX now share decoded Web Audio playback with parallel load/decode, boosted VAULT gain, projectile sound reuse, and smoke counters.",
+  "updatedAt": "2026-07-05T20:21:52Z",
+  "summary": "Five weapon SFX, title music, gameplay music, enemy projectile cue reuse, and seven Glyph voice lines are committed as generated MP3 assets; music, SFX, and voice now share one gesture-unlocked runtime audio manager with decoded Web Audio playback and smoke counters.",
   "observations": [
     "Previous gun sounds were procedural Web Audio and not ElevenLabs assets.",
     "Generated three weapon SFX assets with the ElevenLabs text-to-sound-effects endpoint.",
@@ -22,7 +22,12 @@
     "Latest npm run validate:browser passed all five landscape viewport projects with decoded profiles, Web Audio shot playback, zero SFX play failures, and projectile sound request coverage.",
     "Foundation music now uses the Web Audio graph instead of HTMLAudioElement playback: the MP3 is fetched, byte-verified, decoded after unlock, and looped with a dedicated gain node.",
     "Audio load verification runs weapon SFX and music checks through Promise.all; actual overlap comes from independent Web Audio source nodes mixed by one AudioContext.",
-    "Browser smoke now checks musicDecoded and musicPlaying so losing the music loop is caught."
+    "Browser smoke now checks musicDecoded and musicPlaying so losing the music loop is caught.",
+    "Title music, gameplay music, weapon SFX, enemy projectile SFX, and Glyph voice lines now share one gesture-unlocked runtime audio manager.",
+    "The previous gameplay death voice path used a separate HTMLAudioElement pool, so death barks could work from the debug button while failing during real gameplay timing.",
+    "Character Voice Lab playback now routes through the same runtime audio manager as gameplay voices and reports active voice state through the debug snapshot.",
+    "Runtime audio snapshots now report active voice asset ID, decoded voice asset IDs, and voice play request count so smoke QA can catch missing voice playback.",
+    "Cloudflare builds now run the same dist preparation step used for Pages, which prunes source-only character GLBs before publishing."
   ],
   "decisions": [
     "Do not expose ElevenLabs API keys in browser code.",
@@ -36,20 +41,29 @@
     "Keep audio byte verification as the provenance/load gate, but do not block creation of local SFX playback pools on that async check.",
     "Prefer decoded Web Audio buffer playback for repeated combat SFX; keep HTMLAudioElement pools only as fallback.",
     "Generate a dedicated ElevenLabs enemy projectile/impact SFX set later instead of treating the reused RIFT cue as final.",
-    "Use Web Audio for both looping music and one-shot SFX so all combat audio shares one unlock and mix path."
+    "Use Web Audio for both looping music and one-shot SFX so all combat audio shares one unlock and mix path.",
+    "Keep all runtime music, SFX, and voice playback on one AudioContext unlock path after user interaction.",
+    "Decode voice MP3s into Web Audio buffers and stop the separate death-voice HTML media pool.",
+    "Keep the Voice Lab as the player-facing audition page, but make it exercise the same manager APIs used by gameplay.",
+    "Only music decode completion should attempt to start a loop; SFX and voice decode should not re-enter the music startup path.",
+    "Disconnect one-shot Web Audio SFX nodes on ended so repeated held-fire playback does not retain finished nodes."
   ],
   "caughtIssues": [
     "The current browser autoplay model means music must not be expected to play before a user gesture.",
     "The asset validator needed a generated-audio source path instead of a CC0-only source gate.",
     "The earlier SFX preload path created weapon audio pools only after async fetch verification, so very early shots could miss sound until a later cadence shot.",
     "Small HTML media pools can cut off or delay rapid overlapping shots on mobile when held-fire cadence overlaps.",
-    "HTMLAudioElement.play can fail or remain silent under gesture/autoplay edge cases, so music should stay on the same Web Audio unlock path as SFX."
+    "HTMLAudioElement.play can fail or remain silent under gesture/autoplay edge cases, so music should stay on the same Web Audio unlock path as SFX.",
+    "A debug-only death trigger was not enough coverage because it did not reproduce the same timing as projectile-driven player death.",
+    "Voice playback had no debug snapshot counters before this slice, so a missing death bark was hard to distinguish from a muted device or browser autoplay block.",
+    "Publishing all public source assets to Cloudflare would ship roughly 136 MB; prepared dist is roughly 16 MB after pruning source-only character assets."
   ],
   "risks": [
     "The 24 second music loop may become repetitive during longer playthroughs.",
     "Generated output usage must continue to follow the active ElevenLabs account and terms.",
     "SFX loudness is metadata-targeted but not yet measured by an automated LUFS tool.",
-    "Enemy projectile sound identity is temporary because it reuses an existing ElevenLabs weapon cue."
+    "Enemy projectile sound identity is temporary because it reuses an existing ElevenLabs weapon cue.",
+    "The centralized audio manager still lives behind the weapon system facade for this MVP; a later architecture pass may move it to a top-level game service."
   ],
   "blockers": [],
   "artifacts": [
@@ -60,6 +74,10 @@
     "public/assets/audio/elevenlabs-foundation/source-metadata.json",
     "src/game/audioManifest.ts",
     "src/game/weapons/weaponAudio.ts",
+    "src/game/characterVoice.ts",
+    "src/game/createGame.ts",
+    "src/game/weapons/weaponSystem.ts",
+    "e2e/foundation-smoke.spec.ts",
     "public/assets/audio/elevenlabs-foundation/rift-precision.mp3",
     "public/assets/audio/elevenlabs-foundation/torch-burst.mp3",
     "public/assets/audio/elevenlabs-foundation/foundation-combat-loop-long.mp3",
@@ -102,6 +120,54 @@
         "path": "assets/audio/elevenlabs-foundation/foundation-combat-loop-long.mp3",
         "kind": "music",
         "durationSeconds": 48
+      },
+      {
+        "assetId": "audio.music.title.playful.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/title-playful-loop.mp3",
+        "kind": "music",
+        "durationSeconds": 90
+      },
+      {
+        "assetId": "audio.voice.glyph.catchphrase.service.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/glyph-at-your-service.mp3",
+        "kind": "voice",
+        "durationSeconds": 1.92
+      },
+      {
+        "assetId": "audio.voice.glyph.level-complete.rift-sealed.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/glyph-rift-sealed.mp3",
+        "kind": "voice",
+        "durationSeconds": 2.24
+      },
+      {
+        "assetId": "audio.voice.glyph.level-complete.slick.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/glyph-that-was-slick.mp3",
+        "kind": "voice",
+        "durationSeconds": 1.92
+      },
+      {
+        "assetId": "audio.voice.glyph.encouragement.keep-moving.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/glyph-keep-moving.mp3",
+        "kind": "voice",
+        "durationSeconds": 2.08
+      },
+      {
+        "assetId": "audio.voice.glyph.encouragement.sparks-up.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/glyph-sparks-up-feet-fast.mp3",
+        "kind": "voice",
+        "durationSeconds": 1.76
+      },
+      {
+        "assetId": "audio.voice.glyph.fail.reboot.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/glyph-oof-reboot-me.mp3",
+        "kind": "voice",
+        "durationSeconds": 2.56
+      },
+      {
+        "assetId": "audio.voice.glyph.fail.stars.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/glyph-stars-sigils-snacks.mp3",
+        "kind": "voice",
+        "durationSeconds": 2.48
       }
     ],
     "requiredAudioMetadata": [
@@ -124,6 +190,7 @@
     "runtimeSfxPoolsCreatedBeforeVerification": true,
     "runtimeMusicPlaybackMode": "decoded-web-audio-loop",
     "runtimeSfxPlaybackMode": "decoded-web-audio-buffer-with-html-media-fallback",
+    "runtimeVoicePlaybackMode": "decoded-web-audio-buffer",
     "parallelAudioLoad": true,
     "enemyProjectileSound": {
       "sourceAudioAssetId": "audio.weapon.rift.elevenlabs",
@@ -150,6 +217,8 @@
       "playRequestsIncreaseOnHoldFire": true,
       "webAudioPlayRequestsIncreaseOnHoldFire": true,
       "enemyProjectilePlayRequestsIncreaseWhenProjectileFires": true,
+      "voicePlayRequestsIncreaseInVoiceLab": true,
+      "activeVoiceAssetIdExpectedDuringVoiceLabPlayback": "audio.voice.glyph.catchphrase.service.elevenlabs",
       "musicDecodedExpected": true,
       "musicPlayingExpectedAfterStart": true,
       "missedPlayRequestsExpected": 0,
