@@ -1,9 +1,9 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "camera-cutscene-agent",
-  "status": "not-started",
-  "updatedAt": "2026-07-04T14:45:00Z",
-  "summary": "Initial camera scaffold only; no cutscene system exists, but weapon feedback now depends on shared camera-local view-pose math, pitch-corrected shot distance math, and hold-fire FOV/weapon-centering state.",
+  "status": "implemented-first-death-cinematic",
+  "updatedAt": "2026-07-05T18:36:00Z",
+  "summary": "First death cinematic is implemented as a distinct game phase with HUD/input disabled, a third-person out-of-HP character orbit, a single fail voice/caption sting, delayed Try Again and Return to Title actions, and browser QA coverage for reset behavior.",
   "observations": [
     "No camera modes, viewmodel framing, or cutscene system exists yet.",
     "Weapon muzzle, tracer, and wall-impact positions are derived from src/game/weapons/weaponViewPose.ts.",
@@ -11,7 +11,10 @@
     "No deterministic pitch-up or pitch-down debug camera poses exist yet.",
     "Holding fire blends camera FOV from 70 to 62 degrees and blends each weapon from its hip pose toward a centered aim pose.",
     "snapshot.weapon.aimBlend and snapshot.weapon.cameraFovDegrees expose the current aim camera state.",
-    "Fire-button drag can adjust yaw/pitch at reduced sensitivity while the same pointer is held for fire."
+    "Fire-button drag can adjust yaw/pitch at reduced sensitivity while the same pointer is held for fire.",
+    "Death cinematic now uses the player.hero.gadget-gremlin.apose.animated GLB and its out-of-hp clip in a dedicated DeathCinematicStage.",
+    "Gameplay HUD and touch controls are hidden while phase is death-cinematic.",
+    "A qaCapture-gated debug damage hook lets Playwright force death without waiting for enemy projectiles."
   ],
   "decisions": [
     "Cutscenes must be skippable.",
@@ -20,17 +23,28 @@
     "Gameplay camera changes must preserve or explicitly suspend weapon shot-effect pose alignment.",
     "Future aim/FOV/recoil camera changes must preserve the flat-raycast to camera-space shot-distance conversion.",
     "Treat hold-fire as the current aim camera mode until a formal camera state machine exists.",
-    "Any future camera mode must restore base FOV when held fire, reload, or cutscene state ends."
+    "Any future camera mode must restore base FOV when held fire, reload, or cutscene state ends.",
+    "Death must be a distinct phase from gameplay, not only an overlay over the FPS camera.",
+    "The first implementation uses a standalone cinematic stage to protect orbit framing and avoid clipping level walls.",
+    "Try Again is the primary death action and should reveal after the death read, currently after 3.2 seconds.",
+    "Return to Title and Try Again must both clear combat state before leaving death-cinematic."
   ],
   "caughtIssues": [
     "Pointer-drag screenshot QA can approximate pitch-up/down firing, but deterministic debug look poses are needed for stable visual regression.",
-    "Held-fire centering is debug-state tested but not screenshot-regressed for each weapon silhouette."
+    "Held-fire centering is debug-state tested but not screenshot-regressed for each weapon silhouette.",
+    "Death-cinematic framing is state-tested but not yet headed screenshot-regressed.",
+    "The standalone stage does not yet preserve the exact room where the player died."
   ],
   "risks": [
-    "Camera and viewmodel decisions can break touch controls and HUD readability if reviewed late."
+    "Camera and viewmodel decisions can break touch controls and HUD readability if reviewed late.",
+    "Future in-level death cameras need obstruction checks before replacing the standalone stage."
   ],
   "blockers": [],
-  "artifacts": [],
+  "artifacts": [
+    "src/game/deathCinematicStage.ts",
+    "e2e/foundation-smoke.spec.ts::verifyDeathCinematic",
+    "npm run validate:browser"
+  ],
   "jsonForAgents": {
     "cameraModes": [
       "title",
@@ -55,6 +69,25 @@
         "weapon.cameraFovDegrees"
       ],
       "poseSource": "src/game/weapons/weaponManifest.ts"
+    },
+    "deathCinematic": {
+      "phase": "death-cinematic",
+      "stage": "src/game/deathCinematicStage.ts",
+      "clipId": "out-of-hp",
+      "voiceLineId": "audio.voice.glyph.fail.reboot.elevenlabs",
+      "controlsRevealSeconds": 3.2,
+      "primaryAction": "Try Again",
+      "secondaryAction": "Return to Title",
+      "qaHook": "DebugApi.damagePlayerForQa",
+      "resetRequirements": [
+        "player health",
+        "player pose",
+        "enemy health and positions",
+        "active enemy projectiles",
+        "weapon ammo",
+        "held-fire state",
+        "weapon FOV"
+      ]
     },
     "requiredDebugPoses": [
       "first-person-fire",

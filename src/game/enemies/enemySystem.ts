@@ -390,6 +390,42 @@ export class EnemySystem {
     };
   }
 
+  resetCombatState(): void {
+    for (const enemy of this.enemies) {
+      enemy.health.reset();
+      enemy.group.visible = true;
+      enemy.group.position.copy(enemy.origin);
+      enemy.position.copy(enemy.origin);
+      enemy.state = 'patrolling';
+      enemy.patrolIndex = 0;
+      enemy.facingYawRadians = 0;
+      enemy.time = 0;
+      enemy.hitFlashSeconds = 0;
+      enemy.hitFlash.visible = false;
+      enemy.debugGroup.visible = false;
+      enemy.projectileCooldownSeconds = getInitialProjectileCooldown(
+        enemy.marker.column,
+        enemy.marker.row,
+        enemy.behavior,
+      );
+      enemy.proxy.material.emissiveIntensity = 0.18;
+      enemy.proxy.visible = true;
+      enemy.visualSlot.visible = true;
+      enemy.modelObject?.traverse((object) => {
+        object.visible = true;
+      });
+    }
+
+    for (let index = this.projectiles.length - 1; index >= 0; index--) {
+      this.releaseProjectile(index);
+    }
+    this.projectileSequence = 0;
+    this.projectilesFired = 0;
+    this.projectilesHitPlayer = 0;
+    this.projectilesHitWall = 0;
+    this.projectileShotsBlockedByWall = 0;
+  }
+
   getSnapshot(): EnemySystemSnapshot {
     this.root.updateMatrixWorld(true);
     const enemies = this.enemies.map((enemy) => ({

@@ -4,6 +4,7 @@ import { FOUNDATION_ENVIRONMENT_TEXTURE_DECODED_BYTES } from './foundationLevelR
 import type { FpsControllerSnapshot } from './fpsControls';
 import type { EnemySystemSnapshot } from './enemies/enemySystem';
 import type { HealthSnapshot } from './health';
+import type { DeathCinematicStageSnapshot } from './deathCinematicStage';
 import {
   FOUNDATION_LEVEL_MAP,
   FOUNDATION_LEVEL_ID,
@@ -88,6 +89,7 @@ export interface DebugSnapshot {
     phase: GamePhase;
     loading: UiLoadingSnapshot;
     titleHero: TitleHeroStageSnapshot;
+    deathCinematic: DeathCinematicStageSnapshot;
   };
   budgets: typeof PERFORMANCE_BUDGETS;
 }
@@ -108,11 +110,13 @@ export interface UiSnapshot {
   phase: GamePhase;
   loading: UiLoadingSnapshot;
   titleHero: TitleHeroStageSnapshot;
+  deathCinematic: DeathCinematicStageSnapshot;
 }
 
 export interface DebugApi {
   getSnapshot: () => DebugSnapshot;
   setPlayerPose: (pose: { x: number; z: number; yawRadians?: number; pitchRadians?: number }) => boolean;
+  damagePlayerForQa: (amount: number) => boolean;
 }
 
 export function createDebugApi(
@@ -126,6 +130,7 @@ export function createDebugApi(
   getZoomGuardSnapshot: () => MobileZoomGuardSnapshot,
   getUiSnapshot: () => UiSnapshot,
   setPlayerPose: (pose: { x: number; z: number; yawRadians?: number; pitchRadians?: number }) => void,
+  damagePlayer: (amount: number) => void,
 ): DebugApi {
   return {
     setPlayerPose: (pose) => {
@@ -134,6 +139,14 @@ export function createDebugApi(
       }
 
       setPlayerPose(pose);
+      return true;
+    },
+    damagePlayerForQa: (amount) => {
+      if (!new URLSearchParams(window.location.search).has('qaCapture')) {
+        return false;
+      }
+
+      damagePlayer(amount);
       return true;
     },
     getSnapshot: () => {
@@ -234,7 +247,15 @@ export function createDebugApi(
 }
 
 function getCameraMode(phase: GamePhase): CameraMode {
-  return phase === 'gameplay' ? 'gameplay' : 'title';
+  if (phase === 'gameplay') {
+    return 'gameplay';
+  }
+
+  if (phase === 'death-cinematic') {
+    return 'death';
+  }
+
+  return 'title';
 }
 
 function readHeapMb(): number | null {

@@ -30,7 +30,7 @@ const EXPECTED_LOADED_ASSET_IDS = [
 interface DebugSnapshot {
   buildId: string;
   scene: {
-    phase: 'loading' | 'title' | 'gameplay' | 'character-debug' | 'voice-lab';
+    phase: 'loading' | 'title' | 'gameplay' | 'death-cinematic' | 'character-debug' | 'voice-lab';
     playerPosition: [number, number, number];
     yawRadians: number;
     pitchRadians: number;
@@ -233,7 +233,7 @@ interface DebugSnapshot {
   };
   ui: {
     debugVisible: boolean;
-    phase: 'loading' | 'title' | 'gameplay' | 'character-debug' | 'voice-lab';
+    phase: 'loading' | 'title' | 'gameplay' | 'death-cinematic' | 'character-debug' | 'voice-lab';
     loading: {
       ready: boolean;
       loadedAssets: number;
@@ -264,6 +264,18 @@ interface DebugSnapshot {
         right: number;
         bottom: number;
       } | null;
+    };
+    deathCinematic: {
+      assetId: string;
+      modelPath: string;
+      loaded: boolean;
+      modelBytesLoaded: number;
+      clipId: string;
+      clipDurationSeconds: number;
+      visible: boolean;
+      phaseTimeSeconds: number;
+      orbitAngleRadians: number;
+      errors: string[];
     };
   };
   budgets: {
@@ -680,6 +692,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   }
 
   await verifyEnemyProjectileAttack(page);
+  await verifyDeathCinematic(page);
 
   await page.locator('.game-canvas').click({ position: { x: 12, y: 12 } });
   await driveUntil(page, 'KeyA', (routeSnapshot) => routeSnapshot.scene.playerPosition[2] < -21.15, 2500);
@@ -1069,6 +1082,48 @@ async function verifyEnemyProjectileAttack(page: Page): Promise<void> {
     },
   );
   expect(resetAccepted).toBe(true);
+}
+
+async function verifyDeathCinematic(page: Page): Promise<void> {
+  const before = await readDebugSnapshot(page);
+  const accepted = await page.evaluate(() => window.__SIGILBREAKER_DEBUG__?.damagePlayerForQa(999) ?? false);
+  expect(accepted).toBe(true);
+
+  await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('death-cinematic');
+  await expect(page.locator('[data-death-cinematic]')).toBeVisible();
+  await expect(page.locator('[data-death-caption]')).toContainText(/Oof|Reboot|Stars|Snacks/);
+  await expect
+    .poll(async () => (await readDebugSnapshot(page)).ui.deathCinematic.phaseTimeSeconds, {
+      timeout: 5000,
+      intervals: [120, 180, 240],
+    })
+    .toBeGreaterThanOrEqual(3.2);
+  await expect(page.locator('[data-death-try-again]')).toBeVisible();
+  await expect(page.locator('[data-death-return-title]')).toBeVisible();
+
+  const cinematic = await readDebugSnapshot(page);
+  expect(cinematic.player.health.current).toBe(0);
+  expect(cinematic.player.health.isAlive).toBe(false);
+  expect(cinematic.ui.deathCinematic).toMatchObject({
+    assetId: 'player.hero.gadget-gremlin.apose.animated',
+    clipId: 'out-of-hp',
+    loaded: true,
+    visible: true,
+    errors: [],
+  });
+  expect(cinematic.ui.deathCinematic.clipDurationSeconds).toBeGreaterThan(0);
+  expect(cinematic.ui.deathCinematic.phaseTimeSeconds).toBeGreaterThanOrEqual(3);
+  expect(cinematic.ui.deathCinematic.orbitAngleRadians).not.toBe(before.scene.yawRadians);
+
+  await page.locator('[data-death-try-again]').click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('gameplay');
+  await expect(page.locator('[data-death-cinematic]')).toBeHidden();
+  const reset = await readDebugSnapshot(page);
+  expect(reset.player.health.current).toBe(reset.player.health.max);
+  expect(reset.enemies.alive).toBe(reset.enemies.total);
+  expect(reset.enemies.projectiles.fired).toBe(0);
+  expect(reset.weapon.shotCount).toBe(0);
+  expect(reset.weapon.activeWeaponId).toBe('weapon.blaster.spark');
 }
 
 async function verifyPortraitRotatePrompt(page: Page): Promise<void> {

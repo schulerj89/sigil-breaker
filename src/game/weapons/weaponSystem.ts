@@ -302,6 +302,30 @@ export class WeaponSystem {
     }
   }
 
+  resetCombatState(): void {
+    this.releaseFireState();
+    for (const weapon of WEAPON_DEFINITIONS) {
+      this.ammoByWeapon.set(weapon.id, weapon.magazineSize);
+    }
+    this.nextShotAt = 0;
+    this.reloadCompleteAt = 0;
+    this.muzzleFlashUntil = 0;
+    this.shotFeedbackUntil = 0;
+    this.recoil = 0;
+    this.wallAvoidance = 0;
+    this.shotFeedbackDistance = 0;
+    this.shotCount = 0;
+    this.aimBlend = 0;
+    this.lastShot = null;
+    this.muzzleFlash.visible = false;
+    this.shotTracer.visible = false;
+    this.wallImpact.visible = false;
+    this.camera.fov = this.baseCameraFov;
+    this.camera.updateProjectionMatrix();
+    this.switchWeapon(WEAPON_DEFINITIONS[0].id);
+    this.updateMenuState();
+  }
+
   dispose(): void {
     this.root.removeEventListener('pointerdown', this.onPointerDown);
     this.root.removeEventListener('pointerup', this.onPointerUp);
