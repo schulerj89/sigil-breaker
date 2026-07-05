@@ -133,6 +133,19 @@ try {
   const posedFirstEnemy = posed.enemies.enemies[0];
   await takeScreenshot(page, 'headed-first-enemy-posed-far.png');
 
+  const closePoseAccepted = await page.evaluate((enemyPosition) => {
+    return window.__SIGILBREAKER_DEBUG__?.setPlayerPose({
+      x: enemyPosition[0] - 4.35,
+      z: enemyPosition[2] - 0.02,
+      yawRadians: -1.57,
+      pitchRadians: -0.1,
+    });
+  }, posedFirstEnemy.position);
+  await delay(450);
+  const closePosed = await readDebugSnapshot(page);
+  const closePosedFirstEnemy = closePosed.enemies.enemies[0];
+  await takeScreenshot(page, 'headed-first-enemy-facing-close.png');
+
   report.posedFarCapture = {
     screenshot: 'headed-first-enemy-posed-far.png',
     poseAccepted: Boolean(poseAccepted),
@@ -145,6 +158,18 @@ try {
       : Number.POSITIVE_INFINITY,
     playerEnemyDistanceUnits: flatOffset(posed.scene.playerPosition, posedFirstEnemy.position),
   };
+  report.posedCloseCapture = {
+    screenshot: 'headed-first-enemy-facing-close.png',
+    poseAccepted: Boolean(closePoseAccepted),
+    playerPosition: closePosed.scene.playerPosition,
+    yawRadians: closePosed.scene.yawRadians,
+    pitchRadians: closePosed.scene.pitchRadians,
+    firstEnemy: closePosedFirstEnemy,
+    modelOffsetUnits: closePosedFirstEnemy.modelBounds
+      ? flatOffset(closePosedFirstEnemy.modelBounds.center, closePosedFirstEnemy.position)
+      : Number.POSITIVE_INFINITY,
+    playerEnemyDistanceUnits: flatOffset(closePosed.scene.playerPosition, closePosedFirstEnemy.position),
+  };
 
   const errors = [
     ...report.stationary.map((id) => `stationary enemy ${id}`),
@@ -156,6 +181,10 @@ try {
 
   if (!poseAccepted) {
     errors.push('debug pose hook rejected the headed QA camera pose');
+  }
+
+  if (!closePoseAccepted) {
+    errors.push('debug pose hook rejected the headed QA close-facing camera pose');
   }
 
   if (report.enemyCount !== EXPECTED_ENEMY_COUNT) {

@@ -23,6 +23,7 @@ Status: needs visual review after first external enemy asset replacement.
 - The hit flash now lives under the same animated visual slot as the GLB, so it follows model bob/scale instead of only the root transform.
 - Enemy debug snapshots now include attachment anchors and model bounds, which makes visual/proxy/debug/flash detachment testable.
 - Repeatable headed enemy QA now confirms the skinned bodies are visibly present, moving, and attached to their hit/debug proxies.
+- Headed close-facing QA verified the Quaternius monster model-local yaw should be `Math.PI`; the Mushnub eyes face the player and align with the red debug cone at that offset.
 
 ## Decisions
 
@@ -34,6 +35,7 @@ Status: needs visual review after first external enemy asset replacement.
 - Keep map-authored enemy markers as the source of truth for exact spawn coordinates.
 - Keep enemy-to-enemy overlap handling as a lightweight runtime separation pass until authored navigation or avoidance is needed.
 - Keep `SkeletonUtils.clone` for skinned enemy GLB reuse; do not return to raw `Object3D.clone(true)` for these assets.
+- Keep the shared Quaternius monster forward yaw at `Math.PI` unless future per-asset visual QA proves a specific monster needs a separate offset.
 
 ## Caught Issues
 
@@ -46,6 +48,7 @@ Status: needs visual review after first external enemy asset replacement.
 - The first hit proxy was too narrow for the external silhouettes, making player-visible shots feel like misses.
 - Raw `Object3D.clone(true)` produced valid-looking bounds while the skinned enemy body did not render reliably in headed QA.
 - Single-frame movement assertions can false-fail on looping patrols; use the headed QA runner's sampled movement window.
+- The initial 180-degree guess from the old `Math.PI / 2` yaw still showed side/back views; direct close-facing screenshot comparison showed `Math.PI` is the correct shared yaw.
 
 ## Next Handoff Notes
 
@@ -53,3 +56,4 @@ Status: needs visual review after first external enemy asset replacement.
 - Future enemy assets should provide authored idle/move/attack/hit/death clips, but they must keep the current separate hit-proxy contract and map-marker spawn contract.
 - Future enemy replacements should be checked against the current 2.15 x 2.35 unit hit proxy before shrinking combat collision.
 - Future enemy assets should record whether they are skinned; skinned models need the skeleton-safe clone path and a headed visual capture.
+- Future enemy replacements should get a close-facing screenshot with the debug front cone visible before the yaw is accepted.

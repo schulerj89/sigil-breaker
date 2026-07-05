@@ -25,6 +25,8 @@ export const ENEMY_ASSET_SOURCE = {
   redistributionAllowed: true,
 } as const;
 
+const QUATERNIUS_MONSTER_FORWARD_YAW = Math.PI;
+
 export const ENEMY_ASSET_DEFINITIONS: readonly EnemyAssetDefinition[] = [
   {
     id: 'enemy.monster.mushnub',
@@ -35,7 +37,7 @@ export const ENEMY_ASSET_DEFINITIONS: readonly EnemyAssetDefinition[] = [
     modelSha256: '04614a9d0db2a00d17cd85f4ef9c54e19cd3692530c0724b46809aa928e161e9',
     sourceUrl: 'https://poly.pizza/m/LWKmS30Xxl',
     targetHeightUnits: 1.55,
-    yawRadians: Math.PI / 2,
+    yawRadians: QUATERNIUS_MONSTER_FORWARD_YAW,
   },
   {
     id: 'enemy.monster.pink-slime',
@@ -46,7 +48,7 @@ export const ENEMY_ASSET_DEFINITIONS: readonly EnemyAssetDefinition[] = [
     modelSha256: '34bb111a7931bb957f992e127d71fac321aaeea1bdcc7da56fa5aba55c83d783',
     sourceUrl: 'https://poly.pizza/m/AyP8sQmDLh',
     targetHeightUnits: 1.2,
-    yawRadians: Math.PI / 2,
+    yawRadians: QUATERNIUS_MONSTER_FORWARD_YAW,
   },
   {
     id: 'enemy.monster.goleling',
@@ -57,6 +59,6 @@ export const ENEMY_ASSET_DEFINITIONS: readonly EnemyAssetDefinition[] = [
     modelSha256: 'fe6b5a04aef77aa9b38afee216802823b543d2409674bc86bd8bd152cb8cebce',
     sourceUrl: 'https://poly.pizza/m/71gomWolax',
     targetHeightUnits: 1.75,
-    yawRadians: Math.PI / 2,
+    yawRadians: QUATERNIUS_MONSTER_FORWARD_YAW,
   },
 ];

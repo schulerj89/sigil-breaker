@@ -256,6 +256,7 @@ describe('FPS foundation config', () => {
       expect(enemy.modelBytes).toBeGreaterThan(50_000);
       expect(enemy.targetHeightUnits).toBeGreaterThan(1);
       expect(enemy.targetHeightUnits).toBeLessThanOrEqual(1.8);
+      expect(enemy.yawRadians).toBeCloseTo(Math.PI);
       expect(enemy.sourceUrl).toMatch(/^https:\/\/poly\.pizza\/m\//);
     }
   });

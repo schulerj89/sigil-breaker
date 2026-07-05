@@ -137,3 +137,5 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Added `npm run qa:headed:enemies` as a repeatable local visible-Chromium enemy QA runner.
 - Latest headed enemy QA passed with no console errors, no failed requests, all 12 enemies moving within a sampled 1200 ms window, and no detached attachment/model bounds.
 - The headed enemy movement check uses maximum displacement across intermediate samples because looping patrols can return near their start on the final frame.
+- Latest headed enemy facing/audio run stored under `artifacts/sub-agents/20260705-enemy-facing-audio/smoke-qa-agent/` includes `headed-first-enemy-facing-close.png`, which shows the Mushnub eyes facing the player and aligned with the red debug cone.
+- Latest `npm run validate:browser` passed all five landscape viewports after adding SFX pool/debug counters; browser smoke checks SFX pool profiles, play request growth, audio unlock, and zero missed SFX play requests during hold-fire.

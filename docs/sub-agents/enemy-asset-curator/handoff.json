@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "enemy-asset-curator",
   "status": "complete",
-  "updatedAt": "2026-07-05T00:20:00Z",
-  "summary": "Foundation enemies now use three Quaternius CC0 skinned monster GLBs across 12 spaced map-authored enemy markers with skeleton-safe cloning, kinematic patrol, tracking, return-home behavior, debug radius/front cones, larger silhouette hit proxies, visible attached hit flash, separation, health, ray-hit damage, and destruction preserved.",
+  "updatedAt": "2026-07-05T00:42:00Z",
+  "summary": "Foundation enemies now use three Quaternius CC0 skinned monster GLBs across 12 spaced map-authored enemy markers with skeleton-safe cloning, verified Math.PI model-facing yaw, kinematic patrol, tracking, return-home behavior, debug radius/front cones, larger silhouette hit proxies, visible attached hit flash, separation, health, ray-hit damage, and destruction preserved.",
   "observations": [
     "The earlier cube placeholder pass has been superseded by external GLB enemies.",
     "Each external enemy owns a shared Health instance and reports through the debug enemy snapshot.",
@@ -23,7 +23,8 @@
     "Quaternius enemy GLBs are skinned meshes and now use SkeletonUtils.clone for repeated runtime instances.",
     "The hit flash is parented to the animated visual slot so it follows the GLB bob/scale.",
     "Enemy snapshots report attachment anchors and model bounds so detachment can be tested.",
-    "Repeatable headed enemy QA now confirms the skinned bodies are visibly present, moving, and attached to their hit/debug proxies."
+    "Repeatable headed enemy QA now confirms the skinned bodies are visibly present, moving, and attached to their hit/debug proxies.",
+    "Headed close-facing QA verified the Quaternius monster model-local yaw should be Math.PI; the Mushnub eyes face the player and align with the red debug cone at that offset."
   ],
   "decisions": [
     "Enemy assets must be judged by silhouette, animation coverage, hit proxies, audio hooks, and mobile performance.",
@@ -34,7 +35,8 @@
     "Keep enemy behavior data in runtime code for now; keep enemyManifest.ts as source/license/model metadata only.",
     "Use map-authored E markers as the source of truth for exact enemy spawn coordinates.",
     "Keep enemy-to-enemy overlap handling as a lightweight runtime separation pass until authored navigation or avoidance is needed.",
-    "Keep SkeletonUtils.clone for skinned enemy GLB reuse; do not return to raw Object3D.clone(true) for these assets."
+    "Keep SkeletonUtils.clone for skinned enemy GLB reuse; do not return to raw Object3D.clone(true) for these assets.",
+    "Keep the shared Quaternius monster forward yaw at Math.PI unless future per-asset visual QA proves a specific monster needs a separate offset."
   ],
   "caughtIssues": [
     "Current external enemies validate damage and destruction only; they do not block player movement or animate authored hit/death states.",
@@ -43,7 +45,8 @@
     "The earlier first marker was too close to spawn and made the opening read as enemy overlap or stuck behavior.",
     "The original hit proxy was too narrow for the external silhouettes, making some player-visible shots feel like misses.",
     "Raw Object3D.clone(true) produced valid-looking bounds while the skinned enemy body did not render reliably in headed QA.",
-    "Single-frame movement assertions can false-fail on looping patrols; use the headed QA runner's sampled movement window."
+    "Single-frame movement assertions can false-fail on looping patrols; use the headed QA runner's sampled movement window.",
+    "The initial 180-degree guess from the old Math.PI / 2 yaw still showed side/back views; direct close-facing screenshot comparison showed Math.PI is the correct shared yaw."
   ],
   "risks": [
     "Enemy assets without readable attack and hit states will make mobile combat feel unfair.",
@@ -96,8 +99,10 @@
       "movementEnabled": true,
       "movementModel": "kinematic patrol/tracking/return-home with transform-only visual motion",
       "skinnedModelClone": "SkeletonUtils.clone",
+      "modelForwardYawRadians": 3.141592653589793,
       "modelBoundsAttachmentChecked": true,
       "headedQaCommand": "npm run qa:headed:enemies",
+      "latestFacingScreenshot": "artifacts/sub-agents/20260705-enemy-facing-audio/smoke-qa-agent/headed-first-enemy-facing-close.png",
       "separationEnabled": true,
       "debugVisuals": "detection radius plus front cone, red while tracking and green otherwise",
       "hitFeedback": "brief additive sphere flash on successful damage, parented to the enemy visual slot"

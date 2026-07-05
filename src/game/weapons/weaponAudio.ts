@@ -9,6 +9,9 @@ export interface WeaponAudioSnapshot {
   musicMuted: boolean;
   musicPlaying: boolean;
   unlocked: boolean;
+  sfxPoolProfiles: WeaponSoundProfile[];
+  playRequests: number;
+  missedPlayRequests: number;
   loadedAssetIds: string[];
   assetLoadErrors: string[];
   assetBytesLoaded: number;
@@ -35,12 +38,15 @@ export class WeaponAudio {
   private readonly music = new Audio(publicAssetUrl(FOUNDATION_MUSIC_ASSET.path));
   private musicMuted = readStoredMusicMuted();
   private unlocked = false;
+  private playRequests = 0;
+  private missedPlayRequests = 0;
   private root: HTMLElement | null = null;
 
   constructor() {
     this.music.loop = true;
     this.music.preload = 'auto';
     this.music.volume = this.musicMuted ? 0 : FOUNDATION_MUSIC_ASSET.volume;
+    this.createSfxPools();
     void this.preload();
   }
 
@@ -51,9 +57,11 @@ export class WeaponAudio {
   }
 
   play(profile: WeaponSoundProfile): void {
+    this.playRequests++;
     this.unlock();
     const asset = this.sfxByProfile.get(profile);
     if (!asset || asset.pool.length === 0) {
+      this.missedPlayRequests++;
       return;
     }
 
@@ -70,6 +78,9 @@ export class WeaponAudio {
       musicMuted: this.musicMuted,
       musicPlaying: !this.music.paused && !this.musicMuted,
       unlocked: this.unlocked,
+      sfxPoolProfiles: [...this.sfxByProfile.keys()].sort(),
+      playRequests: this.playRequests,
+      missedPlayRequests: this.missedPlayRequests,
       loadedAssetIds: [...this.loadedAssetIds].sort(),
       assetLoadErrors: [...this.assetLoadErrors],
       assetBytesLoaded: GAME_AUDIO_ASSETS.reduce(
@@ -100,15 +111,27 @@ export class WeaponAudio {
   }
 
   private async preload(): Promise<void> {
+    const weaponChecks = (Object.entries(WEAPON_AUDIO_ASSETS) as Array<
+      [WeaponSoundProfile, (typeof WEAPON_AUDIO_ASSETS)[WeaponSoundProfile]]
+    >).map(async ([, definition]) => {
+      const url = publicAssetUrl(definition.path);
+      await this.verifyAsset(definition.id, url, definition.bytes);
+    });
+
+    const musicUrl = publicAssetUrl(FOUNDATION_MUSIC_ASSET.path);
+    const musicOk = await this.verifyAsset(FOUNDATION_MUSIC_ASSET.id, musicUrl, FOUNDATION_MUSIC_ASSET.bytes);
+    if (musicOk) {
+      this.music.src = musicUrl;
+      this.music.load();
+    }
+    await Promise.all(weaponChecks);
+  }
+
+  private createSfxPools(): void {
     for (const [profile, definition] of Object.entries(WEAPON_AUDIO_ASSETS) as Array<
       [WeaponSoundProfile, (typeof WEAPON_AUDIO_ASSETS)[WeaponSoundProfile]]
     >) {
       const url = publicAssetUrl(definition.path);
-      const ok = await this.verifyAsset(definition.id, url, definition.bytes);
-      if (!ok) {
-        continue;
-      }
-
       this.sfxByProfile.set(profile, {
         id: definition.id,
         url,
@@ -117,13 +140,6 @@ export class WeaponAudio {
         pool: createAudioPool(url, SFX_POOL_SIZE),
         nextIndex: 0,
       });
-    }
-
-    const musicUrl = publicAssetUrl(FOUNDATION_MUSIC_ASSET.path);
-    const musicOk = await this.verifyAsset(FOUNDATION_MUSIC_ASSET.id, musicUrl, FOUNDATION_MUSIC_ASSET.bytes);
-    if (musicOk) {
-      this.music.src = musicUrl;
-      this.music.load();
     }
   }
 
@@ -208,6 +224,7 @@ function createAudioPool(url: string, size: number): HTMLAudioElement[] {
   return Array.from({ length: size }, () => {
     const audio = new Audio(url);
     audio.preload = 'auto';
+    audio.load();
     return audio;
   });
 }

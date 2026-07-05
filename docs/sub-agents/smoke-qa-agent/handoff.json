@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T00:20:00Z",
-  "summary": "Local Playwright smoke covers five weapons, 12 spaced map-authored skinned enemy GLBs, enemy movement/tracking/debug visuals, attached hit flash, enemy separation, model-bounds attachment checks, reusable headed enemy visual QA, longer ElevenLabs music, cache-busting, touch-safe debug hiding, and enemy destruction.",
+  "updatedAt": "2026-07-05T00:42:00Z",
+  "summary": "Local Playwright smoke covers five weapons, immediate SFX pool/play-request counters, 12 spaced map-authored skinned enemy GLBs, enemy movement/tracking/debug visuals, attached hit flash, enemy separation, model-bounds attachment checks, reusable headed enemy visual/facing QA, longer ElevenLabs music, cache-busting, touch-safe debug hiding, and enemy destruction.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -79,7 +79,9 @@
     "The headed QA report is stored under artifacts/sub-agents/20260704-enemy-headed/smoke-qa-agent/.",
     "Added npm run qa:headed:enemies as a repeatable local visible-Chromium enemy QA runner.",
     "Latest headed enemy QA passed with no console errors, no failed requests, all 12 enemies moving within a sampled 1200ms window, and no detached attachment/model bounds.",
-    "The headed enemy movement check uses maximum displacement across intermediate samples because looping patrols can return near their start on the final frame."
+    "The headed enemy movement check uses maximum displacement across intermediate samples because looping patrols can return near their start on the final frame.",
+    "Latest headed enemy facing/audio run stored under artifacts/sub-agents/20260705-enemy-facing-audio/smoke-qa-agent/ includes headed-first-enemy-facing-close.png, which shows the Mushnub eyes facing the player and aligned with the red debug cone.",
+    "Latest npm run validate:browser passed all five landscape viewports after adding SFX pool/debug counters; browser smoke checks SFX pool profiles, play request growth, audio unlock, and zero missed SFX play requests during hold-fire."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -107,7 +109,8 @@
     "Keep enemy movement smoke state-based rather than frame-exact because positions are animated after boot.",
     "Keep first-target smoke aimed at an enemy that starts outside detection range, then prove destruction through hold-fire rather than relying on immediate tracking.",
     "Use the qaCapture debug pose hook for deterministic enemy screenshots instead of manual movement when checking model placement.",
-    "Use sampled movement windows for headed enemy QA instead of a single final-position delta."
+    "Use sampled movement windows for headed enemy QA instead of a single final-position delta.",
+    "Keep first-shot audio smoke state-based through sfxPoolProfiles/playRequests/missedPlayRequests until a physical-device audio latency gate exists."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
@@ -129,7 +132,9 @@
     "The first enemy marker was too close to spawn and made the opening read as enemy overlap or stuck behavior.",
     "Tight enemy ray proxies let visible hits feel like misses; unit smoke now checks the hit flash turns visible on a landed shot.",
     "Raw skinned-GLB cloning made bounds look valid while the visible model body was missing in headed screenshots.",
-    "A single final 1200ms movement sample can false-fail side-sway patrols when they loop back near the starting position."
+    "A single final 1200ms movement sample can false-fail side-sway patrols when they loop back near the starting position.",
+    "A close-facing screenshot showed Math.PI is the correct Quaternius monster yaw; the old Math.PI / 2 offset and the first -Math.PI / 2 guess still showed side/back views.",
+    "The old SFX path could miss very early shots because playback pools were created only after async asset verification completed."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
@@ -154,7 +159,8 @@
     "artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent",
     "artifacts/sub-agents/20260704-weapon-effects-smoothing/smoke-qa-agent",
     "artifacts/sub-agents/20260704-enemy-spacing/smoke-qa-agent",
-    "artifacts/sub-agents/20260704-enemy-headed/smoke-qa-agent"
+    "artifacts/sub-agents/20260704-enemy-headed/smoke-qa-agent",
+    "artifacts/sub-agents/20260705-enemy-facing-audio/smoke-qa-agent"
   ],
   "jsonForAgents": {
     "latestManualSmoke": {
@@ -246,7 +252,7 @@
       "mvpFastViewportSplit": true,
       "visualViewportScaleAfterZoomGestures": 1,
       "assetLoadErrors": 0,
-      "latestDurationSeconds": 148,
+      "latestDurationSeconds": 152,
       "testTimeoutSeconds": 240,
       "loadedAssetIdCount": 17,
       "weaponCycleCount": 5,
@@ -266,7 +272,10 @@
         "row": 1
       },
       "firstEnemyStartsPatrolling": true,
-      "enemyHitFlashUnitChecked": true
+      "enemyHitFlashUnitChecked": true,
+      "sfxPoolProfilesChecked": true,
+      "sfxPlayRequestsIncreaseOnHoldFire": true,
+      "missedSfxPlayRequests": 0
     },
     "latestHealthEnemySmoke": {
       "playerHealth": {
@@ -312,8 +321,10 @@
         "row": 1
       },
       "firstEnemyModelOffsetUnits": 0,
-      "firstEnemyDistanceInPosedCaptureUnits": 8.814,
+      "firstEnemyDistanceInPosedCaptureUnits": 8.795,
       "posedScreenshot": "headed-first-enemy-posed-far.png",
+      "closeFacingScreenshot": "headed-first-enemy-facing-close.png",
+      "closeFacingDistanceUnits": 3.615,
       "visibleEnemyBodyConfirmed": true
     },
     "requiredSmokeAssertions": [
@@ -347,7 +358,9 @@
       "enemyAttachmentAnchorsMatchRuntimePosition",
       "enemyModelBoundsMatchRuntimePosition",
       "headedEnemyVisualCapture",
-      "headedEnemyVisualCaptureNoConsoleErrors"
+      "headedEnemyVisualCaptureNoConsoleErrors",
+      "firstShotSfxPoolAvailable",
+      "firstShotSfxPlayRequestNotMissed"
     ],
     "screenshotNames": [
       "boot-mobile-landscape.png",
@@ -365,7 +378,8 @@
       "enemy-spawn-lane.png",
       "headed-enemy-initial.png",
       "headed-enemy-after-1200ms.png",
-      "headed-first-enemy-posed-far.png"
+      "headed-first-enemy-posed-far.png",
+      "headed-first-enemy-facing-close.png"
     ]
   },
   "nextAgents": [

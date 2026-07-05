@@ -99,6 +99,9 @@ interface DebugSnapshot {
       musicMuted: boolean;
       musicPlaying: boolean;
       unlocked: boolean;
+      sfxPoolProfiles: string[];
+      playRequests: number;
+      missedPlayRequests: number;
       loadedAssetIds: string[];
       assetLoadErrors: string[];
       assetBytesLoaded: number;
@@ -306,6 +309,8 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     'audio.weapon.torch.elevenlabs',
     'audio.weapon.vault.elevenlabs',
   ]);
+  expect(debugSnapshot.weapon.audio.sfxPoolProfiles).toEqual(['burst', 'heavy', 'precision', 'scatter', 'sidearm']);
+  expect(debugSnapshot.weapon.audio.missedPlayRequests).toBe(0);
   expect(debugSnapshot.weapon.audio.assetLoadErrors).toEqual([]);
   expect(debugSnapshot.weapon.audio.assetBytesLoaded).toBe(858_752);
   expect(debugSnapshot.weapon.audio.musicMuted).toBe(false);
@@ -412,6 +417,9 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     : preShotSnapshot.weapon.shotCount;
   const shotSnapshot = await holdFireButtonUntilShotCount(page, expectedShotCountFloor);
   expect(shotSnapshot.weapon.shotCount).toBeGreaterThan(preShotSnapshot.weapon.shotCount);
+  expect(shotSnapshot.weapon.audio.playRequests).toBeGreaterThan(preShotSnapshot.weapon.audio.playRequests);
+  expect(shotSnapshot.weapon.audio.missedPlayRequests).toBe(preShotSnapshot.weapon.audio.missedPlayRequests);
+  expect(shotSnapshot.weapon.audio.unlocked).toBe(true);
   expect(shotSnapshot.weapon.ammoInMagazine).toBeLessThan(preShotSnapshot.weapon.ammoInMagazine);
   expect(shotSnapshot.weapon.isFireHeld).toBe(true);
 
