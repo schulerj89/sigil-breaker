@@ -2,7 +2,7 @@
   "generatedAt": "2026-07-05T16:32:29.639Z",
   "modelId": "gpt-image-2",
   "selectedAssetId": "ui.title.character-refresh.mock-03.sigil-observatory",
-  "selectedRuntimeDirection": "Use mock 03 as the core composition, use the GPT Image 2 character-removed background plate as the runtime title background, and overlay the live Three.js idle-alt character plus HTML title/buttons.",
+  "selectedRuntimeDirection": "Use mock 03 as the core composition, use the GPT Image 2 character-removed background plate as the runtime title background, and overlay the live Three.js idle character plus HTML title/buttons.",
   "subAgentDecision": {
     "landscapeTitleHudAgent": "Use a live Three.js character on the right with HTML title/buttons on the left; avoid using the generated mocks as runtime backgrounds.",
     "elevenlabsAudioMusicAgent": "Pair the title with lighter loopable instrumental music, separate from combat music, and keep browser audio unlock centralized.",

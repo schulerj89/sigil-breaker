@@ -10,7 +10,7 @@ export const PLAYER_CHARACTER_ASSET = {
   modelSha256: '80bf9362d7b452f94bcac5b439469b3e67cde1641a9956ad5927b22776c5be7b',
   clipCount: 10,
   observedTriangles: 81_375,
-  titleClipName: 'idle-alt',
+  titleClipName: 'idle',
 } as const;
 
 export type PlayerCharacterClipName =

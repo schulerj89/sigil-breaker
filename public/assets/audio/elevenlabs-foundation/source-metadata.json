@@ -139,25 +139,26 @@
       "provider": "ElevenLabs"
     },
     {
-      "assetId": "audio.music.title.playful.elevenlabs",
-      "fileName": "title-playful-loop.mp3",
+      "assetId": "audio.music.title.industrial-guitar.elevenlabs",
+      "fileName": "title-industrial-guitar-loop.mp3",
       "endpoint": "music-compose",
       "modelId": "music_v1",
-      "prompt": "Instrumental loopable title-screen music for Sigilbreaker, a mobile landscape sci-fi arcade FPS with a mischievous amber gadget-runner hero, cobalt cloth, lime tech accents, and a dark ritual-tech foundry title background. Light playful arcade adventure energy, bouncy kinetic rhythm, bright plucked synth hook, toy-like metallic percussion, warm bass, short call-and-response melody, subtle sci-fi shimmer, no vocals, no choir, no heavy combat tension, no copyrighted character or game imitation, uncluttered mix for mobile speakers, seamless loop ending.",
+      "prompt": "Original instrumental title-screen loop for a mobile landscape sci-fi arcade FPS called Gadget Rift. Make it louder and more intense than the previous playful title music: aggressive industrial metal energy, low-tuned chugging electric guitars, tight double-kick drums, metallic percussion, gritty synth bass, glitchy arcade arps, heroic sci-fi hook, lime-energy portal shimmer, compact game-menu structure with a strong first 10 seconds and seamless looping ending. Keep it video-game-like, clean enough for phone speakers, no vocals, no choir, no copyrighted melodies, no imitation of any specific artist or soundtrack, no horror ambience, no long quiet intro. Bright mascot adventure edge layered over heavy guitars.",
       "settings": {
         "music_length_ms": 90000,
+        "model_id": "music_v1",
         "force_instrumental": true,
         "output_format": "mp3_44100_128"
       },
       "intendedUse": "title-music-loop",
-      "durationSeconds": 90,
+      "durationSeconds": 90.04,
       "loopable": true,
-      "volume": 0.3,
-      "lufsTarget": -20,
-      "generatedAt": "2026-07-05T16:06:39.297Z",
-      "path": "public/assets/audio/elevenlabs-foundation/title-playful-loop.mp3",
-      "bytes": 1439914,
-      "sha256": "79f8fa7a04911cee8da62457f0820b12f069e05d6625c08af366b0421999ed12",
+      "volume": 0.46,
+      "lufsTarget": -18,
+      "generatedAt": "2026-07-05T21:18:18.840Z",
+      "path": "public/assets/audio/elevenlabs-foundation/title-industrial-guitar-loop.mp3",
+      "bytes": 1440750,
+      "sha256": "27e8c4cf79d6751022a510f4929711b4dd347d84390b47a02018a2545119390f",
       "provider": "ElevenLabs"
     },
     {

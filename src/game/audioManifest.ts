@@ -55,10 +55,10 @@ export const FOUNDATION_MUSIC_ASSET: GameAudioAsset = {
 };
 
 export const TITLE_MUSIC_ASSET: GameAudioAsset = {
-  id: 'audio.music.title.playful.elevenlabs',
-  path: 'assets/audio/elevenlabs-foundation/title-playful-loop.mp3',
-  bytes: 1_439_914,
-  volume: 0.3,
+  id: 'audio.music.title.industrial-guitar.elevenlabs',
+  path: 'assets/audio/elevenlabs-foundation/title-industrial-guitar-loop.mp3',
+  bytes: 1_440_750,
+  volume: 0.46,
   kind: 'music',
 };
 

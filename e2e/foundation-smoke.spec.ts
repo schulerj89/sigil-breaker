@@ -7,7 +7,7 @@ const EXPECTED_ENEMY_COUNT = 12;
 const EXPECTED_TITLE_BACKGROUND_ASSET_ID = 'ui.title.background.gadget-rift.generated';
 const EXPECTED_LOADED_ASSET_IDS = [
   'audio.music.foundation.elevenlabs',
-  'audio.music.title.playful.elevenlabs',
+  'audio.music.title.industrial-guitar.elevenlabs',
   'audio.voice.glyph.catchphrase.service.elevenlabs',
   'audio.voice.glyph.encouragement.keep-moving.elevenlabs',
   'audio.voice.glyph.encouragement.sparks-up.elevenlabs',
@@ -355,14 +355,14 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     modelPath: 'assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb',
     loaded: true,
     modelBytesLoaded: 10_983_096,
-    clipId: 'idle-alt',
+    clipId: 'idle',
     visible: true,
     errors: [],
   });
   expect(titleSnapshot.ui.titleHero.clipDurationSeconds).toBeGreaterThan(0);
   expect(titleSnapshot.ui.titleHero.bounds?.height ?? 0).toBeGreaterThan(0);
   expectTitleHeroFitsViewport(page, titleSnapshot);
-  expect(titleSnapshot.weapon.audio.activeMusicAssetId).toBe('audio.music.title.playful.elevenlabs');
+  expect(titleSnapshot.weapon.audio.activeMusicAssetId).toBe('audio.music.title.industrial-guitar.elevenlabs');
   await expectTitleLinesFit(page);
   await verifyVoiceLabPage(page, titleSnapshot.buildId);
   await verifyCharacterDebugPage(page);
@@ -510,7 +510,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(debugSnapshot.ui.debugVisible).toBe(false);
   expect(debugSnapshot.weapon.audio.loadedAssetIds).toEqual([
     'audio.music.foundation.elevenlabs',
-    'audio.music.title.playful.elevenlabs',
+    'audio.music.title.industrial-guitar.elevenlabs',
     'audio.voice.glyph.catchphrase.service.elevenlabs',
     'audio.voice.glyph.encouragement.keep-moving.elevenlabs',
     'audio.voice.glyph.encouragement.sparks-up.elevenlabs',
@@ -548,7 +548,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(debugSnapshot.weapon.audio.missedPlayRequests).toBe(0);
   expect(debugSnapshot.weapon.audio.playFailures).toBe(0);
   expect(debugSnapshot.weapon.audio.assetLoadErrors).toEqual([]);
-  expect(debugSnapshot.weapon.audio.assetBytesLoaded).toBe(2_545_148);
+  expect(debugSnapshot.weapon.audio.assetBytesLoaded).toBe(2_545_984);
   expect(debugSnapshot.weapon.audio.musicMuted).toBe(false);
   expect(debugSnapshot.weapon.audio.activeMusicAssetId).toBe('audio.music.foundation.elevenlabs');
   await expect
@@ -654,7 +654,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     'glyph-that-was-slick.mp3',
     'rift-precision.mp3',
     'spark-sidearm.mp3',
-    'title-playful-loop.mp3',
+    'title-industrial-guitar-loop.mp3',
     'torch-burst.mp3',
     'vault-heavy.mp3',
   ]);
@@ -918,7 +918,7 @@ async function verifyVoiceLabPage(page: Page, buildId: string): Promise<void> {
     .poll(async () => {
       const audio = (await readDebugSnapshot(page)).weapon.audio;
 
-      return audio.unlocked && audio.activeMusicAssetId === 'audio.music.title.playful.elevenlabs' && audio.musicPlaying;
+      return audio.unlocked && audio.activeMusicAssetId === 'audio.music.title.industrial-guitar.elevenlabs' && audio.musicPlaying;
     })
     .toBe(true);
   await expect(page.locator('[data-voice-lab]')).toBeVisible();

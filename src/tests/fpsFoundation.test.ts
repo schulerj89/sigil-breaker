@@ -504,7 +504,7 @@ describe('FPS foundation config', () => {
 
     expect(audioIds).toEqual([
       'audio.music.foundation.elevenlabs',
-      'audio.music.title.playful.elevenlabs',
+      'audio.music.title.industrial-guitar.elevenlabs',
       'audio.weapon.bore.elevenlabs',
       'audio.weapon.rift.elevenlabs',
       'audio.weapon.spark.elevenlabs',
@@ -521,10 +521,10 @@ describe('FPS foundation config', () => {
       'assets/audio/elevenlabs-foundation/foundation-combat-loop-long.mp3',
     );
     expect(FOUNDATION_MUSIC_ASSET.kind).toBe('music');
-    expect(TITLE_MUSIC_ASSET.path).toBe('assets/audio/elevenlabs-foundation/title-playful-loop.mp3');
+    expect(TITLE_MUSIC_ASSET.path).toBe('assets/audio/elevenlabs-foundation/title-industrial-guitar-loop.mp3');
     expect(TITLE_MUSIC_ASSET.kind).toBe('music');
-    expect(TITLE_MUSIC_ASSET.volume).toBe(0.3);
-    expect(totalAudioBytes).toBe(2_298_666);
+    expect(TITLE_MUSIC_ASSET.volume).toBe(0.46);
+    expect(totalAudioBytes).toBe(2_299_502);
     expect(totalAudioBytes).toBeLessThan(5_000_000);
     expect(CHARACTER_VOICE_NAME).toBe('Glyph');
     expect(CHARACTER_VOICE_LINES).toHaveLength(7);

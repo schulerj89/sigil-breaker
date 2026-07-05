@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "elevenlabs-audio-music-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T20:21:52Z",
-  "summary": "Five weapon SFX, title music, gameplay music, enemy projectile cue reuse, and seven Glyph voice lines are committed as generated MP3 assets; music, SFX, and voice now share one gesture-unlocked runtime audio manager with decoded Web Audio playback and smoke counters.",
+  "updatedAt": "2026-07-05T21:18:18Z",
+  "summary": "Five weapon SFX, a heavier industrial-guitar title loop, gameplay music, enemy projectile cue reuse, and seven Glyph voice lines are committed as generated MP3 assets; music, SFX, and voice share one gesture-unlocked runtime audio manager with decoded Web Audio playback and smoke counters.",
   "observations": [
     "Previous gun sounds were procedural Web Audio and not ElevenLabs assets.",
     "Generated three weapon SFX assets with the ElevenLabs text-to-sound-effects endpoint.",
@@ -27,7 +27,11 @@
     "The previous gameplay death voice path used a separate HTMLAudioElement pool, so death barks could work from the debug button while failing during real gameplay timing.",
     "Character Voice Lab playback now routes through the same runtime audio manager as gameplay voices and reports active voice state through the debug snapshot.",
     "Runtime audio snapshots now report active voice asset ID, decoded voice asset IDs, and voice play request count so smoke QA can catch missing voice playback.",
-    "Cloudflare builds now run the same dist preparation step used for Pages, which prunes source-only character GLBs before publishing."
+    "Cloudflare builds now run the same dist preparation step used for Pages, which prunes source-only character GLBs before publishing.",
+    "Generated a new 90.04 second ElevenLabs music_v1 title loop at title-industrial-guitar-loop.mp3 with original industrial guitar arcade energy.",
+    "The previous title loop was removed from public runtime assets so Cloudflare does not ship unused title music.",
+    "Title music runtime gain was raised from 0.3 to 0.46 because the prior intro mix felt too soft.",
+    "The title hero now uses the regular idle animation clip instead of idle-alt; idle-alt remains available in character debug."
   ],
   "decisions": [
     "Do not expose ElevenLabs API keys in browser code.",
@@ -46,7 +50,9 @@
     "Decode voice MP3s into Web Audio buffers and stop the separate death-voice HTML media pool.",
     "Keep the Voice Lab as the player-facing audition page, but make it exercise the same manager APIs used by gameplay.",
     "Only music decode completion should attempt to start a loop; SFX and voice decode should not re-enter the music startup path.",
-    "Disconnect one-shot Web Audio SFX nodes on ended so repeated held-fire playback does not retain finished nodes."
+    "Disconnect one-shot Web Audio SFX nodes on ended so repeated held-fire playback does not retain finished nodes.",
+    "Use an original heavy industrial guitar prompt for the new title loop and do not request imitation of a specific commercial soundtrack.",
+    "Keep title music at MP3 44.1 kHz 128 kbps so the replacement stays within the existing title audio size class."
   ],
   "caughtIssues": [
     "The current browser autoplay model means music must not be expected to play before a user gesture.",
@@ -56,7 +62,8 @@
     "HTMLAudioElement.play can fail or remain silent under gesture/autoplay edge cases, so music should stay on the same Web Audio unlock path as SFX.",
     "A debug-only death trigger was not enough coverage because it did not reproduce the same timing as projectile-driven player death.",
     "Voice playback had no debug snapshot counters before this slice, so a missing death bark was hard to distinguish from a muted device or browser autoplay block.",
-    "Publishing all public source assets to Cloudflare would ship roughly 136 MB; prepared dist is roughly 16 MB after pruning source-only character assets."
+    "Publishing all public source assets to Cloudflare would ship roughly 136 MB; prepared dist is roughly 16 MB after pruning source-only character assets.",
+    "Shipping both old and new title loops would add about 1.44 MB of unused deploy payload, so the old title MP3 was removed."
   ],
   "risks": [
     "The 24 second music loop may become repetitive during longer playthroughs.",
@@ -81,6 +88,7 @@
     "public/assets/audio/elevenlabs-foundation/rift-precision.mp3",
     "public/assets/audio/elevenlabs-foundation/torch-burst.mp3",
     "public/assets/audio/elevenlabs-foundation/foundation-combat-loop-long.mp3",
+    "public/assets/audio/elevenlabs-foundation/title-industrial-guitar-loop.mp3",
     "artifacts/sub-agents/20260705-audio-consistency/elevenlabs-audio-music-agent/observations.md",
     "artifacts/sub-agents/20260705-music-web-audio/elevenlabs-audio-music-agent/observations.md"
   ],
@@ -122,10 +130,10 @@
         "durationSeconds": 48
       },
       {
-        "assetId": "audio.music.title.playful.elevenlabs",
-        "path": "assets/audio/elevenlabs-foundation/title-playful-loop.mp3",
+        "assetId": "audio.music.title.industrial-guitar.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/title-industrial-guitar-loop.mp3",
         "kind": "music",
-        "durationSeconds": 90
+        "durationSeconds": 90.04
       },
       {
         "assetId": "audio.voice.glyph.catchphrase.service.elevenlabs",

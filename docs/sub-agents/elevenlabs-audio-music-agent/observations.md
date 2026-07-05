@@ -1,6 +1,6 @@
 # Observations: elevenlabs-audio-music-agent
 
-Status: complete for centralized runtime audio manager slice.
+Status: complete for heavier title music and idle title animation slice.
 
 ## What It Saw
 
@@ -31,6 +31,10 @@ Status: complete for centralized runtime audio manager slice.
 - Character Voice Lab playback now routes through the same runtime audio manager as gameplay voices and reports active voice state through the debug snapshot.
 - Runtime audio snapshots now report active voice asset ID, decoded voice asset IDs, and voice play request count so smoke QA can catch missing voice playback.
 - Cloudflare builds now run the same dist preparation step used for Pages, which prunes source-only character GLBs before publishing.
+- Generated a new 90.04 second ElevenLabs `music_v1` title loop at `title-industrial-guitar-loop.mp3` with original industrial guitar arcade energy.
+- The previous title loop was removed from public runtime assets so Cloudflare does not ship unused title music.
+- Title music runtime gain was raised from `0.3` to `0.46` because the prior intro mix felt too soft.
+- The title hero now uses the regular `idle` animation clip instead of `idle-alt`; `idle-alt` remains available in character debug.
 
 ## Decisions
 
@@ -49,6 +53,8 @@ Status: complete for centralized runtime audio manager slice.
 - Keep the Voice Lab as the player-facing audition page, but make it exercise the same manager APIs used by gameplay.
 - Only music decode completion should attempt to start a loop; SFX and voice decode should not re-enter the music startup path.
 - Disconnect one-shot Web Audio SFX nodes on `ended` so repeated held-fire playback does not retain finished nodes.
+- Use an original heavy industrial guitar prompt for the new title loop and do not request imitation of a specific commercial soundtrack.
+- Keep title music at MP3 44.1 kHz 128 kbps so the replacement stays within the existing title audio size class.
 
 ## Caught Issues
 
@@ -62,6 +68,7 @@ Status: complete for centralized runtime audio manager slice.
 - A debug-only death trigger was not enough coverage because it did not reproduce the same timing as projectile-driven player death.
 - Voice playback had no debug snapshot counters before this slice, so a missing death bark was hard to distinguish from a muted device or browser autoplay block.
 - Publishing all `public` source assets to Cloudflare would ship roughly 136 MB; prepared `dist` is roughly 16 MB after pruning source-only character assets.
+- Shipping both old and new title loops would add about 1.44 MB of unused deploy payload, so the old title MP3 was removed.
 
 ## Next Handoff Notes
 
@@ -75,3 +82,4 @@ Status: complete for centralized runtime audio manager slice.
 - Any voice line must include captions before gameplay use.
 - Browser smoke should continue to verify title/gameplay music decoded and playing after a start gesture, and verify Voice Lab playback increments the shared voice counters.
 - Future death, level-complete, and cutscene barks should call the shared runtime audio manager instead of creating page-local audio elements.
+- Mobile QA should check the heavier title mix on phone speakers because guitar-forward loops can mask button SFX if later UI sounds are added.
