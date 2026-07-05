@@ -1,6 +1,8 @@
 export type WeaponSoundProfile = 'sidearm' | 'scatter' | 'heavy' | 'precision' | 'burst';
 export { publicAssetUrl, withAssetVersion } from '../assetUrls';
 
+export type WeaponProjectileShape = 'bolt' | 'orb';
+
 export interface WeaponDefinition {
   id: string;
   label: string;
@@ -41,6 +43,13 @@ export interface WeaponDefinition {
     muzzleScale: number;
     impactScale: number;
     tracerOpacity: number;
+    projectile: {
+      shape: WeaponProjectileShape;
+      radius: number;
+      length: number;
+      opacity: number;
+      travelRatio: number;
+    };
     flashMs: number;
     feedbackMs: number;
   };
@@ -108,6 +117,13 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       muzzleScale: 0.95,
       impactScale: 0.9,
       tracerOpacity: 0.82,
+      projectile: {
+        shape: 'bolt',
+        radius: 0.028,
+        length: 0.82,
+        opacity: 0.92,
+        travelRatio: 0.32,
+      },
       flashMs: 60,
       feedbackMs: 90,
     },
@@ -144,6 +160,13 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       muzzleScale: 1.22,
       impactScale: 1.16,
       tracerOpacity: 0.88,
+      projectile: {
+        shape: 'orb',
+        radius: 0.105,
+        length: 0,
+        opacity: 0.94,
+        travelRatio: 0.24,
+      },
       flashMs: 82,
       feedbackMs: 112,
     },
@@ -180,6 +203,13 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       muzzleScale: 1.34,
       impactScale: 1.28,
       tracerOpacity: 0.94,
+      projectile: {
+        shape: 'bolt',
+        radius: 0.052,
+        length: 1.24,
+        opacity: 0.9,
+        travelRatio: 0.34,
+      },
       flashMs: 96,
       feedbackMs: 128,
     },
@@ -216,6 +246,13 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       muzzleScale: 1.08,
       impactScale: 1.04,
       tracerOpacity: 0.9,
+      projectile: {
+        shape: 'bolt',
+        radius: 0.02,
+        length: 1.6,
+        opacity: 0.92,
+        travelRatio: 0.42,
+      },
       flashMs: 74,
       feedbackMs: 118,
     },
@@ -252,6 +289,13 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
       muzzleScale: 1.02,
       impactScale: 0.98,
       tracerOpacity: 0.86,
+      projectile: {
+        shape: 'orb',
+        radius: 0.052,
+        length: 0,
+        opacity: 0.88,
+        travelRatio: 0.3,
+      },
       flashMs: 54,
       feedbackMs: 82,
     },

@@ -45,6 +45,11 @@ const AIM_IN_RESPONSE = 8;
 const AIM_OUT_RESPONSE = 6;
 const FIRST_PERSON_WEAPON_RENDER_ORDER = 3;
 const DEFAULT_STARTING_WEAPON = STARTING_WEAPON_DEFINITIONS[0] as WeaponDefinition;
+const SHOT_PROJECTILE_FORWARD = new THREE.Vector3(0, 1, 0);
+const shotProjectileStart = new THREE.Vector3();
+const shotProjectileEnd = new THREE.Vector3();
+const shotProjectileDirection = new THREE.Vector3();
+const shotProjectileCenter = new THREE.Vector3();
 
 export interface WeaponShotSnapshot {
   sequence: number;
@@ -87,6 +92,13 @@ export interface WeaponSystemSnapshot {
     muzzleColor: string;
     tracerColor: string;
     impactColor: string;
+    projectile: {
+      shape: WeaponDefinition['effects']['projectile']['shape'];
+      radius: number;
+      length: number;
+      opacity: number;
+      travelRatio: number;
+    };
   };
   lastShot: WeaponShotSnapshot | null;
 }
@@ -94,6 +106,12 @@ export interface WeaponSystemSnapshot {
 interface LoadedWeapon {
   definition: WeaponDefinition;
   object: THREE.Object3D;
+}
+
+interface WeaponProjectileVisual {
+  root: THREE.Group;
+  bolt: THREE.Mesh<THREE.CylinderGeometry, THREE.MeshBasicMaterial>;
+  orb: THREE.Mesh<THREE.SphereGeometry, THREE.MeshBasicMaterial>;
 }
 
 export interface WeaponTargetHitRequest {
@@ -122,7 +140,7 @@ export class WeaponSystem {
   private readonly modelSlot = new THREE.Group();
   private readonly muzzleFlash: THREE.Mesh<THREE.CircleGeometry, THREE.MeshBasicMaterial>;
   private readonly shotFeedbackRoot = new THREE.Group();
-  private readonly shotTracer: THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>;
+  private readonly shotProjectile: WeaponProjectileVisual;
   private readonly wallImpact: THREE.Mesh<THREE.RingGeometry, THREE.MeshBasicMaterial>;
   private readonly wallAvoidanceDirection = new THREE.Vector3();
   private readonly wallAvoidanceProbe = new THREE.Vector3();
@@ -161,11 +179,11 @@ export class WeaponSystem {
     this.modelSlot.name = 'first-person-weapon-model-slot';
     this.muzzleFlash = createMuzzleFlash();
     this.shotFeedbackRoot.name = 'first-person-shot-feedback-root';
-    this.shotTracer = createShotTracer();
+    this.shotProjectile = createShotProjectile();
     this.wallImpact = createWallImpact();
     this.updateEffectStyle();
     this.viewRoot.add(this.playerViewModel.root, this.modelSlot);
-    this.shotFeedbackRoot.add(this.muzzleFlash, this.shotTracer, this.wallImpact);
+    this.shotFeedbackRoot.add(this.muzzleFlash, this.shotProjectile.root, this.wallImpact);
     this.camera.add(this.viewRoot, this.shotFeedbackRoot);
     this.audio.bind(root);
     this.playerViewModelTuner = shouldEnableWeaponViewModelTuner()
@@ -211,7 +229,7 @@ export class WeaponSystem {
     this.wallAvoidance = this.getWallAvoidance(this.activeWeapon.view);
     this.muzzleFlash.visible = now < this.muzzleFlashUntil;
     const shotFeedbackVisible = now < this.shotFeedbackUntil;
-    this.shotTracer.visible = shotFeedbackVisible;
+    this.shotProjectile.root.visible = shotFeedbackVisible;
     this.wallImpact.visible = shotFeedbackVisible && this.lastShot?.blockedByWall === true;
 
     const view = this.activeWeapon.view;
@@ -290,6 +308,7 @@ export class WeaponSystem {
         muzzleColor: toHexColor(this.activeWeapon.effects.muzzleColor),
         tracerColor: toHexColor(this.activeWeapon.effects.tracerColor),
         impactColor: toHexColor(this.activeWeapon.effects.impactColor),
+        projectile: { ...this.activeWeapon.effects.projectile },
       },
       lastShot: this.lastShot,
     };
@@ -339,7 +358,7 @@ export class WeaponSystem {
     this.aimBlend = 0;
     this.lastShot = null;
     this.muzzleFlash.visible = false;
-    this.shotTracer.visible = false;
+    this.shotProjectile.root.visible = false;
     this.wallImpact.visible = false;
     this.camera.fov = this.baseCameraFov;
     this.camera.updateProjectionMatrix();
@@ -512,7 +531,7 @@ export class WeaponSystem {
   }
 
   private setShotFeedbackPositions(positions: WeaponShotEffectPositions): void {
-    updateShotTracer(this.shotTracer, positions.muzzle, positions.tracerEnd);
+    updateShotProjectile(this.shotProjectile, positions.muzzle, positions.tracerEnd, this.activeWeapon.effects.projectile);
     this.wallImpact.position.set(...positions.wallImpact);
   }
 
@@ -562,8 +581,10 @@ export class WeaponSystem {
     const { effects } = this.activeWeapon;
     this.muzzleFlash.material.color.setHex(effects.muzzleColor);
     this.muzzleFlash.scale.setScalar(effects.muzzleScale);
-    this.shotTracer.material.color.setHex(effects.tracerColor);
-    this.shotTracer.material.opacity = effects.tracerOpacity;
+    this.shotProjectile.bolt.material.color.setHex(effects.tracerColor);
+    this.shotProjectile.bolt.material.opacity = effects.projectile.opacity;
+    this.shotProjectile.orb.material.color.setHex(effects.tracerColor);
+    this.shotProjectile.orb.material.opacity = effects.projectile.opacity;
     this.wallImpact.material.color.setHex(effects.impactColor);
     this.wallImpact.scale.setScalar(effects.impactScale);
   }
@@ -818,19 +839,37 @@ function createMuzzleFlash(): THREE.Mesh<THREE.CircleGeometry, THREE.MeshBasicMa
   return mesh;
 }
 
-function createShotTracer(): THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial> {
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
-  const material = new THREE.LineBasicMaterial({
-    color: 0x7dd3fc,
-    transparent: true,
-    opacity: 0.82,
-    depthWrite: false,
-  });
-  const line = new THREE.Line(geometry, material);
-  line.name = 'weapon-shot-tracer';
-  line.visible = false;
-  return line;
+function createShotProjectile(): WeaponProjectileVisual {
+  const root = new THREE.Group();
+  root.name = 'weapon-shot-projectile';
+  root.visible = false;
+
+  const bolt = new THREE.Mesh(
+    new THREE.CylinderGeometry(1, 1, 1, 12, 1, false),
+    new THREE.MeshBasicMaterial({
+      color: 0x7dd3fc,
+      transparent: true,
+      opacity: 0.82,
+      depthWrite: false,
+    }),
+  );
+  bolt.name = 'weapon-shot-projectile-bolt';
+  bolt.renderOrder = 5;
+
+  const orb = new THREE.Mesh(
+    new THREE.SphereGeometry(1, 16, 10),
+    new THREE.MeshBasicMaterial({
+      color: 0x7dd3fc,
+      transparent: true,
+      opacity: 0.9,
+      depthWrite: false,
+    }),
+  );
+  orb.name = 'weapon-shot-projectile-orb';
+  orb.renderOrder = 5;
+
+  root.add(bolt, orb);
+  return { root, bolt, orb };
 }
 
 function createWallImpact(): THREE.Mesh<THREE.RingGeometry, THREE.MeshBasicMaterial> {
@@ -848,16 +887,38 @@ function createWallImpact(): THREE.Mesh<THREE.RingGeometry, THREE.MeshBasicMater
   return mesh;
 }
 
-function updateShotTracer(
-  tracer: THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>,
+function updateShotProjectile(
+  visual: WeaponProjectileVisual,
   muzzle: readonly [number, number, number],
   tracerEnd: readonly [number, number, number],
+  style: WeaponDefinition['effects']['projectile'],
 ): void {
-  const position = tracer.geometry.getAttribute('position');
-  position.setXYZ(0, ...muzzle);
-  position.setXYZ(1, ...tracerEnd);
-  position.needsUpdate = true;
-  tracer.geometry.computeBoundingSphere();
+  shotProjectileStart.set(...muzzle);
+  shotProjectileEnd.set(...tracerEnd);
+  shotProjectileDirection.subVectors(shotProjectileEnd, shotProjectileStart);
+  const distance = shotProjectileDirection.length();
+  if (distance <= 0.001) {
+    shotProjectileDirection.set(0, 0, -1);
+  } else {
+    shotProjectileDirection.multiplyScalar(1 / distance);
+  }
+
+  shotProjectileCenter.copy(shotProjectileStart).lerp(shotProjectileEnd, clamp01(style.travelRatio));
+  visual.root.position.copy(shotProjectileCenter);
+  visual.root.visible = true;
+  visual.bolt.visible = style.shape === 'bolt';
+  visual.orb.visible = style.shape === 'orb';
+
+  if (style.shape === 'bolt') {
+    const length = Math.min(Math.max(style.length, 0.08), Math.max(distance, 0.08));
+    visual.bolt.position.set(0, 0, 0);
+    visual.bolt.quaternion.setFromUnitVectors(SHOT_PROJECTILE_FORWARD, shotProjectileDirection);
+    visual.bolt.scale.set(Math.max(style.radius, 0.001), length, Math.max(style.radius, 0.001));
+  } else {
+    const radius = Math.max(style.radius, 0.001);
+    visual.orb.position.set(0, 0, 0);
+    visual.orb.scale.set(radius, radius, radius);
+  }
 }
 
 function createFallbackWeapon(name: string): THREE.Group {

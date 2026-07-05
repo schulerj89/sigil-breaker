@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "weapon-upgrade-asset-curator",
   "status": "complete",
-  "updatedAt": "2026-07-05T21:35:56Z",
-  "summary": "Five Kenney Blaster Kit weapons remain registered, but the starting mobile cycle now exposes only SPARK and BORE with distinct stats, colors, cache-busted GLBs, and ElevenLabs SFX profiles.",
+  "updatedAt": "2026-07-05T22:18:00Z",
+  "summary": "Five Kenney Blaster Kit weapons remain registered, but the starting mobile cycle now exposes only SPARK and BORE with distinct stats, colors, mesh projectile shapes, cache-busted GLBs, and ElevenLabs SFX profiles.",
   "observations": [
     "SPARK is a fast sidearm using blaster-a.glb.",
     "BORE is a close scatter weapon using blaster-h.glb.",
@@ -36,7 +36,10 @@
     "WeaponSystemSnapshot.activeWeaponStats exposes damage, fireIntervalMs, reloadMs, and rangeUnits.",
     "The runtime starting roster is now SPARK and BORE only; VAULT, RIFT, and TORCH remain defined assets for future unlock/progression work.",
     "Boot weapon model preloading now requests only SPARK and BORE, reducing starting weapon model payload while preserving the full manifest.",
-    "WeaponSystemSnapshot.weaponIds now reports the currently available starting weapons, not every registered weapon definition."
+    "WeaponSystemSnapshot.weaponIds now reports the currently available starting weapons, not every registered weapon definition.",
+    "SPARK now uses a pooled cyan cylinder bolt projectile so it reads as a fast sidearm instead of a thin WebGL line.",
+    "BORE now uses a pooled orange sphere projectile so its slower, heavier cadence reads differently from SPARK.",
+    "WeaponSystemSnapshot.effectStyle.projectile exposes shape, radius, length, opacity, and travel ratio for deterministic smoke QA."
   ],
   "decisions": [
     "Expose SPARK and BORE through the starting mobile weapon cycle button.",
@@ -51,7 +54,8 @@
     "Keep the per-weapon effect style in WeaponDefinition.effects so later external VFX replacement has a clear style target per weapon.",
     "Keep the starting mobile cycle order SPARK, BORE until progression or pickups unlock later weapons.",
     "Use activeWeaponStats as the deterministic QA surface for weapon balance differences.",
-    "Keep VAULT, RIFT, and TORCH in WEAPON_DEFINITIONS so future progression can opt them into availability without recreating asset records."
+    "Keep VAULT, RIFT, and TORCH in WEAPON_DEFINITIONS so future progression can opt them into availability without recreating asset records.",
+    "Use pooled mesh projectile primitives for MVP readability because mobile WebGL line width is unreliable across devices."
   ],
   "caughtIssues": [
     "Current assets are prop-scale GLB models, not dedicated animated first-person weapon rigs.",
@@ -61,7 +65,8 @@
     "The primitive tracer is short-lived and can be hard to inspect in still screenshots; prefer effectPose assertions for automated alignment.",
     "The centered colored disk improves flash alignment but is still a procedural placeholder.",
     "Procedural color/style variants make the registered guns easier to distinguish, but final muzzle/tracer/impact art still needs external assets.",
-    "Future unlock code needs an explicit available-weapon inventory rather than reading every WEAPON_DEFINITIONS entry as currently usable."
+    "Future unlock code needs an explicit available-weapon inventory rather than reading every WEAPON_DEFINITIONS entry as currently usable.",
+    "Projectile meshes are still procedural placeholders; final projectile VFX should come from external assets or particle textures."
   ],
   "risks": [
     "Model offsets, right-shifted placement, and yaw 0 presentation may need per-device adjustment once gameplay camera tuning starts.",
@@ -171,12 +176,26 @@
       "weapon.blaster.spark": {
         "muzzleColor": "#8df7ff",
         "tracerColor": "#7dd3fc",
-        "impactColor": "#b7f3ff"
+        "impactColor": "#b7f3ff",
+        "projectile": {
+          "shape": "bolt",
+          "radius": 0.028,
+          "length": 0.82,
+          "opacity": 0.92,
+          "travelRatio": 0.32
+        }
       },
       "weapon.blaster.bore": {
         "muzzleColor": "#ff8a3d",
         "tracerColor": "#ffc45c",
-        "impactColor": "#ff7a3c"
+        "impactColor": "#ff7a3c",
+        "projectile": {
+          "shape": "orb",
+          "radius": 0.105,
+          "length": 0,
+          "opacity": 0.94,
+          "travelRatio": 0.24
+        }
       },
       "weapon.blaster.vault": {
         "muzzleColor": "#c084fc",

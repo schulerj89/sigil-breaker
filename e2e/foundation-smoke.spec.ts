@@ -99,6 +99,13 @@ interface DebugSnapshot {
       muzzleColor: string;
       tracerColor: string;
       impactColor: string;
+      projectile: {
+        shape: 'bolt' | 'orb';
+        radius: number;
+        length: number;
+        opacity: number;
+        travelRatio: number;
+      };
     };
     lastShot: {
       blockedByWall: boolean;
@@ -1254,6 +1261,13 @@ async function verifyWeaponCycleButton(page: Page): Promise<void> {
     muzzleColor: '#8df7ff',
     tracerColor: '#7dd3fc',
     impactColor: '#b7f3ff',
+    projectile: {
+      shape: 'bolt',
+      radius: 0.028,
+      length: 0.82,
+      opacity: 0.92,
+      travelRatio: 0.32,
+    },
   });
 
   await cycleButton.click();
@@ -1265,6 +1279,13 @@ async function verifyWeaponCycleButton(page: Page): Promise<void> {
     muzzleColor: '#ff8a3d',
     tracerColor: '#ffc45c',
     impactColor: '#ff7a3c',
+    projectile: {
+      shape: 'orb',
+      radius: 0.105,
+      length: 0,
+      opacity: 0.94,
+      travelRatio: 0.24,
+    },
   });
 
   await cycleButton.click();
@@ -1276,6 +1297,13 @@ async function verifyWeaponCycleButton(page: Page): Promise<void> {
     muzzleColor: '#8df7ff',
     tracerColor: '#7dd3fc',
     impactColor: '#b7f3ff',
+    projectile: {
+      shape: 'bolt',
+      radius: 0.028,
+      length: 0.82,
+      opacity: 0.92,
+      travelRatio: 0.32,
+    },
   });
 }
 

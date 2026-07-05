@@ -35,6 +35,9 @@ Status: complete for two-gun starting roster and weapon switch icon pass.
 - The runtime starting roster is now SPARK and BORE only; VAULT, RIFT, and TORCH remain defined assets for future unlock/progression work.
 - Boot weapon model preloading now requests only SPARK and BORE, reducing starting weapon model payload while preserving the full manifest.
 - `WeaponSystemSnapshot.weaponIds` now reports the currently available starting weapons, not every registered weapon definition.
+- SPARK now uses a pooled cyan cylinder bolt projectile so it reads as a fast sidearm instead of a thin WebGL line.
+- BORE now uses a pooled orange sphere projectile so its slower, heavier cadence reads differently from SPARK.
+- `WeaponSystemSnapshot.effectStyle.projectile` exposes shape, radius, length, opacity, and travel ratio for deterministic smoke QA.
 
 ## Decisions
 
@@ -51,6 +54,7 @@ Status: complete for two-gun starting roster and weapon switch icon pass.
 - Keep weapon switching on the single mobile cycle button until a larger inventory UI exists.
 - Keep the starting mobile cycle order SPARK, BORE until progression or pickups unlock later weapons.
 - Keep VAULT, RIFT, and TORCH in `WEAPON_DEFINITIONS` so future progression can opt them into availability without recreating asset records.
+- Use pooled mesh projectile primitives for MVP readability because mobile WebGL line width is unreliable across devices.
 
 ## Caught Issues
 
@@ -63,6 +67,7 @@ Status: complete for two-gun starting roster and weapon switch icon pass.
 - Procedural color/style variants make the registered guns easier to distinguish, but final muzzle/tracer/impact art still needs external assets.
 - RIFT and TORCH share the same viewmodel assumptions as the first three weapons; their exact muzzle/framing should get screenshot QA before final tuning.
 - Future unlock code needs an explicit available-weapon inventory rather than reading every `WEAPON_DEFINITIONS` entry as currently usable.
+- Projectile meshes are still procedural placeholders; final projectile VFX should come from external assets or particle textures.
 
 ## Next Handoff Notes
 
@@ -73,3 +78,4 @@ Status: complete for two-gun starting roster and weapon switch icon pass.
 - Future screenshot QA should also capture RIFT green and TORCH red-pink shot effects.
 - Smoke QA should use `snapshot.weapon.effectStyle` as the deterministic gate until flash-frame captures are stable.
 - Smoke QA should verify the starting cycle loops SPARK -> BORE -> SPARK and that locked weapon GLBs are not requested during boot.
+- Smoke QA should assert SPARK `effectStyle.projectile.shape` is `bolt` and BORE is `orb`.

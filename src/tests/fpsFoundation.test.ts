@@ -578,6 +578,17 @@ describe('FPS foundation config', () => {
     expect(vaultMuzzle[0]).toBeLessThan(vaultRoot[0]);
     expect(boreMuzzle[1] - boreRoot[1]).toBeGreaterThan(sparkMuzzle[1] - sparkRoot[1]);
     expect(vaultMuzzle[1] - vaultRoot[1]).toBeGreaterThan(sparkMuzzle[1] - sparkRoot[1]);
+    expect(spark.effects.projectile).toMatchObject({
+      shape: 'bolt',
+      radius: 0.028,
+      length: 0.82,
+    });
+    expect(bore.effects.projectile).toMatchObject({
+      shape: 'orb',
+      radius: 0.105,
+      length: 0,
+    });
+    expect(spark.effects.projectile.radius).toBeLessThan(bore.effects.projectile.radius);
 
     for (const weapon of WEAPON_DEFINITIONS) {
       const root = getWeaponRootCameraPosition(weapon.view, neutralPose);
