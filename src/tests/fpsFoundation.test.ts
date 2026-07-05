@@ -4,6 +4,7 @@ import { DEBUG_SCENE_ID, MOBILE_VIEWPORTS, PERFORMANCE_BUDGETS } from '../game/c
 import { FOUNDATION_MUSIC_ASSET, GAME_AUDIO_ASSETS, WEAPON_AUDIO_ASSETS } from '../game/audioManifest';
 import { ENEMY_ASSET_DEFINITIONS, ENEMY_ASSET_SOURCE } from '../game/enemies/enemyManifest';
 import { EnemySystem } from '../game/enemies/enemySystem';
+import { BOSS_LEVEL_CONFIG, LEVEL_CONFIGS } from '../game/levelConfigs';
 import {
   FOUNDATION_LEVEL_MAP,
   FOUNDATION_LEVEL_ID,
@@ -147,6 +148,46 @@ describe('FPS foundation config', () => {
     expect(spawnActiveChunkIds).toContain('0:0');
     expect(spawnActiveChunkIds).toHaveLength(9);
     expect(spawnActiveChunkIds.length).toBeLessThan(chunks.length);
+  });
+
+  it('registers a separate boss level JSON configuration', () => {
+    const bossMap = BOSS_LEVEL_CONFIG.map;
+    const spawn = findSymbolInMap(bossMap, 'S');
+    const boss = findSymbolInMap(bossMap, 'B');
+    const exit = findSymbolInMap(bossMap, 'X');
+    const walkableTileCount = countWalkableTiles(bossMap);
+    const reachableTileKeys = collectReachableTileKeysForMap(bossMap, spawn?.row ?? 0, spawn?.column ?? 0);
+
+    expect(LEVEL_CONFIGS.map((level) => level.id)).toEqual(['foundation-45x45', 'boss-forge-31x31']);
+    expect(BOSS_LEVEL_CONFIG.levelType).toBe('boss');
+    expect(BOSS_LEVEL_CONFIG.dimensions).toEqual({ width: 31, height: 31 });
+    expect(BOSS_LEVEL_CONFIG.streaming).toMatchObject({ chunkSizeTiles: 8, loadRadiusChunks: 2 });
+    expect(bossMap).toHaveLength(BOSS_LEVEL_CONFIG.dimensions.height);
+    expect(bossMap.every((row) => row.length === BOSS_LEVEL_CONFIG.dimensions.width)).toBe(true);
+    expect(countSymbolInMap(bossMap, 'S')).toBe(1);
+    expect(countSymbolInMap(bossMap, 'B')).toBe(1);
+    expect(countSymbolInMap(bossMap, 'E')).toBe(6);
+    expect(countSymbolInMap(bossMap, 'X')).toBe(1);
+    expect(spawn).toEqual({ row: 2, column: 2 });
+    expect(boss).toEqual({ row: 15, column: 15 });
+    expect(exit).toEqual({ row: 28, column: 28 });
+    expect(reachableTileKeys.size).toBe(walkableTileCount);
+    expect(BOSS_LEVEL_CONFIG.objective).toMatchObject({
+      type: 'defeat-boss',
+      bossMarkerSymbol: 'B',
+      exitUnlock: 'after-boss-defeated',
+    });
+    expect(BOSS_LEVEL_CONFIG.boss).toMatchObject({
+      id: 'boss.sigil-warden.forge',
+      label: 'SIGIL WARDEN',
+      markerSymbol: 'B',
+      assetId: 'enemy.monster.goleling',
+      maxHealth: 720,
+    });
+    expect(BOSS_LEVEL_CONFIG.boss.phases.map((phase) => phase.startsAtHealthRatio)).toEqual([1, 0.65, 0.3]);
+    expect(BOSS_LEVEL_CONFIG.reward.choiceCount).toBe(3);
+    expect(BOSS_LEVEL_CONFIG.reward.powerupRangePercent).toEqual({ min: 5, max: 9 });
+    expect(BOSS_LEVEL_CONFIG.reward.pool).toHaveLength(10);
   });
 
   it('keeps walkable lanes at least three units wide', () => {
@@ -1103,6 +1144,62 @@ function collectReachableTileKeys(startRow: number, startColumn: number): Set<st
   }
 
   return visited;
+}
+
+function collectReachableTileKeysForMap(map: readonly string[], startRow: number, startColumn: number): Set<string> {
+  const queue = [{ row: startRow, column: startColumn }];
+  const visited = new Set([`${startRow}:${startColumn}`]);
+
+  for (let index = 0; index < queue.length; index++) {
+    const current = queue[index];
+    for (const [rowStep, columnStep] of [
+      [-1, 0],
+      [1, 0],
+      [0, -1],
+      [0, 1],
+    ] as const) {
+      const row = current.row + rowStep;
+      const column = current.column + columnStep;
+      const key = `${row}:${column}`;
+      if (
+        row < 0 ||
+        row >= map.length ||
+        column < 0 ||
+        column >= map[row].length ||
+        visited.has(key) ||
+        isSolidSymbol(map[row][column] as LevelTileSymbol)
+      ) {
+        continue;
+      }
+
+      visited.add(key);
+      queue.push({ row, column });
+    }
+  }
+
+  return visited;
+}
+
+function findSymbolInMap(map: readonly string[], symbol: string): { row: number; column: number } | null {
+  for (let row = 0; row < map.length; row++) {
+    const column = map[row].indexOf(symbol);
+    if (column !== -1) {
+      return { row, column };
+    }
+  }
+
+  return null;
+}
+
+function countSymbolInMap(map: readonly string[], symbol: string): number {
+  return map.reduce((total, row) => total + [...row].filter((tile) => tile === symbol).length, 0);
+}
+
+function countWalkableTiles(map: readonly string[]): number {
+  return map.reduce(
+    (total, row) => total + [...row].filter((symbol) => !isSolidSymbol(symbol as LevelTileSymbol)).length,
+    0,
+  );
 }
 
 function expectTupleClose(actual: readonly [number, number, number], expected: readonly [number, number, number]): void {

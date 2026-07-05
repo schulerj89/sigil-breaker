@@ -22,7 +22,7 @@ const DEFAULT_COLLISION_RESOLUTION_ITERATIONS = 5;
 
 export const FOUNDATION_LEVEL_MAP: readonly string[] = foundationLevelData.map;
 
-export type LevelTileSymbol = '#' | '.' | 'S' | 'E' | 'C' | 'X';
+export type LevelTileSymbol = '#' | '.' | 'S' | 'E' | 'B' | 'C' | 'X';
 
 export interface LevelTile {
   column: number;

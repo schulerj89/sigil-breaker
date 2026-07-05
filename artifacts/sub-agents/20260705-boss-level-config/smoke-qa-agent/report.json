@@ -1,0 +1,35 @@
+{
+  "runId": "20260705-boss-level-config",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "boss level unit config",
+      "command": "npm test",
+      "result": "passed",
+      "assertions": [
+        "LEVEL_CONFIGS includes foundation-45x45 and boss-forge-31x31",
+        "boss map has exactly one B marker",
+        "boss map has six E minion markers",
+        "all boss walkable tiles are reachable from spawn",
+        "boss config defines three descending phase health ratios",
+        "boss reward pool contains ten powerup ids"
+      ]
+    },
+    {
+      "name": "multi-level validator",
+      "command": "npm run validate:levels",
+      "result": "passed",
+      "assertions": [
+        "boss-forge-31x31 passes",
+        "foundation-45x45 passes"
+      ]
+    }
+  ],
+  "finalValidation": [
+    "npm test",
+    "npm run validate:levels",
+    "npm run lint",
+    "npm run build",
+    "npm run validate:assets"
+  ]
+}

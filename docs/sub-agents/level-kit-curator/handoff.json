@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "level-kit-curator",
   "status": "in-progress",
-  "updatedAt": "2026-07-05T01:33:52Z",
-  "summary": "Foundation layout QA now includes all-walkable reachability, opened the isolated right-side room with a 5-tile entry, and moved the exit to the bottom-right corner opposite spawn.",
+  "updatedAt": "2026-07-05T03:12:00Z",
+  "summary": "Foundation layout QA includes all-walkable reachability, and a separate data-only boss-forge-31x31 JSON configuration now defines the first boss arena contract.",
   "observations": [
     "The 45 x 45 foundation map remains a placeholder layout.",
     "validate-levels now checks bounded row/column segments below 3 tiles.",
@@ -28,7 +28,9 @@
     "Opened column 33 rows 12-16 to create a 5-tile structural entry into the room.",
     "Moved the X exit marker from row 1 column 43 to row 43 column 43, opposite spawn at row 1 column 1.",
     "validate-levels now rejects any non-solid tile that is unreachable from spawn.",
-    "The current foundation map has 1658 walkable tiles and all are reachable from spawn."
+    "The current foundation map has 1658 walkable tiles and all are reachable from spawn.",
+    "Added src/game/bossLevelMap.json as a separate boss-forge-31x31 configuration with one B boss marker, six E minion markers, cover pylons, boss phases, and reward metadata.",
+    "validate-levels now validates every src/game/*LevelMap.json file by default and enforces boss-specific config requirements when levelType is boss."
   ],
   "decisions": [
     "Use unique external kits per level.",
@@ -40,7 +42,9 @@
     "Reject continuing wall posts that split structural entries when either side is below 3 tiles or both sides total below 6 tiles.",
     "Treat the Kenney prototype textures as lightweight foundation placeholders until a level-specific kit is selected.",
     "Reject unreachable walkable rooms, enemies, cover-adjacent floor, and exit spaces.",
-    "Keep the foundation exit in the bottom-right interior corner opposite the top-left spawn unless the objective changes."
+    "Keep the foundation exit in the bottom-right interior corner opposite the top-left spawn unless the objective changes.",
+    "Use B as the reserved boss marker symbol and keep E for minion spawns.",
+    "Keep the boss level data-only until runtime level selection and boss AI are implemented in separate slices."
   ],
   "caughtIssues": [
     "The previous lane QA could pass a diagonal wall-corner squeeze that still looked like a one-unit path.",
@@ -48,7 +52,8 @@
     "The corner-pinch validator could not catch straight 2- or 3-tile door-like entries with no diagonal pinch pattern.",
     "A 5-tile structural entry can still feel like two 2-tile branches when a wall post sits just inside the entry.",
     "Early texture screenshots could capture before GPU upload and look blank/white; browser smoke should wait for renderer texture count before validating the frame.",
-    "Spawn-to-exit reachability did not catch an isolated room with an enemy and cover."
+    "Spawn-to-exit reachability did not catch an isolated room with an enemy and cover.",
+    "The previous validator default only checked the foundation map, so multi-level projects needed default multi-map validation."
   ],
   "risks": [
     "Weak scale references can make buildings, cover, and enemies feel wrong on mobile.",
@@ -61,7 +66,11 @@
     "src/tests/fpsFoundation.test.ts",
     "docs/level-foundation.md",
     "artifacts/sub-agents/20260705-level-access-exit/level-kit-curator/observations.md",
-    "artifacts/sub-agents/20260705-level-access-exit/smoke-qa-agent/report.json"
+    "artifacts/sub-agents/20260705-level-access-exit/smoke-qa-agent/report.json",
+    "src/game/bossLevelMap.json",
+    "src/game/levelConfigs.ts",
+    "docs/level-boss.md",
+    "artifacts/sub-agents/20260705-boss-level-config/level-kit-curator/observations.md"
   ],
   "jsonForAgents": {
     "foundationPassageRules": {
@@ -190,6 +199,55 @@
         "column": 43
       },
       "oppositeCorner": true
+    },
+    "bossLevelConfig": {
+      "source": "src/game/bossLevelMap.json",
+      "registry": "src/game/levelConfigs.ts",
+      "id": "boss-forge-31x31",
+      "levelType": "boss",
+      "dimensions": {
+        "width": 31,
+        "height": 31
+      },
+      "bossMarker": {
+        "symbol": "B",
+        "row": 15,
+        "column": 15
+      },
+      "spawn": {
+        "symbol": "S",
+        "row": 2,
+        "column": 2
+      },
+      "exit": {
+        "symbol": "X",
+        "row": 28,
+        "column": 28
+      },
+      "minionMarkers": 6,
+      "coverMarkers": 6,
+      "walkableTiles": 835,
+      "runtimeWired": false,
+      "objectiveType": "defeat-boss",
+      "rewardPowerupRangePercent": {
+        "min": 5,
+        "max": 9
+      },
+      "rewardPoolCount": 10
+    },
+    "levelValidation": {
+      "defaultCommand": "npm run validate:levels",
+      "defaultScope": "all src/game/*LevelMap.json files",
+      "bossMarkerSymbol": "B",
+      "allowedSymbols": [
+        "#",
+        ".",
+        "S",
+        "E",
+        "B",
+        "C",
+        "X"
+      ]
     }
   },
   "nextAgents": [

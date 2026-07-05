@@ -2,7 +2,7 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T02:49:00Z",
+  "updatedAt": "2026-07-05T03:16:00Z",
   "summary": "Local Playwright smoke covers title/start flow, weapons, SFX, map-authored GLB enemies, debug toggles, cache-busting, zoom guards, and the latest level access/exit changes.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
@@ -92,7 +92,9 @@
     "The level validator now rejects unreachable walkable rooms, not only unreachable exits.",
     "Unit smoke verifies a tracking enemy fires a projectile and damages the shared player Health instance.",
     "Browser smoke asserts snapshot.enemies.projectiles exists and starts with zero active/fired/hit counters at boot.",
-    "Latest npm run validate:browser passed all five landscape viewport projects after adding enemy projectile debug counters and player-damage wiring."
+    "Latest npm run validate:browser passed all five landscape viewport projects after adding enemy projectile debug counters and player-damage wiring.",
+    "Unit smoke verifies the separate boss level JSON shape, exactly one B marker, six E minion markers, reachable walkable tiles, boss phase ratios, and reward powerup range metadata.",
+    "npm run validate:levels now checks both boss-forge-31x31 and foundation-45x45 by default."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -125,7 +127,8 @@
     "Treat the title screen start flow as part of the smoke gate before gameplay interaction checks.",
     "Keep title background cache-busting in browser smoke because Pages can hard-cache public assets.",
     "Keep all-walkable reachability in the level gate because isolated enemy rooms can pass spawn-to-exit checks.",
-    "Use debug counters for enemy projectile smoke instead of timing-dependent screenshot flashes."
+    "Use debug counters for enemy projectile smoke instead of timing-dependent screenshot flashes.",
+    "Keep boss-level smoke data-state based until runtime level switching exposes the boss arena in browser QA."
   ],
   "caughtIssues": [
     "Initial GLB package was missing public/assets/weapons/kenney-blaster-kit/models/Textures/colormap.png.",
@@ -153,7 +156,8 @@
     "Initial title screenshot caught loading overlay ghosting under the title before hidden overlays switched to display none.",
     "Title-safe left gradient needed strengthening to prevent generated image details from reading as stray UI near the title.",
     "A closed room with an enemy and cover passed the prior spawn-to-exit-only validator.",
-    "Enemy projectile behavior needs state-based smoke because projectile visuals are short lived."
+    "Enemy projectile behavior needs state-based smoke because projectile visuals are short lived.",
+    "Single-map level validation would miss invalid future boss level JSON files."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
@@ -184,7 +188,11 @@
     "artifacts/sub-agents/20260705-title-screen/smoke-qa-agent/title-screen-844x390.png",
     "artifacts/sub-agents/20260705-level-access-exit/smoke-qa-agent/report.json",
     "src/tests/fpsFoundation.test.ts",
-    "artifacts/sub-agents/20260705-enemy-projectiles/smoke-qa-agent/report.json"
+    "artifacts/sub-agents/20260705-enemy-projectiles/smoke-qa-agent/report.json",
+    "src/game/bossLevelMap.json",
+    "src/game/levelConfigs.ts",
+    "docs/level-boss.md",
+    "artifacts/sub-agents/20260705-boss-level-config/smoke-qa-agent/report.json"
   ],
   "jsonForAgents": {
     "latestManualSmoke": {
@@ -404,7 +412,9 @@
       "titleBackgroundCacheBusted",
       "allWalkableTilesReachableFromSpawn",
       "exitMarkerOppositeSpawnCorner",
-      "enemyProjectileDebugCounters"
+      "enemyProjectileDebugCounters",
+      "bossLevelConfigValidated",
+      "multiLevelMapValidation"
     ],
     "screenshotNames": [
       "boot-mobile-landscape.png",
@@ -487,6 +497,30 @@
         "command": "npm run validate:browser",
         "result": "passed",
         "projects": 5
+      }
+    },
+    "bossLevelConfigSmoke": {
+      "unitTest": "registers a separate boss level JSON configuration",
+      "levelValidationCommand": "npm run validate:levels",
+      "levelIdsExpected": [
+        "boss-forge-31x31",
+        "foundation-45x45"
+      ],
+      "bossMarkerSymbol": "B",
+      "bossMarkerCount": 1,
+      "minionMarkerCount": 6,
+      "walkableTiles": 835,
+      "runtimeBrowserSmoke": false,
+      "lastValidated": {
+        "commands": [
+          "npm test",
+          "npm run validate:levels",
+          "npm run lint",
+          "npm run build",
+          "npm run validate:assets"
+        ],
+        "result": "passed",
+        "browserRuntimeChanged": false
       }
     }
   },

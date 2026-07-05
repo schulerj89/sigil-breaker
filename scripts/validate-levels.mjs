@@ -1,42 +1,60 @@
 #!/usr/bin/env node
 /* global console, process */
 
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const ALLOWED_SYMBOLS = new Set(['#', '.', 'S', 'E', 'C', 'X']);
+const ALLOWED_SYMBOLS = new Set(['#', '.', 'S', 'E', 'B', 'C', 'X']);
 const SOLID_SYMBOLS = new Set(['#', 'C']);
 const STRUCTURAL_WALL_SYMBOL = '#';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, '..');
-const defaultLevelPath = path.join(repoRoot, 'src', 'game', 'foundationLevelMap.json');
-const levelPath = process.argv[2] ? path.resolve(process.argv[2]) : defaultLevelPath;
+const gameDir = path.join(repoRoot, 'src', 'game');
+const levelPaths = process.argv.length > 2
+  ? process.argv.slice(2).map((levelPath) => path.resolve(levelPath))
+  : await findDefaultLevelPaths();
 
-const level = JSON.parse(await readFile(levelPath, 'utf8'));
-const result = validateLevel(level);
+let hasFailure = false;
+for (const levelPath of levelPaths) {
+  const level = JSON.parse(await readFile(levelPath, 'utf8'));
+  const result = validateLevel(level);
 
-if (result.errors.length > 0) {
-  console.error(`Level QA failed for ${levelPath}`);
-  for (const error of result.errors) {
-    console.error(`- ${error}`);
+  if (result.errors.length > 0) {
+    hasFailure = true;
+    console.error(`Level QA failed for ${levelPath}`);
+    for (const error of result.errors) {
+      console.error(`- ${error}`);
+    }
+  } else {
+    console.log(
+      [
+        `Level QA passed for ${level.id}`,
+        `${result.width}x${result.height}`,
+        `min lane ${level.minPassageUnits}u`,
+        `min entry ${level.minEntryUnits ?? level.minPassageUnits}u`,
+        `${result.chunkColumns}x${result.chunkRows} chunks`,
+        `${result.walkableTiles} walkable tiles`,
+        `${result.enemyMarkerCount} enemy markers`,
+        `${result.bossMarkerCount} boss markers`,
+        'spawn can reach exit',
+        'all walkable tiles reachable',
+      ].join(' | '),
+    );
   }
+}
+
+if (hasFailure) {
   process.exitCode = 1;
-} else {
-  console.log(
-    [
-      `Level QA passed for ${level.id}`,
-      `${result.width}x${result.height}`,
-      `min lane ${level.minPassageUnits}u`,
-      `min entry ${level.minEntryUnits ?? level.minPassageUnits}u`,
-      `${result.chunkColumns}x${result.chunkRows} chunks`,
-      `${result.walkableTiles} walkable tiles`,
-      `${result.enemyMarkerCount} enemy markers`,
-      'spawn can reach exit',
-      'all walkable tiles reachable',
-    ].join(' | '),
-  );
+}
+
+async function findDefaultLevelPaths() {
+  const entries = await readdir(gameDir, { withFileTypes: true });
+  return entries
+    .filter((entry) => entry.isFile() && entry.name.endsWith('LevelMap.json'))
+    .map((entry) => path.join(gameDir, entry.name))
+    .sort();
 }
 
 function validateLevel(levelData) {
@@ -106,6 +124,7 @@ function validateLevel(levelData) {
   let spawnCount = 0;
   let exitCount = 0;
   let enemyMarkerCount = 0;
+  let bossMarkerCount = 0;
   let walkableTiles = 0;
   const narrowTiles = [];
   const narrowSegments = [];
@@ -137,6 +156,8 @@ function validateLevel(levelData) {
         spawnCount++;
       } else if (symbol === 'E') {
         enemyMarkerCount++;
+      } else if (symbol === 'B') {
+        bossMarkerCount++;
       } else if (symbol === 'X') {
         exitCount++;
       }
@@ -162,6 +183,16 @@ function validateLevel(levelData) {
 
   if (enemyMarkerCount <= 0) {
     errors.push('Expected at least one enemy marker tile marked E.');
+  }
+
+  if (bossMarkerCount > 0 && levelData.levelType !== 'boss') {
+    errors.push('B boss markers are only allowed when levelType is "boss".');
+  }
+
+  if (levelData.levelType === 'boss') {
+    errors.push(...validateBossConfig(levelData, bossMarkerCount));
+  } else if (levelData.boss) {
+    errors.push('Non-boss levels must not define a boss configuration.');
   }
 
   errors.push(...validateBoundary(map, width, height));
@@ -262,9 +293,83 @@ function validateLevel(levelData) {
     height,
     walkableTiles,
     enemyMarkerCount,
+    bossMarkerCount,
     chunkColumns: Number.isInteger(chunkSizeTiles) ? Math.ceil(width / chunkSizeTiles) : 0,
     chunkRows: Number.isInteger(chunkSizeTiles) ? Math.ceil(height / chunkSizeTiles) : 0,
   };
+}
+
+function validateBossConfig(levelData, bossMarkerCount) {
+  const errors = [];
+  const boss = levelData.boss;
+  const objective = levelData.objective;
+  const reward = levelData.reward;
+
+  if (bossMarkerCount !== 1) {
+    errors.push(`Boss levels require exactly one boss marker tile marked B; found ${bossMarkerCount}.`);
+  }
+
+  if (!boss || typeof boss !== 'object') {
+    errors.push('Boss levels require a boss configuration object.');
+    return errors;
+  }
+
+  if (!boss.id || typeof boss.id !== 'string') {
+    errors.push('Boss configuration requires a string id.');
+  }
+  if (!boss.label || typeof boss.label !== 'string') {
+    errors.push('Boss configuration requires a string label.');
+  }
+  if (boss.markerSymbol !== 'B') {
+    errors.push('Boss configuration markerSymbol must be "B".');
+  }
+  if (!boss.assetId || typeof boss.assetId !== 'string') {
+    errors.push('Boss configuration requires a string assetId.');
+  }
+  if (!Number.isFinite(Number(boss.maxHealth)) || Number(boss.maxHealth) <= 0) {
+    errors.push('Boss configuration maxHealth must be a positive number.');
+  }
+  if (!Array.isArray(boss.phases) || boss.phases.length < 2) {
+    errors.push('Boss configuration requires at least two phases.');
+  } else {
+    let previousRatio = Number.POSITIVE_INFINITY;
+    for (const [index, phase] of boss.phases.entries()) {
+      const ratio = Number(phase?.startsAtHealthRatio);
+      if (!phase?.id || typeof phase.id !== 'string') {
+        errors.push(`Boss phase ${index} requires a string id.`);
+      }
+      if (!Number.isFinite(ratio) || ratio < 0 || ratio > 1) {
+        errors.push(`Boss phase ${phase?.id ?? index} startsAtHealthRatio must be between 0 and 1.`);
+      }
+      if (ratio > previousRatio) {
+        errors.push('Boss phase startsAtHealthRatio values must be in descending order.');
+      }
+      previousRatio = ratio;
+    }
+  }
+
+  if (!objective || objective.type !== 'defeat-boss' || objective.bossMarkerSymbol !== 'B') {
+    errors.push('Boss levels require objective.type "defeat-boss" and objective.bossMarkerSymbol "B".');
+  }
+
+  if (!reward || typeof reward !== 'object') {
+    errors.push('Boss levels require a reward configuration object.');
+  } else {
+    const choiceCount = Number(reward.choiceCount);
+    const min = Number(reward.powerupRangePercent?.min);
+    const max = Number(reward.powerupRangePercent?.max);
+    if (!Number.isInteger(choiceCount) || choiceCount < 2) {
+      errors.push('Boss reward choiceCount must be an integer of at least 2.');
+    }
+    if (!Number.isFinite(min) || !Number.isFinite(max) || min <= 0 || max < min) {
+      errors.push('Boss reward powerupRangePercent must define a positive min and max >= min.');
+    }
+    if (!Array.isArray(reward.pool) || reward.pool.length < 10) {
+      errors.push('Boss reward pool must include at least 10 powerup ids.');
+    }
+  }
+
+  return errors;
 }
 
 function findUnreachableWalkableTiles(map) {

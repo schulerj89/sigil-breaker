@@ -25,6 +25,8 @@ Status: in progress for foundation layout, entry-width, splitter, pinch QA, and 
 - Moved the `X` exit marker to row 43, column 43, the bottom-right interior corner opposite spawn at row 1, column 1.
 - `validate-levels` now rejects any non-solid tile that is unreachable from spawn, not only an unreachable exit.
 - The foundation level now reports 1658 walkable tiles and all 1658 are reachable from spawn.
+- Added `src/game/bossLevelMap.json` as a separate `boss-forge-31x31` configuration with one `B` boss marker, six `E` minion markers, cover pylons, defeat-boss objective metadata, boss phases, and reward powerup range metadata.
+- `validate-levels` now validates every `src/game/*LevelMap.json` file by default and enforces boss-specific config requirements when `levelType` is `boss`.
 
 ## Decisions
 
@@ -36,6 +38,8 @@ Status: in progress for foundation layout, entry-width, splitter, pinch QA, and 
 - Level QA should reject structural entry splitter posts when either side has below 3 tiles or the combined side clearance is below 6 tiles.
 - Level QA should reject unreachable walkable rooms, enemies, and exit spaces.
 - Keep the steel texture pass as a lightweight prototype kit, not a final level identity kit.
+- Keep the boss level data-only for this pass; runtime level selection and boss AI should be separate gameplay slices.
+- Use `B` as the reserved boss marker symbol and keep `E` for minion spawns.
 
 ## Caught Issues
 
@@ -46,6 +50,7 @@ Status: in progress for foundation layout, entry-width, splitter, pinch QA, and 
 - A 5-tile structural entry can still feel like 2 usable units when an adjacent wall post splits it into two branches.
 - Early texture screenshots could capture before GPU upload and look blank/white; smoke now waits for renderer texture count before validating the frame.
 - Spawn-to-exit reachability did not catch an isolated room with an enemy and cover; all-walkable reachability now covers that defect class.
+- The previous level validator default only checked the foundation map, so adding more level JSON files needed default multi-map validation.
 
 ## Next Handoff Notes
 
@@ -54,3 +59,4 @@ Status: in progress for foundation layout, entry-width, splitter, pinch QA, and 
 - Splitter-post gates should remain scoped to structural wall-band entries so ordinary room dividers do not over-report.
 - Future level edits should preserve the opposite-corner route from `S` row 1, column 1 to `X` row 43, column 43 unless the level objective changes.
 - Future level kits should replace these prototype textures with level-specific external floor, wall, ceiling, prop, and lighting assets.
+- Runtime level-loading work should consume `src/game/levelConfigs.ts` instead of importing only the foundation JSON.

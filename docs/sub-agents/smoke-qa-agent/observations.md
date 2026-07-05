@@ -148,3 +148,5 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Browser smoke now asserts the enemy projectile debug contract exists at boot with zero active/fired/hit counters before combat starts.
 - Unit smoke verifies a tracking enemy fires a visible projectile and damages player health through the shared health system.
 - Latest `npm run validate:browser` passed all five landscape viewport projects after adding enemy projectile debug counters and player-damage wiring.
+- Unit smoke now verifies the separate boss level JSON shape, exactly one `B` marker, six `E` minion markers, reachable walkable tiles, boss phase ratios, and reward powerup range metadata.
+- `npm run validate:levels` now checks both `boss-forge-31x31` and `foundation-45x45` by default.

@@ -1,0 +1,120 @@
+{
+  "id": "boss-forge-31x31",
+  "levelType": "boss",
+  "displayName": "Boss Forge",
+  "tileSize": 1,
+  "minPassageUnits": 3,
+  "minEntryUnits": 5,
+  "minEntrySplitSideUnits": 3,
+  "minEntrySplitAreaUnits": 6,
+  "dimensions": {
+    "width": 31,
+    "height": 31
+  },
+  "streaming": {
+    "chunkSizeTiles": 8,
+    "loadRadiusChunks": 2
+  },
+  "objective": {
+    "type": "defeat-boss",
+    "bossMarkerSymbol": "B",
+    "exitUnlock": "after-boss-defeated"
+  },
+  "boss": {
+    "id": "boss.sigil-warden.forge",
+    "label": "SIGIL WARDEN",
+    "markerSymbol": "B",
+    "assetId": "enemy.monster.goleling",
+    "maxHealth": 720,
+    "detectRadiusUnits": 12,
+    "projectileDamage": 14,
+    "projectileCooldownSeconds": 0.95,
+    "projectileSpeedUnitsPerSecond": 7,
+    "phases": [
+      {
+        "id": "phase-1",
+        "startsAtHealthRatio": 1,
+        "pattern": "slow-orb-volley",
+        "projectileCount": 1
+      },
+      {
+        "id": "phase-2",
+        "startsAtHealthRatio": 0.65,
+        "pattern": "double-orb-crossfire",
+        "projectileCount": 2
+      },
+      {
+        "id": "phase-3",
+        "startsAtHealthRatio": 0.3,
+        "pattern": "fast-orb-pressure",
+        "projectileCount": 3
+      }
+    ]
+  },
+  "encounter": {
+    "minionMarkerSymbol": "E",
+    "minionWaves": [
+      {
+        "startsAtHealthRatio": 0.75,
+        "spawnCount": 2
+      },
+      {
+        "startsAtHealthRatio": 0.4,
+        "spawnCount": 4
+      }
+    ],
+    "coverSymbol": "C"
+  },
+  "reward": {
+    "choiceCount": 3,
+    "powerupRangePercent": {
+      "min": 5,
+      "max": 9
+    },
+    "pool": [
+      "damage",
+      "fire-rate",
+      "reload-speed",
+      "projectile-speed",
+      "max-health",
+      "shield-on-hit",
+      "boss-damage",
+      "movement-speed",
+      "ammo-capacity",
+      "critical-chance"
+    ]
+  },
+  "map": [
+    "###############################",
+    "#.............................#",
+    "#.S...........................#",
+    "#.............................#",
+    "#.............................#",
+    "#..............C..............#",
+    "#.....E.................E.....#",
+    "#.............................#",
+    "#.............................#",
+    "#.............................#",
+    "#.........C.........C.........#",
+    "#.............................#",
+    "#.............................#",
+    "#.............................#",
+    "#.............................#",
+    "#....E.........B.........E....#",
+    "#.............................#",
+    "#.............................#",
+    "#.............................#",
+    "#.............................#",
+    "#.........C.........C.........#",
+    "#.............................#",
+    "#.............................#",
+    "#.............................#",
+    "#.....E.................E.....#",
+    "#..............C..............#",
+    "#.............................#",
+    "#.............................#",
+    "#...........................X.#",
+    "#.............................#",
+    "###############################"
+  ]
+}
