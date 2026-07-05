@@ -1,9 +1,9 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "camera-cutscene-agent",
-  "status": "implemented-first-death-cinematic-and-planned-first-intro",
-  "updatedAt": "2026-07-05T23:22:00Z",
-  "summary": "First death cinematic is implemented as a distinct game phase with HUD/input disabled, a live-level third-person out-of-HP character orbit at the death coordinates, a single fail voice/caption sting, delayed Try Again and Return to Title actions, a debug KO trigger, and browser plus screenshot QA coverage. First level intro cinematic is now planned as a flat Commander Kade hologram briefing plus existing 3D Glyph response before Level 1 gameplay.",
+  "status": "implemented-first-death-and-first-intro-cinematics",
+  "updatedAt": "2026-07-05T23:34:05Z",
+  "summary": "Death cinematic remains implemented, and the first level intro cinematic is now implemented as an intro-cinematic phase with Commander Kade hologram portrait, captions, ElevenLabs VO, skip handoff, cinematic camera shots over the live level, and an exit rift objective marker.",
   "observations": [
     "No camera modes, viewmodel framing, or cutscene system exists yet.",
     "Weapon muzzle, tracer, and wall-impact positions are derived from src/game/weapons/weaponViewPose.ts.",
@@ -22,7 +22,11 @@
     "The recommended MVP intro uses a flat Commander Kade hologram portrait with live captions and build-time ElevenLabs VO.",
     "Existing 3D Glyph should appear in short response shots using current idle or gun-hold animation with no mouth sync requirement.",
     "Commander Kade is the working guide identity: calm, tactical, angular, and visually distinct from Glyph.",
-    "The first level should be framed as Rift Deck 01, a tutorial breach that teaches move, look, fire, reload HUD, 25 HP fragility, contact damage, projectiles, and exit beacon."
+    "The first level should be framed as Rift Deck 01, a tutorial breach that teaches move, look, fire, reload HUD, 25 HP fragility, contact damage, projectiles, and exit beacon.",
+    "IntroCinematicStage now runs five timed camera shots over the existing level scene before gameplay.",
+    "The intro uses a flat Commander Kade hologram portrait and live captions for the MVP commander presentation.",
+    "Skip and natural intro completion share the same handoff: stop voice, close intro, reset combat state, then enter gameplay.",
+    "Level streaming follows the intro cinematic look target so distant shots can display without loading the whole level."
   ],
   "decisions": [
     "Cutscenes must be skippable.",
@@ -38,7 +42,10 @@
     "Return to Title and Try Again must both clear combat state before leaving death-cinematic.",
     "The death character clone may render above nearby level geometry during the cinematic to protect readability in tight corners.",
     "Defer a 3D Meshy commander until the flat portrait intro proves pacing, script, and mobile camera readability.",
-    "Intro cinematic should be its own intro-cinematic phase with skip available after 2 seconds and input restored before gameplay."
+    "Intro cinematic should be its own intro-cinematic phase with skip available after 2 seconds and input restored before gameplay.",
+    "The first commander implementation is a flat hologram portrait, not a 3D Meshy commander model.",
+    "The first intro is now implemented as phase intro-cinematic between title and gameplay.",
+    "Intro skip unlocks after 2 seconds and must restore normal first-person gameplay state."
   ],
   "caughtIssues": [
     "Pointer-drag screenshot QA can approximate pitch-up/down firing, but deterministic debug look poses are needed for stable visual regression.",
@@ -60,7 +67,10 @@
     "artifacts/sub-agents/20260705-death-cinematic/smoke-qa-agent/death-cinematic-in-level-844x390.png",
     "artifacts/sub-agents/20260705-death-cinematic/smoke-qa-agent/death-cinematic-in-level-late-844x390.png",
     "artifacts/sub-agents/20260705-death-cinematic/smoke-qa-agent/death-cinematic-in-level-snapshot.json",
-    "docs/cinematics/first-level-intro-cinematic-plan.md"
+    "docs/cinematics/first-level-intro-cinematic-plan.md",
+    "src/game/introCinematicStage.ts",
+    "public/assets/characters/commander-kade/commander-kade-hologram.webp",
+    "artifacts/sub-agents/20260705-first-intro-cinematic/camera-cutscene-agent/observations.md"
   ],
   "jsonForAgents": {
     "cameraModes": [
@@ -111,7 +121,7 @@
       ]
     },
     "firstLevelIntroCinematic": {
-      "planned": true,
+      "planned": false,
       "report": "docs/cinematics/first-level-intro-cinematic-plan.md",
       "phase": "intro-cinematic",
       "levelName": "Rift Deck 01",
@@ -167,6 +177,23 @@
         "commander image is cache-busted",
         "intro voice plays after user gesture",
         "gameplay starts at normal first-person spawn"
+      ],
+      "implemented": true,
+      "stage": "src/game/introCinematicStage.ts",
+      "portraitAssetId": "ui.cinematic.commander-kade.hologram",
+      "portraitPath": "assets/characters/commander-kade/commander-kade-hologram.webp",
+      "voiceLineIds": [
+        "audio.voice.commander-kade.intro.deck-breach.elevenlabs",
+        "audio.voice.commander-kade.intro.hostiles.elevenlabs",
+        "audio.voice.commander-kade.intro.weapons.elevenlabs",
+        "audio.voice.commander-kade.intro.survival.elevenlabs",
+        "audio.voice.commander-kade.intro.exit-rift.elevenlabs"
+      ],
+      "handoff": [
+        "stop voice",
+        "close intro",
+        "reset combat state",
+        "enter gameplay"
       ]
     },
     "requiredDebugPoses": [

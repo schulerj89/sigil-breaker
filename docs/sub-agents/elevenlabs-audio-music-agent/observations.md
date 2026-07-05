@@ -83,3 +83,11 @@ Status: complete for heavier title music and idle title animation slice.
 - Browser smoke should continue to verify title/gameplay music decoded and playing after a start gesture, and verify Voice Lab playback increments the shared voice counters.
 - Future death, level-complete, and cutscene barks should call the shared runtime audio manager instead of creating page-local audio elements.
 - Mobile QA should check the heavier title mix on phone speakers because guitar-forward loops can mask button SFX if later UI sounds are added.
+
+## 2026-07-05 - Commander Kade Intro VO
+
+- Generated five Commander Kade intro lines using ElevenLabs `eleven_v3` and voice id `gVh6lddROTbOaOz9AAnY`.
+- Commander VO is committed as MP3 files under `public/assets/audio/elevenlabs-foundation/` and loaded through the shared Web Audio voice path.
+- Voice Lab now previews both Glyph and Commander Kade lines, so cutscene VO uses the same playback counters as title/gameplay voice checks.
+- The intro script covers backstory, enemy purpose, SPARK/BORE roles, 25 HP survival, and the exit rift objective.
+- `source-metadata.json` and `docs/assets/source-ledger.json` record prompts, model, voice id, settings, bytes, hashes, durations, and intended use.

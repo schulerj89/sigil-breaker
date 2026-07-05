@@ -155,3 +155,11 @@ Status: complete for debug coordinate, music mute, weapon cycle, and rotate prom
 - The ammo widget shows the current magazine count and a small reload bar under the number.
 - During reload, the ammo text changes to `LOAD Ns` and the widget gets `ammo-meter--reloading`.
 - The compact short-landscape CSS keeps health, ammo, mute, debug toggle, and combat buttons readable on phone widths.
+
+## 2026-07-05 - Commander Intro Overlay
+
+- GPT Image 2 generated five isolated Commander Kade A-pose concepts under `artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/`.
+- Concept 03, `commander-kade-concept-03-jackal-strategist.png`, was selected because it best reads as a senior commander while matching Glyph's amber/teal/lime rift style.
+- GPT Image 2 generated the runtime hologram portrait at `public/assets/characters/commander-kade/commander-kade-hologram.webp`.
+- The intro overlay uses cinematic black bars, a compact portrait panel, speaker/caption text, a shot label, and a skip button that appears after 2 seconds.
+- Loading now gates on the commander portrait and reports `snapshot.ui.loading.introPortraitLoaded`.

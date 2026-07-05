@@ -134,6 +134,8 @@ export function createFoundationLevelRuntime(
     }),
   );
   const exitGeometry = track(new THREE.CylinderGeometry(0.36, 0.36, 0.08, 20));
+  const exitRingGeometry = track(new THREE.TorusGeometry(0.56, 0.035, 10, 36));
+  const exitCoreGeometry = track(new THREE.IcosahedronGeometry(0.22, 1));
   const exitMaterial = track(
     new THREE.MeshStandardMaterial({
       color: 0x256d5a,
@@ -141,12 +143,32 @@ export function createFoundationLevelRuntime(
       roughness: 0.35,
     }),
   );
+  const exitRingMaterial = track(
+    new THREE.MeshBasicMaterial({
+      color: 0x74ffd4,
+      transparent: true,
+      opacity: 0.88,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    }),
+  );
+  const exitCoreMaterial = track(
+    new THREE.MeshBasicMaterial({
+      color: 0xc9ffe9,
+      transparent: true,
+      opacity: 0.74,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    }),
+  );
   const sharedGeometryBytes =
     estimateGeometryBytes(floorGeometry) +
     estimateGeometryBytes(roofGeometry) +
     estimateGeometryBytes(wallGeometry) +
     estimateGeometryBytes(coverGeometry) +
-    estimateGeometryBytes(exitGeometry);
+    estimateGeometryBytes(exitGeometry) +
+    estimateGeometryBytes(exitRingGeometry) +
+    estimateGeometryBytes(exitCoreGeometry);
 
   const chunks = createLevelChunks(getLevelTiles());
   const chunksById = new Map(chunks.map((chunk) => [chunk.id, chunk]));
@@ -181,7 +203,11 @@ export function createFoundationLevelRuntime(
             coverGeometry,
             coverMaterial,
             exitGeometry,
+            exitRingGeometry,
+            exitCoreGeometry,
             exitMaterial,
+            exitRingMaterial,
+            exitCoreMaterial,
           );
           loadedChunks.set(chunkId, group);
           scene.add(group);
@@ -262,7 +288,11 @@ function createChunkGroup(
   coverGeometry: THREE.BufferGeometry,
   coverMaterial: THREE.Material,
   exitGeometry: THREE.BufferGeometry,
+  exitRingGeometry: THREE.BufferGeometry,
+  exitCoreGeometry: THREE.BufferGeometry,
   exitMaterial: THREE.Material,
+  exitRingMaterial: THREE.Material,
+  exitCoreMaterial: THREE.Material,
 ): THREE.Group {
   const group = new THREE.Group();
   group.name = `foundation-chunk-${chunk.id}`;
@@ -282,13 +312,55 @@ function createChunkGroup(
   }
 
   for (const tile of chunk.exitTiles) {
-    const exitMarker = new THREE.Mesh(exitGeometry, exitMaterial);
+    const exitMarker = createExitRiftMarker(
+      exitGeometry,
+      exitRingGeometry,
+      exitCoreGeometry,
+      exitMaterial,
+      exitRingMaterial,
+      exitCoreMaterial,
+    );
     exitMarker.name = `foundation-exit-${chunk.id}`;
-    exitMarker.position.set(tile.worldX, 0.04, tile.worldZ);
+    exitMarker.position.set(tile.worldX, 0, tile.worldZ);
     group.add(exitMarker);
   }
 
   return group;
+}
+
+function createExitRiftMarker(
+  exitGeometry: THREE.BufferGeometry,
+  exitRingGeometry: THREE.BufferGeometry,
+  exitCoreGeometry: THREE.BufferGeometry,
+  exitMaterial: THREE.Material,
+  exitRingMaterial: THREE.Material,
+  exitCoreMaterial: THREE.Material,
+): THREE.Group {
+  const marker = new THREE.Group();
+  const pad = new THREE.Mesh(exitGeometry, exitMaterial);
+  pad.name = 'foundation-exit-rift-pad';
+  pad.position.y = 0.04;
+  marker.add(pad);
+
+  const ringA = new THREE.Mesh(exitRingGeometry, exitRingMaterial);
+  ringA.name = 'foundation-exit-rift-ring-a';
+  ringA.position.y = 0.92;
+  ringA.rotation.y = Math.PI / 7;
+  marker.add(ringA);
+
+  const ringB = new THREE.Mesh(exitRingGeometry, exitRingMaterial);
+  ringB.name = 'foundation-exit-rift-ring-b';
+  ringB.position.y = 0.92;
+  ringB.rotation.x = Math.PI / 2;
+  ringB.rotation.z = Math.PI / 9;
+  marker.add(ringB);
+
+  const core = new THREE.Mesh(exitCoreGeometry, exitCoreMaterial);
+  core.name = 'foundation-exit-rift-core';
+  core.position.y = 0.92;
+  marker.add(core);
+
+  return marker;
 }
 
 function setTileInstances(mesh: THREE.InstancedMesh, tiles: LevelChunk['tiles'], y: number): void {

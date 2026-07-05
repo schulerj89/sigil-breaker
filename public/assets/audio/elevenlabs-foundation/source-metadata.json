@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-05T17:35:00.000Z",
+  "generatedAt": "2026-07-05T23:34:05.983Z",
   "records": [
     {
       "assetId": "audio.weapon.spark.elevenlabs",
@@ -369,6 +369,156 @@
       "path": "public/assets/audio/elevenlabs-foundation/glyph-stars-sigils-snacks.mp3",
       "bytes": 40586,
       "sha256": "ca4bc3216195d833d637d72c0d0590cf43b7e75e0ec11a8e22d2ffa3334596be",
+      "provider": "ElevenLabs"
+    },
+    {
+      "assetId": "audio.voice.commander-kade.intro.deck-breach.elevenlabs",
+      "fileName": "commander-kade-intro-deck-breach.mp3",
+      "endpoint": "text-to-speech",
+      "modelId": "eleven_v3",
+      "voiceId": "gVh6lddROTbOaOz9AAnY",
+      "characterName": "Commander Kade",
+      "category": "intro-briefing",
+      "prompt": "[urgent, controlled] Kade at command. Glyph, listen close: the Rift broke open under our launch deck.",
+      "settings": {
+        "output_format": "mp3_44100_128",
+        "seed": 241001,
+        "voice_settings": {
+          "stability": 0.48,
+          "similarity_boost": 0.78,
+          "style": 0.5,
+          "use_speaker_boost": true
+        }
+      },
+      "intendedUse": "intro-cinematic-voice-deck-breach",
+      "durationSeconds": 5.2,
+      "loopable": false,
+      "volume": 0.94,
+      "lufsTarget": -16,
+      "generatedAt": "2026-07-05T23:34:05.983Z",
+      "path": "public/assets/audio/elevenlabs-foundation/commander-kade-intro-deck-breach.mp3",
+      "bytes": 84471,
+      "sha256": "b44e985049929cad198e525e1eb4af4bfa934bca8f16db8f7ea3f61e95c40fde",
+      "provider": "ElevenLabs"
+    },
+    {
+      "assetId": "audio.voice.commander-kade.intro.hostiles.elevenlabs",
+      "fileName": "commander-kade-intro-hostiles.mp3",
+      "endpoint": "text-to-speech",
+      "modelId": "eleven_v3",
+      "voiceId": "gVh6lddROTbOaOz9AAnY",
+      "characterName": "Commander Kade",
+      "category": "intro-briefing",
+      "prompt": "[focused] Those little monsters feed on loose energy. Clear each room, keep moving, and do not let them box you in.",
+      "settings": {
+        "output_format": "mp3_44100_128",
+        "seed": 241002,
+        "voice_settings": {
+          "stability": 0.48,
+          "similarity_boost": 0.78,
+          "style": 0.5,
+          "use_speaker_boost": true
+        }
+      },
+      "intendedUse": "intro-cinematic-voice-hostiles",
+      "durationSeconds": 7.84,
+      "loopable": false,
+      "volume": 0.94,
+      "lufsTarget": -16,
+      "generatedAt": "2026-07-05T23:34:05.983Z",
+      "path": "public/assets/audio/elevenlabs-foundation/commander-kade-intro-hostiles.mp3",
+      "bytes": 126685,
+      "sha256": "9167ad293d8ec849c54f56138756bd05b00bbdf5263c69952b98699d3285d9a5",
+      "provider": "ElevenLabs"
+    },
+    {
+      "assetId": "audio.voice.commander-kade.intro.weapons.elevenlabs",
+      "fileName": "commander-kade-intro-weapons.mp3",
+      "endpoint": "text-to-speech",
+      "modelId": "eleven_v3",
+      "voiceId": "gVh6lddROTbOaOz9AAnY",
+      "characterName": "Commander Kade",
+      "category": "intro-briefing",
+      "prompt": "[confident] Spark is fast. Bore hits harder. Swap when the hallway changes shape.",
+      "settings": {
+        "output_format": "mp3_44100_128",
+        "seed": 241003,
+        "voice_settings": {
+          "stability": 0.48,
+          "similarity_boost": 0.78,
+          "style": 0.5,
+          "use_speaker_boost": true
+        }
+      },
+      "intendedUse": "intro-cinematic-voice-weapons",
+      "durationSeconds": 5.28,
+      "loopable": false,
+      "volume": 0.94,
+      "lufsTarget": -16,
+      "generatedAt": "2026-07-05T23:34:05.983Z",
+      "path": "public/assets/audio/elevenlabs-foundation/commander-kade-intro-weapons.mp3",
+      "bytes": 85725,
+      "sha256": "f9b9cbc6c3ecf876dd9c227f4f4888bf9899a1e489004343af72d5f7afd8af41",
+      "provider": "ElevenLabs"
+    },
+    {
+      "assetId": "audio.voice.commander-kade.intro.survival.elevenlabs",
+      "fileName": "commander-kade-intro-survival.mp3",
+      "endpoint": "text-to-speech",
+      "modelId": "eleven_v3",
+      "voiceId": "gVh6lddROTbOaOz9AAnY",
+      "characterName": "Commander Kade",
+      "category": "intro-briefing",
+      "prompt": "[warning] Your suit is light: twenty-five hit points. Dodge, reload, then push.",
+      "settings": {
+        "output_format": "mp3_44100_128",
+        "seed": 241004,
+        "voice_settings": {
+          "stability": 0.48,
+          "similarity_boost": 0.78,
+          "style": 0.5,
+          "use_speaker_boost": true
+        }
+      },
+      "intendedUse": "intro-cinematic-voice-survival",
+      "durationSeconds": 7.12,
+      "loopable": false,
+      "volume": 0.94,
+      "lufsTarget": -16,
+      "generatedAt": "2026-07-05T23:34:05.983Z",
+      "path": "public/assets/audio/elevenlabs-foundation/commander-kade-intro-survival.mp3",
+      "bytes": 114982,
+      "sha256": "b6ed8a1471fb1fd95caaf5a5fa6daf5e0d5e8f89411a77c261e3fdcf3fff9ad3",
+      "provider": "ElevenLabs"
+    },
+    {
+      "assetId": "audio.voice.commander-kade.intro.exit-rift.elevenlabs",
+      "fileName": "commander-kade-intro-exit-rift.mp3",
+      "endpoint": "text-to-speech",
+      "modelId": "eleven_v3",
+      "voiceId": "gVh6lddROTbOaOz9AAnY",
+      "characterName": "Commander Kade",
+      "category": "intro-briefing",
+      "prompt": "[commanding] That exit beacon is your way out. Seal the rift and come home loud.",
+      "settings": {
+        "output_format": "mp3_44100_128",
+        "seed": 241005,
+        "voice_settings": {
+          "stability": 0.48,
+          "similarity_boost": 0.78,
+          "style": 0.5,
+          "use_speaker_boost": true
+        }
+      },
+      "intendedUse": "intro-cinematic-voice-exit-rift",
+      "durationSeconds": 5.6,
+      "loopable": false,
+      "volume": 0.94,
+      "lufsTarget": -16,
+      "generatedAt": "2026-07-05T23:34:05.983Z",
+      "path": "public/assets/audio/elevenlabs-foundation/commander-kade-intro-exit-rift.mp3",
+      "bytes": 90741,
+      "sha256": "fc5e30effb1f4537fc33fd6543ae9a61ba769af467b669f3f772542e77a6de9f",
       "provider": "ElevenLabs"
     }
   ]

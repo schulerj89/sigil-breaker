@@ -365,6 +365,7 @@ canvas {
 
 .loading-screen,
 .title-screen,
+.intro-cinematic,
 .death-cinematic,
 .character-debug,
 .voice-lab {
@@ -382,6 +383,7 @@ canvas {
 
 .game-shell:not([data-game-phase="loading"]) .loading-screen,
 .game-shell:not([data-game-phase="title"]) .title-screen,
+.game-shell:not([data-game-phase="intro-cinematic"]) .intro-cinematic,
 .game-shell:not([data-game-phase="death-cinematic"]) .death-cinematic,
 .game-shell:not([data-game-phase="character-debug"]) .character-debug,
 .game-shell:not([data-game-phase="voice-lab"]) .voice-lab {
@@ -391,11 +393,13 @@ canvas {
   pointer-events: none;
 }
 
+.intro-cinematic,
 .death-cinematic {
   z-index: 7;
   pointer-events: none;
 }
 
+.intro-cinematic__bar,
 .death-cinematic__bar {
   position: absolute;
   left: 0;
@@ -409,16 +413,20 @@ canvas {
     transform 280ms ease;
 }
 
+.intro-cinematic__bar--top,
 .death-cinematic__bar--top {
   top: 0;
   transform-origin: top;
 }
 
+.intro-cinematic__bar--bottom,
 .death-cinematic__bar--bottom {
   bottom: 0;
   transform-origin: bottom;
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
+  gap: 14px;
   padding:
     0
     max(86px, env(safe-area-inset-right))
@@ -426,25 +434,161 @@ canvas {
     max(86px, env(safe-area-inset-left));
 }
 
+.game-shell[data-game-phase="intro-cinematic"] .intro-cinematic__bar,
 .game-shell[data-game-phase="death-cinematic"] .death-cinematic__bar {
   opacity: 1;
   transform: scaleY(1);
 }
 
-.death-cinematic__caption {
+.intro-cinematic__dialogue {
+  min-width: 0;
   justify-self: center;
-  max-width: min(720px, 70vw);
+  display: grid;
+  gap: 6px;
+  width: min(760px, 70vw);
+}
+
+.intro-cinematic__speaker,
+.intro-cinematic__caption,
+.death-cinematic__caption {
   color: #fff4d0;
   font-family: var(--sigil-font-title);
-  font-size: clamp(19px, 4vw, 34px);
   font-weight: 900;
-  line-height: 0.98;
   letter-spacing: 0;
   text-align: center;
   text-transform: uppercase;
   text-shadow:
     0 0 18px rgb(255 196 72 / 0.38),
     0 3px 0 rgb(0 0 0 / 0.8);
+}
+
+.intro-cinematic__speaker {
+  color: #8fffd4;
+  font-size: clamp(11px, 2.2vw, 15px);
+  line-height: 1;
+  text-shadow:
+    0 0 12px rgb(91 255 207 / 0.34),
+    0 2px 0 rgb(0 0 0 / 0.8);
+}
+
+.intro-cinematic__caption,
+.death-cinematic__caption {
+  max-width: min(720px, 70vw);
+  font-size: clamp(17px, 3.2vw, 30px);
+  line-height: 0.98;
+}
+
+.death-cinematic__caption {
+  justify-self: center;
+}
+
+.intro-cinematic__portrait {
+  position: absolute;
+  top: max(44px, calc(env(safe-area-inset-top) + 18px));
+  right: max(22px, env(safe-area-inset-right));
+  z-index: 2;
+  width: clamp(118px, 18vw, 190px);
+  display: grid;
+  gap: 6px;
+  padding: 7px;
+  border: 1px solid rgb(143 255 212 / 0.42);
+  background:
+    linear-gradient(180deg, rgb(4 22 25 / 0.84), rgb(2 7 9 / 0.88)),
+    rgb(2 7 9 / 0.82);
+  box-shadow:
+    0 0 24px rgb(91 255 207 / 0.16),
+    inset 0 0 0 1px rgb(255 255 255 / 0.05);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity 240ms ease,
+    transform 240ms ease;
+}
+
+.game-shell[data-game-phase="intro-cinematic"] .intro-cinematic__portrait {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.intro-cinematic__portrait-image {
+  width: 100%;
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle at 50% 36%, rgb(143 255 212 / 0.16), transparent 52%),
+    rgb(3 12 14 / 0.9);
+  background-position: center;
+  background-size: cover;
+  filter: saturate(1.08) contrast(1.04);
+}
+
+.intro-cinematic__portrait-name,
+.intro-cinematic__shot-label {
+  color: #9effd8;
+  font-family: var(--sigil-font-display);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-shadow: 0 0 12px rgb(91 255 207 / 0.34);
+}
+
+.intro-cinematic__portrait-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.intro-cinematic__shot-label {
+  position: absolute;
+  left: max(22px, env(safe-area-inset-left));
+  top: calc(max(72px, 18vh) + 12px);
+  z-index: 2;
+  padding: 8px 10px;
+  border-left: 3px solid #ffbf49;
+  background: rgb(0 0 0 / 0.45);
+  opacity: 0;
+  transform: translateX(-8px);
+  transition:
+    opacity 240ms ease,
+    transform 240ms ease;
+}
+
+.game-shell[data-game-phase="intro-cinematic"] .intro-cinematic__shot-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.intro-cinematic__skip {
+  min-width: 108px;
+  height: 44px;
+  border: 2px solid rgb(126 255 213 / 0.68);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgb(18 51 55 / 0.94), rgb(7 14 16 / 0.96)),
+    rgb(7 14 16 / 0.94);
+  color: #dcfff2;
+  font: inherit;
+  font-family: var(--sigil-font-title);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(6px);
+  touch-action: none;
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease;
+  appearance: none;
+}
+
+.intro-cinematic--skip-visible .intro-cinematic__skip {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 .death-cinematic__actions {
@@ -756,6 +900,7 @@ canvas {
 
 .voice-lab__title,
 .voice-lab__status,
+.voice-line__speaker,
 .voice-line__label,
 .voice-line__category,
 .voice-line__duration {

@@ -1,6 +1,6 @@
 # First Level Intro Cinematic Plan
 
-Status: planning decision, no runtime implementation yet.
+Status: MVP runtime implemented as `intro-cinematic` in `src/game/introCinematicStage.ts`; use this plan for future polish and 3D commander upgrades.
 Date: 2026-07-05
 Owner: game direction review with camera, HUD, dialogue, audio, and coordinator handoff inputs.
 

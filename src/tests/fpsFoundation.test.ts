@@ -7,7 +7,14 @@ import {
   TITLE_MUSIC_ASSET,
   WEAPON_AUDIO_ASSETS,
 } from '../game/audioManifest';
-import { CHARACTER_VOICE_LINES, CHARACTER_VOICE_NAME } from '../game/characterVoice';
+import {
+  CHARACTER_VOICE_LINES,
+  CHARACTER_VOICE_NAME,
+  COMMANDER_VOICE_NAME,
+  GAME_VOICE_LINES,
+  INTRO_COMMANDER_VOICE_LINES,
+  VOICE_LAB_TITLE,
+} from '../game/characterVoice';
 import { ENEMY_ASSET_DEFINITIONS, ENEMY_ASSET_SOURCE } from '../game/enemies/enemyManifest';
 import { EnemySystem } from '../game/enemies/enemySystem';
 import { BOSS_LEVEL_CONFIG, LEVEL_CONFIGS } from '../game/levelConfigs';
@@ -546,7 +553,9 @@ describe('FPS foundation config', () => {
   it('registers generated ElevenLabs audio for the foundation level', () => {
     const audioIds = GAME_AUDIO_ASSETS.map((asset) => asset.id).sort();
     const totalAudioBytes = GAME_AUDIO_ASSETS.reduce((total, asset) => total + asset.bytes, 0);
-    const voiceAudioBytes = CHARACTER_VOICE_LINES.reduce((total, asset) => total + asset.bytes, 0);
+    const glyphVoiceAudioBytes = CHARACTER_VOICE_LINES.reduce((total, asset) => total + asset.bytes, 0);
+    const commanderVoiceAudioBytes = INTRO_COMMANDER_VOICE_LINES.reduce((total, asset) => total + asset.bytes, 0);
+    const voiceAudioBytes = GAME_VOICE_LINES.reduce((total, asset) => total + asset.bytes, 0);
 
     expect(audioIds).toEqual([
       'audio.music.foundation.elevenlabs',
@@ -573,6 +582,8 @@ describe('FPS foundation config', () => {
     expect(totalAudioBytes).toBe(2_299_502);
     expect(totalAudioBytes).toBeLessThan(5_000_000);
     expect(CHARACTER_VOICE_NAME).toBe('Glyph');
+    expect(COMMANDER_VOICE_NAME).toBe('Commander Kade');
+    expect(VOICE_LAB_TITLE).toBe('Mission Voices');
     expect(CHARACTER_VOICE_LINES).toHaveLength(7);
     expect(CHARACTER_VOICE_LINES.map((line) => line.id)).toEqual([
       'audio.voice.glyph.catchphrase.service.elevenlabs',
@@ -587,7 +598,23 @@ describe('FPS foundation config', () => {
       true,
     );
     expect(CHARACTER_VOICE_LINES.every((line) => line.text.startsWith('['))).toBe(true);
-    expect(voiceAudioBytes).toBe(246_482);
+    expect(glyphVoiceAudioBytes).toBe(246_482);
+    expect(INTRO_COMMANDER_VOICE_LINES).toHaveLength(5);
+    expect(INTRO_COMMANDER_VOICE_LINES.map((line) => line.id)).toEqual([
+      'audio.voice.commander-kade.intro.deck-breach.elevenlabs',
+      'audio.voice.commander-kade.intro.hostiles.elevenlabs',
+      'audio.voice.commander-kade.intro.weapons.elevenlabs',
+      'audio.voice.commander-kade.intro.survival.elevenlabs',
+      'audio.voice.commander-kade.intro.exit-rift.elevenlabs',
+    ]);
+    expect(INTRO_COMMANDER_VOICE_LINES.every((line) =>
+      line.path.startsWith('assets/audio/elevenlabs-foundation/commander-kade-intro-'),
+    )).toBe(true);
+    expect(INTRO_COMMANDER_VOICE_LINES.every((line) => line.characterName === COMMANDER_VOICE_NAME)).toBe(true);
+    expect(INTRO_COMMANDER_VOICE_LINES.every((line) => line.text.startsWith('['))).toBe(true);
+    expect(commanderVoiceAudioBytes).toBe(502_604);
+    expect(GAME_VOICE_LINES).toHaveLength(12);
+    expect(voiceAudioBytes).toBe(749_086);
   });
 
   it('derives shot effects from each weapon view pose', () => {
@@ -786,6 +813,12 @@ describe('FPS foundation config', () => {
     );
     expect(publicAssetUrl('assets/audio/elevenlabs-foundation/glyph-at-your-service.mp3')).toMatch(
       /assets\/audio\/elevenlabs-foundation\/glyph-at-your-service\.mp3\?assetBuild=.+/,
+    );
+    expect(publicAssetUrl('assets/audio/elevenlabs-foundation/commander-kade-intro-deck-breach.mp3')).toMatch(
+      /assets\/audio\/elevenlabs-foundation\/commander-kade-intro-deck-breach\.mp3\?assetBuild=.+/,
+    );
+    expect(publicAssetUrl('assets/characters/commander-kade/commander-kade-hologram.webp')).toMatch(
+      /assets\/characters\/commander-kade\/commander-kade-hologram\.webp\?assetBuild=.+/,
     );
     expect(withAssetVersion('Textures/colormap.png?assetBuild=already')).toBe(
       'Textures/colormap.png?assetBuild=already',

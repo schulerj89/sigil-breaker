@@ -9,10 +9,15 @@ import { FpsControls } from './fpsControls';
 import { Health } from './health';
 import {
   CHARACTER_VOICE_LINES,
-  CHARACTER_VOICE_NAME,
+  VOICE_LAB_TITLE,
   type CharacterVoiceLine,
   createCharacterVoiceLab,
 } from './characterVoice';
+import {
+  INTRO_COMMANDER_PORTRAIT_ASSET_ID,
+  IntroCinematicStage,
+  type IntroCinematicStageSnapshot,
+} from './introCinematicStage';
 import { getSpawnPosition, LEVEL_HEIGHT_TILES, LEVEL_WIDTH_TILES } from './levelMap';
 import { createMobileZoomGuard } from './mobileZoomGuard';
 import { createPlayerCharacterPoseHarness } from './playerCharacterPoseHarness';
@@ -32,8 +37,8 @@ const DEATH_ACTIONS_REVEAL_SECONDS = 3.2;
 const PLAYER_MAX_HEALTH = 25;
 const HUD_UPDATE_INTERVAL_MS = 250;
 const HUD_RELOAD_UPDATE_INTERVAL_MS = 50;
-const EXPECTED_GAMEPLAY_ASSET_COUNT = 23;
-const EXPECTED_BOOT_ASSET_COUNT = EXPECTED_GAMEPLAY_ASSET_COUNT + 1;
+const EXPECTED_GAMEPLAY_ASSET_COUNT = 28;
+const EXPECTED_BOOT_ASSET_COUNT = EXPECTED_GAMEPLAY_ASSET_COUNT + 2;
 const DEATH_VOICE_LINES: readonly CharacterVoiceLine[] = CHARACTER_VOICE_LINES.filter(
   (line) => line.category === 'fail',
 );
@@ -101,8 +106,10 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     stopVoice: () => weaponSystem.stopVoice(),
   });
   const titleHeroStage = new TitleHeroStage(TITLE_BACKGROUND_PATH);
+  const introCinematicStage = new IntroCinematicStage(root, camera);
   const deathCinematicStage = new DeathCinematicStage(scene, camera);
   void titleHeroStage.load();
+  void introCinematicStage.load();
   void deathCinematicStage.load();
   weaponSystemRef.current = weaponSystem;
   levelRuntime.update(controls.getSnapshot().player.position);
@@ -137,11 +144,13 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
         weaponSystem,
         enemySystem,
         titleHeroStage.getSnapshot(),
+        introCinematicStage.getSnapshot(),
         deathCinematicStage.getSnapshot(),
         titleBackgroundLoaded,
         titleBackgroundError,
       ),
       titleHero: titleHeroStage.getSnapshot(),
+      introCinematic: introCinematicStage.getSnapshot(),
       deathCinematic: deathCinematicStage.getSnapshot(),
     }),
     (pose) => controls.setPose(pose),
@@ -167,12 +176,14 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   const titleStartButton = root.querySelector<HTMLButtonElement>('[data-title-start]');
   const titleCharacterDebugButton = root.querySelector<HTMLButtonElement>('[data-title-character-debug]');
   const titleVoiceLabButton = root.querySelector<HTMLButtonElement>('[data-title-voice-lab]');
+  const introSkipButton = root.querySelector<HTMLButtonElement>('[data-intro-skip]');
   const characterDebugBackButton = root.querySelector<HTMLButtonElement>('[data-character-debug-back]');
   const voiceLabBackButton = root.querySelector<HTMLButtonElement>('[data-voice-lab-back]');
   const deathTryAgainButton = root.querySelector<HTMLButtonElement>('[data-death-try-again]');
   const deathReturnTitleButton = root.querySelector<HTMLButtonElement>('[data-death-return-title]');
   const loadingScreen = root.querySelector<HTMLElement>('[data-loading-screen]');
   const titleScreen = root.querySelector<HTMLElement>('[data-title-screen]');
+  const introCinematicScreen = root.querySelector<HTMLElement>('[data-intro-cinematic]');
   const characterDebugScreen = root.querySelector<HTMLElement>('[data-character-debug]');
   const voiceLabScreen = root.querySelector<HTMLElement>('[data-voice-lab]');
   const deathCinematicScreen = root.querySelector<HTMLElement>('[data-death-cinematic]');
@@ -193,6 +204,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     }
     loadingScreen?.setAttribute('aria-hidden', String(gamePhase !== 'loading'));
     titleScreen?.setAttribute('aria-hidden', String(gamePhase !== 'title'));
+    introCinematicScreen?.setAttribute('aria-hidden', String(gamePhase !== 'intro-cinematic'));
     characterDebugScreen?.setAttribute('aria-hidden', String(gamePhase !== 'character-debug'));
     voiceLabScreen?.setAttribute('aria-hidden', String(gamePhase !== 'voice-lab'));
     deathCinematicScreen?.setAttribute('aria-hidden', String(gamePhase !== 'death-cinematic'));
@@ -201,7 +213,28 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     weaponSystem.setViewVisible(gamePhase === 'gameplay');
     weaponSystem.setMusicPhase(gamePhase === 'gameplay' || gamePhase === 'death-cinematic' ? 'gameplay' : 'title');
     titleHeroStage.setVisible(gamePhase === 'title' || gamePhase === 'voice-lab');
+    introCinematicStage.setVisible(gamePhase === 'intro-cinematic');
     deathCinematicStage.setVisible(gamePhase === 'death-cinematic');
+  };
+  const finishIntroCinematic = (): void => {
+    if (gamePhase !== 'intro-cinematic') {
+      return;
+    }
+
+    weaponSystem.stopVoice();
+    introCinematicStage.close();
+    resetCombatState();
+    gamePhase = 'gameplay';
+    applyGamePhase();
+  };
+  const openIntroCinematic = (): void => {
+    resetCombatState();
+    introCinematicStage.open({
+      onCue: (line) => weaponSystem.playVoice(line),
+      onComplete: finishIntroCinematic,
+    });
+    gamePhase = 'intro-cinematic';
+    applyGamePhase();
   };
   const startGameplay = (): void => {
     if (gamePhase !== 'title' || titleStartPending) {
@@ -224,9 +257,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       if (gamePhase !== 'title') {
         return;
       }
-      resetCombatState();
-      gamePhase = 'gameplay';
-      applyGamePhase();
+      openIntroCinematic();
     }, TITLE_START_TRANSITION_MS);
   };
   const resetCombatState = (): void => {
@@ -364,6 +395,14 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     event.preventDefault();
     openVoiceLab();
   };
+  const onIntroSkipPointerDown = (event: PointerEvent): void => {
+    event.preventDefault();
+    finishIntroCinematic();
+  };
+  const onIntroSkipClick = (event: MouseEvent): void => {
+    event.preventDefault();
+    finishIntroCinematic();
+  };
   const onCharacterDebugBackPointerDown = (event: PointerEvent): void => {
     event.preventDefault();
     closeCharacterDebug();
@@ -424,6 +463,8 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   titleCharacterDebugButton?.addEventListener('click', onTitleCharacterDebugClick);
   titleVoiceLabButton?.addEventListener('pointerdown', onTitleVoiceLabPointerDown);
   titleVoiceLabButton?.addEventListener('click', onTitleVoiceLabClick);
+  introSkipButton?.addEventListener('pointerdown', onIntroSkipPointerDown);
+  introSkipButton?.addEventListener('click', onIntroSkipClick);
   characterDebugBackButton?.addEventListener('pointerdown', onCharacterDebugBackPointerDown);
   voiceLabBackButton?.addEventListener('pointerdown', onVoiceLabBackPointerDown);
   deathTryAgainButton?.addEventListener('pointerdown', onDeathTryAgainPointerDown);
@@ -445,6 +486,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     camera.updateProjectionMatrix();
     playerPoseHarness.resize(width, height);
     titleHeroStage.resize(width, height);
+    introCinematicStage.resize(width, height);
     deathCinematicStage.resize(width, height);
   };
 
@@ -466,6 +508,10 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     } else if (gamePhase === 'title' || gamePhase === 'voice-lab') {
       titleHeroStage.update(deltaSeconds, now / 1000);
       titleHeroStage.render(renderer);
+    } else if (gamePhase === 'intro-cinematic') {
+      introCinematicStage.update(deltaSeconds);
+      levelRuntime.update(introCinematicStage.getStreamingAnchor());
+      introCinematicStage.render(renderer, scene);
     } else if (gamePhase === 'death-cinematic') {
       deathCinematicStage.update(deltaSeconds);
       if (deathCinematicStage.getSnapshot().phaseTimeSeconds >= DEATH_ACTIONS_REVEAL_SECONDS) {
@@ -488,6 +534,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
         weaponSystem,
         enemySystem,
         titleHeroStage.getSnapshot(),
+        introCinematicStage.getSnapshot(),
         deathCinematicStage.getSnapshot(),
         titleBackgroundLoaded,
         titleBackgroundError,
@@ -521,6 +568,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       levelRuntime.dispose();
       playerPoseHarness.dispose();
       titleHeroStage.dispose();
+      introCinematicStage.dispose();
       deathCinematicStage.dispose();
       titleBackgroundImage.onload = null;
       titleBackgroundImage.onerror = null;
@@ -533,6 +581,8 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       titleCharacterDebugButton?.removeEventListener('click', onTitleCharacterDebugClick);
       titleVoiceLabButton?.removeEventListener('pointerdown', onTitleVoiceLabPointerDown);
       titleVoiceLabButton?.removeEventListener('click', onTitleVoiceLabClick);
+      introSkipButton?.removeEventListener('pointerdown', onIntroSkipPointerDown);
+      introSkipButton?.removeEventListener('click', onIntroSkipClick);
       characterDebugBackButton?.removeEventListener('pointerdown', onCharacterDebugBackPointerDown);
       voiceLabBackButton?.removeEventListener('pointerdown', onVoiceLabBackPointerDown);
       deathTryAgainButton?.removeEventListener('pointerdown', onDeathTryAgainPointerDown);
@@ -663,6 +713,26 @@ function createShellMarkup(): string {
           >VOICE LAB</button>
         </div>
       </div>
+      <div class="intro-cinematic" data-intro-cinematic aria-hidden="true">
+        <div class="intro-cinematic__bar intro-cinematic__bar--top" aria-hidden="true"></div>
+        <aside class="intro-cinematic__portrait" aria-label="Commander Kade comms portrait">
+          <div class="intro-cinematic__portrait-image" data-intro-portrait-image aria-hidden="true"></div>
+          <div class="intro-cinematic__portrait-name">COMMANDER KADE</div>
+        </aside>
+        <div class="intro-cinematic__shot-label" data-intro-shot-label>MISSION BRIEF</div>
+        <div class="intro-cinematic__bar intro-cinematic__bar--bottom">
+          <div class="intro-cinematic__dialogue">
+            <div class="intro-cinematic__speaker" data-intro-speaker>Commander Kade</div>
+            <div class="intro-cinematic__caption" data-intro-caption>Rift link opening...</div>
+          </div>
+          <button
+            class="intro-cinematic__skip"
+            type="button"
+            data-ui-control
+            data-intro-skip
+          >SKIP</button>
+        </div>
+      </div>
       <div class="death-cinematic" data-death-cinematic aria-hidden="true">
         <div class="death-cinematic__bar death-cinematic__bar--top" aria-hidden="true"></div>
         <div class="death-cinematic__bar death-cinematic__bar--bottom" aria-hidden="true">
@@ -691,7 +761,7 @@ function createShellMarkup(): string {
             data-ui-control
             data-voice-lab-back
           >BACK</button>
-          <div class="voice-lab__title">${CHARACTER_VOICE_NAME} VOICE</div>
+          <div class="voice-lab__title">${VOICE_LAB_TITLE}</div>
           <button
             class="character-debug__button"
             type="button"
@@ -699,8 +769,8 @@ function createShellMarkup(): string {
             data-voice-lab-stop
           >STOP</button>
         </div>
-        <section class="voice-lab__panel" aria-label="${CHARACTER_VOICE_NAME} voice lines">
-          <div class="voice-lab__status" data-voice-lab-status>${CHARACTER_VOICE_NAME.toUpperCase()} VOICE READY</div>
+        <section class="voice-lab__panel" aria-label="${VOICE_LAB_TITLE}">
+          <div class="voice-lab__status" data-voice-lab-status>VOICE LAB READY</div>
           <div class="voice-lab__list" data-voice-line-list></div>
         </section>
       </div>
@@ -814,6 +884,7 @@ function readLoadingSnapshot(
   weaponSystem: WeaponSystem,
   enemySystem: EnemySystem,
   titleHeroSnapshot: TitleHeroStageSnapshot,
+  introCinematicSnapshot: IntroCinematicStageSnapshot,
   deathCinematicSnapshot: DeathCinematicStageSnapshot,
   titleBackgroundLoaded: boolean,
   titleBackgroundError: string | null,
@@ -831,12 +902,16 @@ function readLoadingSnapshot(
     ...weaponSnapshot.assetLoadErrors,
     ...enemySnapshot.assetLoadErrors,
     ...titleHeroSnapshot.errors,
+    ...introCinematicSnapshot.errors,
     ...deathCinematicSnapshot.errors,
   ];
   if (titleBackgroundError) {
     assetLoadErrors.push(titleBackgroundError);
   }
-  const loadedAssets = loadedGameplayAssetIds.size + (titleBackgroundLoaded ? 1 : 0);
+  const loadedAssets =
+    loadedGameplayAssetIds.size +
+    (titleBackgroundLoaded ? 1 : 0) +
+    (introCinematicSnapshot.portraitLoaded ? 1 : 0);
   const ready =
     loadedAssets >= EXPECTED_BOOT_ASSET_COUNT &&
     assetLoadErrors.length === 0 &&
@@ -844,6 +919,7 @@ function readLoadingSnapshot(
     enemySnapshot.modelBytesLoaded > 0 &&
     titleBackgroundLoaded &&
     titleHeroSnapshot.loaded &&
+    introCinematicSnapshot.portraitLoaded &&
     deathCinematicSnapshot.loaded;
 
   return {
@@ -854,6 +930,8 @@ function readLoadingSnapshot(
     titleBackgroundAssetId: TITLE_BACKGROUND_ASSET_ID,
     titleHeroLoaded: titleHeroSnapshot.loaded,
     titleHeroAssetId: titleHeroSnapshot.assetId,
+    introPortraitLoaded: introCinematicSnapshot.portraitLoaded,
+    introPortraitAssetId: INTRO_COMMANDER_PORTRAIT_ASSET_ID,
     assetLoadErrors,
   };
 }

@@ -65,3 +65,12 @@ Status: not run for full implementation yet; updated with weapon-pose and hold-f
 - First level should become "Rift Deck 01", a guided tutorial wrapper teaching move, look, fire, ammo/reload, 25 HP fragility, contact damage, projectiles, and the exit beacon.
 - Intro target runtime is 28-38 seconds, with skip available after 2 seconds and mandatory input restoration before gameplay.
 - 3D Meshy commander is deferred until the flat portrait version proves pacing, script, and camera readability.
+
+## 2026-07-05 - First Level Intro Cinematic Implementation
+
+- `intro-cinematic` is now a formal phase between title and gameplay.
+- `src/game/introCinematicStage.ts` runs five timed camera shots over the existing level scene and exposes a debug snapshot for cue, caption, portrait, skip, and streaming-anchor state.
+- Title Play opens the intro, skip unlocks after 2 seconds, and skip/natural completion share the same handoff: stop voice, close intro, reset combat state, enter gameplay.
+- The intro uses the flat Commander Kade hologram portrait for MVP instead of blocking on a 3D commander model.
+- Level streaming follows the cinematic look target during intro shots so distant areas can appear without loading the whole level.
+- A simple glowing 3D exit rift marker is now attached to the `X` tile as the first objective visual.

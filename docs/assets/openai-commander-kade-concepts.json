@@ -1,0 +1,94 @@
+{
+  "metadataVersion": "1.0.0",
+  "sourceId": "openai.gpt-image-2.commander-kade.20260705",
+  "provider": "OpenAI",
+  "modelId": "gpt-image-2",
+  "generatedAt": "2026-07-05T23:34:05.983Z",
+  "termsUrl": "https://openai.com/policies/row-terms-of-use/",
+  "apiCopyrightFaqUrl": "https://help.openai.com/en/articles/5008634-will-openai-claim-copyright-over-what-outputs-i-generate-with-the-api",
+  "batchSettings": {
+    "operation": "images.generate",
+    "size": "1024x1024",
+    "quality": "medium",
+    "outputFormat": "png",
+    "concurrency": 3
+  },
+  "portraitSettings": {
+    "operation": "images.edit",
+    "size": "1024x1024",
+    "quality": "high",
+    "outputFormat": "webp",
+    "outputCompression": 88,
+    "inputReference": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-03-jackal-strategist.png"
+  },
+  "selection": {
+    "selectedConcept": "commander-kade-concept-03-jackal-strategist.png",
+    "selectedArtifactPath": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-03-jackal-strategist.png",
+    "selectedReason": "Concept 03 best reads as a calm senior commander: sharp teal/gold silhouette, strong portrait potential, and enough shared amber/rift-energy language to belong with Glyph without looking like the same character."
+  },
+  "contactSheet": {
+    "artifactPath": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/../commander-kade-concept-contact-sheet.png",
+    "bytes": 630301,
+    "sha256": "5b8e61cc33bfdd928e9c3c6bad92f12fa494c7243a710983fad632cd5c08d676"
+  },
+  "concepts": [
+    {
+      "id": "commander-kade-concept-01-vulpine-officer",
+      "label": "Vulpine Officer",
+      "artifactPath": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-01-vulpine-officer.png",
+      "bytes": 1469020,
+      "sha256": "92451c1b4753b37ba084fc1945b53f2bc19f852b03af5e733d72f2f4ac6b66a5",
+      "prompt": "Use case: stylized-concept\nAsset type: commander concept reference for a mobile Three.js FPS cinematic\nPrimary request: Create an original humanoid animal-like commander who visually belongs beside Glyph, the warm amber gadget-runner hero, but reads older, steadier, and command-ready.\nSubject: full-body isolated A-pose, vulpine officer silhouette, upright bipedal proportions, expressive brows, swept ears, short muzzle, gloved hands, compact tactical jacket, shoulder comms gear, light armor panels, no weapon.\nStyle/medium: polished stylized 3D game concept render, playful platformer-adventure energy, mobile-game readable silhouette.\nComposition/framing: single character only, centered, full body visible, front-facing A-pose, generous padding, neutral studio background.\nColor palette: teal command jacket, amber and cream fur, warm gold accents, dark gunmetal belt, small lime rift glow details.\nConstraints: original character, no text, no letters, no logos, no watermark, no contact sheet, no extra poses, no prop gun.",
+      "selectionRationale": "Not selected for the first cinematic because the silhouette, authority read, or visual distance from Glyph was weaker than concept 03."
+    },
+    {
+      "id": "commander-kade-concept-02-lynx-veteran",
+      "label": "Lynx Veteran",
+      "artifactPath": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-02-lynx-veteran.png",
+      "bytes": 1414171,
+      "sha256": "60274ca35a3fcdb932e6fa0050acdc9bf5af7d62dd700ac2e71bf35b6de02bab",
+      "prompt": "Use case: stylized-concept\nAsset type: commander concept reference for a mobile Three.js FPS cinematic\nPrimary request: Create an original humanoid animal-like mission commander who can brief Glyph before the first level.\nSubject: full-body isolated A-pose, lynx-like veteran commander with tufted ears, calm eyes, sturdy compact build, confident posture, utility vest, hologram wrist projector, padded boots, gloved hands, no weapon.\nStyle/medium: stylized 3D mascot-quality game render, playful but authoritative, compatible with Gadget Rift's amber, cobalt, lime, and metal theme.\nComposition/framing: single character only, centered, front-facing A-pose, full body visible, plain neutral studio background, generous model-generation padding.\nColor palette: cobalt command vest, ivory muzzle, amber fur, brushed steel armor trim, lime rift status lights.\nConstraints: original design, no text, no letters, no logos, no watermark, no extra characters, no contact sheet.",
+      "selectionRationale": "Not selected for the first cinematic because the silhouette, authority read, or visual distance from Glyph was weaker than concept 03."
+    },
+    {
+      "id": "commander-kade-concept-03-jackal-strategist",
+      "label": "Jackal Strategist",
+      "artifactPath": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-03-jackal-strategist.png",
+      "bytes": 1019434,
+      "sha256": "72066613164fcadc8623089f3b930a23310f6465b87e2f2c7825a5ff2b686084",
+      "prompt": "Use case: stylized-concept\nAsset type: commander concept reference for a mobile Three.js FPS cinematic\nPrimary request: Design an original humanoid animal-like strategist commander for a playful sci-fi rift shooter, visually related to Glyph but more composed and senior.\nSubject: full-body isolated A-pose, jackal/fennec-inspired commander, tall ears, angular brow, short cloak panel, chest communicator, belt pouches, mechanical forearm console, clear gloved hands, no weapon.\nStyle/medium: high-quality stylized 3D render, readable on phone screens, charismatic cutscene NPC.\nComposition/framing: one character, front-facing A-pose, full body visible, centered, neutral light gray studio background, no floor shadow emphasis.\nColor palette: deep teal, sunlit amber fur, cream face, matte graphite armor, neon green hologram accents.\nConstraints: no text, no letters, no logos, no watermark, no contact sheet, no weapon, original only.",
+      "selectionRationale": "Selected: strongest commander silhouette, best teal/gold command read, and most distinct from Glyph while keeping the same amber/rift-energy family."
+    },
+    {
+      "id": "commander-kade-concept-04-otter-engineer",
+      "label": "Otter Engineer",
+      "artifactPath": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-04-otter-engineer.png",
+      "bytes": 1325478,
+      "sha256": "316c96a94fb36ca9ed97709667de899a2ac8f859e1f9264dda095a3a8a72a254",
+      "prompt": "Use case: stylized-concept\nAsset type: commander concept reference for a mobile Three.js FPS cinematic\nPrimary request: Create an original humanoid animal-like commander who feels like a cheerful tech veteran guiding Glyph through the first rift mission.\nSubject: full-body isolated A-pose, otter/weasel-inspired engineer commander, rounded friendly muzzle, sharp confident eyes, short command coat, headset collar, tool belt, magnetic boots, gloved hands, no weapon.\nStyle/medium: polished stylized 3D game character render, playful, approachable, command-capable, not realistic fur.\nComposition/framing: one character only, full body front-facing A-pose, centered with clear silhouette, neutral studio background.\nColor palette: warm rust fur, teal coat, cream face, dark metal tools, gold rank tabs, lime rift energy accents.\nConstraints: original character, no text, no logos, no watermark, no extra poses, no prop gun, no contact sheet.",
+      "selectionRationale": "Not selected for the first cinematic because the silhouette, authority read, or visual distance from Glyph was weaker than concept 03."
+    },
+    {
+      "id": "commander-kade-concept-05-coyote-marshal",
+      "label": "Coyote Marshal",
+      "artifactPath": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-05-coyote-marshal.png",
+      "bytes": 1340474,
+      "sha256": "dbd4d288c637e21da3d49bca3353b4e6b05781e3ed607fb306b49e84bb5dda5b",
+      "prompt": "Use case: stylized-concept\nAsset type: commander concept reference for a mobile Three.js FPS cinematic\nPrimary request: Create an original humanoid animal-like rift marshal commander for Gadget Rift, in the same playful family as Glyph but older and mission-focused.\nSubject: full-body isolated A-pose, coyote-like commander, swept ears, expressive skeptical brow, small cape-like shoulder mantle, comm badge, reinforced gloves, compact boots, utility belt, no weapon.\nStyle/medium: stylized 3D mascot render, mobile-game readable, warm adventure tone with light sci-fi military styling.\nComposition/framing: single centered character, front-facing A-pose, full body visible, clean neutral background, no environmental scene.\nColor palette: amber tan fur, blue-green mantle, cream muzzle, gold command marks, graphite metal, lime hologram highlights.\nConstraints: original only, no text, no letters, no logos, no watermark, no contact sheet, no extra characters.",
+      "selectionRationale": "Not selected for the first cinematic because the silhouette, authority read, or visual distance from Glyph was weaker than concept 03."
+    }
+  ],
+  "finalPortrait": {
+    "sourceArtifactPath": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-final/commander-kade-hologram-portrait.webp",
+    "runtimePath": "public/assets/characters/commander-kade/commander-kade-hologram.webp",
+    "sourceBytes": 128112,
+    "sourceSha256": "8245d502b821f2c59bbd327ae92c34c4de74884a757747360355936663f199ba",
+    "runtimeBytes": 128112,
+    "runtimeSha256": "8245d502b821f2c59bbd327ae92c34c4de74884a757747360355936663f199ba",
+    "prompt": "Use case: precise-object-edit\nAsset type: runtime commander portrait for a skippable first-level cinematic briefing in a mobile landscape Three.js FPS\nInput image: the selected full-body A-pose commander concept is the identity reference; preserve the character's face, ears, muzzle, teal/gold command uniform, calm stern expression, and lime rift tech details.\nPrimary request: Create a close-up bust portrait of Commander Kade as a hologram comms feed for an in-game cinematic overlay.\nSubject: the same original humanoid animal-like commander from the reference, shoulders and upper chest visible, facing camera with a confident urgent command expression.\nScene/backdrop: dark transparent-looking teal command-screen backdrop with subtle scanline glow and soft rift-green rim light, no hard text or symbols.\nStyle/medium: polished stylized 3D game portrait matching the reference, readable on a phone screen.\nComposition/framing: centered bust portrait, head and shoulders large, no full body, no extra characters, enough padding around ears for UI cropping.\nLighting/mood: cool teal hologram glow with warm gold highlights; urgent but not scary.\nConstraints: no text, no letters, no logos, no watermark, no weapon, preserve identity from reference image."
+  },
+  "risks": [
+    "The commander is currently a flat hologram portrait; a future 3D commander model should reuse this design but needs a separate rigging/performance pass.",
+    "Concepts intentionally use a neutral A-pose source style, while the runtime portrait is a tighter comms-feed crop for mobile readability."
+  ]
+}

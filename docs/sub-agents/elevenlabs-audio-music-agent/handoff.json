@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "elevenlabs-audio-music-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T21:18:18Z",
-  "summary": "Five weapon SFX, a heavier industrial-guitar title loop, gameplay music, enemy projectile cue reuse, and seven Glyph voice lines are committed as generated MP3 assets; music, SFX, and voice share one gesture-unlocked runtime audio manager with decoded Web Audio playback and smoke counters.",
+  "updatedAt": "2026-07-05T23:40:00Z",
+  "summary": "Weapon SFX, title/gameplay music, Glyph voice, and Commander Kade intro VO are committed as generated MP3 assets and routed through the shared gesture-unlocked Web Audio manager.",
   "observations": [
     "Previous gun sounds were procedural Web Audio and not ElevenLabs assets.",
     "Generated three weapon SFX assets with the ElevenLabs text-to-sound-effects endpoint.",
@@ -31,7 +31,11 @@
     "Generated a new 90.04 second ElevenLabs music_v1 title loop at title-industrial-guitar-loop.mp3 with original industrial guitar arcade energy.",
     "The previous title loop was removed from public runtime assets so Cloudflare does not ship unused title music.",
     "Title music runtime gain was raised from 0.3 to 0.46 because the prior intro mix felt too soft.",
-    "The title hero now uses the regular idle animation clip instead of idle-alt; idle-alt remains available in character debug."
+    "The title hero now uses the regular idle animation clip instead of idle-alt; idle-alt remains available in character debug.",
+    "Generated five Commander Kade intro VO MP3s with ElevenLabs eleven_v3 and voice id gVh6lddROTbOaOz9AAnY.",
+    "Commander intro VO is preloaded with GAME_VOICE_LINES and decoded through the shared voice path.",
+    "Voice Lab now previews both Glyph and Commander Kade lines.",
+    "Voice Lab smoke uses a longer Commander Kade HOSTILES line for activeVoiceAssetId checks so the assertion does not race short Glyph clip completion."
   ],
   "decisions": [
     "Do not expose ElevenLabs API keys in browser code.",
@@ -52,7 +56,9 @@
     "Only music decode completion should attempt to start a loop; SFX and voice decode should not re-enter the music startup path.",
     "Disconnect one-shot Web Audio SFX nodes on ended so repeated held-fire playback does not retain finished nodes.",
     "Use an original heavy industrial guitar prompt for the new title loop and do not request imitation of a specific commercial soundtrack.",
-    "Keep title music at MP3 44.1 kHz 128 kbps so the replacement stays within the existing title audio size class."
+    "Keep title music at MP3 44.1 kHz 128 kbps so the replacement stays within the existing title audio size class.",
+    "Commander cinematic VO must remain committed public MP3 assets generated through the local secret broker.",
+    "Voice Lab should exercise gameplay/cinematic voice playback paths instead of page-local audio elements."
   ],
   "caughtIssues": [
     "The current browser autoplay model means music must not be expected to play before a user gesture.",
@@ -90,7 +96,13 @@
     "public/assets/audio/elevenlabs-foundation/foundation-combat-loop-long.mp3",
     "public/assets/audio/elevenlabs-foundation/title-industrial-guitar-loop.mp3",
     "artifacts/sub-agents/20260705-audio-consistency/elevenlabs-audio-music-agent/observations.md",
-    "artifacts/sub-agents/20260705-music-web-audio/elevenlabs-audio-music-agent/observations.md"
+    "artifacts/sub-agents/20260705-music-web-audio/elevenlabs-audio-music-agent/observations.md",
+    "public/assets/audio/elevenlabs-foundation/commander-kade-intro-deck-breach.mp3",
+    "public/assets/audio/elevenlabs-foundation/commander-kade-intro-hostiles.mp3",
+    "public/assets/audio/elevenlabs-foundation/commander-kade-intro-weapons.mp3",
+    "public/assets/audio/elevenlabs-foundation/commander-kade-intro-survival.mp3",
+    "public/assets/audio/elevenlabs-foundation/commander-kade-intro-exit-rift.mp3",
+    "artifacts/sub-agents/20260705-first-intro-cinematic/elevenlabs-audio-music-agent/observations.md"
   ],
   "jsonForAgents": {
     "secretEnvVars": [
@@ -176,6 +188,36 @@
         "path": "assets/audio/elevenlabs-foundation/glyph-stars-sigils-snacks.mp3",
         "kind": "voice",
         "durationSeconds": 2.48
+      },
+      {
+        "assetId": "audio.voice.commander-kade.intro.deck-breach.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/commander-kade-intro-deck-breach.mp3",
+        "kind": "voice",
+        "durationSeconds": 5.2
+      },
+      {
+        "assetId": "audio.voice.commander-kade.intro.hostiles.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/commander-kade-intro-hostiles.mp3",
+        "kind": "voice",
+        "durationSeconds": 7.84
+      },
+      {
+        "assetId": "audio.voice.commander-kade.intro.weapons.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/commander-kade-intro-weapons.mp3",
+        "kind": "voice",
+        "durationSeconds": 5.28
+      },
+      {
+        "assetId": "audio.voice.commander-kade.intro.survival.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/commander-kade-intro-survival.mp3",
+        "kind": "voice",
+        "durationSeconds": 7.12
+      },
+      {
+        "assetId": "audio.voice.commander-kade.intro.exit-rift.elevenlabs",
+        "path": "assets/audio/elevenlabs-foundation/commander-kade-intro-exit-rift.mp3",
+        "kind": "voice",
+        "durationSeconds": 5.6
       }
     ],
     "requiredAudioMetadata": [
@@ -226,7 +268,7 @@
       "webAudioPlayRequestsIncreaseOnHoldFire": true,
       "enemyProjectilePlayRequestsIncreaseWhenProjectileFires": true,
       "voicePlayRequestsIncreaseInVoiceLab": true,
-      "activeVoiceAssetIdExpectedDuringVoiceLabPlayback": "audio.voice.glyph.catchphrase.service.elevenlabs",
+      "activeVoiceAssetIdExpectedDuringVoiceLabPlayback": "audio.voice.commander-kade.intro.hostiles.elevenlabs",
       "musicDecodedExpected": true,
       "musicPlayingExpectedAfterStart": true,
       "missedPlayRequestsExpected": 0,

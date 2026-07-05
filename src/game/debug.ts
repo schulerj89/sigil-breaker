@@ -5,6 +5,7 @@ import type { FpsControllerSnapshot } from './fpsControls';
 import type { EnemySystemSnapshot } from './enemies/enemySystem';
 import type { HealthSnapshot } from './health';
 import type { DeathCinematicStageSnapshot } from './deathCinematicStage';
+import type { IntroCinematicStageSnapshot } from './introCinematicStage';
 import {
   FOUNDATION_LEVEL_MAP,
   FOUNDATION_LEVEL_ID,
@@ -89,6 +90,7 @@ export interface DebugSnapshot {
     phase: GamePhase;
     loading: UiLoadingSnapshot;
     titleHero: TitleHeroStageSnapshot;
+    introCinematic: IntroCinematicStageSnapshot;
     deathCinematic: DeathCinematicStageSnapshot;
   };
   budgets: typeof PERFORMANCE_BUDGETS;
@@ -102,6 +104,8 @@ export interface UiLoadingSnapshot {
   titleBackgroundAssetId: string;
   titleHeroLoaded: boolean;
   titleHeroAssetId: string;
+  introPortraitLoaded: boolean;
+  introPortraitAssetId: string;
   assetLoadErrors: string[];
 }
 
@@ -110,6 +114,7 @@ export interface UiSnapshot {
   phase: GamePhase;
   loading: UiLoadingSnapshot;
   titleHero: TitleHeroStageSnapshot;
+  introCinematic: IntroCinematicStageSnapshot;
   deathCinematic: DeathCinematicStageSnapshot;
 }
 
@@ -263,6 +268,10 @@ function getCameraMode(phase: GamePhase): CameraMode {
 
   if (phase === 'death-cinematic') {
     return 'death';
+  }
+
+  if (phase === 'intro-cinematic') {
+    return 'cinematic';
   }
 
   return 'title';

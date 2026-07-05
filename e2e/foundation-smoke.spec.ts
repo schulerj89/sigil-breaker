@@ -8,6 +8,11 @@ const EXPECTED_TITLE_BACKGROUND_ASSET_ID = 'ui.title.background.gadget-rift.gene
 const EXPECTED_LOADED_ASSET_IDS = [
   'audio.music.foundation.elevenlabs',
   'audio.music.title.industrial-guitar.elevenlabs',
+  'audio.voice.commander-kade.intro.deck-breach.elevenlabs',
+  'audio.voice.commander-kade.intro.exit-rift.elevenlabs',
+  'audio.voice.commander-kade.intro.hostiles.elevenlabs',
+  'audio.voice.commander-kade.intro.survival.elevenlabs',
+  'audio.voice.commander-kade.intro.weapons.elevenlabs',
   'audio.voice.glyph.catchphrase.service.elevenlabs',
   'audio.voice.glyph.encouragement.keep-moving.elevenlabs',
   'audio.voice.glyph.encouragement.sparks-up.elevenlabs',
@@ -34,7 +39,7 @@ const EXPECTED_LOADED_ASSET_IDS = [
 interface DebugSnapshot {
   buildId: string;
   scene: {
-    phase: 'loading' | 'title' | 'gameplay' | 'death-cinematic' | 'character-debug' | 'voice-lab';
+    phase: 'loading' | 'title' | 'intro-cinematic' | 'gameplay' | 'death-cinematic' | 'character-debug' | 'voice-lab';
     playerPosition: [number, number, number];
     yawRadians: number;
     pitchRadians: number;
@@ -254,7 +259,7 @@ interface DebugSnapshot {
   };
   ui: {
     debugVisible: boolean;
-    phase: 'loading' | 'title' | 'gameplay' | 'death-cinematic' | 'character-debug' | 'voice-lab';
+    phase: 'loading' | 'title' | 'intro-cinematic' | 'gameplay' | 'death-cinematic' | 'character-debug' | 'voice-lab';
     loading: {
       ready: boolean;
       loadedAssets: number;
@@ -263,6 +268,8 @@ interface DebugSnapshot {
       titleBackgroundAssetId: string;
       titleHeroLoaded: boolean;
       titleHeroAssetId: string;
+      introPortraitLoaded: boolean;
+      introPortraitAssetId: string;
       assetLoadErrors: string[];
     };
     titleHero: {
@@ -285,6 +292,22 @@ interface DebugSnapshot {
         right: number;
         bottom: number;
       } | null;
+    };
+    introCinematic: {
+      assetId: string;
+      portraitPath: string;
+      portraitLoaded: boolean;
+      visible: boolean;
+      phaseTimeSeconds: number;
+      totalSeconds: number;
+      skipAvailable: boolean;
+      activeCueId: string | null;
+      activeVoiceAssetId: string | null;
+      currentSpeaker: string;
+      currentCaption: string;
+      currentShotLabel: string;
+      streamingAnchor: [number, number, number];
+      errors: string[];
     };
     deathCinematic: {
       assetId: string;
@@ -353,13 +376,22 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(titleSnapshot.ui.phase).toBe('title');
   expect(titleSnapshot.ui.loading).toMatchObject({
     ready: true,
-    loadedAssets: EXPECTED_LOADED_ASSET_IDS.length + 1,
-    expectedAssets: EXPECTED_LOADED_ASSET_IDS.length + 1,
+    loadedAssets: EXPECTED_LOADED_ASSET_IDS.length + 2,
+    expectedAssets: EXPECTED_LOADED_ASSET_IDS.length + 2,
     titleBackgroundLoaded: true,
     titleBackgroundAssetId: EXPECTED_TITLE_BACKGROUND_ASSET_ID,
     titleHeroLoaded: true,
     titleHeroAssetId: 'player.hero.gadget-gremlin.apose.animated',
+    introPortraitLoaded: true,
+    introPortraitAssetId: 'ui.cinematic.commander-kade.hologram',
     assetLoadErrors: [],
+  });
+  expect(titleSnapshot.ui.introCinematic).toMatchObject({
+    assetId: 'ui.cinematic.commander-kade.hologram',
+    portraitPath: 'assets/characters/commander-kade/commander-kade-hologram.webp',
+    portraitLoaded: true,
+    visible: false,
+    errors: [],
   });
   expect(titleSnapshot.ui.titleHero).toMatchObject({
     assetId: 'player.hero.gadget-gremlin.apose.animated',
@@ -529,6 +561,11 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(debugSnapshot.weapon.audio.loadedAssetIds).toEqual([
     'audio.music.foundation.elevenlabs',
     'audio.music.title.industrial-guitar.elevenlabs',
+    'audio.voice.commander-kade.intro.deck-breach.elevenlabs',
+    'audio.voice.commander-kade.intro.exit-rift.elevenlabs',
+    'audio.voice.commander-kade.intro.hostiles.elevenlabs',
+    'audio.voice.commander-kade.intro.survival.elevenlabs',
+    'audio.voice.commander-kade.intro.weapons.elevenlabs',
     'audio.voice.glyph.catchphrase.service.elevenlabs',
     'audio.voice.glyph.encouragement.keep-moving.elevenlabs',
     'audio.voice.glyph.encouragement.sparks-up.elevenlabs',
@@ -555,6 +592,11 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
       intervals: [80, 120, 160],
     })
     .toEqual([
+      'audio.voice.commander-kade.intro.deck-breach.elevenlabs',
+      'audio.voice.commander-kade.intro.exit-rift.elevenlabs',
+      'audio.voice.commander-kade.intro.hostiles.elevenlabs',
+      'audio.voice.commander-kade.intro.survival.elevenlabs',
+      'audio.voice.commander-kade.intro.weapons.elevenlabs',
       'audio.voice.glyph.catchphrase.service.elevenlabs',
       'audio.voice.glyph.encouragement.keep-moving.elevenlabs',
       'audio.voice.glyph.encouragement.sparks-up.elevenlabs',
@@ -566,7 +608,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(debugSnapshot.weapon.audio.missedPlayRequests).toBe(0);
   expect(debugSnapshot.weapon.audio.playFailures).toBe(0);
   expect(debugSnapshot.weapon.audio.assetLoadErrors).toEqual([]);
-  expect(debugSnapshot.weapon.audio.assetBytesLoaded).toBe(2_545_984);
+  expect(debugSnapshot.weapon.audio.assetBytesLoaded).toBe(3_048_588);
   expect(debugSnapshot.weapon.audio.musicMuted).toBe(false);
   expect(debugSnapshot.weapon.audio.activeMusicAssetId).toBe('audio.music.foundation.elevenlabs');
   await expect
@@ -665,6 +707,11 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   const audioFileNames = [...new Set(audioUrls.map((url) => new URL(url).pathname.split('/').pop() ?? ''))].sort();
   expect(audioFileNames).toEqual([
     'bore-scatter.mp3',
+    'commander-kade-intro-deck-breach.mp3',
+    'commander-kade-intro-exit-rift.mp3',
+    'commander-kade-intro-hostiles.mp3',
+    'commander-kade-intro-survival.mp3',
+    'commander-kade-intro-weapons.mp3',
     'foundation-combat-loop-long.mp3',
     'glyph-at-your-service.mp3',
     'glyph-keep-moving.mp3',
@@ -691,6 +738,21 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     debugSnapshot.buildId,
   );
   expect(titleBackgroundUrls).toHaveLength(1);
+  const commanderPortraitUrls = await page.evaluate((buildId) =>
+    [
+      ...new Set(
+        performance
+          .getEntriesByType('resource')
+          .map((entry) => entry.name)
+          .filter((url) =>
+            url.includes('/assets/characters/commander-kade/commander-kade-hologram.webp') &&
+            url.endsWith('.webp?assetBuild=' + buildId),
+          ),
+      ),
+    ].sort(),
+    debugSnapshot.buildId,
+  );
+  expect(commanderPortraitUrls).toHaveLength(1);
 
   for (const url of [
     ...previewUrls,
@@ -700,6 +762,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     ...environmentTextureUrls,
     ...audioUrls,
     ...titleBackgroundUrls,
+    ...commanderPortraitUrls,
   ]) {
     expect(new URL(url).searchParams.get('assetBuild')).toBe(debugSnapshot.buildId);
   }
@@ -854,7 +917,7 @@ async function waitForTitleReady(page: Page): Promise<void> {
       snapshot.ui.loading.loadedAssets === expectedAssetCount &&
       snapshot.ui.loading.assetLoadErrors.length === 0
     );
-  }, EXPECTED_LOADED_ASSET_IDS.length + 1);
+  }, EXPECTED_LOADED_ASSET_IDS.length + 2);
 }
 
 async function expectTitleLinesFit(page: Page): Promise<void> {
@@ -903,8 +966,25 @@ async function startGameFromTitle(page: Page): Promise<void> {
 
   await waitForTitleReady(page);
   await page.locator('[data-title-start]').click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('intro-cinematic');
+  await expect(page.locator('[data-intro-cinematic]')).toBeVisible();
+  await expect
+    .poll(async () => {
+      const snapshot = await readDebugSnapshot(page);
+      return snapshot.ui.introCinematic.activeVoiceAssetId;
+    })
+    .toBe('audio.voice.commander-kade.intro.deck-breach.elevenlabs');
+  await expect
+    .poll(async () => (await readDebugSnapshot(page)).ui.introCinematic.skipAvailable, {
+      timeout: 3500,
+      intervals: [80, 120, 160],
+    })
+    .toBe(true);
+  await page.locator('[data-intro-skip]').click();
   await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('gameplay');
   await expect(page.locator('[data-title-screen]')).toBeHidden();
+  await expect(page.locator('[data-intro-cinematic]')).toBeHidden();
+  expect((await readDebugSnapshot(page)).weapon.isFireHeld).toBe(false);
 }
 
 async function verifyCharacterDebugPage(page: Page): Promise<void> {
@@ -943,8 +1023,8 @@ async function verifyVoiceLabPage(page: Page, buildId: string): Promise<void> {
     })
     .toBe(true);
   await expect(page.locator('[data-voice-lab]')).toBeVisible();
-  await expect(page.locator('[data-voice-lab-status]')).toContainText('GLYPH VOICE READY');
-  await expect(page.locator('[data-voice-line-play]')).toHaveCount(7);
+  await expect(page.locator('[data-voice-lab-status]')).toContainText('VOICE LAB READY');
+  await expect(page.locator('[data-voice-line-play]')).toHaveCount(12);
 
   const voiceRows = await page.locator('[data-voice-line]').evaluateAll((elements) =>
     elements.map((element) => ({
@@ -960,29 +1040,38 @@ async function verifyVoiceLabPage(page: Page, buildId: string): Promise<void> {
     'audio.voice.glyph.encouragement.sparks-up.elevenlabs',
     'audio.voice.glyph.fail.reboot.elevenlabs',
     'audio.voice.glyph.fail.stars.elevenlabs',
+    'audio.voice.commander-kade.intro.deck-breach.elevenlabs',
+    'audio.voice.commander-kade.intro.hostiles.elevenlabs',
+    'audio.voice.commander-kade.intro.weapons.elevenlabs',
+    'audio.voice.commander-kade.intro.survival.elevenlabs',
+    'audio.voice.commander-kade.intro.exit-rift.elevenlabs',
   ]);
   expect(voiceRows.map((row) => row.text).join(' ')).toContain('Glyph at your service');
   expect(voiceRows.map((row) => row.text).join(' ')).toContain('Stars... sigils... snacks?');
+  expect(voiceRows.map((row) => row.text).join(' ')).toContain('Commander Kade');
+  expect(voiceRows.map((row) => row.text).join(' ')).toContain('Rift broke open under our launch deck');
 
   const voiceSources = await page.locator('[data-voice-line-play]').evaluateAll((buttons) =>
     buttons.map((button) => button.getAttribute('data-voice-src') ?? ''),
   );
-  expect(voiceSources).toHaveLength(7);
+  expect(voiceSources).toHaveLength(12);
   for (const source of voiceSources) {
     const url = new URL(source, page.url());
-    expect(url.pathname).toContain('/assets/audio/elevenlabs-foundation/glyph-');
+    expect(url.pathname).toContain('/assets/audio/elevenlabs-foundation/');
+    expect(url.pathname.endsWith('.mp3')).toBe(true);
     expect(url.searchParams.get('assetBuild')).toBe(buildId);
   }
 
   const beforeVoice = await readDebugSnapshot(page);
-  await page.locator('[data-voice-line-play]').first().click();
-  await expect(page.locator('[data-voice-lab-status]')).toContainText('PLAYING AT YOUR SERVICE');
+  const voicePlaybackId = 'audio.voice.commander-kade.intro.hostiles.elevenlabs';
+  await page.locator(`[data-voice-line-id="${voicePlaybackId}"]`).click();
+  await expect(page.locator('[data-voice-lab-status]')).toContainText('PLAYING HOSTILES');
   await expect
     .poll(async () => (await readDebugSnapshot(page)).weapon.audio.voicePlayRequests)
     .toBeGreaterThan(beforeVoice.weapon.audio.voicePlayRequests);
   await expect
     .poll(async () => (await readDebugSnapshot(page)).weapon.audio.activeVoiceAssetId)
-    .toBe('audio.voice.glyph.catchphrase.service.elevenlabs');
+    .toBe(voicePlaybackId);
   await page.locator('[data-voice-lab-stop]').click();
   await expect.poll(async () => (await readDebugSnapshot(page)).weapon.audio.activeVoiceAssetId).toBeNull();
 

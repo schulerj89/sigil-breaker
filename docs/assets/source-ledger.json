@@ -1,6 +1,6 @@
 {
   "ledgerVersion": "1.0.0",
-  "updatedAt": "2026-07-05T12:55:30Z",
+  "updatedAt": "2026-07-05T23:34:05.983Z",
   "sources": [
     {
       "sourceId": "kenney.blaster-kit.2-1",
@@ -223,7 +223,7 @@
       "sourceUrl": "https://elevenlabs.io/docs/api-reference/text-to-sound-effects/convert",
       "secondarySourceUrl": "https://elevenlabs.io/docs/api-reference/music/compose",
       "downloadUrl": "build-time ElevenLabs API generation through local secret broker",
-      "downloadedAt": "2026-07-05T17:35:00.000Z",
+      "downloadedAt": "2026-07-05T23:34:05.983Z",
       "license": "ElevenLabs generated output terms",
       "licenseUrl": "https://elevenlabs.io/terms-of-use",
       "metadataFile": "public/assets/audio/elevenlabs-foundation/source-metadata.json",
@@ -241,8 +241,8 @@
           "assetType": "metadata",
           "sourceFile": "generated source metadata",
           "path": "public/assets/audio/elevenlabs-foundation/source-metadata.json",
-          "bytes": 14592,
-          "sha256": "932e82e6f3e9ad7179192b0abb38209707a48ef843b31cbc4e7fa41129e2b135",
+          "bytes": 20260,
+          "sha256": "112cab7784a5f018e68636fa48fae0cf39f143e1f9afaee610aa29a64bb7cde4",
           "gameUse": "metadata",
           "loadGroup": "foundation-audio"
         }
@@ -645,6 +645,166 @@
           "loopable": false,
           "lufsTarget": -16,
           "generatedAt": "2026-07-05T17:35:00.000Z"
+        },
+        {
+          "assetId": "audio.voice.commander-kade.intro.deck-breach.elevenlabs",
+          "assetType": "audio",
+          "sourceFile": "ElevenLabs text-to-speech generated MP3",
+          "path": "public/assets/audio/elevenlabs-foundation/commander-kade-intro-deck-breach.mp3",
+          "bytes": 84471,
+          "sha256": "b44e985049929cad198e525e1eb4af4bfa934bca8f16db8f7ea3f61e95c40fde",
+          "gameUse": "audio",
+          "loadGroup": "foundation-audio",
+          "provider": "ElevenLabs",
+          "endpoint": "text-to-speech",
+          "modelId": "eleven_v3",
+          "voiceId": "gVh6lddROTbOaOz9AAnY",
+          "characterName": "Commander Kade",
+          "category": "intro-briefing",
+          "prompt": "[urgent, controlled] Kade at command. Glyph, listen close: the Rift broke open under our launch deck.",
+          "settings": {
+            "output_format": "mp3_44100_128",
+            "seed": 241001,
+            "voice_settings": {
+              "stability": 0.48,
+              "similarity_boost": 0.78,
+              "style": 0.5,
+              "use_speaker_boost": true
+            }
+          },
+          "intendedUse": "intro-cinematic-voice-deck-breach",
+          "durationSeconds": 5.2,
+          "loopable": false,
+          "lufsTarget": -16,
+          "generatedAt": "2026-07-05T23:34:05.983Z"
+        },
+        {
+          "assetId": "audio.voice.commander-kade.intro.hostiles.elevenlabs",
+          "assetType": "audio",
+          "sourceFile": "ElevenLabs text-to-speech generated MP3",
+          "path": "public/assets/audio/elevenlabs-foundation/commander-kade-intro-hostiles.mp3",
+          "bytes": 126685,
+          "sha256": "9167ad293d8ec849c54f56138756bd05b00bbdf5263c69952b98699d3285d9a5",
+          "gameUse": "audio",
+          "loadGroup": "foundation-audio",
+          "provider": "ElevenLabs",
+          "endpoint": "text-to-speech",
+          "modelId": "eleven_v3",
+          "voiceId": "gVh6lddROTbOaOz9AAnY",
+          "characterName": "Commander Kade",
+          "category": "intro-briefing",
+          "prompt": "[focused] Those little monsters feed on loose energy. Clear each room, keep moving, and do not let them box you in.",
+          "settings": {
+            "output_format": "mp3_44100_128",
+            "seed": 241002,
+            "voice_settings": {
+              "stability": 0.48,
+              "similarity_boost": 0.78,
+              "style": 0.5,
+              "use_speaker_boost": true
+            }
+          },
+          "intendedUse": "intro-cinematic-voice-hostiles",
+          "durationSeconds": 7.84,
+          "loopable": false,
+          "lufsTarget": -16,
+          "generatedAt": "2026-07-05T23:34:05.983Z"
+        },
+        {
+          "assetId": "audio.voice.commander-kade.intro.weapons.elevenlabs",
+          "assetType": "audio",
+          "sourceFile": "ElevenLabs text-to-speech generated MP3",
+          "path": "public/assets/audio/elevenlabs-foundation/commander-kade-intro-weapons.mp3",
+          "bytes": 85725,
+          "sha256": "f9b9cbc6c3ecf876dd9c227f4f4888bf9899a1e489004343af72d5f7afd8af41",
+          "gameUse": "audio",
+          "loadGroup": "foundation-audio",
+          "provider": "ElevenLabs",
+          "endpoint": "text-to-speech",
+          "modelId": "eleven_v3",
+          "voiceId": "gVh6lddROTbOaOz9AAnY",
+          "characterName": "Commander Kade",
+          "category": "intro-briefing",
+          "prompt": "[confident] Spark is fast. Bore hits harder. Swap when the hallway changes shape.",
+          "settings": {
+            "output_format": "mp3_44100_128",
+            "seed": 241003,
+            "voice_settings": {
+              "stability": 0.48,
+              "similarity_boost": 0.78,
+              "style": 0.5,
+              "use_speaker_boost": true
+            }
+          },
+          "intendedUse": "intro-cinematic-voice-weapons",
+          "durationSeconds": 5.28,
+          "loopable": false,
+          "lufsTarget": -16,
+          "generatedAt": "2026-07-05T23:34:05.983Z"
+        },
+        {
+          "assetId": "audio.voice.commander-kade.intro.survival.elevenlabs",
+          "assetType": "audio",
+          "sourceFile": "ElevenLabs text-to-speech generated MP3",
+          "path": "public/assets/audio/elevenlabs-foundation/commander-kade-intro-survival.mp3",
+          "bytes": 114982,
+          "sha256": "b6ed8a1471fb1fd95caaf5a5fa6daf5e0d5e8f89411a77c261e3fdcf3fff9ad3",
+          "gameUse": "audio",
+          "loadGroup": "foundation-audio",
+          "provider": "ElevenLabs",
+          "endpoint": "text-to-speech",
+          "modelId": "eleven_v3",
+          "voiceId": "gVh6lddROTbOaOz9AAnY",
+          "characterName": "Commander Kade",
+          "category": "intro-briefing",
+          "prompt": "[warning] Your suit is light: twenty-five hit points. Dodge, reload, then push.",
+          "settings": {
+            "output_format": "mp3_44100_128",
+            "seed": 241004,
+            "voice_settings": {
+              "stability": 0.48,
+              "similarity_boost": 0.78,
+              "style": 0.5,
+              "use_speaker_boost": true
+            }
+          },
+          "intendedUse": "intro-cinematic-voice-survival",
+          "durationSeconds": 7.12,
+          "loopable": false,
+          "lufsTarget": -16,
+          "generatedAt": "2026-07-05T23:34:05.983Z"
+        },
+        {
+          "assetId": "audio.voice.commander-kade.intro.exit-rift.elevenlabs",
+          "assetType": "audio",
+          "sourceFile": "ElevenLabs text-to-speech generated MP3",
+          "path": "public/assets/audio/elevenlabs-foundation/commander-kade-intro-exit-rift.mp3",
+          "bytes": 90741,
+          "sha256": "fc5e30effb1f4537fc33fd6543ae9a61ba769af467b669f3f772542e77a6de9f",
+          "gameUse": "audio",
+          "loadGroup": "foundation-audio",
+          "provider": "ElevenLabs",
+          "endpoint": "text-to-speech",
+          "modelId": "eleven_v3",
+          "voiceId": "gVh6lddROTbOaOz9AAnY",
+          "characterName": "Commander Kade",
+          "category": "intro-briefing",
+          "prompt": "[commanding] That exit beacon is your way out. Seal the rift and come home loud.",
+          "settings": {
+            "output_format": "mp3_44100_128",
+            "seed": 241005,
+            "voice_settings": {
+              "stability": 0.48,
+              "similarity_boost": 0.78,
+              "style": 0.5,
+              "use_speaker_boost": true
+            }
+          },
+          "intendedUse": "intro-cinematic-voice-exit-rift",
+          "durationSeconds": 5.6,
+          "loopable": false,
+          "lufsTarget": -16,
+          "generatedAt": "2026-07-05T23:34:05.983Z"
         }
       ],
       "textToSpeechSourceUrl": "https://elevenlabs.io/docs/api-reference/text-to-speech/convert"
@@ -1169,6 +1329,200 @@
             "character shadow",
             "character silhouette"
           ]
+        }
+      ]
+    },
+    {
+      "sourceId": "openai.gpt-image-2.commander-kade.20260705",
+      "name": "Commander Kade Intro Cinematic Concepts And Portrait",
+      "author": "OpenAI GPT Image 2",
+      "provider": "OpenAI",
+      "generated": true,
+      "sourceUrl": "https://openai.com/policies/row-terms-of-use/",
+      "license": "OpenAI generated output ownership per Terms of Use",
+      "licenseUrl": "https://openai.com/policies/row-terms-of-use/",
+      "metadataFile": "docs/assets/openai-commander-kade-concepts.json",
+      "commercialUseAllowed": true,
+      "redistributionAllowed": true,
+      "modificationAllowed": true,
+      "attributionRequired": false,
+      "notes": [
+        "Generated through the local secret broker with gpt-image-2 for the first-level intro cinematic commander.",
+        "Concept 03 was selected for the MVP commander identity; the runtime uses a WebP hologram portrait generated from that selected concept.",
+        "OpenAI terms apply; do not represent the concept or portrait images as human-generated."
+      ],
+      "assets": [
+        {
+          "assetId": "ui.cinematic.commander-kade.concept-01-vulpine-officer",
+          "assetType": "image",
+          "sourceFile": "GPT Image 2 commander concept Vulpine Officer",
+          "sourceArtifact": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-01-vulpine-officer.png",
+          "path": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-01-vulpine-officer.png",
+          "bytes": 1469020,
+          "sha256": "92451c1b4753b37ba084fc1945b53f2bc19f852b03af5e733d72f2f4ac6b66a5",
+          "gameUse": "ui",
+          "loadGroup": "intro-cinematic-concept",
+          "provider": "OpenAI",
+          "endpoint": "images.generate",
+          "modelId": "gpt-image-2",
+          "prompt": "Use case: stylized-concept\nAsset type: commander concept reference for a mobile Three.js FPS cinematic\nPrimary request: Create an original humanoid animal-like commander who visually belongs beside Glyph, the warm amber gadget-runner hero, but reads older, steadier, and command-ready.\nSubject: full-body isolated A-pose, vulpine officer silhouette, upright bipedal proportions, expressive brows, swept ears, short muzzle, gloved hands, compact tactical jacket, shoulder comms gear, light armor panels, no weapon.\nStyle/medium: polished stylized 3D game concept render, playful platformer-adventure energy, mobile-game readable silhouette.\nComposition/framing: single character only, centered, full body visible, front-facing A-pose, generous padding, neutral studio background.\nColor palette: teal command jacket, amber and cream fur, warm gold accents, dark gunmetal belt, small lime rift glow details.\nConstraints: original character, no text, no letters, no logos, no watermark, no contact sheet, no extra poses, no prop gun.",
+          "settings": {
+            "size": "1024x1024",
+            "quality": "medium",
+            "outputFormat": "png"
+          },
+          "intendedUse": "commander-design-concept",
+          "outputFormat": "png",
+          "generatedAt": "2026-07-05T23:34:05.983Z",
+          "selectionRationale": "Not selected for the first cinematic because the silhouette, authority read, or visual distance from Glyph was weaker than concept 03."
+        },
+        {
+          "assetId": "ui.cinematic.commander-kade.concept-02-lynx-veteran",
+          "assetType": "image",
+          "sourceFile": "GPT Image 2 commander concept Lynx Veteran",
+          "sourceArtifact": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-02-lynx-veteran.png",
+          "path": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-02-lynx-veteran.png",
+          "bytes": 1414171,
+          "sha256": "60274ca35a3fcdb932e6fa0050acdc9bf5af7d62dd700ac2e71bf35b6de02bab",
+          "gameUse": "ui",
+          "loadGroup": "intro-cinematic-concept",
+          "provider": "OpenAI",
+          "endpoint": "images.generate",
+          "modelId": "gpt-image-2",
+          "prompt": "Use case: stylized-concept\nAsset type: commander concept reference for a mobile Three.js FPS cinematic\nPrimary request: Create an original humanoid animal-like mission commander who can brief Glyph before the first level.\nSubject: full-body isolated A-pose, lynx-like veteran commander with tufted ears, calm eyes, sturdy compact build, confident posture, utility vest, hologram wrist projector, padded boots, gloved hands, no weapon.\nStyle/medium: stylized 3D mascot-quality game render, playful but authoritative, compatible with Gadget Rift's amber, cobalt, lime, and metal theme.\nComposition/framing: single character only, centered, front-facing A-pose, full body visible, plain neutral studio background, generous model-generation padding.\nColor palette: cobalt command vest, ivory muzzle, amber fur, brushed steel armor trim, lime rift status lights.\nConstraints: original design, no text, no letters, no logos, no watermark, no extra characters, no contact sheet.",
+          "settings": {
+            "size": "1024x1024",
+            "quality": "medium",
+            "outputFormat": "png"
+          },
+          "intendedUse": "commander-design-concept",
+          "outputFormat": "png",
+          "generatedAt": "2026-07-05T23:34:05.983Z",
+          "selectionRationale": "Not selected for the first cinematic because the silhouette, authority read, or visual distance from Glyph was weaker than concept 03."
+        },
+        {
+          "assetId": "ui.cinematic.commander-kade.concept-03-jackal-strategist",
+          "assetType": "image",
+          "sourceFile": "GPT Image 2 commander concept Jackal Strategist",
+          "sourceArtifact": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-03-jackal-strategist.png",
+          "path": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-03-jackal-strategist.png",
+          "bytes": 1019434,
+          "sha256": "72066613164fcadc8623089f3b930a23310f6465b87e2f2c7825a5ff2b686084",
+          "gameUse": "ui",
+          "loadGroup": "intro-cinematic-concept",
+          "provider": "OpenAI",
+          "endpoint": "images.generate",
+          "modelId": "gpt-image-2",
+          "prompt": "Use case: stylized-concept\nAsset type: commander concept reference for a mobile Three.js FPS cinematic\nPrimary request: Design an original humanoid animal-like strategist commander for a playful sci-fi rift shooter, visually related to Glyph but more composed and senior.\nSubject: full-body isolated A-pose, jackal/fennec-inspired commander, tall ears, angular brow, short cloak panel, chest communicator, belt pouches, mechanical forearm console, clear gloved hands, no weapon.\nStyle/medium: high-quality stylized 3D render, readable on phone screens, charismatic cutscene NPC.\nComposition/framing: one character, front-facing A-pose, full body visible, centered, neutral light gray studio background, no floor shadow emphasis.\nColor palette: deep teal, sunlit amber fur, cream face, matte graphite armor, neon green hologram accents.\nConstraints: no text, no letters, no logos, no watermark, no contact sheet, no weapon, original only.",
+          "settings": {
+            "size": "1024x1024",
+            "quality": "medium",
+            "outputFormat": "png"
+          },
+          "intendedUse": "commander-design-concept",
+          "outputFormat": "png",
+          "generatedAt": "2026-07-05T23:34:05.983Z",
+          "selectionRationale": "Selected: strongest commander silhouette, best teal/gold command read, and most distinct from Glyph while keeping the same amber/rift-energy family."
+        },
+        {
+          "assetId": "ui.cinematic.commander-kade.concept-04-otter-engineer",
+          "assetType": "image",
+          "sourceFile": "GPT Image 2 commander concept Otter Engineer",
+          "sourceArtifact": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-04-otter-engineer.png",
+          "path": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-04-otter-engineer.png",
+          "bytes": 1325478,
+          "sha256": "316c96a94fb36ca9ed97709667de899a2ac8f859e1f9264dda095a3a8a72a254",
+          "gameUse": "ui",
+          "loadGroup": "intro-cinematic-concept",
+          "provider": "OpenAI",
+          "endpoint": "images.generate",
+          "modelId": "gpt-image-2",
+          "prompt": "Use case: stylized-concept\nAsset type: commander concept reference for a mobile Three.js FPS cinematic\nPrimary request: Create an original humanoid animal-like commander who feels like a cheerful tech veteran guiding Glyph through the first rift mission.\nSubject: full-body isolated A-pose, otter/weasel-inspired engineer commander, rounded friendly muzzle, sharp confident eyes, short command coat, headset collar, tool belt, magnetic boots, gloved hands, no weapon.\nStyle/medium: polished stylized 3D game character render, playful, approachable, command-capable, not realistic fur.\nComposition/framing: one character only, full body front-facing A-pose, centered with clear silhouette, neutral studio background.\nColor palette: warm rust fur, teal coat, cream face, dark metal tools, gold rank tabs, lime rift energy accents.\nConstraints: original character, no text, no logos, no watermark, no extra poses, no prop gun, no contact sheet.",
+          "settings": {
+            "size": "1024x1024",
+            "quality": "medium",
+            "outputFormat": "png"
+          },
+          "intendedUse": "commander-design-concept",
+          "outputFormat": "png",
+          "generatedAt": "2026-07-05T23:34:05.983Z",
+          "selectionRationale": "Not selected for the first cinematic because the silhouette, authority read, or visual distance from Glyph was weaker than concept 03."
+        },
+        {
+          "assetId": "ui.cinematic.commander-kade.concept-05-coyote-marshal",
+          "assetType": "image",
+          "sourceFile": "GPT Image 2 commander concept Coyote Marshal",
+          "sourceArtifact": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-05-coyote-marshal.png",
+          "path": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-05-coyote-marshal.png",
+          "bytes": 1340474,
+          "sha256": "dbd4d288c637e21da3d49bca3353b4e6b05781e3ed607fb306b49e84bb5dda5b",
+          "gameUse": "ui",
+          "loadGroup": "intro-cinematic-concept",
+          "provider": "OpenAI",
+          "endpoint": "images.generate",
+          "modelId": "gpt-image-2",
+          "prompt": "Use case: stylized-concept\nAsset type: commander concept reference for a mobile Three.js FPS cinematic\nPrimary request: Create an original humanoid animal-like rift marshal commander for Gadget Rift, in the same playful family as Glyph but older and mission-focused.\nSubject: full-body isolated A-pose, coyote-like commander, swept ears, expressive skeptical brow, small cape-like shoulder mantle, comm badge, reinforced gloves, compact boots, utility belt, no weapon.\nStyle/medium: stylized 3D mascot render, mobile-game readable, warm adventure tone with light sci-fi military styling.\nComposition/framing: single centered character, front-facing A-pose, full body visible, clean neutral background, no environmental scene.\nColor palette: amber tan fur, blue-green mantle, cream muzzle, gold command marks, graphite metal, lime hologram highlights.\nConstraints: original only, no text, no letters, no logos, no watermark, no contact sheet, no extra characters.",
+          "settings": {
+            "size": "1024x1024",
+            "quality": "medium",
+            "outputFormat": "png"
+          },
+          "intendedUse": "commander-design-concept",
+          "outputFormat": "png",
+          "generatedAt": "2026-07-05T23:34:05.983Z",
+          "selectionRationale": "Not selected for the first cinematic because the silhouette, authority read, or visual distance from Glyph was weaker than concept 03."
+        },
+        {
+          "assetId": "ui.cinematic.commander-kade.hologram.source-portrait",
+          "assetType": "image",
+          "sourceFile": "GPT Image 2 edited commander hologram portrait source",
+          "sourceArtifact": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-03-jackal-strategist.png",
+          "path": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-final/commander-kade-hologram-portrait.webp",
+          "bytes": 128112,
+          "sha256": "8245d502b821f2c59bbd327ae92c34c4de74884a757747360355936663f199ba",
+          "gameUse": "ui",
+          "loadGroup": "intro-cinematic-concept",
+          "provider": "OpenAI",
+          "endpoint": "images.edit",
+          "modelId": "gpt-image-2",
+          "prompt": "Use case: precise-object-edit\nAsset type: runtime commander portrait for a skippable first-level cinematic briefing in a mobile landscape Three.js FPS\nInput image: the selected full-body A-pose commander concept is the identity reference; preserve the character's face, ears, muzzle, teal/gold command uniform, calm stern expression, and lime rift tech details.\nPrimary request: Create a close-up bust portrait of Commander Kade as a hologram comms feed for an in-game cinematic overlay.\nSubject: the same original humanoid animal-like commander from the reference, shoulders and upper chest visible, facing camera with a confident urgent command expression.\nScene/backdrop: dark transparent-looking teal command-screen backdrop with subtle scanline glow and soft rift-green rim light, no hard text or symbols.\nStyle/medium: polished stylized 3D game portrait matching the reference, readable on a phone screen.\nComposition/framing: centered bust portrait, head and shoulders large, no full body, no extra characters, enough padding around ears for UI cropping.\nLighting/mood: cool teal hologram glow with warm gold highlights; urgent but not scary.\nConstraints: no text, no letters, no logos, no watermark, no weapon, preserve identity from reference image.",
+          "settings": {
+            "size": "1024x1024",
+            "quality": "high",
+            "outputFormat": "webp",
+            "outputCompression": 88,
+            "inputReference": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-concepts/commander-kade-concept-03-jackal-strategist.png"
+          },
+          "intendedUse": "commander-hologram-source-portrait",
+          "outputFormat": "webp",
+          "generatedAt": "2026-07-05T23:34:05.983Z",
+          "selectedConceptAssetId": "ui.cinematic.commander-kade.concept-03-jackal-strategist"
+        },
+        {
+          "assetId": "ui.cinematic.commander-kade.hologram",
+          "assetType": "image",
+          "sourceFile": "GPT Image 2 edited commander hologram portrait runtime copy",
+          "sourceArtifact": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-final/commander-kade-hologram-portrait.webp",
+          "path": "public/assets/characters/commander-kade/commander-kade-hologram.webp",
+          "bytes": 128112,
+          "sha256": "8245d502b821f2c59bbd327ae92c34c4de74884a757747360355936663f199ba",
+          "gameUse": "ui",
+          "loadGroup": "intro-cinematic",
+          "provider": "OpenAI",
+          "endpoint": "images.edit",
+          "modelId": "gpt-image-2",
+          "prompt": "Use case: precise-object-edit\nAsset type: runtime commander portrait for a skippable first-level cinematic briefing in a mobile landscape Three.js FPS\nInput image: the selected full-body A-pose commander concept is the identity reference; preserve the character's face, ears, muzzle, teal/gold command uniform, calm stern expression, and lime rift tech details.\nPrimary request: Create a close-up bust portrait of Commander Kade as a hologram comms feed for an in-game cinematic overlay.\nSubject: the same original humanoid animal-like commander from the reference, shoulders and upper chest visible, facing camera with a confident urgent command expression.\nScene/backdrop: dark transparent-looking teal command-screen backdrop with subtle scanline glow and soft rift-green rim light, no hard text or symbols.\nStyle/medium: polished stylized 3D game portrait matching the reference, readable on a phone screen.\nComposition/framing: centered bust portrait, head and shoulders large, no full body, no extra characters, enough padding around ears for UI cropping.\nLighting/mood: cool teal hologram glow with warm gold highlights; urgent but not scary.\nConstraints: no text, no letters, no logos, no watermark, no weapon, preserve identity from reference image.",
+          "settings": {
+            "size": "1024x1024",
+            "quality": "high",
+            "outputFormat": "webp",
+            "outputCompression": 88,
+            "sourcePath": "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/generated-commander-final/commander-kade-hologram-portrait.webp"
+          },
+          "intendedUse": "runtime-commander-hologram-portrait",
+          "outputFormat": "webp",
+          "generatedAt": "2026-07-05T23:34:05.983Z",
+          "selectedConceptAssetId": "ui.cinematic.commander-kade.concept-03-jackal-strategist"
         }
       ]
     }

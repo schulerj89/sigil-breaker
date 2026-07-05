@@ -8,7 +8,7 @@ import {
   type GameAudioAsset,
 } from '../audioManifest';
 import {
-  CHARACTER_VOICE_LINES,
+  GAME_VOICE_LINES,
   type CharacterVoiceLine,
   type CharacterVoicePlaybackOptions,
 } from '../characterVoice';
@@ -232,7 +232,7 @@ export class WeaponAudio {
       playFailures: this.playFailures,
       loadedAssetIds: [...this.loadedAssetIds].sort(),
       assetLoadErrors: [...this.assetLoadErrors],
-      assetBytesLoaded: [...GAME_AUDIO_ASSETS, ...CHARACTER_VOICE_LINES].reduce(
+      assetBytesLoaded: [...GAME_AUDIO_ASSETS, ...GAME_VOICE_LINES].reduce(
         (total, asset) => (this.loadedAssetIds.has(asset.id) ? total + asset.bytes : total),
         0,
       ),
@@ -278,7 +278,7 @@ export class WeaponAudio {
       definition,
       { startMusicWhenDecoded: true },
     ));
-    const voiceChecks = CHARACTER_VOICE_LINES.map((definition) => this.verifyWebAudioAsset(
+    const voiceChecks = GAME_VOICE_LINES.map((definition) => this.verifyWebAudioAsset(
       this.getRequiredAsset(this.voiceById, definition.id),
       definition,
     ));
@@ -306,7 +306,7 @@ export class WeaponAudio {
   }
 
   private createVoiceCache(): void {
-    for (const definition of CHARACTER_VOICE_LINES) {
+    for (const definition of GAME_VOICE_LINES) {
       this.voiceById.set(definition.id, createLoadedAsset(definition, publicAssetUrl(definition.path)));
     }
   }

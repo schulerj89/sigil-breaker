@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "landscape-title-hud-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T22:54:00Z",
-  "summary": "Landscape title screen includes character debug tools, a right-thumb SVG weapon switch button for the SPARK/BORE starting cycle, and a normal gameplay ammo HUD with reload progress.",
+  "updatedAt": "2026-07-05T23:34:05Z",
+  "summary": "Landscape title/HUD now includes title tools, starting weapon switch, normal ammo HUD, and a mobile intro cinematic overlay with Commander Kade portrait, captions, black bars, and skip control.",
   "observations": [
     "Center metrics HUD includes FPS, XYZ coordinates, JS heap, level triangle count, and chunk count.",
     "Coordinates use the player's debug scene position with one decimal precision.",
@@ -32,7 +32,11 @@
     "The icon remains code-native, color-inheriting, and asset-free, so it does not add licensing or payload overhead.",
     "Ammo is now visible in the normal gameplay HUD instead of being hidden with debug badges.",
     "The ammo widget shows current magazine count and a small reload bar under the number.",
-    "During reload, the ammo text changes to LOAD Ns and the widget gets ammo-meter--reloading."
+    "During reload, the ammo text changes to LOAD Ns and the widget gets ammo-meter--reloading.",
+    "GPT Image 2 generated five isolated Commander Kade A-pose concepts for the first intro cinematic.",
+    "Concept 03 was selected for the Commander Kade identity and converted into a runtime hologram portrait.",
+    "Loading now gates on the commander portrait and exposes introPortraitLoaded in the UI loading snapshot.",
+    "The intro overlay uses black cinematic bars, a portrait panel, shot label, live captions, and a skip button."
   ],
   "decisions": [
     "Landscape is the playable orientation.",
@@ -52,7 +56,9 @@
     "Route debug tools through explicit game phases instead of stacking them over gameplay controls.",
     "Use selected-bone editing for mobile character posing so arm sliders are reachable on phone landscape.",
     "Keep the character debug page title-accessible and mobile landscape-first while using the combined A-pose runtime GLB.",
-    "Keep ammo visible with health in the normal HUD because reload state is core combat feedback, not debug-only telemetry."
+    "Keep ammo visible with health in the normal HUD because reload state is core combat feedback, not debug-only telemetry.",
+    "Use concept 03 jackal-strategist as Commander Kade for the flat portrait MVP.",
+    "Keep commander portrait as a cache-busted public WebP until a future 3D commander model is justified."
   ],
   "caughtIssues": [
     "Initial coordinate badge sizing risked crowding the 667 px landscape HUD; CSS now uses auto/minmax/auto grid columns and wrapped center metrics.",
@@ -83,7 +89,11 @@
     "artifacts/sub-agents/20260705-player-pose-harness/landscape-title-hud-agent",
     "src/game/playerCharacterPoseHarness.ts",
     "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
-    "artifacts/sub-agents/20260705-main-character-apose/landscape-title-hud-agent/generated-reference/player.hero.gadget-gremlin.apose-reference.png"
+    "artifacts/sub-agents/20260705-main-character-apose/landscape-title-hud-agent/generated-reference/player.hero.gadget-gremlin.apose-reference.png",
+    "docs/assets/openai-commander-kade-concepts.json",
+    "public/assets/characters/commander-kade/commander-kade-hologram.webp",
+    "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/assessment.md",
+    "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/commander-kade-concept-contact-sheet.png"
   ],
   "jsonForAgents": {
     "hudElements": [
@@ -207,6 +217,17 @@
         "gun-hold",
         "run-and-shoot"
       ]
+    },
+    "introCinematicOverlay": {
+      "phase": "intro-cinematic",
+      "screenSelector": "[data-intro-cinematic]",
+      "skipSelector": "[data-intro-skip]",
+      "portraitSelector": "[data-intro-portrait-image]",
+      "captionSelector": "[data-intro-caption]",
+      "speakerSelector": "[data-intro-speaker]",
+      "portraitAssetId": "ui.cinematic.commander-kade.hologram",
+      "runtimePortraitPath": "assets/characters/commander-kade/commander-kade-hologram.webp",
+      "loadingDebugField": "snapshot.ui.loading.introPortraitLoaded"
     }
   },
   "nextAgents": [
