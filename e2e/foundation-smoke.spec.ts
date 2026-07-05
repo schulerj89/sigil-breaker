@@ -788,6 +788,7 @@ async function expectTitleLinesFit(page: Page): Promise<void> {
 
   expect(titleLines.map((line) => line.text)).toEqual(['GADGET', 'RIFT']);
   expect(viewport).not.toBeNull();
+  expect(titleLines[0].left).toBeGreaterThanOrEqual(60);
   for (const line of titleLines) {
     expect(line.left).toBeGreaterThanOrEqual(0);
     expect(line.top).toBeGreaterThanOrEqual(0);

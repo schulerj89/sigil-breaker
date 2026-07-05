@@ -432,7 +432,7 @@ canvas {
 
 .title-screen__copy {
   position: absolute;
-  left: max(28px, env(safe-area-inset-left));
+  left: max(72px, calc(env(safe-area-inset-left) + 28px));
   top: max(34px, env(safe-area-inset-top));
   width: min(430px, 52%);
   display: grid;
@@ -1440,7 +1440,7 @@ canvas {
   }
 
   .title-screen__copy {
-    left: max(22px, env(safe-area-inset-left));
+    left: max(66px, calc(env(safe-area-inset-left) + 22px));
     top: max(24px, env(safe-area-inset-top));
     width: min(330px, 52%);
     gap: 9px;

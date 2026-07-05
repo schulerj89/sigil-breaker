@@ -8,7 +8,7 @@ import {
 import { publicAssetUrl } from './assetUrls';
 
 const TITLE_CHARACTER_TARGET_HEIGHT = 1.9;
-const TITLE_CHARACTER_X = 1.72;
+const TITLE_CHARACTER_X = 2.16;
 const TITLE_CHARACTER_Y = -0.78;
 const TITLE_CHARACTER_Z = 1.12;
 
@@ -101,10 +101,10 @@ export class TitleHeroStage {
   resize(width: number, height: number): void {
     const aspect = width / Math.max(1, height);
     this.camera.aspect = aspect;
-    const narrowLandscapeShift = Math.max(0, 1.75 - aspect);
+    const narrowLandscapeShift = Math.max(0, 1.75 - aspect) * 1.5;
     this.modelRoot.position.x = TITLE_CHARACTER_X - narrowLandscapeShift;
     this.camera.position.set(0, 0.62, 4.45);
-    this.camera.lookAt(0.72, 0.2, 0.28);
+    this.camera.lookAt(0.96, 0.2, 0.28);
     this.camera.updateProjectionMatrix();
     this.viewportWidth = width;
     this.viewportHeight = height;
@@ -193,31 +193,36 @@ function normalizeTitleModel(model: THREE.Object3D): void {
       object.receiveShadow = false;
       object.renderOrder = 10;
       object.material = Array.isArray(object.material)
-        ? object.material.map((material) => createTitleSafeMaterial(material))
-        : createTitleSafeMaterial(object.material);
+        ? object.material.map((material) => createTitleDisplayMaterial(material))
+        : createTitleDisplayMaterial(object.material);
     }
   });
 }
 
-function createTitleSafeMaterial(source: THREE.Material): THREE.Material {
-  const sourceWithTexture = source as THREE.Material & {
-    map?: THREE.Texture | null;
-    color?: THREE.Color;
-  };
-  const material = new THREE.MeshBasicMaterial({
-    map: sourceWithTexture.map ?? null,
-    color: sourceWithTexture.color?.clone() ?? new THREE.Color(0xffffff),
-    side: THREE.DoubleSide,
-    transparent: false,
-    opacity: 1,
-  });
-  material.name = source.name ? `${source.name}.title-safe` : 'title-safe-character-material';
-  material.depthTest = false;
-  material.depthWrite = false;
+function createTitleDisplayMaterial(source: THREE.Material): THREE.Material {
+  const material = source.clone();
+  material.name = source.name ? `${source.name}.title-display` : 'title-display-character-material';
+  material.side = THREE.DoubleSide;
+  material.depthTest = true;
+  material.depthWrite = true;
+  material.transparent = false;
+  material.opacity = 1;
   material.clippingPlanes = null;
   material.clipIntersection = false;
+  if (material instanceof THREE.MeshStandardMaterial || material instanceof THREE.MeshPhysicalMaterial) {
+    material.roughness = Math.max(material.roughness, 0.62);
+    material.metalness = Math.min(material.metalness, 0.12);
+  }
+  const materialWithTexture = material as THREE.Material & {
+    map?: THREE.Texture | null;
+  };
+  if (materialWithTexture.map) {
+    materialWithTexture.map.colorSpace = THREE.SRGBColorSpace;
+    materialWithTexture.map.minFilter = THREE.LinearFilter;
+    materialWithTexture.map.magFilter = THREE.LinearFilter;
+    materialWithTexture.map.needsUpdate = true;
+  }
   material.needsUpdate = true;
-  source.dispose();
   return material;
 }
 
