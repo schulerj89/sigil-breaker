@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "mobile-fps-coordinator",
   "status": "complete",
-  "updatedAt": "2026-07-04T03:45:00Z",
-  "summary": "First FPS foundation level is playable with camera-relative mobile movement, Pages cache-busting, a 45 x 45 placeholder layout, level QA validation, and chunked runtime loading.",
+  "updatedAt": "2026-07-05T23:22:00Z",
+  "summary": "First FPS foundation level is playable with camera-relative mobile movement, Pages cache-busting, a 45 x 45 placeholder layout, level QA validation, chunked runtime loading, and a planning-approved first level intro cinematic direction.",
   "observations": [
     "The old Phaser MVP source, puzzle docs, Sokoban assets, and screenshots were removed.",
     "Three.js is installed and the app boots into a mobile landscape debug arena.",
@@ -12,7 +12,9 @@
     "The foundation layout keeps walkable lanes at least 3 units wide for mobile movement.",
     "The renderer partitions the level into 9 x 9 tile chunks and lazily creates chunks around the player.",
     "The HUD now exposes FPS, JS heap when available, estimated level runtime bytes, and active/loaded chunk counts.",
-    "Mobile touch controls support left-stick movement and right-side drag look."
+    "Mobile touch controls support left-stick movement and right-side drag look.",
+    "First level intro cinematic planning report lives at docs/cinematics/first-level-intro-cinematic-plan.md.",
+    "Coordinator recommendation is to use a flat Commander Kade hologram for the MVP and defer a Meshy 3D commander until pacing and readability are proven."
   ],
   "decisions": [
     "Use docs/sub-agents as the sub-agent source of truth.",
@@ -21,13 +23,15 @@
     "The current Three.js scene is a debug placeholder only, not final game art.",
     "The structured JSON map is the level source of truth for this slice.",
     "Run npm run validate:levels before tests and builds.",
-    "GitHub Pages deploy now includes no-Jekyll and SPA fallback files after build."
+    "GitHub Pages deploy now includes no-Jekyll and SPA fallback files after build.",
+    "The eventual intro implementation slice must include commander image concept, commander VO, intro-cinematic phase, captions, camera timeline, skip behavior, and smoke QA."
   ],
   "caughtIssues": [],
   "risks": [
     "A rewrite can sprawl unless each slice has an owner, gate, and stop condition.",
     "External FPS assets have not been sourced, licensed, optimized, or tested yet.",
-    "Action buttons are visual placeholders until weapon and interaction systems are implemented."
+    "Action buttons are visual placeholders until weapon and interaction systems are implemented.",
+    "Intro implementation can sprawl unless asset generation, audio generation, camera timeline, and QA are split into bounded owner tasks."
   ],
   "blockers": [],
   "artifacts": [],
@@ -37,6 +41,29 @@
     "debugApi": "window.__SIGILBREAKER_DEBUG__.getSnapshot()",
     "levelMapDoc": "docs/level-foundation.md",
     "levelMapData": "src/game/foundationLevelMap.json",
+    "firstLevelIntroPlan": {
+      "report": "docs/cinematics/first-level-intro-cinematic-plan.md",
+      "recommendedPhase": "intro-cinematic",
+      "commanderWorkingName": "Commander Kade",
+      "mvpCommanderPresentation": "flat hologram portrait",
+      "deferredCommanderPresentation": "3D Meshy bust or waist-up model",
+      "levelFraming": "Rift Deck 01 tutorial breach",
+      "requiredAgents": [
+        "camera-cutscene-agent",
+        "landscape-title-hud-agent",
+        "character-dialogue-agent",
+        "elevenlabs-audio-music-agent",
+        "asset-registry-agent",
+        "smoke-qa-agent",
+        "playthrough-qa-agent"
+      ],
+      "mustProveBeforeMerge": [
+        "skip restores input",
+        "captions fit phone landscape",
+        "commander image and VO are cache-busted committed assets",
+        "gameplay starts at normal spawn after complete or skip"
+      ]
+    },
     "levelValidation": "npm run validate:levels",
     "levelDimensionsUnits": {
       "width": 45,

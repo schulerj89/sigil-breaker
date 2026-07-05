@@ -1,9 +1,9 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "camera-cutscene-agent",
-  "status": "implemented-first-death-cinematic",
-  "updatedAt": "2026-07-05T19:08:00Z",
-  "summary": "First death cinematic is implemented as a distinct game phase with HUD/input disabled, a live-level third-person out-of-HP character orbit at the death coordinates, a single fail voice/caption sting, delayed Try Again and Return to Title actions, a debug KO trigger, and browser plus screenshot QA coverage.",
+  "status": "implemented-first-death-cinematic-and-planned-first-intro",
+  "updatedAt": "2026-07-05T23:22:00Z",
+  "summary": "First death cinematic is implemented as a distinct game phase with HUD/input disabled, a live-level third-person out-of-HP character orbit at the death coordinates, a single fail voice/caption sting, delayed Try Again and Return to Title actions, a debug KO trigger, and browser plus screenshot QA coverage. First level intro cinematic is now planned as a flat Commander Kade hologram briefing plus existing 3D Glyph response before Level 1 gameplay.",
   "observations": [
     "No camera modes, viewmodel framing, or cutscene system exists yet.",
     "Weapon muzzle, tracer, and wall-impact positions are derived from src/game/weapons/weaponViewPose.ts.",
@@ -17,7 +17,12 @@
     "A qaCapture-gated debug damage hook lets Playwright force death without waiting for enemy projectiles.",
     "The debug HUD exposes a KO button for manually triggering the death cinematic during gameplay.",
     "DeathCinematicStage now renders in the live level scene at the player death coordinates.",
-    "The player GLB death display needs a 0.01 skinned animation scale correction because static mesh bounds and skinned animation authoring units differ by about 100x."
+    "The player GLB death display needs a 0.01 skinned animation scale correction because static mesh bounds and skinned animation authoring units differ by about 100x.",
+    "First level intro planning report lives at docs/cinematics/first-level-intro-cinematic-plan.md.",
+    "The recommended MVP intro uses a flat Commander Kade hologram portrait with live captions and build-time ElevenLabs VO.",
+    "Existing 3D Glyph should appear in short response shots using current idle or gun-hold animation with no mouth sync requirement.",
+    "Commander Kade is the working guide identity: calm, tactical, angular, and visually distinct from Glyph.",
+    "The first level should be framed as Rift Deck 01, a tutorial breach that teaches move, look, fire, reload HUD, 25 HP fragility, contact damage, projectiles, and exit beacon."
   ],
   "decisions": [
     "Cutscenes must be skippable.",
@@ -31,7 +36,9 @@
     "The death cinematic should render in the live level scene so the player appears where HP reached zero.",
     "Try Again is the primary death action and should reveal after the death read, currently after 3.2 seconds.",
     "Return to Title and Try Again must both clear combat state before leaving death-cinematic.",
-    "The death character clone may render above nearby level geometry during the cinematic to protect readability in tight corners."
+    "The death character clone may render above nearby level geometry during the cinematic to protect readability in tight corners.",
+    "Defer a 3D Meshy commander until the flat portrait intro proves pacing, script, and mobile camera readability.",
+    "Intro cinematic should be its own intro-cinematic phase with skip available after 2 seconds and input restored before gameplay."
   ],
   "caughtIssues": [
     "Pointer-drag screenshot QA can approximate pitch-up/down firing, but deterministic debug look poses are needed for stable visual regression.",
@@ -42,7 +49,8 @@
   ],
   "risks": [
     "Camera and viewmodel decisions can break touch controls and HUD readability if reviewed late.",
-    "Future strict wall occlusion for death cameras needs room-aware obstruction checks first."
+    "Future strict wall occlusion for death cameras needs room-aware obstruction checks first.",
+    "Intro camera paths can clip into the current roof/walls unless authored from safe first-level coordinates."
   ],
   "blockers": [],
   "artifacts": [
@@ -51,7 +59,8 @@
     "npm run validate:browser",
     "artifacts/sub-agents/20260705-death-cinematic/smoke-qa-agent/death-cinematic-in-level-844x390.png",
     "artifacts/sub-agents/20260705-death-cinematic/smoke-qa-agent/death-cinematic-in-level-late-844x390.png",
-    "artifacts/sub-agents/20260705-death-cinematic/smoke-qa-agent/death-cinematic-in-level-snapshot.json"
+    "artifacts/sub-agents/20260705-death-cinematic/smoke-qa-agent/death-cinematic-in-level-snapshot.json",
+    "docs/cinematics/first-level-intro-cinematic-plan.md"
   ],
   "jsonForAgents": {
     "cameraModes": [
@@ -99,6 +108,65 @@
         "weapon ammo",
         "held-fire state",
         "weapon FOV"
+      ]
+    },
+    "firstLevelIntroCinematic": {
+      "planned": true,
+      "report": "docs/cinematics/first-level-intro-cinematic-plan.md",
+      "phase": "intro-cinematic",
+      "levelName": "Rift Deck 01",
+      "targetRuntimeSeconds": {
+        "min": 28,
+        "target": 32,
+        "max": 38
+      },
+      "skipAvailableAfterSeconds": 2,
+      "commander": {
+        "workingName": "Commander Kade",
+        "mvpPresentation": "flat hologram portrait",
+        "deferredPresentation": "3D Meshy bust or waist-up model",
+        "palette": [
+          "gunmetal",
+          "charcoal",
+          "cyan-teal",
+          "toxic green",
+          "amber rank accents"
+        ]
+      },
+      "glyphPresentation": {
+        "usesExisting3dModel": true,
+        "candidateClips": [
+          "idle",
+          "gun-hold"
+        ],
+        "mouthSyncRequired": false
+      },
+      "voice": {
+        "commanderVoiceRequired": true,
+        "glyphResponseRequired": true,
+        "runtimeGenerationAllowed": false,
+        "captionSpeakerLabels": [
+          "KADE",
+          "GLYPH"
+        ]
+      },
+      "tutorialBeats": [
+        "move",
+        "look",
+        "fire",
+        "ammo-reload",
+        "25-hp-fragility",
+        "enemy-contact-damage",
+        "enemy-projectiles",
+        "exit-beacon"
+      ],
+      "qaRequirements": [
+        "title play enters intro-cinematic",
+        "skip restores movement/look/fire",
+        "captions fit 667x375 and 844x390",
+        "commander image is cache-busted",
+        "intro voice plays after user gesture",
+        "gameplay starts at normal first-person spawn"
       ]
     },
     "requiredDebugPoses": [

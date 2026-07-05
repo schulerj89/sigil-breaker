@@ -54,3 +54,14 @@ Status: not run for full implementation yet; updated with weapon-pose and hold-f
 - Add held-fire aim poses for SPARK, BORE, and VAULT so viewmodel centering can be screenshot-reviewed.
 - Future death camera work should preserve the current early-angle hold and wall-readable character render unless a better obstruction solver replaces it.
 - If strict wall occlusion is restored later, add room-aware camera placement first so tight corners cannot hide the character.
+
+## 2026-07-05 - First Level Intro Cinematic Plan
+
+- Planning report added at `docs/cinematics/first-level-intro-cinematic-plan.md`.
+- Recommendation is an `intro-cinematic` phase before Level 1 gameplay, not a title overlay.
+- The MVP commander should be a flat hologram portrait with live captions and build-time ElevenLabs VO.
+- Existing 3D Glyph should appear in short response shots using current idle or gun-hold animation, with no mouth sync requirement.
+- Commander Kade is the working guide identity: calm, tactical, angular, gunmetal/cyan/amber palette, contrasting Glyph's playful silhouette.
+- First level should become "Rift Deck 01", a guided tutorial wrapper teaching move, look, fire, ammo/reload, 25 HP fragility, contact damage, projectiles, and the exit beacon.
+- Intro target runtime is 28-38 seconds, with skip available after 2 seconds and mandatory input restoration before gameplay.
+- 3D Meshy commander is deferred until the flat portrait version proves pacing, script, and camera readability.

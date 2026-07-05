@@ -33,3 +33,11 @@ Status: not run for implementation yet.
 - Start future work with a coordinator slice plan before assigning asset or gameplay implementation.
 - Next implementation slice should build the asset playground or first mobile input/combat vertical slice.
 - Next implementation slice can add weapon interaction, collision debugging overlays, asset playground support, or asset-backed chunk streaming.
+
+## 2026-07-05 - First Level Intro Planning
+
+- Planning report added at `docs/cinematics/first-level-intro-cinematic-plan.md`.
+- The first intro should be a planning-approved slice before implementation: commander image concept, commander VO, intro phase, captions, camera timeline, and smoke QA.
+- Coordinator decision is to use a flat Commander Kade hologram for the MVP and defer a Meshy 3D commander until pacing and readability are proven.
+- Required implementation owners for the eventual slice: camera-cutscene-agent, landscape-title-hud-agent, character-dialogue-agent, elevenlabs-audio-music-agent, asset-registry-agent, smoke-qa-agent, and playthrough-qa-agent.
+- The slice must remain mobile landscape-first and must prove skip/input restoration before merge.
