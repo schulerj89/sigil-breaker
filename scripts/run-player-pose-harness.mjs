@@ -11,7 +11,7 @@ const HOST = '127.0.0.1';
 const DEFAULT_PORT = 4299;
 const VIEWPORT = { width: 1180, height: 720 };
 const CHARACTER_ROOT = 'public/assets/characters/meshy-gadget-gremlin';
-const MODEL_PATH = `${CHARACTER_ROOT}/models/player.hero.gadget-gremlin.rigged.glb`;
+const MODEL_PATH = `${CHARACTER_ROOT}/models/player.hero.gadget-gremlin.apose.animated.glb`;
 const POSE_PATH = `${CHARACTER_ROOT}/poses/gun-hold-draft.json`;
 const OUTPUT_DIR = resolve('artifacts', 'sub-agents', '20260705-player-pose-harness', 'asset-playground-qa-agent');
 const CONTROLLED_BONES = [
@@ -95,7 +95,7 @@ function createPoseServer(rootDir) {
       const savedAt = new Date().toISOString();
       const payload = {
         schemaVersion: '1.0.0',
-        assetId: 'player.hero.gadget-gremlin',
+        assetId: 'player.hero.gadget-gremlin.apose',
         poseId: 'gun-hold-draft',
         savedAt,
         modelPath: MODEL_PATH,

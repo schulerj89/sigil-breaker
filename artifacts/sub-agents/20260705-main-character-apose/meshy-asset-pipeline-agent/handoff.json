@@ -1,0 +1,32 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "meshy-asset-pipeline-agent",
+  "status": "complete",
+  "updatedAt": "2026-07-05T08:05:00-05:00",
+  "assetId": "player.hero.gadget-gremlin.apose.animated",
+  "runtimeModel": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+  "referenceImage": "artifacts/sub-agents/20260705-main-character-apose/landscape-title-hud-agent/generated-reference/player.hero.gadget-gremlin.apose-reference.png",
+  "manifest": "tools/meshy/manifests/main-character-gadget-gremlin-apose.json",
+  "metadata": [
+    "tools/meshy/generated/meshy-gadget-gremlin-apose/summary.json",
+    "tools/meshy/generated/meshy-gadget-gremlin-apose/combined-runtime.json"
+  ],
+  "animationClipIds": [
+    "walking",
+    "running",
+    "idle",
+    "idle-alt",
+    "low-health",
+    "out-of-hp",
+    "victory",
+    "dance",
+    "gun-hold",
+    "run-and-shoot"
+  ],
+  "notesForAgents": [
+    "Runtime code should load the combined GLB only.",
+    "Meshy per-animation task files are provenance for the combine pass, not runtime assets.",
+    "A later optimization pass is required before gameplay or cutscene integration."
+  ]
+}
+

@@ -682,8 +682,15 @@ async function verifyCharacterDebugPage(page: Page): Promise<void> {
   await page.locator('[data-character-bone-select]').selectOption('RightHand');
   await expect(page.locator('[data-pose-bone="RightHand"]')).toBeVisible();
   await expect(page.locator('[data-pose-bone="RightHand"] input[type="range"]')).toHaveCount(3);
+  await page.locator('[data-character-animation-select]').selectOption('dance');
+  await expect(page.locator('[data-character-pose-status]')).toContainText('ANIM DANCE');
+  await expect.poll(async () => {
+    const poseJson = await page.locator('[data-character-pose-json]').inputValue();
+    return JSON.parse(poseJson).activeAnimationId;
+  }).toBe('dance');
   await expectCharacterDebugControlsToReceiveInput(page);
   await expectCharacterDebugSceneDragToMoveCamera(page);
+  await expectCharacterDebugUsesCombinedGlb(page);
   await page.locator('[data-character-debug-back]').click();
   await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('title');
   await expect(page.locator('[data-title-screen]')).toBeVisible();
@@ -745,6 +752,27 @@ async function expectCharacterDebugSceneDragToMoveCamera(page: Page): Promise<vo
   await page.mouse.move(330, 210, { steps: 6 });
   await page.mouse.up();
   await expect.poll(async () => Number(await yawInput.inputValue())).not.toBe(beforeYaw);
+}
+
+async function expectCharacterDebugUsesCombinedGlb(page: Page): Promise<void> {
+  const characterUrls = await page.evaluate(() =>
+    performance
+      .getEntriesByType('resource')
+      .map((entry) => entry.name)
+      .filter((url) => url.includes('/assets/characters/meshy-gadget-gremlin/')),
+  );
+
+  const modelUrls = characterUrls.filter((url) =>
+    url.includes('/models/player.hero.gadget-gremlin.apose.animated.glb?assetBuild='),
+  );
+  const animationUrls = characterUrls.filter((url) =>
+    url.includes('/assets/characters/meshy-gadget-gremlin/animations/'),
+  );
+
+  expect([...new Set(modelUrls.map((url) => new URL(url).pathname))]).toEqual([
+    '/sigil-breaker/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb',
+  ]);
+  expect(animationUrls).toEqual([]);
 }
 
 async function verifyRestartLoopDoesNotGrowRendererMetrics(page: Page, baseline: DebugSnapshot): Promise<void> {
@@ -1288,7 +1316,7 @@ function isIgnorableMediaAbort(url: string, failure: string): boolean {
     failure === 'net::ERR_ABORTED' &&
     (
       url.includes('/assets/audio/elevenlabs-foundation/') ||
-      url.includes('/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.rigged.glb')
+      url.includes('/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb')
     )
   );
 }

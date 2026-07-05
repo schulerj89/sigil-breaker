@@ -1,0 +1,21 @@
+{
+  "metadataVersion": "1.0.0",
+  "sourceId": "openai.gpt-image-2.main-character-apose.20260705",
+  "provider": "OpenAI",
+  "modelId": "gpt-image-2",
+  "generatedAt": "2026-07-05T12:45:00Z",
+  "termsUrl": "https://openai.com/policies/row-terms-of-use/",
+  "apiCopyrightFaqUrl": "https://help.openai.com/en/articles/5008634-will-openai-claim-copyright-over-what-outputs-i-generate-with-the-api",
+  "inputConcept": "artifacts/sub-agents/20260705-main-character-concepts/landscape-title-hud-agent/generated-concepts/002-gadget-gremlin-concept.png",
+  "selectedArtifactPath": "artifacts/sub-agents/20260705-main-character-apose/landscape-title-hud-agent/generated-reference/player.hero.gadget-gremlin.apose-reference.png",
+  "bytes": 1280358,
+  "sha256": "b13f2746b620b233f2145e4efd36280758dcf9fc3d687ca1d83a1794366a09da",
+  "settings": {
+    "operation": "images.edit",
+    "size": "1024x1024",
+    "quality": "high",
+    "outputFormat": "png"
+  },
+  "prompt": "Convert the selected Sigilbreaker gadget-gremlin winner design into one clean full-body front-facing A-pose reference image for Meshy image-to-3D. Preserve the compact amber-fur gadget runner identity, expressive brows and grin, swept-back crest hair, fox-like tail, cobalt-blue cloth, dark metal gear, lime energy accents, mechanical wrist bracer, fingerless gloves, boots, and clear hands suitable for holding a blaster handle. Single character only, centered, full body visible, arms lowered in a clean A-pose around 35-45 degrees from the torso, plain neutral light gray studio background, no extra poses, no side/back views, no prop gun, no labels, no text, no letters, no logos, no watermark, no contact sheet layout.",
+  "selectionReason": "The generated plate keeps the chosen mascot identity while removing the concept-sheet panels and creating a rig-friendly single A-pose source for Meshy."
+}

@@ -1,0 +1,432 @@
+{
+  "runId": "20260705-main-character-apose",
+  "headless": false,
+  "target": "http://127.0.0.1:51306/__player_character_qa.html",
+  "viewport": {
+    "width": 844,
+    "height": 390
+  },
+  "modelPath": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+  "clips": [
+    {
+      "id": "idle",
+      "screenshot": "player-character-idle.png"
+    },
+    {
+      "id": "gun-hold",
+      "screenshot": "player-character-gun-hold.png"
+    },
+    {
+      "id": "dance",
+      "screenshot": "player-character-dance.png"
+    },
+    {
+      "id": "out-of-hp",
+      "screenshot": "player-character-out-of-hp.png"
+    }
+  ],
+  "screenshots": [
+    "player-character-rigged-front.png",
+    "player-character-idle.png",
+    "player-character-gun-hold.png",
+    "player-character-dance.png",
+    "player-character-out-of-hp.png"
+  ],
+  "consoleMessages": [],
+  "failedRequests": [],
+  "ignoredFailedRequests": [
+    {
+      "url": "http://127.0.0.1:51306/public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+      "failure": "net::ERR_ABORTED"
+    }
+  ],
+  "characterGlbRequests": [
+    "http://127.0.0.1:51306/public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb"
+  ],
+  "snapshots": [
+    {
+      "activeClipId": "rigged",
+      "bounds": {
+        "center": [
+          -8.270460427617365e-10,
+          0.72500012712075,
+          2.0525683375183235e-9
+        ],
+        "size": [
+          0.889064483226821,
+          1.4500002542415,
+          0.8135029983689461
+        ]
+      },
+      "renderer": {
+        "calls": 2,
+        "triangles": 81375,
+        "geometries": 2,
+        "textures": 3
+      },
+      "animationClips": [
+        {
+          "name": "walking",
+          "duration": 1.0666667222976685
+        },
+        {
+          "name": "running",
+          "duration": 0.6666666865348816
+        },
+        {
+          "name": "idle",
+          "duration": 4.0333333015441895
+        },
+        {
+          "name": "idle-alt",
+          "duration": 2.366666555404663
+        },
+        {
+          "name": "low-health",
+          "duration": 7.0333333015441895
+        },
+        {
+          "name": "out-of-hp",
+          "duration": 3
+        },
+        {
+          "name": "victory",
+          "duration": 9.366666793823242
+        },
+        {
+          "name": "dance",
+          "duration": 7.800000190734863
+        },
+        {
+          "name": "gun-hold",
+          "duration": 3.700000047683716
+        },
+        {
+          "name": "run-and-shoot",
+          "duration": 0.699999988079071
+        }
+      ]
+    },
+    {
+      "activeClipId": "idle",
+      "bounds": {
+        "center": [
+          -1.5819718868215205e-9,
+          0.72500012712075,
+          4.089822647213026e-9
+        ],
+        "size": [
+          0.910037937506891,
+          1.4500002542415,
+          0.8367371034553824
+        ]
+      },
+      "renderer": {
+        "calls": 2,
+        "triangles": 81375,
+        "geometries": 2,
+        "textures": 3
+      },
+      "animationClips": [
+        {
+          "name": "walking",
+          "duration": 1.0666667222976685
+        },
+        {
+          "name": "running",
+          "duration": 0.6666666865348816
+        },
+        {
+          "name": "idle",
+          "duration": 4.0333333015441895
+        },
+        {
+          "name": "idle-alt",
+          "duration": 2.366666555404663
+        },
+        {
+          "name": "low-health",
+          "duration": 7.0333333015441895
+        },
+        {
+          "name": "out-of-hp",
+          "duration": 3
+        },
+        {
+          "name": "victory",
+          "duration": 9.366666793823242
+        },
+        {
+          "name": "dance",
+          "duration": 7.800000190734863
+        },
+        {
+          "name": "gun-hold",
+          "duration": 3.700000047683716
+        },
+        {
+          "name": "run-and-shoot",
+          "duration": 0.699999988079071
+        }
+      ]
+    },
+    {
+      "activeClipId": "gun-hold",
+      "bounds": {
+        "center": [
+          -2.038684776550781e-9,
+          0.72500012712075,
+          5.414873494036243e-9
+        ],
+        "size": [
+          0.923192693066149,
+          1.4500002542415,
+          0.8513805510321532
+        ]
+      },
+      "renderer": {
+        "calls": 2,
+        "triangles": 81375,
+        "geometries": 2,
+        "textures": 3
+      },
+      "animationClips": [
+        {
+          "name": "walking",
+          "duration": 1.0666667222976685
+        },
+        {
+          "name": "running",
+          "duration": 0.6666666865348816
+        },
+        {
+          "name": "idle",
+          "duration": 4.0333333015441895
+        },
+        {
+          "name": "idle-alt",
+          "duration": 2.366666555404663
+        },
+        {
+          "name": "low-health",
+          "duration": 7.0333333015441895
+        },
+        {
+          "name": "out-of-hp",
+          "duration": 3
+        },
+        {
+          "name": "victory",
+          "duration": 9.366666793823242
+        },
+        {
+          "name": "dance",
+          "duration": 7.800000190734863
+        },
+        {
+          "name": "gun-hold",
+          "duration": 3.700000047683716
+        },
+        {
+          "name": "run-and-shoot",
+          "duration": 0.699999988079071
+        }
+      ]
+    },
+    {
+      "activeClipId": "dance",
+      "bounds": {
+        "center": [
+          -2.1764515467648238e-9,
+          0.72500012712075,
+          5.830439742116056e-9
+        ],
+        "size": [
+          0.927240739283874,
+          1.4500002542415,
+          0.8558984097542125
+        ]
+      },
+      "renderer": {
+        "calls": 2,
+        "triangles": 81375,
+        "geometries": 2,
+        "textures": 3
+      },
+      "animationClips": [
+        {
+          "name": "walking",
+          "duration": 1.0666667222976685
+        },
+        {
+          "name": "running",
+          "duration": 0.6666666865348816
+        },
+        {
+          "name": "idle",
+          "duration": 4.0333333015441895
+        },
+        {
+          "name": "idle-alt",
+          "duration": 2.366666555404663
+        },
+        {
+          "name": "low-health",
+          "duration": 7.0333333015441895
+        },
+        {
+          "name": "out-of-hp",
+          "duration": 3
+        },
+        {
+          "name": "victory",
+          "duration": 9.366666793823242
+        },
+        {
+          "name": "dance",
+          "duration": 7.800000190734863
+        },
+        {
+          "name": "gun-hold",
+          "duration": 3.700000047683716
+        },
+        {
+          "name": "run-and-shoot",
+          "duration": 0.699999988079071
+        }
+      ]
+    },
+    {
+      "activeClipId": "out-of-hp",
+      "bounds": {
+        "center": [
+          -1.9823680752484307e-9,
+          0.72500012712075,
+          5.247215217885071e-9
+        ],
+        "size": [
+          0.921549095653938,
+          1.4500002542415,
+          0.8495478032616977
+        ]
+      },
+      "renderer": {
+        "calls": 2,
+        "triangles": 81375,
+        "geometries": 2,
+        "textures": 3
+      },
+      "animationClips": [
+        {
+          "name": "walking",
+          "duration": 1.0666667222976685
+        },
+        {
+          "name": "running",
+          "duration": 0.6666666865348816
+        },
+        {
+          "name": "idle",
+          "duration": 4.0333333015441895
+        },
+        {
+          "name": "idle-alt",
+          "duration": 2.366666555404663
+        },
+        {
+          "name": "low-health",
+          "duration": 7.0333333015441895
+        },
+        {
+          "name": "out-of-hp",
+          "duration": 3
+        },
+        {
+          "name": "victory",
+          "duration": 9.366666793823242
+        },
+        {
+          "name": "dance",
+          "duration": 7.800000190734863
+        },
+        {
+          "name": "gun-hold",
+          "duration": 3.700000047683716
+        },
+        {
+          "name": "run-and-shoot",
+          "duration": 0.699999988079071
+        }
+      ]
+    },
+    {
+      "activeClipId": "out-of-hp",
+      "bounds": {
+        "center": [
+          -1.9823680752484307e-9,
+          0.72500012712075,
+          5.247215217885071e-9
+        ],
+        "size": [
+          0.921549095653938,
+          1.4500002542415,
+          0.8495478032616977
+        ]
+      },
+      "renderer": {
+        "calls": 2,
+        "triangles": 81375,
+        "geometries": 2,
+        "textures": 3
+      },
+      "animationClips": [
+        {
+          "name": "walking",
+          "duration": 1.0666667222976685
+        },
+        {
+          "name": "running",
+          "duration": 0.6666666865348816
+        },
+        {
+          "name": "idle",
+          "duration": 4.0333333015441895
+        },
+        {
+          "name": "idle-alt",
+          "duration": 2.366666555404663
+        },
+        {
+          "name": "low-health",
+          "duration": 7.0333333015441895
+        },
+        {
+          "name": "out-of-hp",
+          "duration": 3
+        },
+        {
+          "name": "victory",
+          "duration": 9.366666793823242
+        },
+        {
+          "name": "dance",
+          "duration": 7.800000190734863
+        },
+        {
+          "name": "gun-hold",
+          "duration": 3.700000047683716
+        },
+        {
+          "name": "run-and-shoot",
+          "duration": 0.699999988079071
+        }
+      ]
+    }
+  ],
+  "budgetWarnings": [
+    "triangle count 81375 exceeds 45000 target for gameplay integration",
+    "combined runtime GLB 10983096B exceeds 6000000B target",
+    "gun-hold animation is visually inspected but not accepted as final two-hand blaster pose"
+  ],
+  "passed": true
+}

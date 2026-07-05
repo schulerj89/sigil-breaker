@@ -1,0 +1,20 @@
+{
+  "id": "019f3257-1eae-75c0-b8b7-01399f47460c",
+  "type": "animate",
+  "name": "",
+  "status": "SUCCEEDED",
+  "created_at": 1783255998597,
+  "progress": 100,
+  "started_at": 1783255998920,
+  "finished_at": 1783256019218,
+  "expires_at": 1783515219218,
+  "task_error": null,
+  "result": {
+    "animation_glb_url": "Animation_Catching_Breath_withSkin.glb",
+    "animation_fbx_url": "Animation_Catching_Breath_withSkin.fbx",
+    "processed_usdz_url": "",
+    "processed_armature_fbx_url": "",
+    "processed_animation_fps_fbx_url": ""
+  },
+  "consumed_credits": 3
+}

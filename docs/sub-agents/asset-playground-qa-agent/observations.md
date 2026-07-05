@@ -71,3 +71,10 @@ Status: needs review after browser smoke.
 
 - Future Meshy generation must produce and approve `selected-concept-a-pose.png` before requesting a new model.
 - GLTF optimization should merge or repack approved clips into one player character asset, or produce a lightweight clip-only bundle if the skeleton names match.
+## 2026-07-05 - Main Character A-Pose Runtime
+
+- Generated a GPT Image 2 single-character A-pose reference from the selected gadget-gremlin concept and used it for Meshy image-to-3D.
+- Verified the replacement character in headed Chromium at 844x390 with `npm run qa:headed:player-character`.
+- The debug runtime now loads `player.hero.gadget-gremlin.apose.animated.glb`, which contains ten embedded animation clips.
+- The animation dropdown is wired to embedded clips, not separate `animations/*.glb` runtime requests.
+- QA passed with warnings: 81375 triangles and 10983096B remain above the gameplay/cutscene integration target.

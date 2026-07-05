@@ -1,0 +1,308 @@
+{
+  "metadataVersion": "1.0.0",
+  "generatedAt": "2026-07-05T12:55:25.150Z",
+  "assetId": "player.hero.gadget-gremlin.apose",
+  "sourceId": "meshy.main-character.gadget-gremlin.apose.20260705",
+  "provider": "Meshy",
+  "generationPipeline": "image-to-3d",
+  "aiModel": "meshy-6",
+  "selectedConcept": "artifacts/sub-agents/20260705-main-character-concepts/landscape-title-hud-agent/generated-concepts/002-gadget-gremlin-concept.png",
+  "referenceImage": "artifacts/sub-agents/20260705-main-character-apose/landscape-title-hud-agent/generated-reference/player.hero.gadget-gremlin.apose-reference.png",
+  "prompt": "Image-to-3D from the GPT Image 2 A-pose reference plate. Preserve the selected Sigilbreaker gadget-runner mascot identity while producing a textured bipedal humanoid character suitable for Meshy auto-rigging and mobile game animation.",
+  "texturePrompt": "Warm amber fur, cream muzzle, cobalt-blue scarf and vest, dark matte metal bracer and boots, lime-green energy cores and small accent lights, brown belt and pouch, clean stylized game texture, no letters, no logos, no weapon.",
+  "settings": {
+    "modelType": "standard",
+    "shouldRemesh": true,
+    "topology": "quad",
+    "targetPolycount": 45000,
+    "poseMode": "a-pose",
+    "heightMeters": 1.45,
+    "enablePbr": true,
+    "hdTexture": false,
+    "targetFormats": [
+      "glb"
+    ]
+  },
+  "tasks": {
+    "imageTo3d": {
+      "id": "019f3251-db3a-791f-a54f-d1912074c3fc",
+      "type": "image-to-3d",
+      "status": "SUCCEEDED",
+      "progress": 100,
+      "consumedCredits": 30,
+      "createdAt": 1783255660349,
+      "startedAt": 1783255660375,
+      "finishedAt": 1783255913855,
+      "expiresAt": 1783515113855,
+      "taskError": null
+    },
+    "preview": null,
+    "refine": null,
+    "rig": {
+      "id": "019f3255-ea4b-79c6-bd51-1f9467ee1552",
+      "type": "rig",
+      "status": "SUCCEEDED",
+      "progress": 100,
+      "consumedCredits": 5,
+      "createdAt": 1783255925354,
+      "startedAt": 1783255925630,
+      "finishedAt": 1783255956963,
+      "expiresAt": 1783515156963,
+      "taskError": null
+    },
+    "animations": {
+      "idle": {
+        "id": "019f3256-852e-79dd-b66b-d578dbd675f6",
+        "type": "animate",
+        "status": "SUCCEEDED",
+        "progress": 100,
+        "consumedCredits": 3,
+        "createdAt": 1783255959215,
+        "startedAt": 1783255959221,
+        "finishedAt": 1783255973676,
+        "expiresAt": 1783515173676,
+        "taskError": null
+      },
+      "idle-alt": {
+        "id": "019f3256-c7ab-79e5-b747-200b383eeecc",
+        "type": "animate",
+        "status": "SUCCEEDED",
+        "progress": 100,
+        "consumedCredits": 3,
+        "createdAt": 1783255976299,
+        "startedAt": 1783255976775,
+        "finishedAt": 1783255994927,
+        "expiresAt": 1783515194927,
+        "taskError": null
+      },
+      "low-health": {
+        "id": "019f3257-1eae-75c0-b8b7-01399f47460c",
+        "type": "animate",
+        "status": "SUCCEEDED",
+        "progress": 100,
+        "consumedCredits": 3,
+        "createdAt": 1783255998597,
+        "startedAt": 1783255998920,
+        "finishedAt": 1783256019218,
+        "expiresAt": 1783515219218,
+        "taskError": null
+      },
+      "out-of-hp": {
+        "id": "019f3257-749b-75ca-be69-1261aa3cff2d",
+        "type": "animate",
+        "status": "SUCCEEDED",
+        "progress": 100,
+        "consumedCredits": 3,
+        "createdAt": 1783256020572,
+        "startedAt": 1783256020746,
+        "finishedAt": 1783256040082,
+        "expiresAt": 1783515240082,
+        "taskError": null
+      },
+      "victory": {
+        "id": "019f3257-ca25-75f1-9ea2-f92504de5138",
+        "type": "animate",
+        "status": "SUCCEEDED",
+        "progress": 100,
+        "consumedCredits": 3,
+        "createdAt": 1783256042502,
+        "startedAt": 1783256042883,
+        "finishedAt": 1783256067095,
+        "expiresAt": 1783515267095,
+        "taskError": null
+      },
+      "dance": {
+        "id": "019f3258-34ba-7a3b-86ee-d9d0fbb3e632",
+        "type": "animate",
+        "status": "SUCCEEDED",
+        "progress": 100,
+        "consumedCredits": 3,
+        "createdAt": 1783256069696,
+        "startedAt": 1783256069878,
+        "finishedAt": 1783256091694,
+        "expiresAt": 1783515291694,
+        "taskError": null
+      },
+      "gun-hold": {
+        "id": "019f3258-9f97-761e-811a-1ff54ee7cbc2",
+        "type": "animate",
+        "status": "SUCCEEDED",
+        "progress": 100,
+        "consumedCredits": 3,
+        "createdAt": 1783256097069,
+        "startedAt": 1783256097267,
+        "finishedAt": 1783256112014,
+        "expiresAt": 1783515312014,
+        "taskError": null
+      },
+      "run-and-shoot": {
+        "id": "019f3258-e15e-760f-8ee1-6f58210bb795",
+        "type": "animate",
+        "status": "SUCCEEDED",
+        "progress": 100,
+        "consumedCredits": 3,
+        "createdAt": 1783256113889,
+        "startedAt": 1783256114050,
+        "finishedAt": 1783256122345,
+        "expiresAt": 1783515322345,
+        "taskError": null
+      }
+    }
+  },
+  "downloads": {
+    "imageTo3dGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.image-to-3d.glb",
+      "bytes": 14537224,
+      "sha256": "ad0e1fab8c2a079c4d1c0b8291506fc9d47be0f17324576c062d2a2603c570d7"
+    },
+    "imageTo3dThumbnail": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.apose.image-to-3d.png",
+      "bytes": 122149,
+      "sha256": "efc183a2c0d2ab1e68faf24274ab8b89f0901d923c9634274060b3a4493d43e8"
+    },
+    "riggedGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.rigged.glb",
+      "bytes": 10321804,
+      "sha256": "201dc8be9bc0f8fad7ed130dd74ac131349e4cab05f05bd9f18b0ade32947eb9"
+    },
+    "walkingAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.walking.glb",
+      "bytes": 10334576,
+      "sha256": "dba75951c2dec98e4a2b4d20ee6dabacfbdb098c4924ac6d4bd0c22b0a009b6e"
+    },
+    "runningAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.running.glb",
+      "bytes": 10329968,
+      "sha256": "2dafd0801e17281378272fd9df806f1defe21beccd4ecf46c7ca801adff165a8"
+    },
+    "idleAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.idle.glb",
+      "bytes": 10370748,
+      "sha256": "57c7316c43925adc0cbbff8e1bb86fbc7fd3e454c2660e21cf2348a49bb8ac11"
+    },
+    "idle-altAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.idle-alt.glb",
+      "bytes": 10348516,
+      "sha256": "9d5948b8f1e6c45284d281e9c7eeb6df6b8f9e351ddc6ffb65ed8297cc094043"
+    },
+    "low-healthAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.low-health.glb",
+      "bytes": 10464516,
+      "sha256": "906fdceadb5134aeb6a0d3f46118694519301467210076fd8252de86f07ce70b"
+    },
+    "out-of-hpAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.out-of-hp.glb",
+      "bytes": 10358292,
+      "sha256": "1f390faa220d694570cb6e7e62c773fcf690cbbec6c0fe82b27190b56a0685c5"
+    },
+    "victoryAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.victory.glb",
+      "bytes": 10434760,
+      "sha256": "af6f5ffd50bf9f77b9b98d47dc8a763a754dabb2b5df942903e67abc566b0554"
+    },
+    "danceAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.dance.glb",
+      "bytes": 10408500,
+      "sha256": "f878ea4794c2c102506d85ea256b2b5e224cc8bd4c55734221d1c360a5b2c238"
+    },
+    "gun-holdAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.gun-hold.glb",
+      "bytes": 10366740,
+      "sha256": "a3b2cdf9b7d24e599236ce5364827227e85b28cadcd746fb70f869324c04d95b"
+    },
+    "run-and-shootAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.run-and-shoot.glb",
+      "bytes": 10330068,
+      "sha256": "4fb14d9e1d07b57a2861b01bf8dc8d1747f9e5db7003646be424a7fa89d6b670"
+    }
+  },
+  "animationRequests": [
+    {
+      "id": "idle",
+      "actionId": 0,
+      "label": "Idle",
+      "name": "Idle"
+    },
+    {
+      "id": "idle-alt",
+      "actionId": 11,
+      "label": "Idle Alt",
+      "name": "Idle_02"
+    },
+    {
+      "id": "low-health",
+      "actionId": 31,
+      "label": "Low Health",
+      "name": "Catching_Breath"
+    },
+    {
+      "id": "out-of-hp",
+      "actionId": 8,
+      "label": "Out Of HP",
+      "name": "Dead"
+    },
+    {
+      "id": "victory",
+      "actionId": 59,
+      "label": "Victory",
+      "name": "Victory_Cheer"
+    },
+    {
+      "id": "dance",
+      "actionId": 22,
+      "label": "Dance",
+      "name": "FunnyDancing_01"
+    },
+    {
+      "id": "gun-hold",
+      "actionId": 95,
+      "label": "Gun Hold",
+      "name": "Gun_Hold_Left_Turn"
+    },
+    {
+      "id": "run-and-shoot",
+      "actionId": 98,
+      "label": "Run + Shoot",
+      "name": "Run_and_Shoot"
+    }
+  ],
+  "runtime": {
+    "combinedFileName": "player.hero.gadget-gremlin.apose.animated.glb",
+    "basicAnimationClips": [
+      {
+        "id": "walking",
+        "source": "walking",
+        "label": "Walking"
+      },
+      {
+        "id": "running",
+        "source": "running",
+        "label": "Running"
+      }
+    ],
+    "requiredClipIds": [
+      "idle",
+      "idle-alt",
+      "walking",
+      "running",
+      "run-and-shoot",
+      "gun-hold",
+      "low-health",
+      "out-of-hp",
+      "victory",
+      "dance"
+    ]
+  },
+  "budgets": {
+    "maxRuntimeGlbBytes": 6000000,
+    "targetTriangles": 45000,
+    "maxMaterials": 4,
+    "maxRuntimeTextures": 4
+  },
+  "docs": {
+    "textTo3d": "https://docs.meshy.ai/en/api/text-to-3d",
+    "rigging": "https://docs.meshy.ai/en/api/rigging",
+    "animation": "https://docs.meshy.ai/en/api/animation",
+    "animationLibrary": "https://docs.meshy.ai/en/api/animation-library"
+  }
+}

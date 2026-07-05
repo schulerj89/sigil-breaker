@@ -1,0 +1,116 @@
+{
+  "manifestVersion": "1.1.0",
+  "assetId": "player.hero.gadget-gremlin.apose",
+  "sourceId": "meshy.main-character.gadget-gremlin.apose.20260705",
+  "runId": "20260705-main-character-apose",
+  "provider": "Meshy",
+  "selectedConcept": "artifacts/sub-agents/20260705-main-character-concepts/landscape-title-hud-agent/generated-concepts/002-gadget-gremlin-concept.png",
+  "referenceImage": "artifacts/sub-agents/20260705-main-character-apose/landscape-title-hud-agent/generated-reference/player.hero.gadget-gremlin.apose-reference.png",
+  "outputDir": "public/assets/characters/meshy-gadget-gremlin",
+  "metadataDir": "tools/meshy/generated/meshy-gadget-gremlin-apose",
+  "api": {
+    "imageTo3dEndpoint": "/openapi/v1/image-to-3d",
+    "riggingEndpoint": "/openapi/v1/rigging",
+    "animationEndpoint": "/openapi/v1/animations"
+  },
+  "generation": {
+    "pipeline": "image-to-3d",
+    "aiModel": "meshy-6",
+    "prompt": "Image-to-3D from the GPT Image 2 A-pose reference plate. Preserve the selected Sigilbreaker gadget-runner mascot identity while producing a textured bipedal humanoid character suitable for Meshy auto-rigging and mobile game animation.",
+    "texturePrompt": "Warm amber fur, cream muzzle, cobalt-blue scarf and vest, dark matte metal bracer and boots, lime-green energy cores and small accent lights, brown belt and pouch, clean stylized game texture, no letters, no logos, no weapon.",
+    "modelType": "standard",
+    "shouldTexture": true,
+    "shouldRemesh": true,
+    "topology": "quad",
+    "targetPolycount": 45000,
+    "poseMode": "a-pose",
+    "heightMeters": 1.45,
+    "enablePbr": true,
+    "hdTexture": false,
+    "moderation": true,
+    "targetFormats": ["glb"]
+  },
+  "animationRequests": [
+    {
+      "id": "idle",
+      "actionId": 0,
+      "label": "Idle",
+      "name": "Idle"
+    },
+    {
+      "id": "idle-alt",
+      "actionId": 11,
+      "label": "Idle Alt",
+      "name": "Idle_02"
+    },
+    {
+      "id": "low-health",
+      "actionId": 31,
+      "label": "Low Health",
+      "name": "Catching_Breath"
+    },
+    {
+      "id": "out-of-hp",
+      "actionId": 8,
+      "label": "Out Of HP",
+      "name": "Dead"
+    },
+    {
+      "id": "victory",
+      "actionId": 59,
+      "label": "Victory",
+      "name": "Victory_Cheer"
+    },
+    {
+      "id": "dance",
+      "actionId": 22,
+      "label": "Dance",
+      "name": "FunnyDancing_01"
+    },
+    {
+      "id": "gun-hold",
+      "actionId": 95,
+      "label": "Gun Hold",
+      "name": "Gun_Hold_Left_Turn"
+    },
+    {
+      "id": "run-and-shoot",
+      "actionId": 98,
+      "label": "Run + Shoot",
+      "name": "Run_and_Shoot"
+    }
+  ],
+  "runtime": {
+    "combinedFileName": "player.hero.gadget-gremlin.apose.animated.glb",
+    "basicAnimationClips": [
+      {
+        "id": "walking",
+        "source": "walking",
+        "label": "Walking"
+      },
+      {
+        "id": "running",
+        "source": "running",
+        "label": "Running"
+      }
+    ],
+    "requiredClipIds": [
+      "idle",
+      "idle-alt",
+      "walking",
+      "running",
+      "run-and-shoot",
+      "gun-hold",
+      "low-health",
+      "out-of-hp",
+      "victory",
+      "dance"
+    ]
+  },
+  "budgets": {
+    "maxRuntimeGlbBytes": 6000000,
+    "targetTriangles": 45000,
+    "maxMaterials": 4,
+    "maxRuntimeTextures": 4
+  }
+}

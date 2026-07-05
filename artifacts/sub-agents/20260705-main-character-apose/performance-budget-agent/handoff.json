@@ -1,0 +1,15 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "performance-budget-agent",
+  "status": "complete-with-warnings",
+  "updatedAt": "2026-07-05T08:05:00-05:00",
+  "runtimeModel": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+  "runtimeGlbBytes": 10983096,
+  "trianglesObserved": 81375,
+  "drawCallsObserved": 2,
+  "texturesObserved": 3,
+  "targetRuntimeGlbBytes": 6000000,
+  "targetTriangles": 45000,
+  "gameplayIntegrationAllowed": false
+}
+

@@ -1,6 +1,6 @@
 {
   "ledgerVersion": "1.0.0",
-  "updatedAt": "2026-07-05T00:54:00Z",
+  "updatedAt": "2026-07-05T12:55:30Z",
   "sources": [
     {
       "sourceId": "kenney.blaster-kit.2-1",
@@ -632,6 +632,104 @@
           "gameUse": "player-character",
           "loadGroup": "player-character-animation-source",
           "runtimeIntegrated": false
+        }
+      ]
+    },
+    {
+      "sourceId": "openai.gpt-image-2.main-character-apose.20260705",
+      "name": "Sigilbreaker Main Character A-Pose Reference",
+      "author": "OpenAI GPT Image 2",
+      "provider": "OpenAI",
+      "generated": true,
+      "sourceUrl": "https://openai.com/policies/row-terms-of-use/",
+      "license": "OpenAI generated output ownership per Terms of Use",
+      "licenseUrl": "https://openai.com/policies/row-terms-of-use/",
+      "metadataFile": "docs/assets/openai-main-character-apose.json",
+      "commercialUseAllowed": true,
+      "redistributionAllowed": true,
+      "modificationAllowed": true,
+      "attributionRequired": false,
+      "notes": [
+        "Generated through the local secret broker with gpt-image-2 edit using the selected main character concept as input.",
+        "The image is a single front-facing A-pose reference plate used as Meshy image-to-3D input.",
+        "OpenAI terms and copyright FAQ were checked on 2026-07-05; do not represent the image as human-generated."
+      ],
+      "assets": [
+        {
+          "assetId": "character.player.gadget-gremlin.apose-reference.generated",
+          "assetType": "image",
+          "sourceFile": "GPT Image 2 edited PNG A-pose reference from selected concept 002",
+          "sourceArtifact": "artifacts/sub-agents/20260705-main-character-apose/landscape-title-hud-agent/generated-reference/player.hero.gadget-gremlin.apose-reference.png",
+          "path": "artifacts/sub-agents/20260705-main-character-apose/landscape-title-hud-agent/generated-reference/player.hero.gadget-gremlin.apose-reference.png",
+          "bytes": 1280358,
+          "sha256": "b13f2746b620b233f2145e4efd36280758dcf9fc3d687ca1d83a1794366a09da",
+          "gameUse": "player-character",
+          "loadGroup": "player-character-source-reference",
+          "provider": "OpenAI",
+          "endpoint": "images.edit",
+          "modelId": "gpt-image-2",
+          "prompt": "Convert the selected Sigilbreaker gadget-gremlin winner design into one clean full-body front-facing A-pose reference image for Meshy image-to-3D.",
+          "settings": {
+            "size": "1024x1024",
+            "quality": "high",
+            "outputFormat": "png"
+          },
+          "intendedUse": "meshy-image-to-3d-reference",
+          "outputFormat": "png",
+          "generatedAt": "2026-07-05T12:45:00Z"
+        }
+      ]
+    },
+    {
+      "sourceId": "meshy.main-character.gadget-gremlin.apose.20260705",
+      "sourceType": "generated-3d-model",
+      "provider": "Meshy",
+      "generated": true,
+      "license": "Meshy generated output terms",
+      "licenseUrl": "https://www.meshy.ai/terms-of-use",
+      "attributionRequired": false,
+      "commercialUseAllowed": true,
+      "redistributionAllowed": true,
+      "metadataFile": "tools/meshy/generated/meshy-gadget-gremlin-apose/summary.json",
+      "sourceUrl": "https://docs.meshy.ai/en/api/image-to-3d",
+      "secondarySourceUrl": "https://docs.meshy.ai/en/api/rigging",
+      "author": "Sigilbreaker project via Meshy API",
+      "acquiredAt": "2026-07-05T12:55:30.518Z",
+      "notes": [
+        "Generated from the GPT Image 2 single A-pose reference image using Meshy image-to-3D, rigging, and animation APIs.",
+        "Runtime character debug uses one combined GLB with one mesh/skeleton and ten embedded animation clips.",
+        "Meshy per-animation GLBs are retained as source/intermediate files and are not loaded by the character debug runtime.",
+        "The combined GLB is 10983096B, below the duplicated animation source payload but above the 6000000B runtime target; optimize before gameplay/cutscene integration."
+      ],
+      "sharedFiles": [],
+      "assets": [
+        {
+          "assetId": "player.hero.gadget-gremlin.apose.animated",
+          "assetType": "model",
+          "provider": "Meshy",
+          "modelId": "meshy-6",
+          "generatedAt": "2026-07-05T12:55:30.518Z",
+          "path": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+          "bytes": 10983096,
+          "sha256": "80bf9362d7b452f94bcac5b439469b3e67cde1641a9956ad5927b22776c5be7b",
+          "previewPath": "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.apose.image-to-3d.png",
+          "previewSha256": "efc183a2c0d2ab1e68faf24274ab8b89f0901d923c9634274060b3a4493d43e8",
+          "gameUse": "player-character",
+          "loadGroup": "player-character-runtime-debug",
+          "runtimeIntegrated": true,
+          "animationClips": [
+            "walking",
+            "running",
+            "idle",
+            "idle-alt",
+            "low-health",
+            "out-of-hp",
+            "victory",
+            "dance",
+            "gun-hold",
+            "run-and-shoot"
+          ],
+          "sourceReferenceAssetId": "character.player.gadget-gremlin.apose-reference.generated"
         }
       ]
     }

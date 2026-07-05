@@ -1,0 +1,11 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "landscape-title-hud-agent",
+  "status": "complete",
+  "updatedAt": "2026-07-05T08:05:00-05:00",
+  "characterDebugModelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+  "animationSource": "embedded GLB clips",
+  "validatedClip": "dance",
+  "smokeTest": "npx playwright test e2e/foundation-smoke.spec.ts --project=chromium-modern-phone-landscape"
+}
+

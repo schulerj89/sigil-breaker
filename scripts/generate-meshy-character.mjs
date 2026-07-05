@@ -31,53 +31,10 @@ await Promise.all([mkdir(modelDir, { recursive: true }), mkdir(animationDir, { r
 
 const state = await readState();
 
-state.previewTask ??= await createTask('text-to-3d preview', manifest.api.textTo3dEndpoint, {
-  mode: 'preview',
-  prompt: manifest.generation.prompt,
-  model_type: manifest.generation.modelType,
-  ai_model: manifest.generation.aiModel,
-  should_remesh: manifest.generation.shouldRemesh,
-  topology: manifest.generation.topology,
-  target_polycount: manifest.generation.targetPolycount,
-  pose_mode: manifest.generation.poseMode,
-  target_formats: manifest.generation.targetFormats,
-  moderation: manifest.generation.moderation,
-  alpha_thumbnail: manifest.generation.alphaThumbnail,
-});
-await saveState(state);
-
-const previewTask = await pollTask('text-to-3d preview', `${manifest.api.textTo3dEndpoint}/${state.previewTask.id}`);
-state.previewTask = mergeTaskRef(state.previewTask, previewTask);
-await writeSanitizedTask('preview-task.json', previewTask);
-await saveState(state);
-await downloadIfAvailable(previewTask.model_urls?.glb, path.join(modelDir, `${manifest.assetId}.preview.glb`), state, 'previewGlb');
-await downloadIfAvailable(previewTask.thumbnail_url, path.join(previewDir, `${manifest.assetId}.preview.png`), state, 'previewThumbnail');
-await downloadIfAvailable(previewTask.alpha_thumbnail_url, path.join(previewDir, `${manifest.assetId}.preview-alpha.png`), state, 'previewAlphaThumbnail');
-
-state.refineTask ??= await createTask('text-to-3d refine', manifest.api.textTo3dEndpoint, {
-  mode: 'refine',
-  preview_task_id: state.previewTask.id,
-  texture_prompt: manifest.generation.texturePrompt,
-  ai_model: manifest.generation.aiModel,
-  enable_pbr: manifest.generation.enablePbr,
-  hd_texture: manifest.generation.hdTexture,
-  remove_lighting: manifest.generation.removeLighting,
-  target_formats: manifest.generation.targetFormats,
-  moderation: manifest.generation.moderation,
-  alpha_thumbnail: manifest.generation.alphaThumbnail,
-});
-await saveState(state);
-
-const refineTask = await pollTask('text-to-3d refine', `${manifest.api.textTo3dEndpoint}/${state.refineTask.id}`);
-state.refineTask = mergeTaskRef(state.refineTask, refineTask);
-await writeSanitizedTask('refine-task.json', refineTask);
-await saveState(state);
-await downloadIfAvailable(refineTask.model_urls?.glb, path.join(modelDir, `${manifest.assetId}.refined.glb`), state, 'refinedGlb');
-await downloadIfAvailable(refineTask.thumbnail_url, path.join(previewDir, `${manifest.assetId}.refined.png`), state, 'refinedThumbnail');
-await downloadIfAvailable(refineTask.alpha_thumbnail_url, path.join(previewDir, `${manifest.assetId}.refined-alpha.png`), state, 'refinedAlphaThumbnail');
+const generationTask = await runGenerationPipeline();
 
 state.rigTask ??= await createTask('rigging', manifest.api.riggingEndpoint, {
-  input_task_id: state.refineTask.id,
+  input_task_id: generationTask.id,
   height_meters: manifest.generation.heightMeters,
 });
 await saveState(state);
@@ -121,8 +78,10 @@ const summary = {
   assetId: manifest.assetId,
   sourceId: manifest.sourceId,
   provider: manifest.provider,
+  generationPipeline: manifest.generation.pipeline ?? 'text-to-3d',
   aiModel: manifest.generation.aiModel,
   selectedConcept: manifest.selectedConcept,
+  referenceImage: manifest.referenceImage,
   prompt: manifest.generation.prompt,
   texturePrompt: manifest.generation.texturePrompt,
   settings: {
@@ -138,6 +97,7 @@ const summary = {
     targetFormats: manifest.generation.targetFormats,
   },
   tasks: {
+    imageTo3d: summarizeTask(state.imageTo3dTask),
     preview: summarizeTask(state.previewTask),
     refine: summarizeTask(state.refineTask),
     rig: summarizeTask(state.rigTask),
@@ -145,6 +105,7 @@ const summary = {
   },
   downloads: state.downloads ?? {},
   animationRequests: manifest.animationRequests,
+  runtime: manifest.runtime,
   budgets: manifest.budgets,
   docs: {
     textTo3d: 'https://docs.meshy.ai/en/api/text-to-3d',
@@ -161,7 +122,9 @@ await writeJson(path.join(outputDir, 'source.json'), {
   assetId: manifest.assetId,
   generatedAt: summary.generatedAt,
   modelId: manifest.generation.aiModel,
+  generationPipeline: summary.generationPipeline,
   selectedConcept: manifest.selectedConcept,
+  referenceImage: manifest.referenceImage,
   meshyDocs: summary.docs,
   runtimeFiles: Object.values(state.downloads ?? {})
     .filter((download) => download.path.startsWith('public/assets/characters/'))
@@ -176,6 +139,86 @@ await writeJson(path.join(outputDir, 'source.json'), {
 console.log(`Meshy character generation complete: ${manifest.assetId}`);
 console.log(`Runtime assets: ${manifest.outputDir}`);
 console.log(`Metadata: ${manifest.metadataDir}`);
+
+async function runGenerationPipeline() {
+  if ((manifest.generation.pipeline ?? 'text-to-3d') === 'image-to-3d') {
+    const imageUrl = await readImageDataUri(manifest.referenceImage);
+    state.imageTo3dTask ??= await createTask('image-to-3d', manifest.api.imageTo3dEndpoint, {
+      image_url: imageUrl,
+      model_type: manifest.generation.modelType,
+      ai_model: manifest.generation.aiModel,
+      should_texture: manifest.generation.shouldTexture,
+      texture_prompt: manifest.generation.texturePrompt,
+      enable_pbr: manifest.generation.enablePbr,
+      hd_texture: manifest.generation.hdTexture,
+      should_remesh: manifest.generation.shouldRemesh,
+      topology: manifest.generation.topology,
+      target_polycount: manifest.generation.targetPolycount,
+      pose_mode: manifest.generation.poseMode,
+      target_formats: manifest.generation.targetFormats,
+      moderation: manifest.generation.moderation,
+    });
+    await saveState(state);
+
+    const imageTo3dTask = await pollTask('image-to-3d', `${manifest.api.imageTo3dEndpoint}/${state.imageTo3dTask.id}`);
+    state.imageTo3dTask = mergeTaskRef(state.imageTo3dTask, imageTo3dTask);
+    await writeSanitizedTask('image-to-3d-task.json', imageTo3dTask);
+    await saveState(state);
+    await downloadIfAvailable(imageTo3dTask.model_urls?.glb, path.join(modelDir, `${manifest.assetId}.image-to-3d.glb`), state, 'imageTo3dGlb');
+    await downloadIfAvailable(imageTo3dTask.thumbnail_url, path.join(previewDir, `${manifest.assetId}.image-to-3d.png`), state, 'imageTo3dThumbnail');
+    await downloadIfAvailable(imageTo3dTask.thumbnail_urls?.front, path.join(previewDir, `${manifest.assetId}.image-to-3d-front.png`), state, 'imageTo3dFrontThumbnail');
+    await downloadIfAvailable(imageTo3dTask.thumbnail_urls?.right, path.join(previewDir, `${manifest.assetId}.image-to-3d-right.png`), state, 'imageTo3dRightThumbnail');
+    await downloadIfAvailable(imageTo3dTask.thumbnail_urls?.back, path.join(previewDir, `${manifest.assetId}.image-to-3d-back.png`), state, 'imageTo3dBackThumbnail');
+    await downloadIfAvailable(imageTo3dTask.thumbnail_urls?.left, path.join(previewDir, `${manifest.assetId}.image-to-3d-left.png`), state, 'imageTo3dLeftThumbnail');
+    return state.imageTo3dTask;
+  }
+
+  state.previewTask ??= await createTask('text-to-3d preview', manifest.api.textTo3dEndpoint, {
+    mode: 'preview',
+    prompt: manifest.generation.prompt,
+    model_type: manifest.generation.modelType,
+    ai_model: manifest.generation.aiModel,
+    should_remesh: manifest.generation.shouldRemesh,
+    topology: manifest.generation.topology,
+    target_polycount: manifest.generation.targetPolycount,
+    pose_mode: manifest.generation.poseMode,
+    target_formats: manifest.generation.targetFormats,
+    moderation: manifest.generation.moderation,
+    alpha_thumbnail: manifest.generation.alphaThumbnail,
+  });
+  await saveState(state);
+
+  const previewTask = await pollTask('text-to-3d preview', `${manifest.api.textTo3dEndpoint}/${state.previewTask.id}`);
+  state.previewTask = mergeTaskRef(state.previewTask, previewTask);
+  await writeSanitizedTask('preview-task.json', previewTask);
+  await saveState(state);
+  await downloadIfAvailable(previewTask.model_urls?.glb, path.join(modelDir, `${manifest.assetId}.preview.glb`), state, 'previewGlb');
+  await downloadIfAvailable(previewTask.thumbnail_url, path.join(previewDir, `${manifest.assetId}.preview.png`), state, 'previewThumbnail');
+  await downloadIfAvailable(previewTask.alpha_thumbnail_url, path.join(previewDir, `${manifest.assetId}.preview-alpha.png`), state, 'previewAlphaThumbnail');
+
+  state.refineTask ??= await createTask('text-to-3d refine', manifest.api.textTo3dEndpoint, {
+    mode: 'refine',
+    preview_task_id: state.previewTask.id,
+    texture_prompt: manifest.generation.texturePrompt,
+    ai_model: manifest.generation.aiModel,
+    enable_pbr: manifest.generation.enablePbr,
+    hd_texture: manifest.generation.hdTexture,
+    remove_lighting: manifest.generation.removeLighting,
+    target_formats: manifest.generation.targetFormats,
+    moderation: manifest.generation.moderation,
+    alpha_thumbnail: manifest.generation.alphaThumbnail,
+  });
+  await saveState(state);
+
+  const refineTask = await pollTask('text-to-3d refine', `${manifest.api.textTo3dEndpoint}/${state.refineTask.id}`);
+  state.refineTask = mergeTaskRef(state.refineTask, refineTask);
+  await writeSanitizedTask('refine-task.json', refineTask);
+  await saveState(state);
+  await downloadIfAvailable(refineTask.model_urls?.glb, path.join(modelDir, `${manifest.assetId}.refined.glb`), state, 'refinedGlb');
+  await downloadIfAvailable(refineTask.thumbnail_url, path.join(previewDir, `${manifest.assetId}.refined.png`), state, 'refinedThumbnail');
+  await downloadIfAvailable(refineTask.alpha_thumbnail_url, path.join(previewDir, `${manifest.assetId}.refined-alpha.png`), state, 'refinedAlphaThumbnail');
+  return state.refineTask;
+}
 
 async function createTask(label, endpoint, payload) {
   console.log(`Creating ${label} task...`);
@@ -244,6 +287,18 @@ async function downloadIfAvailable(url, outPath, runState, key) {
   };
   await saveState(runState);
   console.log(`Downloaded ${key}: ${runState.downloads[key].path} (${buffer.byteLength}B)`);
+}
+
+async function readImageDataUri(imagePath) {
+  if (!imagePath || typeof imagePath !== 'string') {
+    throw new Error('Image-to-3D generation requires manifest.referenceImage.');
+  }
+
+  const resolvedImagePath = path.resolve(imagePath);
+  const extension = path.extname(resolvedImagePath).toLowerCase();
+  const mimeType = extension === '.jpg' || extension === '.jpeg' ? 'image/jpeg' : 'image/png';
+  const imageBuffer = await readFile(resolvedImagePath);
+  return `data:${mimeType};base64,${imageBuffer.toString('base64')}`;
 }
 
 async function fetchJson(url, options) {

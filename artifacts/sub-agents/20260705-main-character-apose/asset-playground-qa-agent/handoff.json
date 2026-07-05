@@ -1,0 +1,16 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "asset-playground-qa-agent",
+  "status": "complete-with-warnings",
+  "updatedAt": "2026-07-05T08:05:00-05:00",
+  "qaCommand": "npm run qa:headed:player-character",
+  "report": "artifacts/sub-agents/20260705-main-character-apose/asset-playground-qa-agent/report.json",
+  "screenshots": [
+    "player-character-rigged-front.png",
+    "player-character-idle.png",
+    "player-character-gun-hold.png",
+    "player-character-dance.png",
+    "player-character-out-of-hp.png"
+  ],
+  "result": "passed-with-budget-warnings"
+}

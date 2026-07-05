@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "asset-playground-qa-agent",
   "status": "complete-with-warnings",
-  "updatedAt": "2026-07-05T00:00:00-05:00",
-  "summary": "The current Meshy player character is a rejected placeholder because it drifted from the selected concept; the title-accessible pose harness now supports selected-bone sliders and animation preview while the next Meshy pass is prepared from a clean A-pose concept image.",
+  "updatedAt": "2026-07-05T08:05:00-05:00",
+  "summary": "The replacement Meshy player character was generated from a GPT Image 2 single A-pose plate and now has one combined character-debug runtime GLB with ten embedded animation clips. Headed QA passed, but the model remains over byte/triangle targets for gameplay integration.",
   "observations": [
     "The live test level can temporarily validate GLB load, weapon switching, and shoot feedback.",
     "window.__SIGILBREAKER_DEBUG__ now exposes loadedAssetIds, assetLoadErrors, and weapon state.",
@@ -13,7 +13,12 @@
     "The character visually reads as a strong title/cutscene mascot candidate.",
     "A title-accessible character debug page now exposes manual sliders for the rig's spine, shoulder, arm, forearm, hand, neck, and head bones.",
     "The current Meshy character does not match the selected concept closely enough and was not generated from a single clean A-pose reference image.",
-    "The current animation files are separate GLBs, which duplicates the full character payload for each animation."
+    "The current animation files are separate GLBs, which duplicates the full character payload for each animation.",
+    "GPT Image 2 produced a single centered front-facing A-pose reference from selected concept 002.",
+    "Meshy image-to-3D, rigging, and animation tasks generated an A-pose replacement character that visually matches the selected mascot direction better than the rejected placeholder.",
+    "scripts/combine-meshy-character-clips.mjs merged Meshy animation channels by matching bone names and produced one runtime GLB with ten embedded clips.",
+    "npm run qa:headed:player-character passed against public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb.",
+    "The character debug dropdown now plays embedded clips from the combined GLB instead of requesting public/assets/characters/meshy-gadget-gremlin/animations/*.glb."
   ],
   "decisions": [
     "Use live-level smoke for the three initial CC0 weapon assets only.",
@@ -24,7 +29,10 @@
     "Export pose rotations in degrees and radians relative to the imported bind pose.",
     "Use npm run pose:harness:player when a local authoring session should write the pose JSON directly into the repo.",
     "Require the next Meshy pass to generate one approved front-facing A-pose image from the winning concept before Image-to-3D.",
-    "Keep separate animation GLBs only for QA preview; final runtime should use one optimized multi-clip character GLB or a lightweight animation-only clip bundle."
+    "Keep separate animation GLBs only for QA preview; final runtime should use one optimized multi-clip character GLB or a lightweight animation-only clip bundle.",
+    "Use player.hero.gadget-gremlin.apose.animated.glb for character debug runtime preview.",
+    "Do not load the Meshy per-animation GLBs at runtime for this pass.",
+    "Keep gameplay/cutscene integration blocked until the combined GLB is optimized under the character runtime target or a budget exception is approved."
   ],
   "caughtIssues": [
     "No standalone playground exists for scale grid, material inspection, or isolated model screenshots.",
@@ -32,7 +40,8 @@
     "Headed QA records Chromium .glb net::ERR_ABORTED noise as ignored only after successful snapshots prove the asset loaded.",
     "GitHub Pages can copy or download pose JSON but cannot write it into the repo.",
     "The previous character acceptance note was too generous; the asset is a rig/debug placeholder only.",
-    "Separate full animation GLBs are too heavy for final runtime loading."
+    "Separate full animation GLBs are too heavy for final runtime loading.",
+    "The combined runtime GLB still reports 81375 triangles and 10983096B, above the stated 45000 triangle and 6000000B targets."
   ],
   "risks": [
     "Gameplay camera framing can hide model scale and material issues that an asset playground would reveal.",
@@ -52,7 +61,12 @@
     "src/game/playerCharacterPoseHarness.ts",
     "scripts/run-player-pose-harness.mjs",
     "artifacts/sub-agents/20260705-player-pose-harness/asset-playground-qa-agent",
-    "public/assets/characters/meshy-gadget-gremlin/source.json"
+    "public/assets/characters/meshy-gadget-gremlin/source.json",
+    "artifacts/sub-agents/20260705-main-character-apose/asset-playground-qa-agent/report.json",
+    "artifacts/sub-agents/20260705-main-character-apose/asset-playground-qa-agent/player-character-rigged-front.png",
+    "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+    "tools/meshy/generated/meshy-gadget-gremlin-apose/combined-runtime.json",
+    "tools/meshy/manifests/main-character-gadget-gremlin-apose.json"
   ],
   "jsonForAgents": {
     "temporaryLiveLevelQa": true,
@@ -81,21 +95,29 @@
     "latestPlayerCharacterQa": {
       "command": "npm run qa:headed:player-character",
       "headless": false,
-      "result": "placeholder-rejected-after-user-review",
+      "result": "passed-with-budget-warnings",
       "viewport": "844x390",
-      "assetId": "player.hero.gadget-gremlin",
-      "screenshots": [
-        "player-character-rigged-front.png",
-        "player-character-idle.png",
-        "player-character-gun-hold.png",
-        "player-character-dance.png",
-        "player-character-out-of-hp.png"
+      "assetId": "player.hero.gadget-gremlin.apose.animated",
+      "modelPath": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+      "animationClipCount": 10,
+      "animationClipIds": [
+        "walking",
+        "running",
+        "idle",
+        "idle-alt",
+        "low-health",
+        "out-of-hp",
+        "victory",
+        "dance",
+        "gun-hold",
+        "run-and-shoot"
       ],
-      "triangles": 81627,
-      "maxTexturesObserved": 7,
-      "largestGlbBytes": 10371892,
+      "triangles": 81375,
+      "drawCalls": 2,
+      "textures": 3,
+      "runtimeGlbBytes": 10983096,
       "gameplayIntegrationBlocked": true,
-      "rejectionReason": "Model drifted from the selected concept and was not made from an approved A-pose image."
+      "warning": "Visual/animation QA passed for character debug, but optimization remains required before gameplay/cutscene loading."
     },
     "latestPlayerPoseHarness": {
       "titleReachableDebugPage": true,

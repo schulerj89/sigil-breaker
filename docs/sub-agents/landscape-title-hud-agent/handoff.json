@@ -2,7 +2,7 @@
   "handoffVersion": "1.0.0",
   "agentId": "landscape-title-hud-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T00:00:00-05:00",
+  "updatedAt": "2026-07-05T08:05:00-05:00",
   "summary": "Landscape title screen includes a character debug route with mobile pose controls, selected-bone sliders, and an animation dropdown, while preserving the compressed WebP title background, loading asset gate, and debug-exposed phases.",
   "observations": [
     "Center metrics HUD includes FPS, XYZ coordinates, JS heap, level triangle count, and chunk count.",
@@ -23,7 +23,10 @@
     "The title screen now exposes [data-title-character-debug] for the player pose harness.",
     "The character debug page uses the existing portrait rotate prompt and disables combat touch zones outside gameplay.",
     "The character debug page now exposes an animation dropdown and a selected-bone dropdown.",
-    "The selected bone shows three visible X/Y/Z range sliders instead of rendering every bone panel at once."
+    "The selected bone shows three visible X/Y/Z range sliders instead of rendering every bone panel at once.",
+    "The character debug page animation dropdown now plays embedded clips from one combined A-pose Meshy GLB.",
+    "Smoke QA selected the Dance animation and verified activeAnimationId in the pose JSON.",
+    "Smoke QA verified that character debug no longer requests per-animation GLBs."
   ],
   "decisions": [
     "Landscape is the playable orientation.",
@@ -41,7 +44,8 @@
     "Keep the title and start button anchored left, away from the center-right portal and right thumb combat controls.",
     "Ship the title background as compressed WebP instead of the full generated PNG.",
     "Route debug tools through explicit game phases instead of stacking them over gameplay controls.",
-    "Use selected-bone editing for mobile character posing so arm sliders are reachable on phone landscape."
+    "Use selected-bone editing for mobile character posing so arm sliders are reachable on phone landscape.",
+    "Keep the character debug page title-accessible and mobile landscape-first while using the combined A-pose runtime GLB."
   ],
   "caughtIssues": [
     "Initial coordinate badge sizing risked crowding the 667 px landscape HUD; CSS now uses auto/minmax/auto grid columns and wrapped center metrics.",
@@ -68,7 +72,10 @@
     "docs/assets/openai-title-concepts.json",
     "artifacts/sub-agents/20260705-title-screen/landscape-title-hud-agent",
     "artifacts/sub-agents/20260705-title-screen/smoke-qa-agent/title-screen-844x390.png",
-    "artifacts/sub-agents/20260705-player-pose-harness/landscape-title-hud-agent"
+    "artifacts/sub-agents/20260705-player-pose-harness/landscape-title-hud-agent",
+    "src/game/playerCharacterPoseHarness.ts",
+    "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+    "artifacts/sub-agents/20260705-main-character-apose/landscape-title-hud-agent/generated-reference/player.hero.gadget-gremlin.apose-reference.png"
   ],
   "jsonForAgents": {
     "hudElements": [
@@ -156,7 +163,21 @@
       "boneSelector": "[data-character-bone-select]",
       "selectedBoneSliderSelector": "[data-pose-bone].is-active input[type=\"range\"]",
       "combatControlsEnabled": false,
-      "portraitPlayable": false
+      "portraitPlayable": false,
+      "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+      "animationSource": "embedded clips in combined GLB",
+      "animationClipIds": [
+        "walking",
+        "running",
+        "idle",
+        "idle-alt",
+        "low-health",
+        "out-of-hp",
+        "victory",
+        "dance",
+        "gun-hold",
+        "run-and-shoot"
+      ]
     }
   },
   "nextAgents": [

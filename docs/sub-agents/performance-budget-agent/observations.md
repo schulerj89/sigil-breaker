@@ -126,3 +126,9 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Focused screenshot QA reported renderer calls 81, triangles 25702, geometries 30, and textures 53 with `qaCapture=1`.
 - Meshy main-character headed QA reported 81627 triangles and up to 7 textures in standalone playground captures, with each animation GLB around 10 MB because clips duplicate the full mesh.
 - The Meshy character is staged as source/provenance only and must not be added to initial gameplay loading until optimized, merged, or retargeted.
+## 2026-07-05 - A-Pose Character Runtime Budget
+
+- The A-pose Meshy character runtime GLB is 10983096B with ten embedded clips, 81375 observed triangles, 2 draw calls, 2 geometries, and 3 textures in headed QA.
+- This replaces runtime loading of separate full-character animation GLBs in the character debug page.
+- The combined runtime is accepted for character debug preview only; gameplay, title, and cutscene loading still need optimization or an explicit budget exception.
+- `npm run validate:assets` now reports 125309634B player character source payload.

@@ -2,9 +2,8 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { publicAssetUrl } from './assetUrls';
 
-const CHARACTER_ASSET_ID = 'character.player.meshy.gadget-gremlin.rigged';
-const MODEL_PATH = 'assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.rigged.glb';
-const ANIMATION_ROOT = 'assets/characters/meshy-gadget-gremlin/animations';
+const CHARACTER_ASSET_ID = 'character.player.meshy.gadget-gremlin.apose.animated';
+const MODEL_PATH = 'assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb';
 const POSE_FILE_NAME = 'gun-hold-draft.json';
 const POSE_EDIT_ANIMATION_ID = 'pose-edit';
 const CONTROLLED_BONES = [
@@ -24,17 +23,17 @@ const CONTROLLED_BONES = [
 ] as const;
 const AXES = ['x', 'y', 'z'] as const;
 const ANIMATION_DEFINITIONS = [
-  { id: POSE_EDIT_ANIMATION_ID, label: 'Pose Edit', path: null },
-  { id: 'idle', label: 'Idle', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.idle.glb` },
-  { id: 'idle-alt', label: 'Idle Alt', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.idle-alt.glb` },
-  { id: 'walking', label: 'Walking', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.walking.glb` },
-  { id: 'running', label: 'Running', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.running.glb` },
-  { id: 'run-and-shoot', label: 'Run + Shoot', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.run-and-shoot.glb` },
-  { id: 'gun-hold', label: 'Gun Hold', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.gun-hold.glb` },
-  { id: 'low-health', label: 'Low Health', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.low-health.glb` },
-  { id: 'out-of-hp', label: 'Out Of HP', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.out-of-hp.glb` },
-  { id: 'victory', label: 'Victory', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.victory.glb` },
-  { id: 'dance', label: 'Dance', path: `${ANIMATION_ROOT}/player.hero.gadget-gremlin.dance.glb` },
+  { id: POSE_EDIT_ANIMATION_ID, label: 'Pose Edit', clipName: null },
+  { id: 'idle', label: 'Idle', clipName: 'idle' },
+  { id: 'idle-alt', label: 'Idle Alt', clipName: 'idle-alt' },
+  { id: 'walking', label: 'Walking', clipName: 'walking' },
+  { id: 'running', label: 'Running', clipName: 'running' },
+  { id: 'run-and-shoot', label: 'Run + Shoot', clipName: 'run-and-shoot' },
+  { id: 'gun-hold', label: 'Gun Hold', clipName: 'gun-hold' },
+  { id: 'low-health', label: 'Low Health', clipName: 'low-health' },
+  { id: 'out-of-hp', label: 'Out Of HP', clipName: 'out-of-hp' },
+  { id: 'victory', label: 'Victory', clipName: 'victory' },
+  { id: 'dance', label: 'Dance', clipName: 'dance' },
 ] as const;
 
 type ControlledBoneName = (typeof CONTROLLED_BONES)[number];
@@ -207,6 +206,7 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
         model.scale.setScalar(1.08);
         normalizeModelMaterials(model);
         modelRoot.add(model);
+        cacheEmbeddedAnimationClips(gltf.animations, animationClips);
         captureBaseBoneRotations(model, baseBoneRotations);
         mixer = new THREE.AnimationMixer(model);
         frameModel(model, camera, viewZoomInput, (targetY) => {
@@ -324,16 +324,13 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
     }
 
     const animationDefinition = ANIMATION_DEFINITIONS.find((definition) => definition.id === animationId);
-    if (!animationDefinition?.path) {
+    if (!animationDefinition?.clipName) {
       return;
     }
 
-    status.textContent = `LOADING ${animationDefinition.label.toUpperCase()}`;
+    status.textContent = `ANIM ${animationDefinition.label.toUpperCase()}`;
     try {
-      const clip = await loadAnimationClip(animationDefinition.id, animationDefinition.path, loader, animationClips);
-      if (activeAnimationId !== animationId || !mixer || !model) {
-        return;
-      }
+      const clip = getAnimationClip(animationDefinition.id, animationClips);
 
       stopActiveAnimation();
       activeAction = mixer.clipAction(clip, model);
@@ -586,26 +583,32 @@ function updatePoseOutput(
   return payload;
 }
 
-async function loadAnimationClip(
-  animationId: AnimationId,
-  animationPath: string,
-  loader: GLTFLoader,
+function cacheEmbeddedAnimationClips(
+  clips: THREE.AnimationClip[],
   animationClips: Map<AnimationId, THREE.AnimationClip>,
-): Promise<THREE.AnimationClip> {
+): void {
+  for (const definition of ANIMATION_DEFINITIONS) {
+    if (!definition.clipName) {
+      continue;
+    }
+
+    const clip = clips.find((candidate) => candidate.name === definition.clipName);
+    if (clip) {
+      animationClips.set(definition.id, clip);
+    }
+  }
+}
+
+function getAnimationClip(
+  animationId: AnimationId,
+  animationClips: Map<AnimationId, THREE.AnimationClip>,
+): THREE.AnimationClip {
   const cachedClip = animationClips.get(animationId);
   if (cachedClip) {
     return cachedClip;
   }
 
-  const gltf = await loader.loadAsync(publicAssetUrl(animationPath));
-  const [clip] = gltf.animations;
-  disposeSceneGraph(gltf.scene);
-  if (!clip) {
-    throw new Error(`Animation GLB did not include clips: ${animationPath}`);
-  }
-
-  animationClips.set(animationId, clip);
-  return clip;
+  throw new Error(`Combined character GLB did not include animation clip: ${animationId}`);
 }
 
 function populateAnimationSelect(animationSelect: HTMLSelectElement): void {
@@ -807,13 +810,4 @@ function disposeMaterial(material: THREE.Material | THREE.Material[] | undefined
   }
 
   material.dispose();
-}
-
-function disposeSceneGraph(object: THREE.Object3D): void {
-  object.traverse((child) => {
-    if (child instanceof THREE.Mesh) {
-      child.geometry.dispose();
-      disposeMaterial(child.material);
-    }
-  });
 }

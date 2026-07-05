@@ -136,3 +136,8 @@ Status: complete for debug coordinate, music mute, weapon cycle, and rotate prom
 ### Next Handoff Notes
 
 - Future non-gameplay screens with native controls should not rely on global gameplay input listeners being harmless.
+## 2026-07-05 - Embedded Character Animation Dropdown
+
+- Character debug now uses the A-pose Meshy combined runtime GLB and plays animations from embedded clips.
+- The smoke test selects `dance`, waits for `ANIM DANCE`, and verifies `activeAnimationId` in the pose JSON.
+- The debug route still stays title-accessible and mobile landscape-first with combat input disabled outside gameplay.

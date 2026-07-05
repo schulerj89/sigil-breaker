@@ -1,0 +1,36 @@
+{
+  "id": "019f3251-db3a-791f-a54f-d1912074c3fc",
+  "type": "image-to-3d",
+  "name": "",
+  "art_style": "",
+  "object_prompt": "",
+  "style_prompt": "",
+  "negative_prompt": "",
+  "texture_prompt": "Warm amber fur, cream muzzle, cobalt-blue scarf and vest, dark matte metal bracer and boots, lime-green energy cores and small accent lights, brown belt and pouch, clean stylized game texture, no letters, no logos, no weapon.",
+  "texture_image_url": "",
+  "text_style_prompt": "",
+  "image_style_url": "",
+  "status": "SUCCEEDED",
+  "created_at": 1783255660349,
+  "progress": 100,
+  "started_at": 1783255660375,
+  "finished_at": 1783255913855,
+  "expires_at": 1783515113855,
+  "task_error": null,
+  "model_url": "model.glb",
+  "model_urls": {
+    "glb": "model.glb"
+  },
+  "thumbnail_url": "preview.png",
+  "texture_urls": [
+    {
+      "base_color": "texture_0.png",
+      "metallic": "texture_0_metallic.png",
+      "roughness": "texture_0_roughness.png",
+      "normal": "texture_0_normal.png",
+      "emission": "texture_0_emission.png"
+    }
+  ],
+  "remove_lighting": true,
+  "consumed_credits": 30
+}

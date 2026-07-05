@@ -16,7 +16,7 @@ Do not commit broken work just to satisfy this rule. If validation fails and can
 
 Source code lives on `main`, but GitHub Pages publishes generated files from the `gh-pages` branch. The Pages source is intentionally set to legacy branch publishing because artifact deployment with `actions/deploy-pages@v5` repeatedly failed with GitHub's generic deployment error after successful builds.
 
-Do not edit `gh-pages` directly. The `Deploy GitHub Pages` workflow builds from `main`, writes cache-busted production files into `gh-pages`, and asks Pages to rebuild. Do not switch the workflow back to `actions/deploy-pages@v5` unless the Pages deployment model is intentionally being revisited.
+Do not edit `gh-pages` directly. The `Deploy GitHub Pages` workflow builds from `main` and writes cache-busted production files into `gh-pages`; GitHub Pages then deploys from that branch push. Do not add a second manual Pages build request unless the Pages deployment model is intentionally being revisited.
 
 The Pages workflow is intentionally lightweight: install, build, publish, and request a Pages rebuild. Heavy validation (`npm test`, `npm run lint`, `npm run validate:levels`, `npm run validate:assets`, and `npm run validate:browser`) is run locally before committing/pushing instead of inside the deploy workflow.
 

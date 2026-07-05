@@ -38,6 +38,9 @@
   "homepage": "https://schulerj89.github.io/sigil-breaker/",
   "devDependencies": {
     "@eslint/js": "^9.39.2",
+    "@gltf-transform/core": "^4.4.1",
+    "@gltf-transform/extensions": "^4.4.1",
+    "@gltf-transform/functions": "^4.4.1",
     "@playwright/test": "^1.61.1",
     "@types/three": "^0.185.0",
     "eslint": "^9.39.2",

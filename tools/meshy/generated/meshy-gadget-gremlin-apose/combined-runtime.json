@@ -1,0 +1,103 @@
+{
+  "metadataVersion": "1.0.0",
+  "generatedAt": "2026-07-05T12:55:30.518Z",
+  "assetId": "player.hero.gadget-gremlin.apose",
+  "sourceId": "meshy.main-character.gadget-gremlin.apose.20260705",
+  "sourceManifest": "tools/meshy/manifests/main-character-gadget-gremlin-apose.json",
+  "baseModel": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.rigged.glb",
+  "runtimeModel": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+  "runtimeBytes": 10983096,
+  "runtimeSha256": "80bf9362d7b452f94bcac5b439469b3e67cde1641a9956ad5927b22776c5be7b",
+  "clips": [
+    {
+      "id": "walking",
+      "label": "Walking",
+      "sourcePath": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.walking.glb",
+      "sourceClipName": "Armature|walking_man|baselayer",
+      "copiedChannels": 72,
+      "skippedChannels": 0,
+      "durationSeconds": 1.0666667222976685
+    },
+    {
+      "id": "running",
+      "label": "Running",
+      "sourcePath": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.running.glb",
+      "sourceClipName": "Armature|running|baselayer",
+      "copiedChannels": 72,
+      "skippedChannels": 0,
+      "durationSeconds": 0.6666666865348816
+    },
+    {
+      "id": "idle",
+      "label": "Idle",
+      "sourcePath": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.idle.glb",
+      "sourceClipName": "Armature|Idle|baselayer",
+      "copiedChannels": 72,
+      "skippedChannels": 0,
+      "durationSeconds": 4.0333333015441895
+    },
+    {
+      "id": "idle-alt",
+      "label": "Idle Alt",
+      "sourcePath": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.idle-alt.glb",
+      "sourceClipName": "Armature|Idle_02|baselayer",
+      "copiedChannels": 72,
+      "skippedChannels": 0,
+      "durationSeconds": 2.366666555404663
+    },
+    {
+      "id": "low-health",
+      "label": "Low Health",
+      "sourcePath": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.low-health.glb",
+      "sourceClipName": "Armature|Catching_Breath|baselayer",
+      "copiedChannels": 72,
+      "skippedChannels": 0,
+      "durationSeconds": 7.0333333015441895
+    },
+    {
+      "id": "out-of-hp",
+      "label": "Out Of HP",
+      "sourcePath": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.out-of-hp.glb",
+      "sourceClipName": "Armature|Dead|baselayer",
+      "copiedChannels": 72,
+      "skippedChannels": 0,
+      "durationSeconds": 3
+    },
+    {
+      "id": "victory",
+      "label": "Victory",
+      "sourcePath": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.victory.glb",
+      "sourceClipName": "Armature|Victory_Cheer|baselayer",
+      "copiedChannels": 72,
+      "skippedChannels": 0,
+      "durationSeconds": 9.366666793823242
+    },
+    {
+      "id": "dance",
+      "label": "Dance",
+      "sourcePath": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.dance.glb",
+      "sourceClipName": "Armature|FunnyDancing_01|baselayer",
+      "copiedChannels": 72,
+      "skippedChannels": 0,
+      "durationSeconds": 7.800000190734863
+    },
+    {
+      "id": "gun-hold",
+      "label": "Gun Hold",
+      "sourcePath": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.gun-hold.glb",
+      "sourceClipName": "Armature|Gun_Hold_Left_Turn|baselayer",
+      "copiedChannels": 72,
+      "skippedChannels": 0,
+      "durationSeconds": 3.700000047683716
+    },
+    {
+      "id": "run-and-shoot",
+      "label": "Run + Shoot",
+      "sourcePath": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.apose.run-and-shoot.glb",
+      "sourceClipName": "Armature|Run_and_Shoot|baselayer",
+      "copiedChannels": 72,
+      "skippedChannels": 0,
+      "durationSeconds": 0.699999988079071
+    }
+  ]
+}

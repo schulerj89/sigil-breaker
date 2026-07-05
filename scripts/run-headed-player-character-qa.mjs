@@ -12,26 +12,22 @@ const VIEWPORT = { width: 844, height: 390 };
 const RUN_ID = process.env.RUN_ID ?? '20260705-main-character-concepts';
 const OUTPUT_DIR = resolve('artifacts', 'sub-agents', RUN_ID, 'asset-playground-qa-agent');
 const CHARACTER_ROOT = 'public/assets/characters/meshy-gadget-gremlin';
-const MODEL_PATH = `${CHARACTER_ROOT}/models/player.hero.gadget-gremlin.rigged.glb`;
+const MODEL_PATH = `${CHARACTER_ROOT}/models/player.hero.gadget-gremlin.apose.animated.glb`;
 const CLIPS = [
   {
     id: 'idle',
-    path: `${CHARACTER_ROOT}/animations/player.hero.gadget-gremlin.idle.glb`,
     screenshot: 'player-character-idle.png',
   },
   {
     id: 'gun-hold',
-    path: `${CHARACTER_ROOT}/animations/player.hero.gadget-gremlin.gun-hold.glb`,
     screenshot: 'player-character-gun-hold.png',
   },
   {
     id: 'dance',
-    path: `${CHARACTER_ROOT}/animations/player.hero.gadget-gremlin.dance.glb`,
     screenshot: 'player-character-dance.png',
   },
   {
     id: 'out-of-hp',
-    path: `${CHARACTER_ROOT}/animations/player.hero.gadget-gremlin.out-of-hp.glb`,
     screenshot: 'player-character-out-of-hp.png',
   },
 ];
@@ -54,6 +50,7 @@ const report = {
   consoleMessages: [],
   failedRequests: [],
   ignoredFailedRequests: [],
+  characterGlbRequests: [],
   snapshots: [],
   budgetWarnings: [],
   passed: false,
@@ -89,6 +86,11 @@ try {
       report.failedRequests.push(failedRequest);
     }
   });
+  page.on('request', (request) => {
+    if (new URL(request.url()).pathname.endsWith('.glb')) {
+      report.characterGlbRequests.push(request.url());
+    }
+  });
 
   await page.goto(target, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => window.__PLAYER_CHARACTER_QA__?.ready === true, null, { timeout: 45_000 });
@@ -96,7 +98,7 @@ try {
   await capture(page, 'player-character-rigged-front.png');
 
   for (const clip of CLIPS) {
-    await page.evaluate((clipPath) => window.__PLAYER_CHARACTER_QA__.loadClip(clipPath), clip.path);
+    await page.evaluate((clipId) => window.__PLAYER_CHARACTER_QA__.playClip(clipId), clip.id);
     await page.waitForFunction(
       (clipId) => window.__PLAYER_CHARACTER_QA__?.snapshot?.activeClipId === clipId,
       clip.id,
@@ -121,6 +123,9 @@ try {
 
   if (snapshot?.renderer?.calls > 12) {
     errors.push(`character playground draw calls too high: ${snapshot.renderer.calls}`);
+  }
+  if (new Set(report.characterGlbRequests.map((url) => new URL(url).pathname)).size !== 1) {
+    errors.push(`expected one character GLB request path, saw ${report.characterGlbRequests.length}`);
   }
 
   report.passed = errors.length === 0;
@@ -154,10 +159,9 @@ function addBudgetWarnings() {
     report.budgetWarnings.push(`triangle count ${maxTriangles} exceeds 45000 target for gameplay integration`);
   }
 
-  const glbPaths = [MODEL_PATH, ...CLIPS.map((clip) => clip.path)];
-  const largestGlbBytes = Math.max(...glbPaths.map((glbPath) => statSync(resolve(glbPath)).size));
+  const largestGlbBytes = statSync(resolve(MODEL_PATH)).size;
   if (largestGlbBytes > 6_000_000) {
-    report.budgetWarnings.push(`largest tested GLB ${largestGlbBytes}B exceeds 6000000B target`);
+    report.budgetWarnings.push(`combined runtime GLB ${largestGlbBytes}B exceeds 6000000B target`);
   }
 
   report.budgetWarnings.push('gun-hold animation is visually inspected but not accepted as final two-hand blaster pose');
@@ -197,7 +201,7 @@ function createStaticServer(rootDir) {
 }
 
 function buildPageHtml() {
-  const clipEntries = CLIPS.map((clip) => `{ id: ${JSON.stringify(clip.id)}, path: ${JSON.stringify(`/${clip.path}`)} }`).join(',');
+  const clipEntries = CLIPS.map((clip) => `{ id: ${JSON.stringify(clip.id)} }`).join(',');
 
   return `<!doctype html>
 <html>
@@ -261,11 +265,8 @@ function buildPageHtml() {
     window.__PLAYER_CHARACTER_QA__ = {
       ready: false,
       snapshot: null,
-      loadClip: async (clipPath) => {
-        const normalizedPath = '/' + clipPath.replace(/^\\//, '');
-        const matching = clipEntries.find((clip) => '/' + clip.path.replace(/^\\//, '') === normalizedPath);
-        activeClipId = matching?.id ?? clipPath.split('/').pop();
-        await loadGltf(normalizedPath);
+      playClip: async (clipId) => {
+        playClip(clipId);
       },
     };
 
@@ -301,10 +302,23 @@ function buildPageHtml() {
       currentAnimations = gltf.animations;
       if (gltf.animations.length > 0) {
         mixer = new THREE.AnimationMixer(model);
-        const action = mixer.clipAction(gltf.animations[0]);
-        action.reset().play();
+        playClip('idle');
       }
       hud.textContent = activeClipId + ' | clips ' + gltf.animations.length;
+      updateSnapshot();
+    }
+
+    function playClip(clipId) {
+      const clip = currentAnimations.find((animation) => animation.name === clipId);
+      if (!clip || !mixer || !model) {
+        throw new Error('Missing embedded character animation clip: ' + clipId);
+      }
+
+      mixer.stopAllAction();
+      const action = mixer.clipAction(clip, model);
+      action.reset().play();
+      activeClipId = clipId;
+      hud.textContent = activeClipId + ' | clips ' + currentAnimations.length;
       updateSnapshot();
     }
 
