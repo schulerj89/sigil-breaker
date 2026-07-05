@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "weapon-upgrade-asset-curator",
   "status": "complete",
-  "updatedAt": "2026-07-04T20:42:06Z",
-  "summary": "Five Kenney Blaster Kit weapons are now in the mobile cycle with distinct stats, colors, cache-busted GLBs, and ElevenLabs SFX profiles.",
+  "updatedAt": "2026-07-05T21:35:56Z",
+  "summary": "Five Kenney Blaster Kit weapons remain registered, but the starting mobile cycle now exposes only SPARK and BORE with distinct stats, colors, cache-busted GLBs, and ElevenLabs SFX profiles.",
   "observations": [
     "SPARK is a fast sidearm using blaster-a.glb.",
     "BORE is a close scatter weapon using blaster-h.glb.",
@@ -33,10 +33,13 @@
     "Latest weapon-cycle and flash screenshots are stored under artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent/.",
     "Added RIFT from blaster-q.glb as a slow high-damage precision weapon with green effects.",
     "Added TORCH from blaster-m.glb as a fast low-damage burst weapon with red-pink effects.",
-    "WeaponSystemSnapshot.activeWeaponStats exposes damage, fireIntervalMs, reloadMs, and rangeUnits."
+    "WeaponSystemSnapshot.activeWeaponStats exposes damage, fireIntervalMs, reloadMs, and rangeUnits.",
+    "The runtime starting roster is now SPARK and BORE only; VAULT, RIFT, and TORCH remain defined assets for future unlock/progression work.",
+    "Boot weapon model preloading now requests only SPARK and BORE, reducing starting weapon model payload while preserving the full manifest.",
+    "WeaponSystemSnapshot.weaponIds now reports the currently available starting weapons, not every registered weapon definition."
   ],
   "decisions": [
-    "Expose the three weapons through a single mobile weapon cycle button.",
+    "Expose SPARK and BORE through the starting mobile weapon cycle button.",
     "Use one fire button for this slice.",
     "Leave upgrades, reload button, enemy/projectile behavior, and final hit impact assets for later iterations.",
     "Use primitive tracer and wall impact only as temporary gameplay feedback.",
@@ -46,8 +49,9 @@
     "Keep shape-specific muzzle tuning in each WeaponDefinition.view.muzzleLocalOffset.",
     "Use a centered placeholder flash disk until an external muzzle-flash VFX asset is sourced.",
     "Keep the per-weapon effect style in WeaponDefinition.effects so later external VFX replacement has a clear style target per weapon.",
-    "Keep the mobile cycle order SPARK, BORE, VAULT, RIFT, TORCH.",
-    "Use activeWeaponStats as the deterministic QA surface for weapon balance differences."
+    "Keep the starting mobile cycle order SPARK, BORE until progression or pickups unlock later weapons.",
+    "Use activeWeaponStats as the deterministic QA surface for weapon balance differences.",
+    "Keep VAULT, RIFT, and TORCH in WEAPON_DEFINITIONS so future progression can opt them into availability without recreating asset records."
   ],
   "caughtIssues": [
     "Current assets are prop-scale GLB models, not dedicated animated first-person weapon rigs.",
@@ -56,7 +60,8 @@
     "Current muzzle flash, tracer, and wall impact visuals are procedural placeholders until external VFX assets are sourced.",
     "The primitive tracer is short-lived and can be hard to inspect in still screenshots; prefer effectPose assertions for automated alignment.",
     "The centered colored disk improves flash alignment but is still a procedural placeholder.",
-    "Procedural color/style variants make the three guns easier to distinguish, but final muzzle/tracer/impact art still needs external assets."
+    "Procedural color/style variants make the registered guns easier to distinguish, but final muzzle/tracer/impact art still needs external assets.",
+    "Future unlock code needs an explicit available-weapon inventory rather than reading every WEAPON_DEFINITIONS entry as currently usable."
   ],
   "risks": [
     "Model offsets, right-shifted placement, and yaw 0 presentation may need per-device adjustment once gameplay camera tuning starts.",
@@ -185,7 +190,20 @@
     },
     "visibleMuzzleFlashGeometry": "CircleGeometry(0.11, 18)",
     "screenshotArtifacts": "artifacts/sub-agents/20260704-weapon-cycle-burst/smoke-qa-agent",
-    "requiresCameraReview": true
+    "requiresCameraReview": true,
+    "startingWeaponRoster": [
+      "weapon.blaster.spark",
+      "weapon.blaster.bore"
+    ],
+    "registeredButLockedAtStart": [
+      "weapon.blaster.vault",
+      "weapon.blaster.rift",
+      "weapon.blaster.torch"
+    ],
+    "startingCycleOrder": [
+      "weapon.blaster.spark",
+      "weapon.blaster.bore"
+    ]
   },
   "nextAgents": [
     "camera-cutscene-agent",

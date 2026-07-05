@@ -29,7 +29,7 @@ const TITLE_BACKGROUND_ASSET_ID = 'ui.title.background.gadget-rift.generated';
 const TITLE_BACKGROUND_PATH = 'assets/title/gadget-rift-title-bg.webp';
 const TITLE_START_TRANSITION_MS = 360;
 const DEATH_ACTIONS_REVEAL_SECONDS = 3.2;
-const EXPECTED_GAMEPLAY_ASSET_COUNT = 26;
+const EXPECTED_GAMEPLAY_ASSET_COUNT = 23;
 const EXPECTED_BOOT_ASSET_COUNT = EXPECTED_GAMEPLAY_ASSET_COUNT + 1;
 const DEATH_VOICE_LINES: readonly CharacterVoiceLine[] = CHARACTER_VOICE_LINES.filter(
   (line) => line.category === 'fail',
@@ -769,7 +769,11 @@ function createShellMarkup(): string {
             data-weapon-cycle-button
             aria-label="Switch weapon"
           >
-            <span class="gun-icon" aria-hidden="true"></span>
+            <svg class="gun-icon" viewBox="0 0 40 32" aria-hidden="true" focusable="false">
+              <path class="gun-icon__body gun-icon__body--top" d="M6 8h17l4 3h6v4h-8l-3-2h-7l-2 7H9l1-7H6z" />
+              <path class="gun-icon__body gun-icon__body--bottom" d="M34 24H17l-4-3H7v-4h8l3 2h7l2-7h4l-1 7h4z" />
+              <path class="gun-icon__swap" d="M27 5l4 4-4 4M13 27l-4-4 4-4" />
+            </svg>
           </button>
           <button
             class="action-button action-button--fire"

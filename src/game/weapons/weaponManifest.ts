@@ -257,3 +257,16 @@ export const WEAPON_DEFINITIONS: readonly WeaponDefinition[] = [
     },
   },
 ];
+
+export const STARTING_WEAPON_IDS = [
+  'weapon.blaster.spark',
+  'weapon.blaster.bore',
+] as const;
+
+export const STARTING_WEAPON_DEFINITIONS: readonly WeaponDefinition[] = STARTING_WEAPON_IDS.map((weaponId) => {
+  const weapon = WEAPON_DEFINITIONS.find((definition) => definition.id === weaponId);
+  if (!weapon) {
+    throw new Error(`Missing starting weapon definition ${weaponId}`);
+  }
+  return weapon;
+});

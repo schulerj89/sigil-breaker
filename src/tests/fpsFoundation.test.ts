@@ -65,7 +65,14 @@ import {
   getHorizontalRaycastDistance,
   getHorizontalShotDirectionLength,
 } from '../game/weapons/weaponShotMath';
-import { WEAPON_ASSET_SOURCE, WEAPON_DEFINITIONS, publicAssetUrl, withAssetVersion } from '../game/weapons/weaponManifest';
+import {
+  STARTING_WEAPON_DEFINITIONS,
+  STARTING_WEAPON_IDS,
+  WEAPON_ASSET_SOURCE,
+  WEAPON_DEFINITIONS,
+  publicAssetUrl,
+  withAssetVersion,
+} from '../game/weapons/weaponManifest';
 
 describe('FPS foundation config', () => {
   it('keeps the bootstrap scene aligned with the mobile landscape gates', () => {
@@ -265,6 +272,8 @@ describe('FPS foundation config', () => {
     expect(WEAPON_ASSET_SOURCE.license).toBe('Creative Commons Zero, CC0');
     expect(WEAPON_ASSET_SOURCE.attributionRequired).toBe(false);
     expect(WEAPON_DEFINITIONS).toHaveLength(5);
+    expect(STARTING_WEAPON_IDS).toEqual(['weapon.blaster.spark', 'weapon.blaster.bore']);
+    expect(STARTING_WEAPON_DEFINITIONS.map((weapon) => weapon.id)).toEqual([...STARTING_WEAPON_IDS]);
     expect(new Set(weaponIds).size).toBe(WEAPON_DEFINITIONS.length);
     expect(totalModelBytes).toBeLessThan(1_000_000);
     expect(muzzleColors.size).toBe(WEAPON_DEFINITIONS.length);

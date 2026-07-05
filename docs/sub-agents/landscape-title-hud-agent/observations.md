@@ -141,3 +141,10 @@ Status: complete for debug coordinate, music mute, weapon cycle, and rotate prom
 - Character debug now uses the A-pose Meshy combined runtime GLB and plays animations from embedded clips.
 - The smoke test selects `dance`, waits for `ANIM DANCE`, and verifies `activeAnimationId` in the pose JSON.
 - The debug route still stays title-accessible and mobile landscape-first with combat input disabled outside gameplay.
+
+## 2026-07-05 - Starting Weapon Switch Icon
+
+- The right-thumb weapon switch remains beside the fire button and now cycles only the starting weapons: SPARK and BORE.
+- The switch mark is now an inline SVG with two stylized blasters and a swap stroke instead of CSS pseudo-element blocks.
+- The icon remains code-native, color-inheriting, and asset-free, so it does not add licensing or payload overhead.
+- Smoke QA should keep checking `.gun-icon` visibility and `data-active-weapon-id` after each cycle tap.

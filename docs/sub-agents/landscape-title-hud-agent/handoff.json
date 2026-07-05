@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "landscape-title-hud-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T08:05:00-05:00",
-  "summary": "Landscape title screen includes a character debug route with mobile pose controls, selected-bone sliders, and an animation dropdown, while preserving the compressed WebP title background, loading asset gate, and debug-exposed phases.",
+  "updatedAt": "2026-07-05T21:35:56Z",
+  "summary": "Landscape title screen includes character debug tools and the gameplay HUD now keeps a right-thumb SVG weapon switch button for the SPARK/BORE starting cycle.",
   "observations": [
     "Center metrics HUD includes FPS, XYZ coordinates, JS heap, level triangle count, and chunk count.",
     "Coordinates use the player's debug scene position with one decimal precision.",
@@ -18,7 +18,7 @@
     "GPT Image 2 generated three no-text landscape title concepts under artifacts/sub-agents/20260705-title-screen/landscape-title-hud-agent/generated-designs/.",
     "Concept 002 was selected because it leaves the cleanest left-side title/start zone and matches the metallic FPS foundation.",
     "The runtime title background is public/assets/title/sigilbreaker-title-bg.webp and is loaded through publicAssetUrl for assetBuild cache busting.",
-    "The loading screen waits for 18 boot assets: 17 gameplay assets plus ui.title.background.sigilbreaker.generated.",
+    "The loading screen waits for 24 boot assets: 23 gameplay assets plus the title background.",
     "The debug snapshot now exposes snapshot.scene.phase and snapshot.ui.loading for title/start QA.",
     "The title screen now exposes [data-title-character-debug] for the player pose harness.",
     "The character debug page uses the existing portrait rotate prompt and disables combat touch zones outside gameplay.",
@@ -26,7 +26,10 @@
     "The selected bone shows three visible X/Y/Z range sliders instead of rendering every bone panel at once.",
     "The character debug page animation dropdown now plays embedded clips from one combined A-pose Meshy GLB.",
     "Smoke QA selected the Dance animation and verified activeAnimationId in the pose JSON.",
-    "Smoke QA verified that character debug no longer requests per-animation GLBs."
+    "Smoke QA verified that character debug no longer requests per-animation GLBs.",
+    "The right-thumb weapon switch remains beside the fire button and now cycles only the starting weapons: SPARK and BORE.",
+    "The switch mark is now an inline SVG with two stylized blasters and a swap stroke instead of CSS pseudo-element blocks.",
+    "The icon remains code-native, color-inheriting, and asset-free, so it does not add licensing or payload overhead."
   ],
   "decisions": [
     "Landscape is the playable orientation.",
@@ -98,7 +101,12 @@
       "iconSelector": ".gun-icon",
       "activeWeaponAttribute": "data-active-weapon-id",
       "position": "right thumb action pad beside [data-fire-button]",
-      "bottomPreviewTrayAllowed": false
+      "bottomPreviewTrayAllowed": false,
+      "startingCycleOrder": [
+        "weapon.blaster.spark",
+        "weapon.blaster.bore"
+      ],
+      "iconType": "inline-svg"
     },
     "rotatePrompt": {
       "selector": ".rotate-prompt",

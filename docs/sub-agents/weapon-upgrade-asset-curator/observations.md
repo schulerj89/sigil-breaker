@@ -1,6 +1,6 @@
 # Observations: weapon-upgrade-asset-curator
 
-Status: complete for current per-weapon muzzle, pitch shot-effect, collision, cache-busting, ElevenLabs audio, cycle button, and distinct visible weapon-effect pass.
+Status: complete for two-gun starting roster and weapon switch icon pass.
 
 ## What It Saw
 
@@ -32,10 +32,13 @@ Status: complete for current per-weapon muzzle, pitch shot-effect, collision, ca
 - Current weapon roster is SPARK fast sidearm, BORE close scatter, VAULT heavy pulse, RIFT precision rail, and TORCH burst carbine.
 - `WeaponSystemSnapshot.activeWeaponStats` now exposes damage, fire interval, reload, and range for the active gun.
 - RIFT uses green shot effects and high damage with slow cadence; TORCH uses red-pink effects and low damage with very fast cadence.
+- The runtime starting roster is now SPARK and BORE only; VAULT, RIFT, and TORCH remain defined assets for future unlock/progression work.
+- Boot weapon model preloading now requests only SPARK and BORE, reducing starting weapon model payload while preserving the full manifest.
+- `WeaponSystemSnapshot.weaponIds` now reports the currently available starting weapons, not every registered weapon definition.
 
 ## Decisions
 
-- Use these three weapons for the initial cycle button and shoot-loop smoke tests.
+- Use SPARK and BORE for the starting cycle button and shoot-loop smoke tests.
 - Delay upgrade visuals until powerups and weapon progression are implemented.
 - Treat current yaw `0` and right-shifted model offsets as prototype framing values pending camera/game-feel review.
 - Use temporary primitive tracer and impact feedback until external projectile/hit assets are sourced.
@@ -46,7 +49,8 @@ Status: complete for current per-weapon muzzle, pitch shot-effect, collision, ca
 - Use a centered flash primitive until an external muzzle-flash VFX asset is sourced.
 - Keep the per-weapon effect style in `WeaponDefinition.effects` so later external VFX replacement has a clear style target per weapon.
 - Keep weapon switching on the single mobile cycle button until a larger inventory UI exists.
-- Keep the five-gun cycle order stable for smoke: SPARK, BORE, VAULT, RIFT, TORCH.
+- Keep the starting mobile cycle order SPARK, BORE until progression or pickups unlock later weapons.
+- Keep VAULT, RIFT, and TORCH in `WEAPON_DEFINITIONS` so future progression can opt them into availability without recreating asset records.
 
 ## Caught Issues
 
@@ -56,8 +60,9 @@ Status: complete for current per-weapon muzzle, pitch shot-effect, collision, ca
 - The current muzzle flash, tracer, and wall impact are still procedural primitives; they should be replaced with external VFX assets once the source is chosen.
 - The primitive tracer is brief in still screenshots, so debug `effectPose` remains the more reliable automated alignment signal.
 - The colored flash is easier to center as a disk, but it is still a placeholder and should not become the final VFX asset.
-- Procedural color/style variants make the three guns easier to distinguish, but final muzzle/tracer/impact art still needs external assets.
+- Procedural color/style variants make the registered guns easier to distinguish, but final muzzle/tracer/impact art still needs external assets.
 - RIFT and TORCH share the same viewmodel assumptions as the first three weapons; their exact muzzle/framing should get screenshot QA before final tuning.
+- Future unlock code needs an explicit available-weapon inventory rather than reading every `WEAPON_DEFINITIONS` entry as currently usable.
 
 ## Next Handoff Notes
 
@@ -67,3 +72,4 @@ Status: complete for current per-weapon muzzle, pitch shot-effect, collision, ca
 - Future screenshot QA should capture SPARK cyan, BORE orange, and VAULT violet shot effects from deterministic fire frames.
 - Future screenshot QA should also capture RIFT green and TORCH red-pink shot effects.
 - Smoke QA should use `snapshot.weapon.effectStyle` as the deterministic gate until flash-frame captures are stable.
+- Smoke QA should verify the starting cycle loops SPARK -> BORE -> SPARK and that locked weapon GLBs are not requested during boot.

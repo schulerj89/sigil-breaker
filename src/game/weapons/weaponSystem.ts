@@ -9,7 +9,13 @@ import {
   type PlayerWeaponViewModelSnapshot,
 } from './playerWeaponViewModel';
 import { WeaponAudio, type WeaponAudioSnapshot } from './weaponAudio';
-import { WEAPON_DEFINITIONS, publicAssetUrl, withAssetVersion, type WeaponDefinition } from './weaponManifest';
+import {
+  STARTING_WEAPON_DEFINITIONS,
+  WEAPON_DEFINITIONS,
+  publicAssetUrl,
+  withAssetVersion,
+  type WeaponDefinition,
+} from './weaponManifest';
 import {
   WeaponViewModelTuner,
   shouldEnableWeaponViewModelTuner,
@@ -38,6 +44,7 @@ const MIN_AIM_FOV_DEGREES = 58;
 const AIM_IN_RESPONSE = 8;
 const AIM_OUT_RESPONSE = 6;
 const FIRST_PERSON_WEAPON_RENDER_ORDER = 3;
+const DEFAULT_STARTING_WEAPON = STARTING_WEAPON_DEFINITIONS[0] as WeaponDefinition;
 
 export interface WeaponShotSnapshot {
   sequence: number;
@@ -126,7 +133,7 @@ export class WeaponSystem {
   private readonly assetLoadErrors: string[] = [];
   private readonly ammoByWeapon = new Map<string, number>();
   private readonly playerViewModelTuner: WeaponViewModelTuner | null;
-  private activeWeapon = WEAPON_DEFINITIONS[0];
+  private activeWeapon = DEFAULT_STARTING_WEAPON;
   private activeLoadedWeapon: LoadedWeapon | null = null;
   private nextShotAt = 0;
   private reloadCompleteAt = 0;
@@ -241,7 +248,7 @@ export class WeaponSystem {
     ];
 
     return {
-      weaponIds: WEAPON_DEFINITIONS.map((weapon) => weapon.id),
+      weaponIds: STARTING_WEAPON_DEFINITIONS.map((weapon) => weapon.id),
       activeWeaponId: this.activeWeapon.id,
       activeWeaponLabel: this.activeWeapon.label,
       activeWeaponRole: this.activeWeapon.role,
@@ -336,7 +343,7 @@ export class WeaponSystem {
     this.wallImpact.visible = false;
     this.camera.fov = this.baseCameraFov;
     this.camera.updateProjectionMatrix();
-    this.switchWeapon(WEAPON_DEFINITIONS[0].id);
+    this.switchWeapon(DEFAULT_STARTING_WEAPON.id);
     this.updateMenuState();
   }
 
@@ -370,7 +377,10 @@ export class WeaponSystem {
   }
 
   private async preloadWeapons(): Promise<void> {
-    await Promise.all([...WEAPON_DEFINITIONS.map((weapon) => this.loadWeapon(weapon)), this.playerViewModel.load()]);
+    await Promise.all([
+      ...STARTING_WEAPON_DEFINITIONS.map((weapon) => this.loadWeapon(weapon)),
+      this.playerViewModel.load(),
+    ]);
     this.switchWeapon(this.activeWeapon.id);
   }
 
@@ -403,7 +413,7 @@ export class WeaponSystem {
   }
 
   private switchWeapon(weaponId: string): void {
-    const nextWeapon = WEAPON_DEFINITIONS.find((weapon) => weapon.id === weaponId);
+    const nextWeapon = STARTING_WEAPON_DEFINITIONS.find((weapon) => weapon.id === weaponId);
     if (!nextWeapon || nextWeapon.id === this.activeWeapon.id) {
       return;
     }
@@ -421,8 +431,10 @@ export class WeaponSystem {
   }
 
   private cycleWeapon(): void {
-    const activeIndex = WEAPON_DEFINITIONS.findIndex((weapon) => weapon.id === this.activeWeapon.id);
-    const nextWeapon = WEAPON_DEFINITIONS[(activeIndex + 1) % WEAPON_DEFINITIONS.length] ?? WEAPON_DEFINITIONS[0];
+    const activeIndex = STARTING_WEAPON_DEFINITIONS.findIndex((weapon) => weapon.id === this.activeWeapon.id);
+    const nextWeapon =
+      STARTING_WEAPON_DEFINITIONS[(activeIndex + 1) % STARTING_WEAPON_DEFINITIONS.length] ??
+      DEFAULT_STARTING_WEAPON;
     this.switchWeapon(nextWeapon.id);
   }
 
@@ -711,7 +723,7 @@ export class WeaponSystem {
     }
 
     const weaponIndex = Number(event.code.replace('Digit', '')) - 1;
-    const weapon = WEAPON_DEFINITIONS[weaponIndex];
+    const weapon = STARTING_WEAPON_DEFINITIONS[weaponIndex];
     if (weapon) {
       this.switchWeapon(weapon.id);
     }

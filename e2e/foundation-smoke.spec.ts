@@ -28,10 +28,7 @@ const EXPECTED_LOADED_ASSET_IDS = [
   'environment.foundation.wall-panel-steel',
   'player.hero.gadget-gremlin.apose.animated',
   'weapon.blaster.bore',
-  'weapon.blaster.rift',
   'weapon.blaster.spark',
-  'weapon.blaster.torch',
-  'weapon.blaster.vault',
 ] as const;
 
 interface DebugSnapshot {
@@ -74,6 +71,7 @@ interface DebugSnapshot {
   };
   assetLoadErrors: string[];
   weapon: {
+    weaponIds: string[];
     activeWeaponId: string;
     activeWeaponLabel: string;
     activeWeaponRole: string;
@@ -414,6 +412,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   expect(debugSnapshot.rendererMetrics.geometries).toBeLessThanOrEqual(debugSnapshot.budgets.geometriesMax);
   expect(debugSnapshot.rendererMetrics.textures).toBeLessThanOrEqual(debugSnapshot.budgets.texturesMax);
   expect(debugSnapshot.weapon.activeWeaponId).toBe('weapon.blaster.spark');
+  expect(debugSnapshot.weapon.weaponIds).toEqual(['weapon.blaster.spark', 'weapon.blaster.bore']);
   expect(debugSnapshot.weapon.activeWeaponLabel).toBe('SPARK');
   expect(debugSnapshot.weapon.activeWeaponRole).toBe('fast sidearm');
   expect(debugSnapshot.weapon.activeWeaponStats).toMatchObject({
@@ -628,7 +627,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   );
 
   expect(previewUrls).toHaveLength(0);
-  expect(modelUrls).toHaveLength(5);
+  expect(modelUrls).toHaveLength(2);
   expect(enemyModelUrls).toHaveLength(3);
   expect(textureUrls.length).toBeGreaterThanOrEqual(1);
   expect(environmentTextureUrls).toHaveLength(3);
@@ -1267,41 +1266,6 @@ async function verifyWeaponCycleButton(page: Page): Promise<void> {
     tracerColor: '#ffc45c',
     impactColor: '#ff7a3c',
   });
-
-  await cycleButton.click();
-  await expect.poll(async () => (await readDebugSnapshot(page)).weapon.activeWeaponId).toBe('weapon.blaster.vault');
-  snapshot = await readDebugSnapshot(page);
-  await expect(page.locator('[data-weapon-label]')).toHaveText('VAULT');
-  await expect(cycleButton).toHaveAttribute('data-active-weapon-id', 'weapon.blaster.vault');
-  expect(snapshot.weapon.effectStyle).toEqual({
-    muzzleColor: '#c084fc',
-    tracerColor: '#e879f9',
-    impactColor: '#a78bfa',
-  });
-
-  await cycleButton.click();
-  await expect.poll(async () => (await readDebugSnapshot(page)).weapon.activeWeaponId).toBe('weapon.blaster.rift');
-  snapshot = await readDebugSnapshot(page);
-  await expect(page.locator('[data-weapon-label]')).toHaveText('RIFT');
-  await expect(cycleButton).toHaveAttribute('data-active-weapon-id', 'weapon.blaster.rift');
-  expect(snapshot.weapon.effectStyle).toEqual({
-    muzzleColor: '#34d399',
-    tracerColor: '#86efac',
-    impactColor: '#22c55e',
-  });
-  expect(snapshot.weapon.activeWeaponStats.damage).toBe(92);
-
-  await cycleButton.click();
-  await expect.poll(async () => (await readDebugSnapshot(page)).weapon.activeWeaponId).toBe('weapon.blaster.torch');
-  snapshot = await readDebugSnapshot(page);
-  await expect(page.locator('[data-weapon-label]')).toHaveText('TORCH');
-  await expect(cycleButton).toHaveAttribute('data-active-weapon-id', 'weapon.blaster.torch');
-  expect(snapshot.weapon.effectStyle).toEqual({
-    muzzleColor: '#fb7185',
-    tracerColor: '#fda4af',
-    impactColor: '#f43f5e',
-  });
-  expect(snapshot.weapon.activeWeaponStats.fireIntervalMs).toBe(105);
 
   await cycleButton.click();
   await expect.poll(async () => (await readDebugSnapshot(page)).weapon.activeWeaponId).toBe('weapon.blaster.spark');
