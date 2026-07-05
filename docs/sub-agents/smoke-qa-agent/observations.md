@@ -173,3 +173,4 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - `VIEWMODEL_TUNING=1 npm run qa:headed:player-viewmodel` opens the same route with the live camera-space viewmodel tuner enabled and verifies the `VM` show/hide toggle.
 - Browser smoke now verifies the player viewmodel `armMask` contract: one source skinned mesh is reduced to a right-side arm mesh with fewer than 20000 visible triangles.
 - Latest headed player-viewmodel QA passed after the arm-only runtime mask and gun-priority render ordering update.
+- Headed player-viewmodel QA now fails if any cycled weapon's idle viewmodel grip falls back into the hidden legacy Y position, covering the switch-guns disappearance regression.

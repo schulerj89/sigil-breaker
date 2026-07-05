@@ -96,3 +96,9 @@ Status: needs review after browser smoke.
 - The latest headed QA pass reduced the FPS viewmodel from 81375 source triangles to 7641 visible arm-side triangles, removing head/hair/torso/legs from the weapon view.
 - First-person weapon meshes render after the arm mask so the gun visually wins over the hand when the two overlap.
 - Spark's default character grip was updated from the user's closest screenshot values while retaining `?viewmodelTuning=1` for further per-gun tuning.
+
+## 2026-07-05 - Viewmodel Switch Regression
+
+- Weapon switching exposed that only Spark had the visible arm grip; BORE, VAULT, RIFT, and TORCH still used the old conservative offscreen grip values.
+- All five weapons now share the same visible masked-arm baseline so cycling weapons does not make the arm disappear.
+- Per-gun tuning remains available through `?viewmodelTuning=1`, but future tuning should start from the shared visible baseline instead of the hidden legacy pose.

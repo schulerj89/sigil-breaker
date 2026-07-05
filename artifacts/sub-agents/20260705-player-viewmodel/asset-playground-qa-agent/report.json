@@ -1,8 +1,8 @@
 {
   "runId": "20260705-player-viewmodel",
   "headless": false,
-  "target": "http://127.0.0.1:62366/sigil-breaker/?qaCapture=1&headedPlayerViewmodelQa=1",
-  "buildId": "20260705153018",
+  "target": "http://127.0.0.1:64705/sigil-breaker/?qaCapture=1&headedPlayerViewmodelQa=1",
+  "buildId": "20260705154538",
   "screenshots": [
     "weapon-1-idle.png",
     "weapon-1-held-fire.png",
@@ -21,7 +21,7 @@
       "activeWeaponId": "weapon.blaster.spark",
       "aimBlend": 0,
       "rendererMetrics": {
-        "fps": 58.4,
+        "fps": 59.6,
         "calls": 81,
         "triangles": 33331,
         "geometries": 31,
@@ -80,9 +80,9 @@
     {
       "screenshot": "weapon-1-held-fire.png",
       "activeWeaponId": "weapon.blaster.spark",
-      "aimBlend": 0.28,
+      "aimBlend": 0.24,
       "rendererMetrics": {
-        "fps": 55.8,
+        "fps": 56.1,
         "calls": 74,
         "triangles": 32071,
         "geometries": 35,
@@ -98,16 +98,16 @@
         "activeGrip": {
           "weaponId": "weapon.blaster.spark",
           "position": [
-            -0.126,
-            -0.815,
-            0.634
+            -0.114,
+            -0.779,
+            0.646
           ],
           "rotation": [
-            0.014,
-            2.792,
-            -0.024
+            0.015,
+            2.849,
+            -0.025
           ],
-          "scale": 0.624
+          "scale": 0.623
         },
         "bonePoseDegrees": {
           "RightArm": {
@@ -143,7 +143,7 @@
       "activeWeaponId": "weapon.blaster.bore",
       "aimBlend": 0,
       "rendererMetrics": {
-        "fps": 56,
+        "fps": 55.8,
         "calls": 75,
         "triangles": 31909,
         "geometries": 36,
@@ -159,16 +159,16 @@
         "activeGrip": {
           "weaponId": "weapon.blaster.bore",
           "position": [
-            -0.2,
-            -1.08,
-            0.45
+            -0.05,
+            -0.6,
+            0.71
           ],
           "rotation": [
-            0.03,
-            3.142,
-            -0.05
+            0.02,
+            3.141,
+            -0.03
           ],
-          "scale": 0.66
+          "scale": 0.62
         },
         "bonePoseDegrees": {
           "RightArm": {
@@ -202,11 +202,11 @@
     {
       "screenshot": "weapon-2-held-fire.png",
       "activeWeaponId": "weapon.blaster.bore",
-      "aimBlend": 0.28,
+      "aimBlend": 0.23,
       "rendererMetrics": {
-        "fps": 55.5,
-        "calls": 74,
-        "triangles": 31897,
+        "fps": 55.6,
+        "calls": 75,
+        "triangles": 31909,
         "geometries": 36,
         "textures": 56
       },
@@ -220,16 +220,16 @@
         "activeGrip": {
           "weaponId": "weapon.blaster.bore",
           "position": [
-            -0.245,
-            -1.091,
-            0.444
+            -0.113,
+            -0.778,
+            0.647
           ],
           "rotation": [
-            0.024,
-            3.142,
-            -0.042
+            0.015,
+            2.852,
+            -0.025
           ],
-          "scale": 0.666
+          "scale": 0.623
         },
         "bonePoseDegrees": {
           "RightArm": {
@@ -265,7 +265,7 @@
       "activeWeaponId": "weapon.blaster.vault",
       "aimBlend": 0,
       "rendererMetrics": {
-        "fps": 55.8,
+        "fps": 55.5,
         "calls": 76,
         "triangles": 32495,
         "geometries": 38,
@@ -281,16 +281,16 @@
         "activeGrip": {
           "weaponId": "weapon.blaster.vault",
           "position": [
-            -0.2,
-            -1.1,
-            0.48
+            -0.05,
+            -0.6,
+            0.71
           ],
           "rotation": [
-            0.03,
-            3.142,
-            -0.05
+            0.02,
+            3.141,
+            -0.03
           ],
-          "scale": 0.68
+          "scale": 0.62
         },
         "bonePoseDegrees": {
           "RightArm": {
@@ -342,16 +342,16 @@
         "activeGrip": {
           "weaponId": "weapon.blaster.vault",
           "position": [
-            -0.238,
-            -1.11,
-            0.475
+            -0.114,
+            -0.782,
+            0.646
           ],
           "rotation": [
-            0.025,
-            3.142,
-            -0.043
+            0.015,
+            2.846,
+            -0.025
           ],
-          "scale": 0.685
+          "scale": 0.623
         },
         "bonePoseDegrees": {
           "RightArm": {
@@ -387,7 +387,7 @@
       "activeWeaponId": "weapon.blaster.rift",
       "aimBlend": 0,
       "rendererMetrics": {
-        "fps": 55.7,
+        "fps": 55.9,
         "calls": 74,
         "triangles": 32203,
         "geometries": 39,
@@ -403,16 +403,16 @@
         "activeGrip": {
           "weaponId": "weapon.blaster.rift",
           "position": [
-            -0.2,
-            -1.08,
-            0.48
+            -0.05,
+            -0.6,
+            0.71
           ],
           "rotation": [
-            0.025,
-            3.142,
-            -0.04
+            0.02,
+            3.141,
+            -0.03
           ],
-          "scale": 0.66
+          "scale": 0.62
         },
         "bonePoseDegrees": {
           "RightArm": {
@@ -446,9 +446,9 @@
     {
       "screenshot": "weapon-4-held-fire.png",
       "activeWeaponId": "weapon.blaster.rift",
-      "aimBlend": 0.29,
+      "aimBlend": 0.28,
       "rendererMetrics": {
-        "fps": 55.8,
+        "fps": 55.7,
         "calls": 73,
         "triangles": 32203,
         "geometries": 39,
@@ -464,16 +464,16 @@
         "activeGrip": {
           "weaponId": "weapon.blaster.rift",
           "position": [
-            -0.246,
-            -1.091,
-            0.474
+            -0.127,
+            -0.816,
+            0.633
           ],
           "rotation": [
-            0.019,
-            3.142,
-            -0.033
+            0.014,
+            2.79,
+            -0.024
           ],
-          "scale": 0.666
+          "scale": 0.624
         },
         "bonePoseDegrees": {
           "RightArm": {
@@ -509,7 +509,7 @@
       "activeWeaponId": "weapon.blaster.torch",
       "aimBlend": 0,
       "rendererMetrics": {
-        "fps": 56.1,
+        "fps": 55.7,
         "calls": 74,
         "triangles": 32053,
         "geometries": 40,
@@ -525,16 +525,16 @@
         "activeGrip": {
           "weaponId": "weapon.blaster.torch",
           "position": [
-            -0.18,
-            -1.06,
-            0.45
+            -0.05,
+            -0.6,
+            0.71
           ],
           "rotation": [
             0.02,
             3.142,
-            -0.035
+            -0.03
           ],
-          "scale": 0.64
+          "scale": 0.62
         },
         "bonePoseDegrees": {
           "RightArm": {
@@ -568,9 +568,9 @@
     {
       "screenshot": "weapon-5-held-fire.png",
       "activeWeaponId": "weapon.blaster.torch",
-      "aimBlend": 0.28,
+      "aimBlend": 0.24,
       "rendererMetrics": {
-        "fps": 55.3,
+        "fps": 55.9,
         "calls": 73,
         "triangles": 32041,
         "geometries": 40,
@@ -586,16 +586,16 @@
         "activeGrip": {
           "weaponId": "weapon.blaster.torch",
           "position": [
-            -0.225,
-            -1.071,
-            0.444
+            -0.114,
+            -0.78,
+            0.646
           ],
           "rotation": [
-            0.014,
-            3.142,
-            -0.029
+            0.015,
+            2.849,
+            -0.025
           ],
-          "scale": 0.644
+          "scale": 0.623
         },
         "bonePoseDegrees": {
           "RightArm": {

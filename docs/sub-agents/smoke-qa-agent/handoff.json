@@ -605,6 +605,7 @@
         "snapshot.weapon.playerViewModel.activeGrip.weaponId matches active weapon",
         "snapshot.weapon.playerViewModel.armMask.enabled === true",
         "right-side arm mask remains under 20000 visible triangles",
+        "cycled weapon idle grips stay above the hidden legacy Y position",
         "no weapon asset load errors",
         "benign shutdown aborts ignored only after loaded snapshot exists"
       ],

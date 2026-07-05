@@ -114,6 +114,9 @@ try {
     if (snapshot.playerViewModel.activeGrip?.weaponId !== snapshot.activeWeaponId) {
       errors.push(`active grip mismatch for ${snapshot.activeWeaponId}`);
     }
+    if (snapshot.screenshot.endsWith('-idle.png') && snapshot.playerViewModel.activeGrip?.position?.[1] < -0.8) {
+      errors.push(`viewmodel arm hidden after switch for ${snapshot.activeWeaponId}`);
+    }
     if (snapshot.assetLoadErrors.length > 0) {
       errors.push(`weapon asset load error for ${snapshot.activeWeaponId}: ${snapshot.assetLoadErrors.join(', ')}`);
     }

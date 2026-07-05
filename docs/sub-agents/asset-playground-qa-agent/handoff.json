@@ -160,7 +160,7 @@
       "result": "passed-arm-mask",
       "assetId": "player.hero.gadget-gremlin.apose.animated",
       "modelPath": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
-      "defaultGameplayBehavior": "character GLB is loaded, posed, and reduced at runtime to a right-side first-person arm mesh; Spark uses the user's closest screenshot grip values as the current default.",
+      "defaultGameplayBehavior": "character GLB is loaded, posed, and reduced at runtime to a right-side first-person arm mesh; all five weapons share the visible arm grip baseline so switching guns does not hide the hand.",
       "limitation": "Meshy exported the character as one skinned mesh, so the FPS arm is a derived runtime geometry rather than separate authored arm nodes.",
       "armMask": {
         "enabled": true,
@@ -176,6 +176,7 @@
         ]
       },
       "renderOrdering": "first-person weapon meshes render after the arm mask and arm materials do not write depth, so the gun visually wins over the hand when they overlap.",
+      "switchRegressionFixed": true,
       "tunerControls": [
         "position",
         "aimPosition",
