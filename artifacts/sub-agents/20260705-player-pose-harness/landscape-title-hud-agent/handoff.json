@@ -1,0 +1,27 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "landscape-title-hud-agent",
+  "status": "complete",
+  "updatedAt": "2026-07-05T00:00:00-05:00",
+  "summary": "Added a mobile landscape character debug route from the title screen without enabling gameplay HUD or touch controls.",
+  "artifacts": [
+    "src/game/createGame.ts",
+    "src/style.css",
+    "e2e/foundation-smoke.spec.ts"
+  ],
+  "jsonForAgents": {
+    "newGamePhase": "character-debug",
+    "titleButtonSelector": "[data-title-character-debug]",
+    "debugScreenSelector": "[data-character-debug]",
+    "backButtonSelector": "[data-character-debug-back]",
+    "mobileConstraints": [
+      "portrait rotate prompt remains global",
+      "debug panel is scrollable",
+      "combat touch zones are disabled outside gameplay"
+    ]
+  },
+  "nextAgents": [
+    "smoke-qa-agent",
+    "touch-controls-agent"
+  ]
+}

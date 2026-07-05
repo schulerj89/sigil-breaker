@@ -1,0 +1,46 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "asset-playground-qa-agent",
+  "status": "complete-with-warnings",
+  "updatedAt": "2026-07-05T00:00:00-05:00",
+  "summary": "Added a mobile landscape player pose harness for adjusting rig bones and exporting a gun-hold still pose.",
+  "artifacts": [
+    "src/game/playerCharacterPoseHarness.ts",
+    "scripts/run-player-pose-harness.mjs",
+    "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.rigged.glb"
+  ],
+  "jsonForAgents": {
+    "titleReachableDebugPage": true,
+    "localRepoWriteCommand": "npm run pose:harness:player",
+    "poseExportFileName": "gun-hold-draft.json",
+    "controlledBones": [
+      "Spine",
+      "Spine01",
+      "Spine02",
+      "LeftShoulder",
+      "LeftArm",
+      "LeftForeArm",
+      "LeftHand",
+      "RightShoulder",
+      "RightArm",
+      "RightForeArm",
+      "RightHand",
+      "neck",
+      "Head"
+    ],
+    "poseUnits": {
+      "rotationsDegrees": "degrees relative to imported bind pose",
+      "rotationsRadians": "radians relative to imported bind pose",
+      "handWorldPositions": "Three.js world units"
+    },
+    "knownWarnings": [
+      "Current model still needs GLB optimization before gameplay integration.",
+      "GitHub Pages can copy/download pose JSON but cannot write it into the repo."
+    ]
+  },
+  "nextAgents": [
+    "gltf-optimization-agent",
+    "weapon-upgrade-asset-curator",
+    "camera-cutscene-agent"
+  ]
+}

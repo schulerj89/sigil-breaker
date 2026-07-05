@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "landscape-title-hud-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T01:16:00Z",
-  "summary": "Landscape title screen now uses selected GPT Image 2 concept 002 with a compressed WebP background, live DOM title/start UI, loading asset gate, and debug-exposed loading/title/gameplay phases.",
+  "updatedAt": "2026-07-05T00:00:00-05:00",
+  "summary": "Landscape title screen now includes a character debug route with mobile pose controls, while preserving the compressed WebP title background, loading asset gate, and debug-exposed phases.",
   "observations": [
     "Center metrics HUD includes FPS, XYZ coordinates, JS heap, level triangle count, and chunk count.",
     "Coordinates use the player's debug scene position with one decimal precision.",
@@ -19,7 +19,9 @@
     "Concept 002 was selected because it leaves the cleanest left-side title/start zone and matches the metallic FPS foundation.",
     "The runtime title background is public/assets/title/sigilbreaker-title-bg.webp and is loaded through publicAssetUrl for assetBuild cache busting.",
     "The loading screen waits for 18 boot assets: 17 gameplay assets plus ui.title.background.sigilbreaker.generated.",
-    "The debug snapshot now exposes snapshot.scene.phase and snapshot.ui.loading for title/start QA."
+    "The debug snapshot now exposes snapshot.scene.phase and snapshot.ui.loading for title/start QA.",
+    "The title screen now exposes [data-title-character-debug] for the player pose harness.",
+    "The character debug page uses the existing portrait rotate prompt and disables combat touch zones outside gameplay."
   ],
   "decisions": [
     "Landscape is the playable orientation.",
@@ -35,7 +37,8 @@
     "Use live DOM title and start button text over generated no-text background art.",
     "Use the condensed sci-fi sans font direction for title and loading UI.",
     "Keep the title and start button anchored left, away from the center-right portal and right thumb combat controls.",
-    "Ship the title background as compressed WebP instead of the full generated PNG."
+    "Ship the title background as compressed WebP instead of the full generated PNG.",
+    "Route debug tools through explicit game phases instead of stacking them over gameplay controls."
   ],
   "caughtIssues": [
     "Initial coordinate badge sizing risked crowding the 667 px landscape HUD; CSS now uses auto/minmax/auto grid columns and wrapped center metrics.",
@@ -43,7 +46,8 @@
     "Adding more right-side HUD controls can crowd the build, weapon, and ammo badges on 667px landscape viewports.",
     "The bottom weapon tray competed with viewmodel framing and should not return without a new mobile layout review.",
     "The first title screenshot caught the loading overlay ghosting beneath the title; hidden full-screen overlays now use display none.",
-    "The selected art needed a stronger left-side title-safe dark gradient so generated background details do not read as stray UI."
+    "The selected art needed a stronger left-side title-safe dark gradient so generated background details do not read as stray UI.",
+    "The look zone needed to be disabled outside gameplay so the character debug page can receive mobile touches cleanly."
   ],
   "risks": [
     "Reward UI can become unreadable if powerup names and stat copy are not constrained early.",
@@ -59,7 +63,8 @@
     "public/assets/title/sigilbreaker-title-bg.webp",
     "docs/assets/openai-title-concepts.json",
     "artifacts/sub-agents/20260705-title-screen/landscape-title-hud-agent",
-    "artifacts/sub-agents/20260705-title-screen/smoke-qa-agent/title-screen-844x390.png"
+    "artifacts/sub-agents/20260705-title-screen/smoke-qa-agent/title-screen-844x390.png",
+    "artifacts/sub-agents/20260705-player-pose-harness/landscape-title-hud-agent"
   ],
   "jsonForAgents": {
     "hudElements": [
@@ -136,6 +141,15 @@
         "near-white title text"
       ],
       "cacheBustedWith": "assetBuild"
+    },
+    "characterDebugPage": {
+      "phase": "character-debug",
+      "titleButtonSelector": "[data-title-character-debug]",
+      "screenSelector": "[data-character-debug]",
+      "backButtonSelector": "[data-character-debug-back]",
+      "poseJsonSelector": "[data-character-pose-json]",
+      "combatControlsEnabled": false,
+      "portraitPlayable": false
     }
   },
   "nextAgents": [

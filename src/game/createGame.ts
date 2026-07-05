@@ -8,6 +8,7 @@ import { FpsControls } from './fpsControls';
 import { Health } from './health';
 import { LEVEL_HEIGHT_TILES, LEVEL_WIDTH_TILES } from './levelMap';
 import { createMobileZoomGuard } from './mobileZoomGuard';
+import { createPlayerCharacterPoseHarness } from './playerCharacterPoseHarness';
 import { WEAPON_DEFINITIONS } from './weapons/weaponManifest';
 import { WeaponSystem } from './weapons/weaponSystem';
 
@@ -77,6 +78,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       request.damage,
     ),
   });
+  const playerPoseHarness = createPlayerCharacterPoseHarness(root);
   weaponSystemRef.current = weaponSystem;
   levelRuntime.update(controls.getSnapshot().player.position);
 
@@ -127,8 +129,11 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
 
   const debugToggle = root.querySelector<HTMLButtonElement>('[data-debug-toggle]');
   const titleStartButton = root.querySelector<HTMLButtonElement>('[data-title-start]');
+  const titleCharacterDebugButton = root.querySelector<HTMLButtonElement>('[data-title-character-debug]');
+  const characterDebugBackButton = root.querySelector<HTMLButtonElement>('[data-character-debug-back]');
   const loadingScreen = root.querySelector<HTMLElement>('[data-loading-screen]');
   const titleScreen = root.querySelector<HTMLElement>('[data-title-screen]');
+  const characterDebugScreen = root.querySelector<HTMLElement>('[data-character-debug]');
   const applyGamePhase = (): void => {
     if (shell) {
       shell.dataset.gamePhase = gamePhase;
@@ -136,14 +141,34 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     if (titleStartButton) {
       titleStartButton.disabled = gamePhase !== 'title';
     }
+    if (titleCharacterDebugButton) {
+      titleCharacterDebugButton.disabled = gamePhase !== 'title';
+    }
     loadingScreen?.setAttribute('aria-hidden', String(gamePhase !== 'loading'));
     titleScreen?.setAttribute('aria-hidden', String(gamePhase !== 'title'));
+    characterDebugScreen?.setAttribute('aria-hidden', String(gamePhase !== 'character-debug'));
   };
   const startGameplay = (): void => {
     if (gamePhase !== 'title') {
       return;
     }
     gamePhase = 'gameplay';
+    applyGamePhase();
+  };
+  const openCharacterDebug = (): void => {
+    if (gamePhase !== 'title') {
+      return;
+    }
+    playerPoseHarness.open();
+    gamePhase = 'character-debug';
+    applyGamePhase();
+  };
+  const closeCharacterDebug = (): void => {
+    if (gamePhase !== 'character-debug') {
+      return;
+    }
+    playerPoseHarness.close();
+    gamePhase = 'title';
     applyGamePhase();
   };
   const onTitleStartPointerDown = (event: PointerEvent): void => {
@@ -153,6 +178,18 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   const onTitleStartClick = (event: MouseEvent): void => {
     event.preventDefault();
     startGameplay();
+  };
+  const onTitleCharacterDebugPointerDown = (event: PointerEvent): void => {
+    event.preventDefault();
+    openCharacterDebug();
+  };
+  const onTitleCharacterDebugClick = (event: MouseEvent): void => {
+    event.preventDefault();
+    openCharacterDebug();
+  };
+  const onCharacterDebugBackPointerDown = (event: PointerEvent): void => {
+    event.preventDefault();
+    closeCharacterDebug();
   };
   const updateDebugVisibility = (): void => {
     shell?.classList.toggle('game-shell--debug-hidden', !debugVisible);
@@ -169,6 +206,9 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   };
   titleStartButton?.addEventListener('pointerdown', onTitleStartPointerDown);
   titleStartButton?.addEventListener('click', onTitleStartClick);
+  titleCharacterDebugButton?.addEventListener('pointerdown', onTitleCharacterDebugPointerDown);
+  titleCharacterDebugButton?.addEventListener('click', onTitleCharacterDebugClick);
+  characterDebugBackButton?.addEventListener('pointerdown', onCharacterDebugBackPointerDown);
   debugToggle?.addEventListener('pointerdown', onDebugTogglePointerDown);
   applyGamePhase();
   updateDebugVisibility();
@@ -180,6 +220,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
+    playerPoseHarness.resize(width, height);
   };
 
   const animate = (now: number): void => {
@@ -191,9 +232,14 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       controls.update(deltaSeconds);
       enemySystem.update(deltaSeconds, controls.getSnapshot().player.position, debugVisible);
     }
-    weaponSystem.update(deltaSeconds, now);
-    levelRuntime.update(controls.getSnapshot().player.position);
-    renderer.render(scene, camera);
+    if (gamePhase === 'character-debug') {
+      playerPoseHarness.update(deltaSeconds);
+      playerPoseHarness.render(renderer);
+    } else {
+      weaponSystem.update(deltaSeconds, now);
+      levelRuntime.update(controls.getSnapshot().player.position);
+      renderer.render(scene, camera);
+    }
 
     if (now - lastHudUpdate >= 250) {
       lastHudUpdate = now;
@@ -229,11 +275,15 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       weaponSystem.dispose();
       enemySystem.dispose();
       levelRuntime.dispose();
+      playerPoseHarness.dispose();
       titleBackgroundImage.onload = null;
       titleBackgroundImage.onerror = null;
       debugToggle?.removeEventListener('pointerdown', onDebugTogglePointerDown);
       titleStartButton?.removeEventListener('pointerdown', onTitleStartPointerDown);
       titleStartButton?.removeEventListener('click', onTitleStartClick);
+      titleCharacterDebugButton?.removeEventListener('pointerdown', onTitleCharacterDebugPointerDown);
+      titleCharacterDebugButton?.removeEventListener('click', onTitleCharacterDebugClick);
+      characterDebugBackButton?.removeEventListener('pointerdown', onCharacterDebugBackPointerDown);
       resizeObserver.disconnect();
       window.removeEventListener('orientationchange', resize);
       scene.traverse((object) => {
@@ -320,7 +370,68 @@ function createShellMarkup(): string {
             data-title-start
             disabled
           >START</button>
+          <button
+            class="title-screen__start title-screen__debug"
+            type="button"
+            data-ui-control
+            data-title-character-debug
+            disabled
+          >CHARACTER DEBUG</button>
         </div>
+      </div>
+      <div class="character-debug" data-character-debug aria-hidden="true">
+        <div class="character-debug__topbar">
+          <button
+            class="character-debug__button"
+            type="button"
+            data-ui-control
+            data-character-debug-back
+          >BACK</button>
+          <div class="character-debug__title">CHARACTER POSE</div>
+          <div class="character-debug__actions">
+            <button
+              class="character-debug__button"
+              type="button"
+              data-ui-control
+              data-character-pose-copy
+            >COPY</button>
+            <button
+              class="character-debug__button character-debug__button--primary"
+              type="button"
+              data-ui-control
+              data-character-pose-save
+            >SAVE</button>
+          </div>
+        </div>
+        <aside class="character-debug__panel">
+          <div class="character-debug__status" data-character-pose-status>LOAD</div>
+          <div class="character-debug__view">
+            <label>
+              <span>VIEW</span>
+              <input data-ui-control data-character-view-yaw type="range" min="-180" max="180" step="1" value="0" />
+            </label>
+            <label>
+              <span>ZOOM</span>
+              <input data-ui-control data-character-view-zoom type="range" min="2.1" max="5.5" step="0.1" value="3.2" />
+            </label>
+          </div>
+          <div class="character-debug__tools">
+            <button
+              class="character-debug__button"
+              type="button"
+              data-ui-control
+              data-character-pose-reset
+            >RESET</button>
+            <button
+              class="character-debug__button"
+              type="button"
+              data-ui-control
+              data-character-pose-mirror
+            >MIRROR</button>
+          </div>
+          <div class="character-pose" data-character-pose-controls></div>
+          <textarea class="character-debug__json" data-ui-control data-character-pose-json readonly spellcheck="false"></textarea>
+        </aside>
       </div>
       <div class="touch-zones">
         <div class="stick" data-move-stick>

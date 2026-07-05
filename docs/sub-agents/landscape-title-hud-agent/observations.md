@@ -71,3 +71,26 @@ Status: complete for debug coordinate, music mute, weapon cycle, and rotate prom
 - Future title/HUD work should keep `[data-title-screen]`, `[data-title-start]`, and `[data-loading-screen]` stable for smoke QA.
 - Future powerup/reward screens should follow the same condensed font direction and cyan/green/charcoal palette unless the game direction agent intentionally revisits the visual identity.
 - Browser smoke should continue checking title background cache busting through `assetBuild`.
+
+## 2026-07-05 Character Debug Page Pass
+
+### What It Saw
+
+- The title screen can support a secondary debug entry without changing the normal `START` path.
+- The global rotate prompt already covers title, loading, gameplay, and debug surfaces.
+- Small phone landscape viewports require a compact top bar and a scrollable right-side panel for pose sliders.
+
+### Decisions
+
+- Add `CHARACTER DEBUG` to the title screen and route it through a new `character-debug` phase.
+- Disable the look zone, HUD, crosshair, and combat touch zones outside gameplay so the pose page receives mobile touches cleanly.
+- Keep the pose page visual language aligned with the title screen: condensed all-caps type, charcoal metal surfaces, and cyan-green highlights.
+
+### Caught Issues
+
+- Full-screen overlay hiding needed to be generic per phase so the new page does not inherit loading/title visibility edge cases.
+
+### Next Handoff Notes
+
+- Smoke QA should continue covering `[data-title-character-debug]`, `[data-character-debug]`, and `[data-character-debug-back]`.
+- The latest run artifacts live under `artifacts/sub-agents/20260705-player-pose-harness/landscape-title-hud-agent/`.

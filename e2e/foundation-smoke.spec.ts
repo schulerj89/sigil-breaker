@@ -28,7 +28,7 @@ const EXPECTED_LOADED_ASSET_IDS = [
 interface DebugSnapshot {
   buildId: string;
   scene: {
-    phase: 'loading' | 'title' | 'gameplay';
+    phase: 'loading' | 'title' | 'gameplay' | 'character-debug';
     playerPosition: [number, number, number];
     yawRadians: number;
     pitchRadians: number;
@@ -200,7 +200,7 @@ interface DebugSnapshot {
   };
   ui: {
     debugVisible: boolean;
-    phase: 'loading' | 'title' | 'gameplay';
+    phase: 'loading' | 'title' | 'gameplay' | 'character-debug';
     loading: {
       ready: boolean;
       loadedAssets: number;
@@ -247,6 +247,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   await waitForTitleReady(page);
   await expect(page.locator('[data-title-screen]')).toBeVisible();
   await expect(page.locator('[data-title-start]')).toBeEnabled();
+  await expect(page.locator('[data-title-character-debug]')).toBeEnabled();
 
   const titleSnapshot = await readDebugSnapshot(page);
   expect(titleSnapshot.scene.phase).toBe('title');
@@ -259,6 +260,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     titleBackgroundAssetId: EXPECTED_TITLE_BACKGROUND_ASSET_ID,
     assetLoadErrors: [],
   });
+  await verifyCharacterDebugPage(page);
   await startGameFromTitle(page);
 
   await page.waitForFunction((expectedAssetCount) => {
@@ -667,6 +669,17 @@ async function startGameFromTitle(page: Page): Promise<void> {
   await page.locator('[data-title-start]').click();
   await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('gameplay');
   await expect(page.locator('[data-title-screen]')).toBeHidden();
+}
+
+async function verifyCharacterDebugPage(page: Page): Promise<void> {
+  await page.locator('[data-title-character-debug]').click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('character-debug');
+  await expect(page.locator('[data-character-debug]')).toBeVisible();
+  await expect(page.locator('[data-character-pose-json]')).toBeVisible();
+  await expect(page.locator('[data-character-pose-status]')).toContainText('READY', { timeout: 30_000 });
+  await page.locator('[data-character-debug-back]').click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('title');
+  await expect(page.locator('[data-title-screen]')).toBeVisible();
 }
 
 async function verifyRestartLoopDoesNotGrowRendererMetrics(page: Page, baseline: DebugSnapshot): Promise<void> {
@@ -1206,7 +1219,13 @@ function isIgnorableHeadlessThreeShaderValidation(message: string): boolean {
 }
 
 function isIgnorableMediaAbort(url: string, failure: string): boolean {
-  return url.includes('/assets/audio/elevenlabs-foundation/') && failure === 'net::ERR_ABORTED';
+  return (
+    failure === 'net::ERR_ABORTED' &&
+    (
+      url.includes('/assets/audio/elevenlabs-foundation/') ||
+      url.includes('/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.rigged.glb')
+    )
+  );
 }
 
 async function expectHudToFit(page: Page): Promise<void> {

@@ -22,3 +22,27 @@ Status: needs review after browser smoke.
 - Smoke QA should inspect `window.__SIGILBREAKER_DEBUG__` for loaded weapon asset IDs and errors.
 - Main-character headed QA passed visually through `npm run qa:headed:player-character` and captured rigged, idle, gun-hold, dance, and out-of-HP screenshots under `artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/`.
 - The Meshy mascot is not approved for gameplay integration yet because the source GLBs exceed byte/triangle targets and the gun-hold clip is not a clean blaster pose.
+
+## 2026-07-05 Player Pose Harness Pass
+
+### What It Saw
+
+- The rigged Meshy character exposes the spine, shoulder, arm, forearm, hand, neck, and head bones needed for a manual gun-hold still pose pass.
+- The game shell can host a dedicated debug page from the title screen while keeping gameplay controls disabled.
+- GitHub Pages cannot write pose JSON into the repo, so the browser page must export by copy/download while a local harness script handles repo writes.
+
+### Decisions
+
+- Add a title-accessible `character-debug` phase with an isolated Three.js pose scene.
+- Export rotations in degrees and radians relative to the imported bind pose.
+- Keep `npm run pose:harness:player` as the local workflow when the pose should be written directly under `public/assets/characters/meshy-gadget-gremlin/poses/`.
+
+### Caught Issues
+
+- The harness is suitable for still pose authoring only; animation clip generation/retargeting remains future work.
+- The model still needs GLB optimization before gameplay use.
+
+### Next Handoff Notes
+
+- Weapon and camera agents should use the exported hand world positions to create a stable weapon socket.
+- The latest run artifacts live under `artifacts/sub-agents/20260705-player-pose-harness/asset-playground-qa-agent/`.

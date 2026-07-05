@@ -68,6 +68,7 @@ canvas {
   background: #0d1012;
 }
 
+.game-shell:not([data-game-phase="gameplay"]) .look-zone,
 .game-shell:not([data-game-phase="gameplay"]) .hud,
 .game-shell:not([data-game-phase="gameplay"]) .crosshair,
 .game-shell:not([data-game-phase="gameplay"]) .touch-zones {
@@ -316,7 +317,8 @@ canvas {
 }
 
 .loading-screen,
-.title-screen {
+.title-screen,
+.character-debug {
   position: absolute;
   inset: 0;
   z-index: 6;
@@ -329,10 +331,9 @@ canvas {
     visibility 180ms ease;
 }
 
-.game-shell[data-game-phase="gameplay"] .loading-screen,
-.game-shell[data-game-phase="gameplay"] .title-screen,
-.game-shell[data-game-phase="loading"] .title-screen,
-.game-shell[data-game-phase="title"] .loading-screen {
+.game-shell:not([data-game-phase="loading"]) .loading-screen,
+.game-shell:not([data-game-phase="title"]) .title-screen,
+.game-shell:not([data-game-phase="character-debug"]) .character-debug {
   display: none;
   visibility: hidden;
   opacity: 0;
@@ -481,6 +482,187 @@ canvas {
 
 .title-screen__start:disabled {
   opacity: 0.54;
+}
+
+.title-screen__debug {
+  height: 42px;
+  margin-top: 0;
+  border-color: rgb(238 243 240 / 0.42);
+  background:
+    linear-gradient(180deg, rgb(238 243 240 / 0.16), rgb(5 18 22 / 0.84)),
+    rgb(5 18 22 / 0.72);
+  color: #d4ebe8;
+  font-size: 13px;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.05),
+    0 8px 20px rgb(0 0 0 / 0.44);
+}
+
+.character-debug {
+  z-index: 6;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  pointer-events: auto;
+  background:
+    linear-gradient(90deg, rgb(6 10 12 / 0.26), transparent 35%, rgb(6 10 12 / 0.68) 74%),
+    radial-gradient(circle at 36% 48%, rgb(72 255 213 / 0.12), transparent 34%),
+    rgb(11 15 18 / 0.25);
+}
+
+.character-debug__topbar {
+  position: relative;
+  z-index: 2;
+  min-height: 54px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding:
+    max(10px, env(safe-area-inset-top))
+    max(14px, env(safe-area-inset-right))
+    8px
+    max(14px, env(safe-area-inset-left));
+  background: linear-gradient(180deg, rgb(7 12 15 / 0.86), rgb(7 12 15 / 0.3));
+}
+
+.character-debug__title,
+.character-debug__status,
+.character-pose__bone-title,
+.character-pose__axis span,
+.character-debug__view span {
+  font-family: var(--sigil-font-display);
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.character-debug__title {
+  min-width: 0;
+  color: #f1fbff;
+  font-size: 20px;
+  line-height: 1;
+  text-shadow: 0 0 18px rgb(91 255 207 / 0.3);
+}
+
+.character-debug__actions,
+.character-debug__tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.character-debug__button {
+  min-width: 68px;
+  height: 36px;
+  border: 1px solid rgb(238 243 240 / 0.28);
+  border-radius: 0;
+  background: rgb(10 18 22 / 0.74);
+  color: #edf9f6;
+  font-family: var(--sigil-font-display);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  touch-action: manipulation;
+}
+
+.character-debug__button--primary {
+  border-color: rgb(122 246 211 / 0.72);
+  background: linear-gradient(180deg, rgb(40 219 181 / 0.28), rgb(5 18 22 / 0.88));
+}
+
+.character-debug__button:active {
+  transform: translateY(1px);
+}
+
+.character-debug__panel {
+  position: absolute;
+  z-index: 2;
+  top: calc(max(10px, env(safe-area-inset-top)) + 58px);
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(10px, env(safe-area-inset-bottom));
+  width: min(380px, 44vw);
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr) 96px;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgb(238 243 240 / 0.18);
+  background: rgb(10 15 18 / 0.78);
+  backdrop-filter: blur(8px);
+}
+
+.character-debug__status {
+  min-height: 26px;
+  display: grid;
+  align-items: center;
+  color: #8fffe1;
+  font-size: 12px;
+}
+
+.character-debug__view {
+  display: grid;
+  gap: 6px;
+}
+
+.character-debug__view label,
+.character-pose__axis {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+}
+
+.character-debug__view span,
+.character-pose__axis span,
+.character-pose__axis output {
+  color: #d4ebe8;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.character-debug__view input,
+.character-pose__axis input {
+  width: 100%;
+  accent-color: #55e6c5;
+}
+
+.character-pose {
+  min-height: 0;
+  overflow: auto;
+  display: grid;
+  gap: 8px;
+  padding-right: 4px;
+  overscroll-behavior: contain;
+}
+
+.character-pose__bone {
+  display: grid;
+  gap: 5px;
+  padding: 8px;
+  border: 1px solid rgb(238 243 240 / 0.14);
+  background: rgb(15 22 26 / 0.72);
+}
+
+.character-pose__bone-title {
+  color: #f1fbff;
+  font-size: 12px;
+}
+
+.character-pose__axis output {
+  justify-self: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.character-debug__json {
+  width: 100%;
+  min-width: 0;
+  resize: none;
+  border: 1px solid rgb(238 243 240 / 0.12);
+  background: rgb(5 9 11 / 0.76);
+  color: #a9dfe4;
+  font-size: 10px;
+  line-height: 1.35;
 }
 
 .touch-zones {
@@ -864,6 +1046,53 @@ canvas {
     font-size: 14px;
   }
 
+  .title-screen__debug {
+    height: 36px;
+    margin-top: 0;
+    font-size: 11px;
+  }
+
+  .character-debug__topbar {
+    min-height: 46px;
+    gap: 8px;
+    padding:
+      max(7px, env(safe-area-inset-top))
+      max(10px, env(safe-area-inset-right))
+      6px
+      max(10px, env(safe-area-inset-left));
+  }
+
+  .character-debug__title {
+    font-size: 16px;
+  }
+
+  .character-debug__button {
+    min-width: 58px;
+    height: 31px;
+    font-size: 10px;
+  }
+
+  .character-debug__panel {
+    top: calc(max(7px, env(safe-area-inset-top)) + 50px);
+    right: max(8px, env(safe-area-inset-right));
+    bottom: max(8px, env(safe-area-inset-bottom));
+    width: min(330px, 46vw);
+    grid-template-rows: auto auto auto minmax(0, 1fr) 72px;
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .character-debug__view label,
+  .character-pose__axis {
+    grid-template-columns: 34px minmax(0, 1fr) 30px;
+    gap: 6px;
+    min-height: 24px;
+  }
+
+  .character-pose__bone {
+    gap: 4px;
+    padding: 6px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

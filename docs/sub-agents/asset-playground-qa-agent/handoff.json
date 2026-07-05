@@ -2,27 +2,31 @@
   "handoffVersion": "1.0.0",
   "agentId": "asset-playground-qa-agent",
   "status": "complete-with-warnings",
-  "updatedAt": "2026-07-05T06:05:00Z",
-  "summary": "Headed player-character playground QA passed visually for the Meshy mascot candidate, with explicit budget and gun-hold animation warnings before gameplay integration.",
+  "updatedAt": "2026-07-05T00:00:00-05:00",
+  "summary": "Headed player-character QA passed visually and a title-accessible mobile pose harness now exports a manual gun-hold still pose draft, with optimization still blocking gameplay integration.",
   "observations": [
     "The live test level can temporarily validate GLB load, weapon switching, and shoot feedback.",
     "window.__SIGILBREAKER_DEBUG__ now exposes loadedAssetIds, assetLoadErrors, and weapon state.",
     "A dedicated orbit/first-person asset playground remains missing.",
     "npm run qa:headed:player-character loads the rigged Meshy character and selected animation GLBs in visible Chromium.",
     "Headed QA captured rigged-front, idle, gun-hold, dance, and out-of-HP screenshots at 844x390.",
-    "The character visually reads as a strong title/cutscene mascot candidate."
+    "The character visually reads as a strong title/cutscene mascot candidate.",
+    "A title-accessible character debug page now exposes manual sliders for the rig's spine, shoulder, arm, forearm, hand, neck, and head bones."
   ],
   "decisions": [
     "Use live-level smoke for the three initial CC0 weapon assets only.",
     "Require a dedicated asset playground before larger asset-library imports.",
     "Keep screenshot artifact guidance unchanged for future playground QA.",
     "Accept visual playground pass for source staging only.",
-    "Block gameplay integration until optimization and a better blaster-hold animation are available."
+    "Block gameplay integration until optimization and a better blaster-hold animation are available.",
+    "Export pose rotations in degrees and radians relative to the imported bind pose.",
+    "Use npm run pose:harness:player when a local authoring session should write the pose JSON directly into the repo."
   ],
   "caughtIssues": [
     "No standalone playground exists for scale grid, material inspection, or isolated model screenshots.",
     "Gun-hold clip is a crouched gesture rather than a usable two-hand blaster pose.",
-    "Headed QA records Chromium .glb net::ERR_ABORTED noise as ignored only after successful snapshots prove the asset loaded."
+    "Headed QA records Chromium .glb net::ERR_ABORTED noise as ignored only after successful snapshots prove the asset loaded.",
+    "GitHub Pages can copy or download pose JSON but cannot write it into the repo."
   ],
   "risks": [
     "Gameplay camera framing can hide model scale and material issues that an asset playground would reveal."
@@ -37,7 +41,10 @@
     "artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/player-character-idle.png",
     "artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/player-character-gun-hold.png",
     "artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/player-character-dance.png",
-    "artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/player-character-out-of-hp.png"
+    "artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/player-character-out-of-hp.png",
+    "src/game/playerCharacterPoseHarness.ts",
+    "scripts/run-player-pose-harness.mjs",
+    "artifacts/sub-agents/20260705-player-pose-harness/asset-playground-qa-agent"
   ],
   "jsonForAgents": {
     "temporaryLiveLevelQa": true,
@@ -79,6 +86,27 @@
       "triangles": 81627,
       "maxTexturesObserved": 7,
       "largestGlbBytes": 10371892,
+      "gameplayIntegrationBlocked": true
+    },
+    "latestPlayerPoseHarness": {
+      "titleReachableDebugPage": true,
+      "localRepoWriteCommand": "npm run pose:harness:player",
+      "poseExportFileName": "gun-hold-draft.json",
+      "controlledBones": [
+        "Spine",
+        "Spine01",
+        "Spine02",
+        "LeftShoulder",
+        "LeftArm",
+        "LeftForeArm",
+        "LeftHand",
+        "RightShoulder",
+        "RightArm",
+        "RightForeArm",
+        "RightHand",
+        "neck",
+        "Head"
+      ],
       "gameplayIntegrationBlocked": true
     }
   },
