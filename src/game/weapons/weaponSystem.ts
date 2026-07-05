@@ -123,6 +123,7 @@ export class WeaponSystem {
   private aimBlend = 0;
   private firePointerId: number | null = null;
   private keyboardFireHeld = false;
+  private inputEnabled = false;
   private lastShot: WeaponShotSnapshot | null = null;
 
   constructor(
@@ -251,6 +252,13 @@ export class WeaponSystem {
 
   playEnemyProjectileSound(): void {
     this.audio.playEnemyProjectile();
+  }
+
+  setInputEnabled(enabled: boolean): void {
+    this.inputEnabled = enabled;
+    if (!enabled) {
+      this.releaseFireState();
+    }
   }
 
   dispose(): void {
@@ -498,6 +506,10 @@ export class WeaponSystem {
   }
 
   private readonly onPointerDown = (event: PointerEvent): void => {
+    if (!this.inputEnabled) {
+      return;
+    }
+
     const target = event.target;
     if (!(target instanceof Element)) {
       return;
@@ -523,6 +535,10 @@ export class WeaponSystem {
   };
 
   private readonly onPointerUp = (event: PointerEvent): void => {
+    if (!this.inputEnabled) {
+      return;
+    }
+
     if (event.pointerId === this.firePointerId) {
       event.preventDefault();
       this.endPointerFire(event.pointerId);
@@ -536,6 +552,10 @@ export class WeaponSystem {
   };
 
   private readonly onPointerCancel = (event: PointerEvent): void => {
+    if (!this.inputEnabled) {
+      return;
+    }
+
     if (event.pointerId === this.firePointerId) {
       event.preventDefault();
       this.endPointerFire(event.pointerId);
@@ -543,6 +563,10 @@ export class WeaponSystem {
   };
 
   private readonly onClick = (event: MouseEvent): void => {
+    if (!this.inputEnabled) {
+      return;
+    }
+
     const target = event.target;
     if (!(target instanceof Element)) {
       return;
@@ -561,6 +585,10 @@ export class WeaponSystem {
   };
 
   private readonly onDoubleClick = (event: MouseEvent): void => {
+    if (!this.inputEnabled) {
+      return;
+    }
+
     const target = event.target;
     if (target instanceof Element && target.closest('[data-ui-control]')) {
       event.preventDefault();
@@ -568,6 +596,10 @@ export class WeaponSystem {
   };
 
   private readonly onTouchEnd = (event: TouchEvent): void => {
+    if (!this.inputEnabled) {
+      return;
+    }
+
     const target = event.target;
     if (target instanceof Element && target.closest('[data-ui-control]')) {
       event.preventDefault();
@@ -575,6 +607,10 @@ export class WeaponSystem {
   };
 
   private readonly onKeyDown = (event: KeyboardEvent): void => {
+    if (!this.inputEnabled) {
+      return;
+    }
+
     if (event.code === 'Space') {
       event.preventDefault();
       if (!this.keyboardFireHeld) {
@@ -597,6 +633,10 @@ export class WeaponSystem {
   };
 
   private readonly onKeyUp = (event: KeyboardEvent): void => {
+    if (!this.inputEnabled) {
+      return;
+    }
+
     if (event.code === 'Space') {
       event.preventDefault();
       this.keyboardFireHeld = false;

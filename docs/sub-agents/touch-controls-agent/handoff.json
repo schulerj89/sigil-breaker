@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "touch-controls-agent",
   "status": "complete",
-  "updatedAt": "2026-07-04T21:52:17Z",
-  "summary": "Mobile touch controls exist, the full game surface guards double-tap, pinch, WebKit gesture, and ctrl-wheel zoom paths, combat controls support hold-fire aim/zoom, and the debug HUD toggle now uses a touch-safe pointerdown path.",
+  "updatedAt": "2026-07-05T00:00:00-05:00",
+  "summary": "Mobile touch controls exist, zoom guards remain active, combat controls are phase-gated to gameplay, and character debug controls now receive touch events without gameplay pointer capture.",
   "observations": [
     "The prototype has a left movement stick, right look zone, one right-side fire button, and one right-thumb weapon cycle button.",
     "Fast fire input now prevents default on pointerup, click, dblclick, and touchend for UI controls.",
@@ -17,7 +17,9 @@
     "Browser smoke asserts control fit, reticle visibility, weapon-cycle icon visibility, bottom-tray absence, and hold-fire release.",
     "The debug HUD toggle previously depended on synthetic click, which mobile UI-control preventDefault paths could suppress.",
     "Dbg now toggles on pointerdown and Playwright smoke uses tap() to cover mobile touch behavior.",
-    "Small-landscape CSS keeps the Dbg button at a 44 x 32 touch target instead of shrinking it to 28 x 28."
+    "Small-landscape CSS keeps the Dbg button at a 44 x 32 touch target instead of shrinking it to 28 x 28.",
+    "FpsControls and WeaponSystem now ignore input outside the gameplay phase.",
+    "Character debug owns its own scene-drag camera gesture."
   ],
   "decisions": [
     "Left thumb zone owns movement.",
@@ -28,19 +30,22 @@
     "Fire-button drag should aim only when no other look pointer is already active.",
     "Keep fire-drag look sensitivity lower than normal look sensitivity.",
     "Weapon switching should remain separate from hold-fire so pressure on fire cannot change weapons.",
-    "Debug HUD toggling should respond on pointerdown instead of synthetic click."
+    "Debug HUD toggling should respond on pointerdown instead of synthetic click.",
+    "Gameplay input handlers must be disabled on title, loading, character-debug, pause, and reward screens."
   ],
   "caughtIssues": [
     "The viewport tag needed explicit minimum and maximum scale values to help prevent mobile double-tap zoom.",
     "UI-control-only double-tap prevention did not cover accidental double taps or pinches on the main look/canvas surface.",
     "Single-tap fire did not support the mobile FPS hold-to-aim pattern.",
-    "Playwright click did not represent the mobile debug-toggle bug; tap coverage is required for this control."
+    "Playwright click did not represent the mobile debug-toggle bug; tap coverage is required for this control.",
+    "Character debug controls can be blocked if gameplay systems prevent UI-control click/touchend events outside gameplay."
   ],
   "risks": [
     "Physical mobile Safari still needs direct device verification for double-tap and pinch zoom behavior.",
     "Any future custom gesture recognizer must preserve the guard's non-propagation-blocking behavior.",
     "Physical mobile thumb pressure could reveal fire-drag sensitivity or dead-zone tuning needs.",
-    "Physical mobile Safari/Chrome should still verify that Dbg taps do not steal active movement, look, or fire pointers."
+    "Physical mobile Safari/Chrome should still verify that Dbg taps do not steal active movement, look, or fire pointers.",
+    "Physical mobile Safari/Chrome should verify character debug selects and range sliders after global pointer-handler changes."
   ],
   "blockers": [],
   "artifacts": [
@@ -50,7 +55,9 @@
     "src/game/fpsControls.ts",
     "src/game/mobileZoomGuard.ts",
     "src/game/debug.ts",
-    "e2e/foundation-smoke.spec.ts"
+    "e2e/foundation-smoke.spec.ts",
+    "src/game/playerCharacterPoseHarness.ts",
+    "artifacts/sub-agents/20260705-character-debug-touch-fix/touch-controls-agent"
   ],
   "jsonForAgents": {
     "requiredButtons": [
@@ -88,8 +95,16 @@
     "requiresStablePointerIds": true,
     "latestSmoke": {
       "viewport": "844x390",
-      "visualViewportScaleAfterFastFire": 1
+      "visualViewportScaleAfterFastFire": 1,
+      "characterDebugTouchProbe": {
+        "rightHandXSlider": "0 -> 108",
+        "sceneYaw": "0 -> 45"
+      }
     },
+    "phaseGatedInputSystems": [
+      "FpsControls",
+      "WeaponSystem"
+    ],
     "zoomGuard": {
       "debugFields": [
         "controls.viewportScale",

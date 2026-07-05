@@ -116,3 +116,23 @@ Status: complete for debug coordinate, music mute, weapon cycle, and rotate prom
 ### Next Handoff Notes
 
 - Smoke QA now needs to assert `[data-character-animation-select]`, `[data-character-bone-select]`, and visible selected-bone range sliders.
+
+## 2026-07-05 Character Debug Touch Fix
+
+### What It Saw
+
+- Character debug controls were visible on phone but taps did not affect the screen.
+- Gameplay-level input systems were still active outside gameplay and could prevent/capture character debug pointer events.
+
+### Decisions
+
+- Keep gameplay controls phase-gated so title, reward, and debug surfaces receive normal UI input.
+- Character debug owns its own scene drag gesture for camera movement.
+
+### Caught Issues
+
+- Smoke coverage needed to assert event default prevention, not just element visibility.
+
+### Next Handoff Notes
+
+- Future non-gameplay screens with native controls should not rely on global gameplay input listeners being harmless.

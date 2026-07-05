@@ -115,12 +115,23 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
   let loadPromise: Promise<void> | null = null;
   let isOpen = false;
   let cameraTargetY = 0.62;
+  let viewPointerId: number | null = null;
+  let lastViewPointerX = 0;
+  let lastViewPointerY = 0;
 
   const refreshView = (): void => {
     modelRoot.rotation.y = THREE.MathUtils.degToRad(Number(viewYawInput.value));
     const zoom = Number(viewZoomInput.value);
     camera.position.set(0, cameraTargetY, zoom);
     camera.lookAt(0, cameraTargetY, 0);
+  };
+  const adjustViewYaw = (deltaDegrees: number): void => {
+    adjustRangeInput(viewYawInput, deltaDegrees);
+    refreshView();
+  };
+  const adjustViewZoom = (deltaUnits: number): void => {
+    adjustRangeInput(viewZoomInput, deltaUnits);
+    refreshView();
   };
   addInputListener(viewYawInput, 'input', () => {
     refreshView();
@@ -132,6 +143,51 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
   }, cleanup);
   addChangeListener(boneSelect, () => {
     setActiveBone(boneControls, boneSelect.value as ControlledBoneName);
+  }, cleanup);
+  addPointerListener(screen, 'pointerdown', (event) => {
+    if (!isOpen || shouldIgnoreSceneDrag(event.target)) {
+      return;
+    }
+
+    viewPointerId = event.pointerId;
+    lastViewPointerX = event.clientX;
+    lastViewPointerY = event.clientY;
+    screen.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  }, cleanup);
+  addPointerListener(screen, 'pointermove', (event) => {
+    if (!isOpen || event.pointerId !== viewPointerId) {
+      return;
+    }
+
+    const deltaX = event.clientX - lastViewPointerX;
+    const deltaY = event.clientY - lastViewPointerY;
+    lastViewPointerX = event.clientX;
+    lastViewPointerY = event.clientY;
+    adjustViewYaw(deltaX * 0.45);
+    adjustViewZoom(deltaY * 0.015);
+    event.preventDefault();
+  }, cleanup);
+  addPointerListener(screen, 'pointerup', (event) => {
+    if (event.pointerId !== viewPointerId) {
+      return;
+    }
+
+    viewPointerId = null;
+    if (screen.hasPointerCapture(event.pointerId)) {
+      screen.releasePointerCapture(event.pointerId);
+    }
+    event.preventDefault();
+  }, cleanup);
+  addPointerListener(screen, 'pointercancel', (event) => {
+    if (event.pointerId !== viewPointerId) {
+      return;
+    }
+
+    viewPointerId = null;
+    if (screen.hasPointerCapture(event.pointerId)) {
+      screen.releasePointerCapture(event.pointerId);
+    }
   }, cleanup);
 
   const ensureLoaded = (): Promise<void> => {
@@ -307,6 +363,7 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
     },
     close: () => {
       isOpen = false;
+      viewPointerId = null;
       screen.setAttribute('aria-hidden', 'true');
     },
     resize: (width, height) => {
@@ -353,6 +410,21 @@ export function createPlayerCharacterPoseHarness(root: HTMLElement): PlayerChara
       disposeMaterial(skeletonHelper?.material);
     },
   };
+}
+
+function shouldIgnoreSceneDrag(target: EventTarget | null): boolean {
+  return (
+    target instanceof Element &&
+    Boolean(target.closest('[data-ui-control], .character-debug__panel, .character-debug__topbar'))
+  );
+}
+
+function adjustRangeInput(input: HTMLInputElement, delta: number): number {
+  const min = Number(input.min);
+  const max = Number(input.max);
+  const nextValue = THREE.MathUtils.clamp(Number(input.value) + delta, min, max);
+  input.value = String(Math.round(nextValue * 100) / 100);
+  return nextValue;
 }
 
 function createLights(): THREE.Object3D[] {
@@ -678,6 +750,16 @@ function addPointerButton(button: HTMLButtonElement, listener: () => void, clean
   };
   button.addEventListener('pointerdown', onPointerDown);
   cleanup.push(() => button.removeEventListener('pointerdown', onPointerDown));
+}
+
+function addPointerListener(
+  element: HTMLElement,
+  type: 'pointerdown' | 'pointermove' | 'pointerup' | 'pointercancel',
+  listener: (event: PointerEvent) => void,
+  cleanup: Array<() => void>,
+): void {
+  element.addEventListener(type, listener);
+  cleanup.push(() => element.removeEventListener(type, listener));
 }
 
 function addInputListener(

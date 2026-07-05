@@ -147,6 +147,8 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     loadingScreen?.setAttribute('aria-hidden', String(gamePhase !== 'loading'));
     titleScreen?.setAttribute('aria-hidden', String(gamePhase !== 'title'));
     characterDebugScreen?.setAttribute('aria-hidden', String(gamePhase !== 'character-debug'));
+    controls.setInputEnabled(gamePhase === 'gameplay');
+    weaponSystem.setInputEnabled(gamePhase === 'gameplay');
   };
   const startGameplay = (): void => {
     if (gamePhase !== 'title') {

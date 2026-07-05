@@ -1,0 +1,23 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "touch-controls-agent",
+  "status": "complete",
+  "updatedAt": "2026-07-05T00:00:00-05:00",
+  "summary": "Character debug controls now receive touch events because gameplay input systems are disabled outside gameplay and the debug scene owns its own drag camera.",
+  "jsonForAgents": {
+    "phaseGatedSystems": [
+      "FpsControls",
+      "WeaponSystem"
+    ],
+    "gameplayOnlyInput": "gamePhase === 'gameplay'",
+    "characterDebugSceneDrag": true,
+    "touchQaResult": {
+      "rightHandXSlider": "0 -> 108",
+      "sceneYaw": "0 -> 45"
+    }
+  },
+  "nextAgents": [
+    "smoke-qa-agent",
+    "landscape-title-hud-agent"
+  ]
+}

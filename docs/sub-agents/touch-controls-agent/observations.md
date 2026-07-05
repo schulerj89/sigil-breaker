@@ -41,3 +41,26 @@ Status: complete after full-surface mobile zoom guard and hold-fire combat contr
 - Physical iOS Safari should specifically retry two-finger pinch while one finger is on the movement stick and another finger is in the look zone.
 - Physical-device smoke should also hold the fire button, drag to track a target, release, and then switch weapons with the right-thumb cycle button.
 - Physical-device smoke should also tap `Dbg` repeatedly while firing/moving to verify it never steals the move/look/fire pointer owners.
+
+## 2026-07-05 Character Debug Touch Fix
+
+### What It Saw
+
+- Character debug controls were visible but could not be used on phone.
+- `FpsControls` and `WeaponSystem` still listened globally while `gamePhase` was `character-debug`.
+- `WeaponSystem` prevented UI-control `click` and `touchend` events even outside gameplay.
+
+### Decisions
+
+- Phase-gate gameplay input systems so they only process input during `gameplay`.
+- Add character-debug scene drag for camera rotation/zoom in the pose harness.
+- Add smoke coverage that checks character-debug UI events are not default-prevented.
+
+### Caught Issues
+
+- Visual/page-reachability smoke was insufficient for native mobile controls.
+
+### Next Handoff Notes
+
+- Future title, reward, pause, and debug screens must explicitly verify gameplay input systems are disabled.
+- Physical mobile QA should retest select dropdowns and range sliders after every new global pointer handler.

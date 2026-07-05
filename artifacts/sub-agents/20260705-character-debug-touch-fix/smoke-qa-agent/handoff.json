@@ -1,0 +1,21 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "smoke-qa-agent",
+  "status": "complete",
+  "updatedAt": "2026-07-05T00:00:00-05:00",
+  "summary": "Added smoke coverage for non-prevented character debug UI events and camera scene dragging.",
+  "jsonForAgents": {
+    "focusedSmoke": "npx playwright test e2e/foundation-smoke.spec.ts --project=chromium-modern-phone-landscape",
+    "touchProbe": {
+      "rightHandXSlider": "0 -> 108",
+      "sceneYaw": "0 -> 45"
+    },
+    "regressionChecks": [
+      "selected character debug controls are not defaultPrevented",
+      "scene drag changes [data-character-view-yaw]"
+    ]
+  },
+  "nextAgents": [
+    "touch-controls-agent"
+  ]
+}

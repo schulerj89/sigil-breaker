@@ -682,9 +682,69 @@ async function verifyCharacterDebugPage(page: Page): Promise<void> {
   await page.locator('[data-character-bone-select]').selectOption('RightHand');
   await expect(page.locator('[data-pose-bone="RightHand"]')).toBeVisible();
   await expect(page.locator('[data-pose-bone="RightHand"] input[type="range"]')).toHaveCount(3);
+  await expectCharacterDebugControlsToReceiveInput(page);
+  await expectCharacterDebugSceneDragToMoveCamera(page);
   await page.locator('[data-character-debug-back]').click();
   await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('title');
   await expect(page.locator('[data-title-screen]')).toBeVisible();
+}
+
+async function expectCharacterDebugControlsToReceiveInput(page: Page): Promise<void> {
+  const preventedEvents = await page.evaluate(() => {
+    const selectors = [
+      '[data-character-animation-select]',
+      '[data-character-bone-select]',
+      '[data-pose-bone="RightHand"] input[data-pose-axis="x"]',
+    ];
+
+    return selectors.map((selector) => {
+      const element = document.querySelector(selector);
+      if (!element) {
+        return { selector, missing: true, pointerDownPrevented: true, clickPrevented: true, touchEndPrevented: true };
+      }
+
+      const pointerDown = new PointerEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        pointerId: 991,
+        clientX: 10,
+        clientY: 10,
+      });
+      const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+      const touchEnd = new TouchEvent('touchend', { bubbles: true, cancelable: true });
+      element.dispatchEvent(pointerDown);
+      element.dispatchEvent(click);
+      element.dispatchEvent(touchEnd);
+
+      return {
+        selector,
+        missing: false,
+        pointerDownPrevented: pointerDown.defaultPrevented,
+        clickPrevented: click.defaultPrevented,
+        touchEndPrevented: touchEnd.defaultPrevented,
+      };
+    });
+  });
+
+  expect(preventedEvents).toEqual(
+    preventedEvents.map((eventResult) => ({
+      ...eventResult,
+      missing: false,
+      pointerDownPrevented: false,
+      clickPrevented: false,
+      touchEndPrevented: false,
+    })),
+  );
+}
+
+async function expectCharacterDebugSceneDragToMoveCamera(page: Page): Promise<void> {
+  const yawInput = page.locator('[data-character-view-yaw]');
+  const beforeYaw = Number(await yawInput.inputValue());
+  await page.mouse.move(240, 210);
+  await page.mouse.down();
+  await page.mouse.move(330, 210, { steps: 6 });
+  await page.mouse.up();
+  await expect.poll(async () => Number(await yawInput.inputValue())).not.toBe(beforeYaw);
 }
 
 async function verifyRestartLoopDoesNotGrowRendererMetrics(page: Page, baseline: DebugSnapshot): Promise<void> {

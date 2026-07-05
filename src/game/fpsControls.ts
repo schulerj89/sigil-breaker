@@ -50,6 +50,7 @@ export class FpsControls {
   private lastLookY = 0;
   private lookSensitivity = LOOK_SENSITIVITY;
   private lookPointerUsesDeadZone = false;
+  private inputEnabled = false;
   private readonly pressedKeys = new Set<KeyName>();
   private readonly stick: HTMLElement | null;
   private readonly stickKnob: HTMLElement | null;
@@ -133,7 +134,23 @@ export class FpsControls {
     this.syncCamera();
   }
 
+  setInputEnabled(enabled: boolean): void {
+    this.inputEnabled = enabled;
+    if (!enabled) {
+      this.movePointerId = null;
+      this.lookPointerId = null;
+      this.moveInput.set(0, 0);
+      this.keyboardInput.set(0, 0);
+      this.pressedKeys.clear();
+      this.updateStickKnob(0, 0);
+    }
+  }
+
   private readonly onPointerDown = (event: PointerEvent): void => {
+    if (!this.inputEnabled) {
+      return;
+    }
+
     const target = event.target;
     if (!(target instanceof Element)) {
       return;
@@ -172,6 +189,10 @@ export class FpsControls {
   };
 
   private readonly onPointerMove = (event: PointerEvent): void => {
+    if (!this.inputEnabled) {
+      return;
+    }
+
     if (event.pointerId === this.movePointerId) {
       this.updateMoveInput(event);
       event.preventDefault();
@@ -192,6 +213,10 @@ export class FpsControls {
   };
 
   private readonly onPointerUp = (event: PointerEvent): void => {
+    if (!this.inputEnabled) {
+      return;
+    }
+
     let handledTrackedPointer = false;
 
     if (event.pointerId === this.movePointerId) {
@@ -218,6 +243,10 @@ export class FpsControls {
   };
 
   private readonly onKeyDown = (event: KeyboardEvent): void => {
+    if (!this.inputEnabled) {
+      return;
+    }
+
     const mappedKey = mapKey(event.code);
     if (!mappedKey) {
       return;
@@ -227,6 +256,10 @@ export class FpsControls {
   };
 
   private readonly onKeyUp = (event: KeyboardEvent): void => {
+    if (!this.inputEnabled) {
+      return;
+    }
+
     const mappedKey = mapKey(event.code);
     if (!mappedKey) {
       return;
