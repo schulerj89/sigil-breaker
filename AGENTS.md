@@ -20,6 +20,8 @@ Do not edit `gh-pages` directly. The `Deploy GitHub Pages` workflow builds from 
 
 The Pages workflow is intentionally lightweight: install, build, publish, and request a Pages rebuild. Heavy validation (`npm test`, `npm run lint`, `npm run validate:levels`, `npm run validate:assets`, and `npm run validate:browser`) is run locally before committing/pushing instead of inside the deploy workflow.
 
+Before publishing, the workflow runs `npm run prepare:pages` to add cache-busting support files and prune source-only generated character artifacts from `dist`. Keep source/provenance assets in the repo, but do not ship unused Meshy preview/refine/standalone animation GLBs to Pages unless runtime code actually needs them.
+
 The repo `GITHUB_TOKEN` can push the generated branch but could not change Pages source settings through the API (`403`). If Pages fails again, check the workflow logs, the `gh-pages` branch contents, the Pages API/source setting, and the deployed `version.json` before changing the workflow.
 
 ## Credentials And Secrets

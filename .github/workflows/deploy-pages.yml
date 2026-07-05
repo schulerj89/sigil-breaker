@@ -32,12 +32,8 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Add Pages cache-busting files
-        run: |
-          touch dist/.nojekyll
-          cp dist/index.html dist/404.html
-          echo "Build files prepared for GitHub Pages cache-busting:"
-          ls -la dist
+      - name: Prepare Pages dist
+        run: npm run prepare:pages
 
       - name: Setup Pages
         uses: actions/configure-pages@v6
