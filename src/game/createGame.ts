@@ -94,7 +94,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   const playerPoseHarness = createPlayerCharacterPoseHarness(root);
   const characterVoiceLab = createCharacterVoiceLab(root);
   const titleHeroStage = new TitleHeroStage(TITLE_BACKGROUND_PATH);
-  const deathCinematicStage = new DeathCinematicStage();
+  const deathCinematicStage = new DeathCinematicStage(scene, camera);
   void titleHeroStage.load();
   void deathCinematicStage.load();
   weaponSystemRef.current = weaponSystem;
@@ -155,6 +155,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   titleBackgroundImage.src = titleBackgroundUrl;
 
   const debugToggle = root.querySelector<HTMLButtonElement>('[data-debug-toggle]');
+  const debugDeathButton = root.querySelector<HTMLButtonElement>('[data-debug-death]');
   const titleStartButton = root.querySelector<HTMLButtonElement>('[data-title-start]');
   const titleCharacterDebugButton = root.querySelector<HTMLButtonElement>('[data-title-character-debug]');
   const titleVoiceLabButton = root.querySelector<HTMLButtonElement>('[data-title-voice-lab]');
@@ -189,6 +190,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     deathCinematicScreen?.setAttribute('aria-hidden', String(gamePhase !== 'death-cinematic'));
     controls.setInputEnabled(gamePhase === 'gameplay');
     weaponSystem.setInputEnabled(gamePhase === 'gameplay');
+    weaponSystem.setViewVisible(gamePhase === 'gameplay');
     weaponSystem.setMusicPhase(gamePhase === 'gameplay' || gamePhase === 'death-cinematic' ? 'gameplay' : 'title');
     titleHeroStage.setVisible(gamePhase === 'title' || gamePhase === 'voice-lab');
     deathCinematicStage.setVisible(gamePhase === 'death-cinematic');
@@ -246,7 +248,11 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     }
 
     deathActionsVisible = false;
-    deathCinematicStage.open();
+    const snapshot = controls.getSnapshot();
+    deathCinematicStage.open({
+      playerPosition: snapshot.player.position,
+      yawRadians: snapshot.player.yawRadians,
+    });
     if (deathCaption) {
       deathCaption.textContent = stripVoiceDirectionTags(DEATH_VOICE_LINE.text);
     }
@@ -381,6 +387,15 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     debugVisible = !debugVisible;
     updateDebugVisibility();
   };
+  const onDebugDeathPointerDown = (event: PointerEvent): void => {
+    event.preventDefault();
+    if (gamePhase !== 'gameplay') {
+      return;
+    }
+
+    playerHealth.damage(playerHealth.max);
+    openDeathCinematic();
+  };
   titleStartButton?.addEventListener('pointerdown', onTitleStartPointerDown);
   titleStartButton?.addEventListener('click', onTitleStartClick);
   titleCharacterDebugButton?.addEventListener('pointerdown', onTitleCharacterDebugPointerDown);
@@ -394,6 +409,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   deathReturnTitleButton?.addEventListener('pointerdown', onDeathReturnTitlePointerDown);
   deathReturnTitleButton?.addEventListener('click', onDeathReturnTitleClick);
   debugToggle?.addEventListener('pointerdown', onDebugTogglePointerDown);
+  debugDeathButton?.addEventListener('pointerdown', onDebugDeathPointerDown);
   applyGamePhase();
   updateDebugVisibility();
 
@@ -432,7 +448,8 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       if (deathCinematicStage.getSnapshot().phaseTimeSeconds >= DEATH_ACTIONS_REVEAL_SECONDS) {
         revealDeathActions();
       }
-      deathCinematicStage.render(renderer);
+      levelRuntime.update(controls.getSnapshot().player.position);
+      renderer.render(scene, camera);
     } else {
       weaponSystem.update(deltaSeconds, now);
       levelRuntime.update(controls.getSnapshot().player.position);
@@ -485,6 +502,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       titleBackgroundImage.onload = null;
       titleBackgroundImage.onerror = null;
       debugToggle?.removeEventListener('pointerdown', onDebugTogglePointerDown);
+      debugDeathButton?.removeEventListener('pointerdown', onDebugDeathPointerDown);
       titleStartButton?.removeEventListener('pointerdown', onTitleStartPointerDown);
       titleStartButton?.removeEventListener('click', onTitleStartClick);
       titleCharacterDebugButton?.removeEventListener('pointerdown', onTitleCharacterDebugPointerDown);
@@ -546,6 +564,14 @@ function createShellMarkup(): string {
             aria-label="Hide debug HUD"
             aria-pressed="false"
           >DBG</button>
+          <button
+            class="hud__icon-button hud__icon-button--debug hud__icon-button--death"
+            type="button"
+            data-ui-control
+            data-debug-ui
+            data-debug-death
+            aria-label="Trigger death cinematic"
+          >KO</button>
           <button
             class="hud__icon-button hud__icon-button--music"
             type="button"

@@ -275,6 +275,12 @@ interface DebugSnapshot {
       visible: boolean;
       phaseTimeSeconds: number;
       orbitAngleRadians: number;
+      deathPosition: [number, number, number] | null;
+      cameraPosition: [number, number, number] | null;
+      modelBounds: {
+        center: [number, number, number];
+        size: [number, number, number];
+      } | null;
       errors: string[];
     };
   };
@@ -535,11 +541,13 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   await expect(page.locator('[data-debug-fps]')).toBeHidden();
   await expect(page.locator('[data-weapon-label]')).toBeHidden();
   await expect(page.locator('[data-weapon-ammo]')).toBeHidden();
+  await expect(page.locator('[data-debug-death]')).toBeHidden();
   await expect(page.locator('[data-health-meter]')).toBeVisible();
   await page.locator('[data-debug-toggle]').tap();
   await expect.poll(async () => (await readDebugSnapshot(page)).ui.debugVisible).toBe(true);
   await expect.poll(async () => (await readDebugSnapshot(page)).enemies.enemies.some((enemy) => enemy.debugVisible)).toBe(true);
   await expect(page.locator('[data-debug-fps]')).toBeVisible();
+  await expect(page.locator('[data-debug-death]')).toBeVisible();
   await expect(page.locator('[data-debug-toggle]')).toHaveText('DBG');
   await expect(page.locator('[data-debug-toggle]')).toHaveAttribute('aria-pressed', 'false');
   await expect(page.locator('[data-fire-button]')).not.toHaveText(/F/);
@@ -1086,8 +1094,13 @@ async function verifyEnemyProjectileAttack(page: Page): Promise<void> {
 
 async function verifyDeathCinematic(page: Page): Promise<void> {
   const before = await readDebugSnapshot(page);
-  const accepted = await page.evaluate(() => window.__SIGILBREAKER_DEBUG__?.damagePlayerForQa(999) ?? false);
-  expect(accepted).toBe(true);
+  if (!before.ui.debugVisible) {
+    await page.locator('[data-debug-toggle]').tap();
+    await expect.poll(async () => (await readDebugSnapshot(page)).ui.debugVisible).toBe(true);
+  }
+
+  await expect(page.locator('[data-debug-death]')).toBeVisible();
+  await page.locator('[data-debug-death]').tap();
 
   await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('death-cinematic');
   await expect(page.locator('[data-death-cinematic]')).toBeVisible();
@@ -1114,6 +1127,14 @@ async function verifyDeathCinematic(page: Page): Promise<void> {
   expect(cinematic.ui.deathCinematic.clipDurationSeconds).toBeGreaterThan(0);
   expect(cinematic.ui.deathCinematic.phaseTimeSeconds).toBeGreaterThanOrEqual(3);
   expect(cinematic.ui.deathCinematic.orbitAngleRadians).not.toBe(before.scene.yawRadians);
+  expect(cinematic.ui.deathCinematic.deathPosition).toEqual([
+    before.scene.playerPosition[0],
+    0,
+    before.scene.playerPosition[2],
+  ]);
+  expect(cinematic.ui.deathCinematic.cameraPosition).not.toBeNull();
+  expect(cinematic.ui.deathCinematic.cameraPosition![1]).toBeGreaterThan(1);
+  expect(cinematic.ui.deathCinematic.modelBounds).not.toBeNull();
 
   await page.locator('[data-death-try-again]').click();
   await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('gameplay');

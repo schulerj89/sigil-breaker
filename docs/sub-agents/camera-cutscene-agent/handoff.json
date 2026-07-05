@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "camera-cutscene-agent",
   "status": "implemented-first-death-cinematic",
-  "updatedAt": "2026-07-05T18:36:00Z",
-  "summary": "First death cinematic is implemented as a distinct game phase with HUD/input disabled, a third-person out-of-HP character orbit, a single fail voice/caption sting, delayed Try Again and Return to Title actions, and browser QA coverage for reset behavior.",
+  "updatedAt": "2026-07-05T19:08:00Z",
+  "summary": "First death cinematic is implemented as a distinct game phase with HUD/input disabled, a live-level third-person out-of-HP character orbit at the death coordinates, a single fail voice/caption sting, delayed Try Again and Return to Title actions, a debug KO trigger, and browser plus screenshot QA coverage.",
   "observations": [
     "No camera modes, viewmodel framing, or cutscene system exists yet.",
     "Weapon muzzle, tracer, and wall-impact positions are derived from src/game/weapons/weaponViewPose.ts.",
@@ -12,9 +12,12 @@
     "Holding fire blends camera FOV from 70 to 62 degrees and blends each weapon from its hip pose toward a centered aim pose.",
     "snapshot.weapon.aimBlend and snapshot.weapon.cameraFovDegrees expose the current aim camera state.",
     "Fire-button drag can adjust yaw/pitch at reduced sensitivity while the same pointer is held for fire.",
-    "Death cinematic now uses the player.hero.gadget-gremlin.apose.animated GLB and its out-of-hp clip in a dedicated DeathCinematicStage.",
+    "Death cinematic now uses the player.hero.gadget-gremlin.apose.animated GLB and its out-of-hp clip in DeathCinematicStage.",
     "Gameplay HUD and touch controls are hidden while phase is death-cinematic.",
-    "A qaCapture-gated debug damage hook lets Playwright force death without waiting for enemy projectiles."
+    "A qaCapture-gated debug damage hook lets Playwright force death without waiting for enemy projectiles.",
+    "The debug HUD exposes a KO button for manually triggering the death cinematic during gameplay.",
+    "DeathCinematicStage now renders in the live level scene at the player death coordinates.",
+    "The player GLB death display needs a 0.01 skinned animation scale correction because static mesh bounds and skinned animation authoring units differ by about 100x."
   ],
   "decisions": [
     "Cutscenes must be skippable.",
@@ -25,25 +28,30 @@
     "Treat hold-fire as the current aim camera mode until a formal camera state machine exists.",
     "Any future camera mode must restore base FOV when held fire, reload, or cutscene state ends.",
     "Death must be a distinct phase from gameplay, not only an overlay over the FPS camera.",
-    "The first implementation uses a standalone cinematic stage to protect orbit framing and avoid clipping level walls.",
+    "The death cinematic should render in the live level scene so the player appears where HP reached zero.",
     "Try Again is the primary death action and should reveal after the death read, currently after 3.2 seconds.",
-    "Return to Title and Try Again must both clear combat state before leaving death-cinematic."
+    "Return to Title and Try Again must both clear combat state before leaving death-cinematic.",
+    "The death character clone may render above nearby level geometry during the cinematic to protect readability in tight corners."
   ],
   "caughtIssues": [
     "Pointer-drag screenshot QA can approximate pitch-up/down firing, but deterministic debug look poses are needed for stable visual regression.",
     "Held-fire centering is debug-state tested but not screenshot-regressed for each weapon silhouette.",
-    "Death-cinematic framing is state-tested but not yet headed screenshot-regressed.",
-    "The standalone stage does not yet preserve the exact room where the player died."
+    "The first standalone stage did not preserve the exact room where the player died.",
+    "Initial live-level screenshots showed only walls because the camera rotated into a blocked corner angle before the character read.",
+    "The out-of-HP animation uses skinned authoring units that made the character effectively huge until the death clone applied a 0.01 scale correction."
   ],
   "risks": [
     "Camera and viewmodel decisions can break touch controls and HUD readability if reviewed late.",
-    "Future in-level death cameras need obstruction checks before replacing the standalone stage."
+    "Future strict wall occlusion for death cameras needs room-aware obstruction checks first."
   ],
   "blockers": [],
   "artifacts": [
     "src/game/deathCinematicStage.ts",
     "e2e/foundation-smoke.spec.ts::verifyDeathCinematic",
-    "npm run validate:browser"
+    "npm run validate:browser",
+    "artifacts/sub-agents/20260705-death-cinematic/smoke-qa-agent/death-cinematic-in-level-844x390.png",
+    "artifacts/sub-agents/20260705-death-cinematic/smoke-qa-agent/death-cinematic-in-level-late-844x390.png",
+    "artifacts/sub-agents/20260705-death-cinematic/smoke-qa-agent/death-cinematic-in-level-snapshot.json"
   ],
   "jsonForAgents": {
     "cameraModes": [
@@ -73,12 +81,16 @@
     "deathCinematic": {
       "phase": "death-cinematic",
       "stage": "src/game/deathCinematicStage.ts",
+      "rendering": "live_level_scene",
       "clipId": "out-of-hp",
       "voiceLineId": "audio.voice.glyph.fail.reboot.elevenlabs",
       "controlsRevealSeconds": 3.2,
       "primaryAction": "Try Again",
       "secondaryAction": "Return to Title",
       "qaHook": "DebugApi.damagePlayerForQa",
+      "manualDebugTrigger": "data-debug-death",
+      "skinnedScaleCorrection": 0.01,
+      "earlyAngleHoldSeconds": 1.45,
       "resetRequirements": [
         "player health",
         "player pose",

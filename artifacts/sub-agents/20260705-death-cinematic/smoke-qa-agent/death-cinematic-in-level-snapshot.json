@@ -1,0 +1,2576 @@
+{
+  "early": {
+    "buildId": "20260705190552",
+    "scene": {
+      "sceneId": "fps-level-foundation",
+      "phase": "death-cinematic",
+      "cameraMode": "death",
+      "playerPosition": [
+        -21,
+        1.62,
+        -21
+      ],
+      "yawRadians": -1.57,
+      "pitchRadians": 0
+    },
+    "level": {
+      "id": "foundation-45x45",
+      "widthUnits": 45,
+      "depthUnits": 45,
+      "tileSize": 1,
+      "map": [
+        "#############################################",
+        "#S..........E.........#.....................#",
+        "#.....................#.....................#",
+        "#.....................#.....................#",
+        "#...........................................#",
+        "#....C..........................E...C.......#",
+        "#...........................................#",
+        "#...........................................#",
+        "#...........................................#",
+        "#.....................#.....................#",
+        "################.....########################",
+        "#.........#......................#..........#",
+        "#.........#.................................#",
+        "#.........#...........E...............E.....#",
+        "#.........#.................................#",
+        "#....C..E.#...........C................C....#",
+        "#.........#.................................#",
+        "#.........#......................#..........#",
+        "#.........#......................#..........#",
+        "#.........#......................#..........#",
+        "#####.....##################.....############",
+        "#.................#................#........#",
+        "#.................#................#........#",
+        "#.......E.........#........E.......#...E....#",
+        "#.................#................#........#",
+        "#.......C.........#........C.......#...C....#",
+        "#.................#................#........#",
+        "#.................#................#........#",
+        "#.................#................#........#",
+        "#.................#................#........#",
+        "###############........#############.....####",
+        "#..........#.................#..............#",
+        "#..........#.................#..............#",
+        "#..........#.................#..............#",
+        "#.....E....#........E........#......E.......#",
+        "#..........#.......C.........#.......C......#",
+        "#..........#.................#..............#",
+        "#..........#.................#..............#",
+        "#..........#.................#..............#",
+        "########.......###########.......############",
+        "#...........................................#",
+        "#...........................................#",
+        "#.....................E.....................#",
+        "#..........................................X#",
+        "#############################################"
+      ],
+      "streaming": {
+        "chunkSizeTiles": 9,
+        "chunkLoadRadius": 2,
+        "chunkColumns": 5,
+        "chunkRows": 5,
+        "totalChunks": 25,
+        "activeChunks": 9,
+        "loadedChunks": 9,
+        "queuedChunks": 0,
+        "loadedWallTiles": 114,
+        "loadedCoverTiles": 4,
+        "loadedExitTiles": 0,
+        "loadedTextureAssetIds": [
+          "environment.foundation.floor-grid-steel",
+          "environment.foundation.roof-flat-steel",
+          "environment.foundation.wall-panel-steel"
+        ],
+        "assetLoadErrors": [],
+        "activeChunkIds": [
+          "0:0",
+          "0:1",
+          "0:2",
+          "1:0",
+          "1:1",
+          "1:2",
+          "2:0",
+          "2:1",
+          "2:2"
+        ],
+        "loadedChunkIds": [
+          "0:0",
+          "0:1",
+          "0:2",
+          "1:0",
+          "1:1",
+          "1:2",
+          "2:0",
+          "2:1",
+          "2:2"
+        ],
+        "sharedGeometryBytes": 6408,
+        "instanceMatrixBytes": 7552,
+        "runtimeBytesEstimate": 13361101
+      }
+    },
+    "device": {
+      "orientation": "landscape",
+      "viewport": {
+        "width": 844,
+        "height": 390,
+        "deviceScaleFactor": 3
+      },
+      "visibleBrowser": true
+    },
+    "rendererMetrics": {
+      "fps": 44.8,
+      "calls": 53,
+      "triangles": 105683,
+      "geometries": 16,
+      "textures": 54
+    },
+    "memoryMetrics": {
+      "jsHeapMb": 13.6,
+      "decodedTextureMbEstimate": 12,
+      "levelRuntimeBytesEstimate": 13361101,
+      "chunkInstanceMatrixBytes": 7552,
+      "weaponModelBytesLoaded": 11234316,
+      "enemyModelBytesLoaded": 347884,
+      "loadedAssetIds": [
+        "audio.music.foundation.elevenlabs",
+        "audio.music.title.playful.elevenlabs",
+        "audio.weapon.bore.elevenlabs",
+        "audio.weapon.rift.elevenlabs",
+        "audio.weapon.spark.elevenlabs",
+        "audio.weapon.torch.elevenlabs",
+        "audio.weapon.vault.elevenlabs",
+        "enemy.monster.goleling",
+        "enemy.monster.mushnub",
+        "enemy.monster.pink-slime",
+        "environment.foundation.floor-grid-steel",
+        "environment.foundation.roof-flat-steel",
+        "environment.foundation.wall-panel-steel",
+        "player.hero.gadget-gremlin.apose.animated",
+        "weapon.blaster.bore",
+        "weapon.blaster.rift",
+        "weapon.blaster.spark",
+        "weapon.blaster.torch",
+        "weapon.blaster.vault"
+      ],
+      "activeSceneRoots": 10
+    },
+    "assetLoadErrors": [],
+    "weapon": {
+      "weaponIds": [
+        "weapon.blaster.spark",
+        "weapon.blaster.bore",
+        "weapon.blaster.vault",
+        "weapon.blaster.rift",
+        "weapon.blaster.torch"
+      ],
+      "activeWeaponId": "weapon.blaster.spark",
+      "activeWeaponLabel": "SPARK",
+      "activeWeaponRole": "fast sidearm",
+      "activeWeaponStats": {
+        "damage": 34,
+        "fireIntervalMs": 155,
+        "reloadMs": 620,
+        "rangeUnits": 28
+      },
+      "ammoInMagazine": 18,
+      "magazineSize": 18,
+      "isReloading": false,
+      "isFireHeld": false,
+      "aimBlend": 0,
+      "cameraFovDegrees": 70,
+      "shotCount": 0,
+      "wallAvoidance": 0,
+      "modelBytesLoaded": 11234316,
+      "loadedAssetIds": [
+        "audio.music.foundation.elevenlabs",
+        "audio.music.title.playful.elevenlabs",
+        "audio.weapon.bore.elevenlabs",
+        "audio.weapon.rift.elevenlabs",
+        "audio.weapon.spark.elevenlabs",
+        "audio.weapon.torch.elevenlabs",
+        "audio.weapon.vault.elevenlabs",
+        "player.hero.gadget-gremlin.apose.animated",
+        "weapon.blaster.bore",
+        "weapon.blaster.rift",
+        "weapon.blaster.spark",
+        "weapon.blaster.torch",
+        "weapon.blaster.vault"
+      ],
+      "assetLoadErrors": [],
+      "playerViewModel": {
+        "assetId": "player.hero.gadget-gremlin.apose.animated",
+        "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+        "loaded": true,
+        "modelBytesLoaded": 10983096,
+        "clipCount": 10,
+        "observedTriangles": 81375,
+        "activeGrip": {
+          "weaponId": "weapon.blaster.spark",
+          "position": [
+            -0.05,
+            -0.6,
+            0.71
+          ],
+          "rotation": [
+            0.02,
+            3.142,
+            -0.03
+          ],
+          "scale": 0.62
+        },
+        "bonePoseDegrees": {
+          "RightArm": {
+            "x": 36,
+            "y": -103,
+            "z": 72
+          },
+          "RightForeArm": {
+            "x": 0,
+            "y": 92,
+            "z": -35
+          }
+        },
+        "armMask": {
+          "enabled": true,
+          "sourceMeshCount": 1,
+          "maskedMeshCount": 1,
+          "sourceTriangles": 81375,
+          "visibleTriangles": 7641,
+          "allowedBones": [
+            "RightShoulder",
+            "RightArm",
+            "RightForeArm",
+            "RightHand"
+          ]
+        },
+        "assetLoadErrors": []
+      },
+      "playerViewModelTuner": {
+        "enabled": false,
+        "panelVisible": false,
+        "activeWeaponId": null,
+        "activeGrip": null
+      },
+      "audio": {
+        "musicMuted": false,
+        "musicPlaying": true,
+        "musicDecoded": true,
+        "activeMusicAssetId": "audio.music.foundation.elevenlabs",
+        "unlocked": true,
+        "sfxPoolProfiles": [
+          "burst",
+          "heavy",
+          "precision",
+          "scatter",
+          "sidearm"
+        ],
+        "decodedSfxProfiles": [
+          "burst",
+          "heavy",
+          "precision",
+          "scatter",
+          "sidearm"
+        ],
+        "playRequests": 0,
+        "enemyProjectilePlayRequests": 0,
+        "webAudioPlayRequests": 0,
+        "htmlFallbackPlayRequests": 0,
+        "missedPlayRequests": 0,
+        "playFailures": 0,
+        "loadedAssetIds": [
+          "audio.music.foundation.elevenlabs",
+          "audio.music.title.playful.elevenlabs",
+          "audio.weapon.bore.elevenlabs",
+          "audio.weapon.rift.elevenlabs",
+          "audio.weapon.spark.elevenlabs",
+          "audio.weapon.torch.elevenlabs",
+          "audio.weapon.vault.elevenlabs"
+        ],
+        "assetLoadErrors": [],
+        "assetBytesLoaded": 2298666
+      },
+      "effectPose": {
+        "muzzle": [
+          0.54,
+          -0.35,
+          -1.29
+        ],
+        "tracerEnd": [
+          0,
+          0,
+          -28
+        ],
+        "wallImpact": [
+          0,
+          0,
+          -27.96
+        ]
+      },
+      "effectStyle": {
+        "muzzleColor": "#8df7ff",
+        "tracerColor": "#7dd3fc",
+        "impactColor": "#b7f3ff"
+      },
+      "lastShot": null
+    },
+    "player": {
+      "health": {
+        "current": 0,
+        "max": 100,
+        "ratio": 0,
+        "isAlive": false
+      }
+    },
+    "enemies": {
+      "total": 12,
+      "alive": 12,
+      "destroyed": 0,
+      "enemyMarkerCount": 12,
+      "enemies": [
+        {
+          "id": "enemy.monster.mushnub.vanguard",
+          "assetId": "enemy.monster.mushnub",
+          "label": "MUSHNUB",
+          "marker": {
+            "column": 12,
+            "row": 1
+          },
+          "position": [
+            -9.854,
+            0,
+            -20.884
+          ],
+          "origin": [
+            -10,
+            0,
+            -21
+          ],
+          "health": {
+            "current": 68,
+            "max": 68,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "mushroom-hop-square",
+          "speedUnitsPerSecond": 1.6,
+          "facingYawRadians": -1.25,
+          "detectRadiusUnits": 6.2,
+          "loseRadiusUnits": 8,
+          "projectileRangeUnits": 8.8,
+          "projectileCooldownSeconds": 0.706,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              -9.854,
+              0.1,
+              -20.884
+            ],
+            "hitProxy": [
+              -9.854,
+              1.175,
+              -20.884
+            ],
+            "hitFlash": [
+              -9.854,
+              0.985,
+              -20.884
+            ],
+            "debug": [
+              -9.854,
+              0,
+              -20.884
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              -9.854,
+              0.904,
+              -20.884
+            ],
+            "size": [
+              1.579,
+              1.608,
+              1.579
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.pink-slime.lane-anchor",
+          "assetId": "enemy.monster.pink-slime",
+          "label": "SLIME",
+          "marker": {
+            "column": 32,
+            "row": 5
+          },
+          "position": [
+            9.793,
+            0,
+            -17
+          ],
+          "origin": [
+            10,
+            0,
+            -17
+          ],
+          "health": {
+            "current": 70,
+            "max": 70,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "slime-side-sway",
+          "speedUnitsPerSecond": 1.775,
+          "facingYawRadians": 0.953,
+          "detectRadiusUnits": 5.8,
+          "loseRadiusUnits": 7.4,
+          "projectileRangeUnits": 8.2,
+          "projectileCooldownSeconds": 1.342,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              9.793,
+              0.068,
+              -17
+            ],
+            "hitProxy": [
+              9.793,
+              1.175,
+              -17
+            ],
+            "hitFlash": [
+              9.793,
+              0.696,
+              -17
+            ],
+            "debug": [
+              9.793,
+              0,
+              -17
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              9.793,
+              0.639,
+              -17
+            ],
+            "size": [
+              1.508,
+              1.142,
+              1.525
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.goleling.crosswatch",
+          "assetId": "enemy.monster.goleling",
+          "label": "GOLELING",
+          "marker": {
+            "column": 22,
+            "row": 13
+          },
+          "position": [
+            -0.105,
+            0,
+            -9.105
+          ],
+          "origin": [
+            0,
+            0,
+            -9
+          ],
+          "health": {
+            "current": 120,
+            "max": 120,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "goleling-heavy-square",
+          "speedUnitsPerSecond": 1.275,
+          "facingYawRadians": 0.377,
+          "detectRadiusUnits": 6.8,
+          "loseRadiusUnits": 8.6,
+          "projectileRangeUnits": 9.4,
+          "projectileCooldownSeconds": 1.581,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              -0.105,
+              0.021,
+              -9.105
+            ],
+            "hitProxy": [
+              -0.105,
+              1.175,
+              -9.105
+            ],
+            "hitFlash": [
+              -0.105,
+              0.983,
+              -9.105
+            ],
+            "debug": [
+              -0.105,
+              0,
+              -9.105
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              -0.081,
+              0.896,
+              -9.072
+            ],
+            "size": [
+              5.376,
+              1.75,
+              3.516
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.mushnub.north-sentinel",
+          "assetId": "enemy.monster.mushnub",
+          "label": "MUSHNUB",
+          "marker": {
+            "column": 38,
+            "row": 13
+          },
+          "position": [
+            15.854,
+            0,
+            -9.116
+          ],
+          "origin": [
+            16,
+            0,
+            -9
+          ],
+          "health": {
+            "current": 68,
+            "max": 68,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "mushroom-hop-square",
+          "speedUnitsPerSecond": 1.6,
+          "facingYawRadians": 0.503,
+          "detectRadiusUnits": 6.2,
+          "loseRadiusUnits": 8,
+          "projectileRangeUnits": 8.8,
+          "projectileCooldownSeconds": 0.895,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              15.854,
+              0.1,
+              -9.116
+            ],
+            "hitProxy": [
+              15.854,
+              1.175,
+              -9.116
+            ],
+            "hitFlash": [
+              15.854,
+              0.985,
+              -9.116
+            ],
+            "debug": [
+              15.854,
+              0,
+              -9.116
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              15.854,
+              0.904,
+              -9.116
+            ],
+            "size": [
+              1.696,
+              1.608,
+              1.696
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.pink-slime.splitter-guard",
+          "assetId": "enemy.monster.pink-slime",
+          "label": "SLIME",
+          "marker": {
+            "column": 8,
+            "row": 15
+          },
+          "position": [
+            -14.207,
+            0,
+            -7
+          ],
+          "origin": [
+            -14,
+            0,
+            -7
+          ],
+          "health": {
+            "current": 70,
+            "max": 70,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "slime-side-sway",
+          "speedUnitsPerSecond": 1.775,
+          "facingYawRadians": 0.953,
+          "detectRadiusUnits": 5.8,
+          "loseRadiusUnits": 7.4,
+          "projectileRangeUnits": 8.2,
+          "projectileCooldownSeconds": 0.245,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              -14.207,
+              0.068,
+              -7
+            ],
+            "hitProxy": [
+              -14.207,
+              1.175,
+              -7
+            ],
+            "hitFlash": [
+              -14.207,
+              0.696,
+              -7
+            ],
+            "debug": [
+              -14.207,
+              0,
+              -7
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              -14.207,
+              0.639,
+              -7
+            ],
+            "size": [
+              1.508,
+              1.142,
+              1.525
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.goleling.east-watch",
+          "assetId": "enemy.monster.goleling",
+          "label": "GOLELING",
+          "marker": {
+            "column": 8,
+            "row": 23
+          },
+          "position": [
+            -14.105,
+            0,
+            0.895
+          ],
+          "origin": [
+            -14,
+            0,
+            1
+          ],
+          "health": {
+            "current": 120,
+            "max": 120,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "goleling-heavy-square",
+          "speedUnitsPerSecond": 1.275,
+          "facingYawRadians": 0.377,
+          "detectRadiusUnits": 6.8,
+          "loseRadiusUnits": 8.6,
+          "projectileRangeUnits": 9.4,
+          "projectileCooldownSeconds": 1.091,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              -14.105,
+              0.021,
+              0.895
+            ],
+            "hitProxy": [
+              -14.105,
+              1.175,
+              0.895
+            ],
+            "hitFlash": [
+              -14.105,
+              0.983,
+              0.895
+            ],
+            "debug": [
+              -14.105,
+              0,
+              0.895
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              -14.081,
+              0.896,
+              0.928
+            ],
+            "size": [
+              5.376,
+              1.75,
+              3.516
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.mushnub.west-roamer",
+          "assetId": "enemy.monster.mushnub",
+          "label": "MUSHNUB",
+          "marker": {
+            "column": 27,
+            "row": 23
+          },
+          "position": [
+            4.854,
+            0,
+            0.884
+          ],
+          "origin": [
+            5,
+            0,
+            1
+          ],
+          "health": {
+            "current": 68,
+            "max": 68,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "mushroom-hop-square",
+          "speedUnitsPerSecond": 1.6,
+          "facingYawRadians": 0.503,
+          "detectRadiusUnits": 6.2,
+          "loseRadiusUnits": 8,
+          "projectileRangeUnits": 8.8,
+          "projectileCooldownSeconds": 1.205,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              4.854,
+              0.1,
+              0.884
+            ],
+            "hitProxy": [
+              4.854,
+              1.175,
+              0.884
+            ],
+            "hitFlash": [
+              4.854,
+              0.985,
+              0.884
+            ],
+            "debug": [
+              4.854,
+              0,
+              0.884
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              4.854,
+              0.904,
+              0.884
+            ],
+            "size": [
+              1.696,
+              1.608,
+              1.696
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.pink-slime.middle-roamer",
+          "assetId": "enemy.monster.pink-slime",
+          "label": "SLIME",
+          "marker": {
+            "column": 39,
+            "row": 23
+          },
+          "position": [
+            16.793,
+            0,
+            1
+          ],
+          "origin": [
+            17,
+            0,
+            1
+          ],
+          "health": {
+            "current": 70,
+            "max": 70,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "slime-side-sway",
+          "speedUnitsPerSecond": 1.775,
+          "facingYawRadians": 0.953,
+          "detectRadiusUnits": 5.8,
+          "loseRadiusUnits": 7.4,
+          "projectileRangeUnits": 8.2,
+          "projectileCooldownSeconds": 1.085,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              16.793,
+              0.068,
+              1
+            ],
+            "hitProxy": [
+              16.793,
+              1.175,
+              1
+            ],
+            "hitFlash": [
+              16.793,
+              0.696,
+              1
+            ],
+            "debug": [
+              16.793,
+              0,
+              1
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              16.793,
+              0.639,
+              1
+            ],
+            "size": [
+              1.508,
+              1.142,
+              1.525
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.goleling.right-roamer",
+          "assetId": "enemy.monster.goleling",
+          "label": "GOLELING",
+          "marker": {
+            "column": 6,
+            "row": 34
+          },
+          "position": [
+            -16.105,
+            0,
+            11.895
+          ],
+          "origin": [
+            -16,
+            0,
+            12
+          ],
+          "health": {
+            "current": 120,
+            "max": 120,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "goleling-heavy-square",
+          "speedUnitsPerSecond": 1.275,
+          "facingYawRadians": 0.377,
+          "detectRadiusUnits": 6.8,
+          "loseRadiusUnits": 8.6,
+          "projectileRangeUnits": 9.4,
+          "projectileCooldownSeconds": 1.213,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              -16.105,
+              0.021,
+              11.895
+            ],
+            "hitProxy": [
+              -16.105,
+              1.175,
+              11.895
+            ],
+            "hitFlash": [
+              -16.105,
+              0.983,
+              11.895
+            ],
+            "debug": [
+              -16.105,
+              0,
+              11.895
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              -16.081,
+              0.896,
+              11.928
+            ],
+            "size": [
+              5.376,
+              1.75,
+              3.516
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.mushnub.lower-left",
+          "assetId": "enemy.monster.mushnub",
+          "label": "MUSHNUB",
+          "marker": {
+            "column": 20,
+            "row": 34
+          },
+          "position": [
+            -2.146,
+            0,
+            11.884
+          ],
+          "origin": [
+            -2,
+            0,
+            12
+          ],
+          "health": {
+            "current": 68,
+            "max": 68,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "mushroom-hop-square",
+          "speedUnitsPerSecond": 1.6,
+          "facingYawRadians": 0.503,
+          "detectRadiusUnits": 6.2,
+          "loseRadiusUnits": 8,
+          "projectileRangeUnits": 8.8,
+          "projectileCooldownSeconds": 1.502,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              -2.146,
+              0.1,
+              11.884
+            ],
+            "hitProxy": [
+              -2.146,
+              1.175,
+              11.884
+            ],
+            "hitFlash": [
+              -2.146,
+              0.985,
+              11.884
+            ],
+            "debug": [
+              -2.146,
+              0,
+              11.884
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              -2.146,
+              0.904,
+              11.884
+            ],
+            "size": [
+              1.696,
+              1.608,
+              1.696
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.pink-slime.lower-center",
+          "assetId": "enemy.monster.pink-slime",
+          "label": "SLIME",
+          "marker": {
+            "column": 36,
+            "row": 34
+          },
+          "position": [
+            13.793,
+            0,
+            12
+          ],
+          "origin": [
+            14,
+            0,
+            12
+          ],
+          "health": {
+            "current": 70,
+            "max": 70,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "slime-side-sway",
+          "speedUnitsPerSecond": 1.775,
+          "facingYawRadians": 0.953,
+          "detectRadiusUnits": 5.8,
+          "loseRadiusUnits": 7.4,
+          "projectileRangeUnits": 8.2,
+          "projectileCooldownSeconds": 0.973,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              13.793,
+              0.068,
+              12
+            ],
+            "hitProxy": [
+              13.793,
+              1.175,
+              12
+            ],
+            "hitFlash": [
+              13.793,
+              0.696,
+              12
+            ],
+            "debug": [
+              13.793,
+              0,
+              12
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              13.793,
+              0.639,
+              12
+            ],
+            "size": [
+              1.508,
+              1.142,
+              1.525
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.goleling.lower-right",
+          "assetId": "enemy.monster.goleling",
+          "label": "GOLELING",
+          "marker": {
+            "column": 22,
+            "row": 42
+          },
+          "position": [
+            -0.105,
+            0,
+            19.895
+          ],
+          "origin": [
+            0,
+            0,
+            20
+          ],
+          "health": {
+            "current": 120,
+            "max": 120,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "goleling-heavy-square",
+          "speedUnitsPerSecond": 1.275,
+          "facingYawRadians": 0.377,
+          "detectRadiusUnits": 6.8,
+          "loseRadiusUnits": 8.6,
+          "projectileRangeUnits": 9.4,
+          "projectileCooldownSeconds": 1.563,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              -0.105,
+              0.021,
+              19.895
+            ],
+            "hitProxy": [
+              -0.105,
+              1.175,
+              19.895
+            ],
+            "hitFlash": [
+              -0.105,
+              0.983,
+              19.895
+            ],
+            "debug": [
+              -0.105,
+              0,
+              19.895
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              -0.081,
+              0.896,
+              19.928
+            ],
+            "size": [
+              5.376,
+              1.75,
+              3.516
+            ]
+          }
+        }
+      ],
+      "projectiles": {
+        "active": 0,
+        "pooled": 0,
+        "fired": 0,
+        "hitPlayer": 0,
+        "hitWall": 0,
+        "shotsBlockedByWall": 0,
+        "list": []
+      },
+      "modelBytesLoaded": 347884,
+      "loadedAssetIds": [
+        "enemy.monster.goleling",
+        "enemy.monster.mushnub",
+        "enemy.monster.pink-slime"
+      ],
+      "assetLoadErrors": []
+    },
+    "controls": {
+      "orientationLock": "landscape",
+      "primaryInput": "touch",
+      "touchShellReady": true,
+      "viewportScale": 1,
+      "preventedZoomGestures": 0,
+      "preventedMultiTouchStarts": 0,
+      "preventedMultiTouchMoves": 0,
+      "preventedWheelZooms": 0,
+      "preventedDoubleTaps": 1,
+      "lastPreventedZoomAt": 869.4,
+      "lookActive": false,
+      "movePointerActive": false,
+      "moveVector": [
+        0,
+        0
+      ],
+      "keyboardVector": [
+        0,
+        0
+      ],
+      "buttons": [
+        "title-start",
+        "hero-lab",
+        "voice-lab",
+        "hold-fire-aim",
+        "weapon-cycle",
+        "music-toggle",
+        "debug-toggle",
+        "debug-death"
+      ]
+    },
+    "ui": {
+      "debugVisible": true,
+      "phase": "death-cinematic",
+      "loading": {
+        "ready": true,
+        "loadedAssets": 20,
+        "expectedAssets": 20,
+        "titleBackgroundLoaded": true,
+        "titleBackgroundAssetId": "ui.title.background.gadget-rift.generated",
+        "titleHeroLoaded": true,
+        "titleHeroAssetId": "player.hero.gadget-gremlin.apose.animated",
+        "assetLoadErrors": []
+      },
+      "titleHero": {
+        "assetId": "player.hero.gadget-gremlin.apose.animated",
+        "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+        "loaded": true,
+        "modelBytesLoaded": 10983096,
+        "clipId": "idle-alt",
+        "clipDurationSeconds": 2.37,
+        "visible": false,
+        "errors": [],
+        "bounds": {
+          "width": 1.12,
+          "height": 1.9,
+          "depth": 1.07
+        },
+        "screenBounds": {
+          "left": 498.2,
+          "top": 59.3,
+          "right": 730.89,
+          "bottom": 371.37
+        }
+      },
+      "deathCinematic": {
+        "assetId": "player.hero.gadget-gremlin.apose.animated",
+        "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+        "loaded": true,
+        "modelBytesLoaded": 10983096,
+        "clipId": "out-of-hp",
+        "clipDurationSeconds": 3,
+        "visible": true,
+        "phaseTimeSeconds": 0.52,
+        "orbitAngleRadians": 0.79,
+        "deathPosition": [
+          -21,
+          0,
+          -21
+        ],
+        "cameraPosition": [
+          -18.03,
+          1.55,
+          -18.03
+        ],
+        "modelBounds": {
+          "center": [
+            -21,
+            0.01,
+            -21
+          ],
+          "size": [
+            0.01,
+            0.02,
+            0.01
+          ]
+        },
+        "errors": []
+      }
+    },
+    "budgets": {
+      "targetFps": 60,
+      "maxDevicePixelRatio": 2,
+      "drawCallsMax": 90,
+      "trianglesMax": 250000,
+      "geometriesMax": 100,
+      "texturesMax": 64,
+      "initialScenePayloadMbMax": 40
+    }
+  },
+  "late": {
+    "buildId": "20260705190552",
+    "scene": {
+      "sceneId": "fps-level-foundation",
+      "phase": "death-cinematic",
+      "cameraMode": "death",
+      "playerPosition": [
+        -21,
+        1.62,
+        -21
+      ],
+      "yawRadians": -1.57,
+      "pitchRadians": 0
+    },
+    "level": {
+      "id": "foundation-45x45",
+      "widthUnits": 45,
+      "depthUnits": 45,
+      "tileSize": 1,
+      "map": [
+        "#############################################",
+        "#S..........E.........#.....................#",
+        "#.....................#.....................#",
+        "#.....................#.....................#",
+        "#...........................................#",
+        "#....C..........................E...C.......#",
+        "#...........................................#",
+        "#...........................................#",
+        "#...........................................#",
+        "#.....................#.....................#",
+        "################.....########################",
+        "#.........#......................#..........#",
+        "#.........#.................................#",
+        "#.........#...........E...............E.....#",
+        "#.........#.................................#",
+        "#....C..E.#...........C................C....#",
+        "#.........#.................................#",
+        "#.........#......................#..........#",
+        "#.........#......................#..........#",
+        "#.........#......................#..........#",
+        "#####.....##################.....############",
+        "#.................#................#........#",
+        "#.................#................#........#",
+        "#.......E.........#........E.......#...E....#",
+        "#.................#................#........#",
+        "#.......C.........#........C.......#...C....#",
+        "#.................#................#........#",
+        "#.................#................#........#",
+        "#.................#................#........#",
+        "#.................#................#........#",
+        "###############........#############.....####",
+        "#..........#.................#..............#",
+        "#..........#.................#..............#",
+        "#..........#.................#..............#",
+        "#.....E....#........E........#......E.......#",
+        "#..........#.......C.........#.......C......#",
+        "#..........#.................#..............#",
+        "#..........#.................#..............#",
+        "#..........#.................#..............#",
+        "########.......###########.......############",
+        "#...........................................#",
+        "#...........................................#",
+        "#.....................E.....................#",
+        "#..........................................X#",
+        "#############################################"
+      ],
+      "streaming": {
+        "chunkSizeTiles": 9,
+        "chunkLoadRadius": 2,
+        "chunkColumns": 5,
+        "chunkRows": 5,
+        "totalChunks": 25,
+        "activeChunks": 9,
+        "loadedChunks": 9,
+        "queuedChunks": 0,
+        "loadedWallTiles": 114,
+        "loadedCoverTiles": 4,
+        "loadedExitTiles": 0,
+        "loadedTextureAssetIds": [
+          "environment.foundation.floor-grid-steel",
+          "environment.foundation.roof-flat-steel",
+          "environment.foundation.wall-panel-steel"
+        ],
+        "assetLoadErrors": [],
+        "activeChunkIds": [
+          "0:0",
+          "0:1",
+          "0:2",
+          "1:0",
+          "1:1",
+          "1:2",
+          "2:0",
+          "2:1",
+          "2:2"
+        ],
+        "loadedChunkIds": [
+          "0:0",
+          "0:1",
+          "0:2",
+          "1:0",
+          "1:1",
+          "1:2",
+          "2:0",
+          "2:1",
+          "2:2"
+        ],
+        "sharedGeometryBytes": 6408,
+        "instanceMatrixBytes": 7552,
+        "runtimeBytesEstimate": 13361101
+      }
+    },
+    "device": {
+      "orientation": "landscape",
+      "viewport": {
+        "width": 844,
+        "height": 390,
+        "deviceScaleFactor": 3
+      },
+      "visibleBrowser": true
+    },
+    "rendererMetrics": {
+      "fps": 17.3,
+      "calls": 55,
+      "triangles": 105791,
+      "geometries": 18,
+      "textures": 54
+    },
+    "memoryMetrics": {
+      "jsHeapMb": 13.6,
+      "decodedTextureMbEstimate": 12,
+      "levelRuntimeBytesEstimate": 13361101,
+      "chunkInstanceMatrixBytes": 7552,
+      "weaponModelBytesLoaded": 11234316,
+      "enemyModelBytesLoaded": 347884,
+      "loadedAssetIds": [
+        "audio.music.foundation.elevenlabs",
+        "audio.music.title.playful.elevenlabs",
+        "audio.weapon.bore.elevenlabs",
+        "audio.weapon.rift.elevenlabs",
+        "audio.weapon.spark.elevenlabs",
+        "audio.weapon.torch.elevenlabs",
+        "audio.weapon.vault.elevenlabs",
+        "enemy.monster.goleling",
+        "enemy.monster.mushnub",
+        "enemy.monster.pink-slime",
+        "environment.foundation.floor-grid-steel",
+        "environment.foundation.roof-flat-steel",
+        "environment.foundation.wall-panel-steel",
+        "player.hero.gadget-gremlin.apose.animated",
+        "weapon.blaster.bore",
+        "weapon.blaster.rift",
+        "weapon.blaster.spark",
+        "weapon.blaster.torch",
+        "weapon.blaster.vault"
+      ],
+      "activeSceneRoots": 10
+    },
+    "assetLoadErrors": [],
+    "weapon": {
+      "weaponIds": [
+        "weapon.blaster.spark",
+        "weapon.blaster.bore",
+        "weapon.blaster.vault",
+        "weapon.blaster.rift",
+        "weapon.blaster.torch"
+      ],
+      "activeWeaponId": "weapon.blaster.spark",
+      "activeWeaponLabel": "SPARK",
+      "activeWeaponRole": "fast sidearm",
+      "activeWeaponStats": {
+        "damage": 34,
+        "fireIntervalMs": 155,
+        "reloadMs": 620,
+        "rangeUnits": 28
+      },
+      "ammoInMagazine": 18,
+      "magazineSize": 18,
+      "isReloading": false,
+      "isFireHeld": false,
+      "aimBlend": 0,
+      "cameraFovDegrees": 70,
+      "shotCount": 0,
+      "wallAvoidance": 0,
+      "modelBytesLoaded": 11234316,
+      "loadedAssetIds": [
+        "audio.music.foundation.elevenlabs",
+        "audio.music.title.playful.elevenlabs",
+        "audio.weapon.bore.elevenlabs",
+        "audio.weapon.rift.elevenlabs",
+        "audio.weapon.spark.elevenlabs",
+        "audio.weapon.torch.elevenlabs",
+        "audio.weapon.vault.elevenlabs",
+        "player.hero.gadget-gremlin.apose.animated",
+        "weapon.blaster.bore",
+        "weapon.blaster.rift",
+        "weapon.blaster.spark",
+        "weapon.blaster.torch",
+        "weapon.blaster.vault"
+      ],
+      "assetLoadErrors": [],
+      "playerViewModel": {
+        "assetId": "player.hero.gadget-gremlin.apose.animated",
+        "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+        "loaded": true,
+        "modelBytesLoaded": 10983096,
+        "clipCount": 10,
+        "observedTriangles": 81375,
+        "activeGrip": {
+          "weaponId": "weapon.blaster.spark",
+          "position": [
+            -0.05,
+            -0.6,
+            0.71
+          ],
+          "rotation": [
+            0.02,
+            3.142,
+            -0.03
+          ],
+          "scale": 0.62
+        },
+        "bonePoseDegrees": {
+          "RightArm": {
+            "x": 36,
+            "y": -103,
+            "z": 72
+          },
+          "RightForeArm": {
+            "x": 0,
+            "y": 92,
+            "z": -35
+          }
+        },
+        "armMask": {
+          "enabled": true,
+          "sourceMeshCount": 1,
+          "maskedMeshCount": 1,
+          "sourceTriangles": 81375,
+          "visibleTriangles": 7641,
+          "allowedBones": [
+            "RightShoulder",
+            "RightArm",
+            "RightForeArm",
+            "RightHand"
+          ]
+        },
+        "assetLoadErrors": []
+      },
+      "playerViewModelTuner": {
+        "enabled": false,
+        "panelVisible": false,
+        "activeWeaponId": null,
+        "activeGrip": null
+      },
+      "audio": {
+        "musicMuted": false,
+        "musicPlaying": true,
+        "musicDecoded": true,
+        "activeMusicAssetId": "audio.music.foundation.elevenlabs",
+        "unlocked": true,
+        "sfxPoolProfiles": [
+          "burst",
+          "heavy",
+          "precision",
+          "scatter",
+          "sidearm"
+        ],
+        "decodedSfxProfiles": [
+          "burst",
+          "heavy",
+          "precision",
+          "scatter",
+          "sidearm"
+        ],
+        "playRequests": 0,
+        "enemyProjectilePlayRequests": 0,
+        "webAudioPlayRequests": 0,
+        "htmlFallbackPlayRequests": 0,
+        "missedPlayRequests": 0,
+        "playFailures": 0,
+        "loadedAssetIds": [
+          "audio.music.foundation.elevenlabs",
+          "audio.music.title.playful.elevenlabs",
+          "audio.weapon.bore.elevenlabs",
+          "audio.weapon.rift.elevenlabs",
+          "audio.weapon.spark.elevenlabs",
+          "audio.weapon.torch.elevenlabs",
+          "audio.weapon.vault.elevenlabs"
+        ],
+        "assetLoadErrors": [],
+        "assetBytesLoaded": 2298666
+      },
+      "effectPose": {
+        "muzzle": [
+          0.54,
+          -0.35,
+          -1.29
+        ],
+        "tracerEnd": [
+          0,
+          0,
+          -28
+        ],
+        "wallImpact": [
+          0,
+          0,
+          -27.96
+        ]
+      },
+      "effectStyle": {
+        "muzzleColor": "#8df7ff",
+        "tracerColor": "#7dd3fc",
+        "impactColor": "#b7f3ff"
+      },
+      "lastShot": null
+    },
+    "player": {
+      "health": {
+        "current": 0,
+        "max": 100,
+        "ratio": 0,
+        "isAlive": false
+      }
+    },
+    "enemies": {
+      "total": 12,
+      "alive": 12,
+      "destroyed": 0,
+      "enemyMarkerCount": 12,
+      "enemies": [
+        {
+          "id": "enemy.monster.mushnub.vanguard",
+          "assetId": "enemy.monster.mushnub",
+          "label": "MUSHNUB",
+          "marker": {
+            "column": 12,
+            "row": 1
+          },
+          "position": [
+            -9.854,
+            0,
+            -20.884
+          ],
+          "origin": [
+            -10,
+            0,
+            -21
+          ],
+          "health": {
+            "current": 68,
+            "max": 68,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "mushroom-hop-square",
+          "speedUnitsPerSecond": 1.6,
+          "facingYawRadians": -1.25,
+          "detectRadiusUnits": 6.2,
+          "loseRadiusUnits": 8,
+          "projectileRangeUnits": 8.8,
+          "projectileCooldownSeconds": 0.706,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              -9.854,
+              0.1,
+              -20.884
+            ],
+            "hitProxy": [
+              -9.854,
+              1.175,
+              -20.884
+            ],
+            "hitFlash": [
+              -9.854,
+              0.985,
+              -20.884
+            ],
+            "debug": [
+              -9.854,
+              0,
+              -20.884
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              -9.854,
+              0.904,
+              -20.884
+            ],
+            "size": [
+              1.579,
+              1.608,
+              1.579
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.pink-slime.lane-anchor",
+          "assetId": "enemy.monster.pink-slime",
+          "label": "SLIME",
+          "marker": {
+            "column": 32,
+            "row": 5
+          },
+          "position": [
+            9.793,
+            0,
+            -17
+          ],
+          "origin": [
+            10,
+            0,
+            -17
+          ],
+          "health": {
+            "current": 70,
+            "max": 70,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "slime-side-sway",
+          "speedUnitsPerSecond": 1.775,
+          "facingYawRadians": 0.953,
+          "detectRadiusUnits": 5.8,
+          "loseRadiusUnits": 7.4,
+          "projectileRangeUnits": 8.2,
+          "projectileCooldownSeconds": 1.342,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              9.793,
+              0.068,
+              -17
+            ],
+            "hitProxy": [
+              9.793,
+              1.175,
+              -17
+            ],
+            "hitFlash": [
+              9.793,
+              0.696,
+              -17
+            ],
+            "debug": [
+              9.793,
+              0,
+              -17
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              9.793,
+              0.639,
+              -17
+            ],
+            "size": [
+              1.508,
+              1.142,
+              1.525
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.goleling.crosswatch",
+          "assetId": "enemy.monster.goleling",
+          "label": "GOLELING",
+          "marker": {
+            "column": 22,
+            "row": 13
+          },
+          "position": [
+            -0.105,
+            0,
+            -9.105
+          ],
+          "origin": [
+            0,
+            0,
+            -9
+          ],
+          "health": {
+            "current": 120,
+            "max": 120,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "goleling-heavy-square",
+          "speedUnitsPerSecond": 1.275,
+          "facingYawRadians": 0.377,
+          "detectRadiusUnits": 6.8,
+          "loseRadiusUnits": 8.6,
+          "projectileRangeUnits": 9.4,
+          "projectileCooldownSeconds": 1.581,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              -0.105,
+              0.021,
+              -9.105
+            ],
+            "hitProxy": [
+              -0.105,
+              1.175,
+              -9.105
+            ],
+            "hitFlash": [
+              -0.105,
+              0.983,
+              -9.105
+            ],
+            "debug": [
+              -0.105,
+              0,
+              -9.105
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              -0.081,
+              0.896,
+              -9.072
+            ],
+            "size": [
+              5.376,
+              1.75,
+              3.516
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.mushnub.north-sentinel",
+          "assetId": "enemy.monster.mushnub",
+          "label": "MUSHNUB",
+          "marker": {
+            "column": 38,
+            "row": 13
+          },
+          "position": [
+            15.854,
+            0,
+            -9.116
+          ],
+          "origin": [
+            16,
+            0,
+            -9
+          ],
+          "health": {
+            "current": 68,
+            "max": 68,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "mushroom-hop-square",
+          "speedUnitsPerSecond": 1.6,
+          "facingYawRadians": 0.503,
+          "detectRadiusUnits": 6.2,
+          "loseRadiusUnits": 8,
+          "projectileRangeUnits": 8.8,
+          "projectileCooldownSeconds": 0.895,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              15.854,
+              0.1,
+              -9.116
+            ],
+            "hitProxy": [
+              15.854,
+              1.175,
+              -9.116
+            ],
+            "hitFlash": [
+              15.854,
+              0.985,
+              -9.116
+            ],
+            "debug": [
+              15.854,
+              0,
+              -9.116
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              15.854,
+              0.904,
+              -9.116
+            ],
+            "size": [
+              1.696,
+              1.608,
+              1.696
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.pink-slime.splitter-guard",
+          "assetId": "enemy.monster.pink-slime",
+          "label": "SLIME",
+          "marker": {
+            "column": 8,
+            "row": 15
+          },
+          "position": [
+            -14.207,
+            0,
+            -7
+          ],
+          "origin": [
+            -14,
+            0,
+            -7
+          ],
+          "health": {
+            "current": 70,
+            "max": 70,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "slime-side-sway",
+          "speedUnitsPerSecond": 1.775,
+          "facingYawRadians": 0.953,
+          "detectRadiusUnits": 5.8,
+          "loseRadiusUnits": 7.4,
+          "projectileRangeUnits": 8.2,
+          "projectileCooldownSeconds": 0.245,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              -14.207,
+              0.068,
+              -7
+            ],
+            "hitProxy": [
+              -14.207,
+              1.175,
+              -7
+            ],
+            "hitFlash": [
+              -14.207,
+              0.696,
+              -7
+            ],
+            "debug": [
+              -14.207,
+              0,
+              -7
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              -14.207,
+              0.639,
+              -7
+            ],
+            "size": [
+              1.508,
+              1.142,
+              1.525
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.goleling.east-watch",
+          "assetId": "enemy.monster.goleling",
+          "label": "GOLELING",
+          "marker": {
+            "column": 8,
+            "row": 23
+          },
+          "position": [
+            -14.105,
+            0,
+            0.895
+          ],
+          "origin": [
+            -14,
+            0,
+            1
+          ],
+          "health": {
+            "current": 120,
+            "max": 120,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "goleling-heavy-square",
+          "speedUnitsPerSecond": 1.275,
+          "facingYawRadians": 0.377,
+          "detectRadiusUnits": 6.8,
+          "loseRadiusUnits": 8.6,
+          "projectileRangeUnits": 9.4,
+          "projectileCooldownSeconds": 1.091,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              -14.105,
+              0.021,
+              0.895
+            ],
+            "hitProxy": [
+              -14.105,
+              1.175,
+              0.895
+            ],
+            "hitFlash": [
+              -14.105,
+              0.983,
+              0.895
+            ],
+            "debug": [
+              -14.105,
+              0,
+              0.895
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              -14.081,
+              0.896,
+              0.928
+            ],
+            "size": [
+              5.376,
+              1.75,
+              3.516
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.mushnub.west-roamer",
+          "assetId": "enemy.monster.mushnub",
+          "label": "MUSHNUB",
+          "marker": {
+            "column": 27,
+            "row": 23
+          },
+          "position": [
+            4.854,
+            0,
+            0.884
+          ],
+          "origin": [
+            5,
+            0,
+            1
+          ],
+          "health": {
+            "current": 68,
+            "max": 68,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "mushroom-hop-square",
+          "speedUnitsPerSecond": 1.6,
+          "facingYawRadians": 0.503,
+          "detectRadiusUnits": 6.2,
+          "loseRadiusUnits": 8,
+          "projectileRangeUnits": 8.8,
+          "projectileCooldownSeconds": 1.205,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              4.854,
+              0.1,
+              0.884
+            ],
+            "hitProxy": [
+              4.854,
+              1.175,
+              0.884
+            ],
+            "hitFlash": [
+              4.854,
+              0.985,
+              0.884
+            ],
+            "debug": [
+              4.854,
+              0,
+              0.884
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              4.854,
+              0.904,
+              0.884
+            ],
+            "size": [
+              1.696,
+              1.608,
+              1.696
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.pink-slime.middle-roamer",
+          "assetId": "enemy.monster.pink-slime",
+          "label": "SLIME",
+          "marker": {
+            "column": 39,
+            "row": 23
+          },
+          "position": [
+            16.793,
+            0,
+            1
+          ],
+          "origin": [
+            17,
+            0,
+            1
+          ],
+          "health": {
+            "current": 70,
+            "max": 70,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "slime-side-sway",
+          "speedUnitsPerSecond": 1.775,
+          "facingYawRadians": 0.953,
+          "detectRadiusUnits": 5.8,
+          "loseRadiusUnits": 7.4,
+          "projectileRangeUnits": 8.2,
+          "projectileCooldownSeconds": 1.085,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              16.793,
+              0.068,
+              1
+            ],
+            "hitProxy": [
+              16.793,
+              1.175,
+              1
+            ],
+            "hitFlash": [
+              16.793,
+              0.696,
+              1
+            ],
+            "debug": [
+              16.793,
+              0,
+              1
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              16.793,
+              0.639,
+              1
+            ],
+            "size": [
+              1.508,
+              1.142,
+              1.525
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.goleling.right-roamer",
+          "assetId": "enemy.monster.goleling",
+          "label": "GOLELING",
+          "marker": {
+            "column": 6,
+            "row": 34
+          },
+          "position": [
+            -16.105,
+            0,
+            11.895
+          ],
+          "origin": [
+            -16,
+            0,
+            12
+          ],
+          "health": {
+            "current": 120,
+            "max": 120,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "goleling-heavy-square",
+          "speedUnitsPerSecond": 1.275,
+          "facingYawRadians": 0.377,
+          "detectRadiusUnits": 6.8,
+          "loseRadiusUnits": 8.6,
+          "projectileRangeUnits": 9.4,
+          "projectileCooldownSeconds": 1.213,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              -16.105,
+              0.021,
+              11.895
+            ],
+            "hitProxy": [
+              -16.105,
+              1.175,
+              11.895
+            ],
+            "hitFlash": [
+              -16.105,
+              0.983,
+              11.895
+            ],
+            "debug": [
+              -16.105,
+              0,
+              11.895
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              -16.081,
+              0.896,
+              11.928
+            ],
+            "size": [
+              5.376,
+              1.75,
+              3.516
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.mushnub.lower-left",
+          "assetId": "enemy.monster.mushnub",
+          "label": "MUSHNUB",
+          "marker": {
+            "column": 20,
+            "row": 34
+          },
+          "position": [
+            -2.146,
+            0,
+            11.884
+          ],
+          "origin": [
+            -2,
+            0,
+            12
+          ],
+          "health": {
+            "current": 68,
+            "max": 68,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "mushroom-hop-square",
+          "speedUnitsPerSecond": 1.6,
+          "facingYawRadians": 0.503,
+          "detectRadiusUnits": 6.2,
+          "loseRadiusUnits": 8,
+          "projectileRangeUnits": 8.8,
+          "projectileCooldownSeconds": 1.502,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              -2.146,
+              0.1,
+              11.884
+            ],
+            "hitProxy": [
+              -2.146,
+              1.175,
+              11.884
+            ],
+            "hitFlash": [
+              -2.146,
+              0.985,
+              11.884
+            ],
+            "debug": [
+              -2.146,
+              0,
+              11.884
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              -2.146,
+              0.904,
+              11.884
+            ],
+            "size": [
+              1.696,
+              1.608,
+              1.696
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.pink-slime.lower-center",
+          "assetId": "enemy.monster.pink-slime",
+          "label": "SLIME",
+          "marker": {
+            "column": 36,
+            "row": 34
+          },
+          "position": [
+            13.793,
+            0,
+            12
+          ],
+          "origin": [
+            14,
+            0,
+            12
+          ],
+          "health": {
+            "current": 70,
+            "max": 70,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "slime-side-sway",
+          "speedUnitsPerSecond": 1.775,
+          "facingYawRadians": 0.953,
+          "detectRadiusUnits": 5.8,
+          "loseRadiusUnits": 7.4,
+          "projectileRangeUnits": 8.2,
+          "projectileCooldownSeconds": 0.973,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              13.793,
+              0.068,
+              12
+            ],
+            "hitProxy": [
+              13.793,
+              1.175,
+              12
+            ],
+            "hitFlash": [
+              13.793,
+              0.696,
+              12
+            ],
+            "debug": [
+              13.793,
+              0,
+              12
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              13.793,
+              0.639,
+              12
+            ],
+            "size": [
+              1.508,
+              1.142,
+              1.525
+            ]
+          }
+        },
+        {
+          "id": "enemy.monster.goleling.lower-right",
+          "assetId": "enemy.monster.goleling",
+          "label": "GOLELING",
+          "marker": {
+            "column": 22,
+            "row": 42
+          },
+          "position": [
+            -0.105,
+            0,
+            19.895
+          ],
+          "origin": [
+            0,
+            0,
+            20
+          ],
+          "health": {
+            "current": 120,
+            "max": 120,
+            "ratio": 1,
+            "isAlive": true
+          },
+          "assetLoaded": true,
+          "state": "patrolling",
+          "behavior": "goleling-heavy-square",
+          "speedUnitsPerSecond": 1.275,
+          "facingYawRadians": 0.377,
+          "detectRadiusUnits": 6.8,
+          "loseRadiusUnits": 8.6,
+          "projectileRangeUnits": 9.4,
+          "projectileCooldownSeconds": 1.563,
+          "debugVisible": true,
+          "attachments": {
+            "visual": [
+              -0.105,
+              0.021,
+              19.895
+            ],
+            "hitProxy": [
+              -0.105,
+              1.175,
+              19.895
+            ],
+            "hitFlash": [
+              -0.105,
+              0.983,
+              19.895
+            ],
+            "debug": [
+              -0.105,
+              0,
+              19.895
+            ]
+          },
+          "modelBounds": {
+            "center": [
+              -0.081,
+              0.896,
+              19.928
+            ],
+            "size": [
+              5.376,
+              1.75,
+              3.516
+            ]
+          }
+        }
+      ],
+      "projectiles": {
+        "active": 0,
+        "pooled": 0,
+        "fired": 0,
+        "hitPlayer": 0,
+        "hitWall": 0,
+        "shotsBlockedByWall": 0,
+        "list": []
+      },
+      "modelBytesLoaded": 347884,
+      "loadedAssetIds": [
+        "enemy.monster.goleling",
+        "enemy.monster.mushnub",
+        "enemy.monster.pink-slime"
+      ],
+      "assetLoadErrors": []
+    },
+    "controls": {
+      "orientationLock": "landscape",
+      "primaryInput": "touch",
+      "touchShellReady": true,
+      "viewportScale": 1,
+      "preventedZoomGestures": 0,
+      "preventedMultiTouchStarts": 0,
+      "preventedMultiTouchMoves": 0,
+      "preventedWheelZooms": 0,
+      "preventedDoubleTaps": 1,
+      "lastPreventedZoomAt": 869.4,
+      "lookActive": false,
+      "movePointerActive": false,
+      "moveVector": [
+        0,
+        0
+      ],
+      "keyboardVector": [
+        0,
+        0
+      ],
+      "buttons": [
+        "title-start",
+        "hero-lab",
+        "voice-lab",
+        "hold-fire-aim",
+        "weapon-cycle",
+        "music-toggle",
+        "debug-toggle",
+        "debug-death"
+      ]
+    },
+    "ui": {
+      "debugVisible": true,
+      "phase": "death-cinematic",
+      "loading": {
+        "ready": true,
+        "loadedAssets": 20,
+        "expectedAssets": 20,
+        "titleBackgroundLoaded": true,
+        "titleBackgroundAssetId": "ui.title.background.gadget-rift.generated",
+        "titleHeroLoaded": true,
+        "titleHeroAssetId": "player.hero.gadget-gremlin.apose.animated",
+        "assetLoadErrors": []
+      },
+      "titleHero": {
+        "assetId": "player.hero.gadget-gremlin.apose.animated",
+        "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+        "loaded": true,
+        "modelBytesLoaded": 10983096,
+        "clipId": "idle-alt",
+        "clipDurationSeconds": 2.37,
+        "visible": false,
+        "errors": [],
+        "bounds": {
+          "width": 1.12,
+          "height": 1.9,
+          "depth": 1.07
+        },
+        "screenBounds": {
+          "left": 498.2,
+          "top": 59.3,
+          "right": 730.89,
+          "bottom": 371.37
+        }
+      },
+      "deathCinematic": {
+        "assetId": "player.hero.gadget-gremlin.apose.animated",
+        "modelPath": "assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+        "loaded": true,
+        "modelBytesLoaded": 10983096,
+        "clipId": "out-of-hp",
+        "clipDurationSeconds": 3,
+        "visible": true,
+        "phaseTimeSeconds": 2.5,
+        "orbitAngleRadians": 2.55,
+        "deathPosition": [
+          -21,
+          0,
+          -21
+        ],
+        "cameraPosition": [
+          -20.17,
+          1.55,
+          -16.88
+        ],
+        "modelBounds": {
+          "center": [
+            -21,
+            0.01,
+            -21
+          ],
+          "size": [
+            0.01,
+            0.02,
+            0.01
+          ]
+        },
+        "errors": []
+      }
+    },
+    "budgets": {
+      "targetFps": 60,
+      "maxDevicePixelRatio": 2,
+      "drawCallsMax": 90,
+      "trianglesMax": 250000,
+      "geometriesMax": 100,
+      "texturesMax": 64,
+      "initialScenePayloadMbMax": 40
+    }
+  }
+}

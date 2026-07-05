@@ -302,6 +302,11 @@ export class WeaponSystem {
     }
   }
 
+  setViewVisible(visible: boolean): void {
+    this.viewRoot.visible = visible;
+    this.shotFeedbackRoot.visible = visible;
+  }
+
   resetCombatState(): void {
     this.releaseFireState();
     for (const weapon of WEAPON_DEFINITIONS) {
