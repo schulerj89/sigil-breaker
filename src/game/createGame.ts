@@ -64,8 +64,10 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   const zoomGuard = track(createMobileZoomGuard(root));
   const controls = new FpsControls(root, camera);
   const playerHealth = new Health(100);
+  const weaponSystemRef: { current: WeaponSystem | null } = { current: null };
   const enemySystem = new EnemySystem(scene, {
     damagePlayer: (amount) => playerHealth.damage(amount),
+    playProjectileSound: () => weaponSystemRef.current?.playEnemyProjectileSound(),
   });
   const weaponSystem = new WeaponSystem(root, camera, {
     resolveTargetHit: (request) => enemySystem.resolveShotHit(
@@ -75,6 +77,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       request.damage,
     ),
   });
+  weaponSystemRef.current = weaponSystem;
   levelRuntime.update(controls.getSnapshot().player.position);
 
   let animationFrame = 0;

@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T03:38:00Z",
-  "summary": "Local Playwright smoke covers title/start flow, weapons, SFX, map-authored GLB enemies, debug toggles, cache-busting, zoom guards, and the latest level access/exit changes.",
+  "updatedAt": "2026-07-05T04:05:00Z",
+  "summary": "Local Playwright smoke covers title/start flow, weapons, decoded SFX, projectile SFX counters, map-authored GLB enemies, debug toggles, cache-busting, zoom guards, and the latest level access/exit changes.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -97,7 +97,11 @@
     "npm run validate:levels now checks both boss-forge-31x31 and foundation-45x45 by default.",
     "Unit smoke now verifies the first tracking projectile fires within a few frames and pins the 25% faster Mushnub speed.",
     "Browser smoke now poses the player near a living enemy in the full interaction project and verifies projectile fired, projectile hitPlayer, and reduced player HP before restoring the original pose.",
-    "Latest npm run validate:browser passed all five landscape viewport projects after the enemy first-shot timing and speed fix."
+    "Latest npm run validate:browser passed all five landscape viewport projects after the enemy first-shot timing and speed fix.",
+    "Unit smoke now verifies every spawned enemy projectile requests a projectile SFX callback.",
+    "Browser smoke now waits for decoded weapon SFX profiles, verifies held-fire increments Web Audio play requests, and verifies playFailures stays flat.",
+    "Browser projectile smoke now verifies snapshot.weapon.audio.enemyProjectilePlayRequests increases when an enemy projectile fires.",
+    "Latest npm run validate:browser passed all five landscape viewport projects after the decoded Web Audio SFX and enemy projectile SFX counter changes."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -126,7 +130,7 @@
     "Keep first-target smoke aimed at an enemy that starts outside detection range, then prove destruction through hold-fire rather than relying on immediate tracking.",
     "Use the qaCapture debug pose hook for deterministic enemy screenshots instead of manual movement when checking model placement.",
     "Use sampled movement windows for headed enemy QA instead of a single final-position delta.",
-    "Keep first-shot audio smoke state-based through sfxPoolProfiles/playRequests/missedPlayRequests until a physical-device audio latency gate exists.",
+    "Keep first-shot audio smoke state-based through sfxPoolProfiles/playRequests/missedPlayRequests/playFailures until a physical-device audio latency gate exists.",
     "Treat the title screen start flow as part of the smoke gate before gameplay interaction checks.",
     "Keep title background cache-busting in browser smoke because Pages can hard-cache public assets.",
     "Keep all-walkable reachability in the level gate because isolated enemy rooms can pass spawn-to-exit checks.",
@@ -160,7 +164,8 @@
     "Title-safe left gradient needed strengthening to prevent generated image details from reading as stray UI near the title.",
     "A closed room with an enemy and cover passed the prior spawn-to-exit-only validator.",
     "Enemy projectile behavior needs state-based smoke because projectile visuals are short lived.",
-    "Single-map level validation would miss invalid future boss level JSON files."
+    "Single-map level validation would miss invalid future boss level JSON files.",
+    "HTML media element pools can still be a timing-sensitive fallback on mobile, so smoke now watches decodedSfxProfiles and Web Audio play request growth."
   ],
   "risks": [
     "Without automated browser smoke, future asset 404 regressions can still reach manual QA.",
@@ -196,7 +201,8 @@
     "src/game/levelConfigs.ts",
     "docs/level-boss.md",
     "artifacts/sub-agents/20260705-boss-level-config/smoke-qa-agent/report.json",
-    "artifacts/sub-agents/20260705-enemy-projectile-speed-fix/smoke-qa-agent/report.json"
+    "artifacts/sub-agents/20260705-enemy-projectile-speed-fix/smoke-qa-agent/report.json",
+    "artifacts/sub-agents/20260705-audio-consistency/smoke-qa-agent/report.json"
   ],
   "jsonForAgents": {
     "latestManualSmoke": {
@@ -288,7 +294,7 @@
       "mvpFastViewportSplit": true,
       "visualViewportScaleAfterZoomGestures": 1,
       "assetLoadErrors": 0,
-      "latestDurationSeconds": 152,
+      "latestDurationSeconds": 154,
       "testTimeoutSeconds": 240,
       "loadedAssetIdCount": 17,
       "weaponCycleCount": 5,
@@ -310,8 +316,12 @@
       "firstEnemyStartsPatrolling": true,
       "enemyHitFlashUnitChecked": true,
       "sfxPoolProfilesChecked": true,
+      "decodedSfxProfilesChecked": true,
       "sfxPlayRequestsIncreaseOnHoldFire": true,
+      "webAudioPlayRequestsIncreaseOnHoldFire": true,
       "missedSfxPlayRequests": 0,
+      "sfxPlayFailures": 0,
+      "enemyProjectileSoundRequestsChecked": true,
       "titleScreenGateChecked": true,
       "titleStartFlowChecked": true,
       "titleAssetCacheBustingChecked": true,
@@ -327,7 +337,8 @@
       "enemyProjectileBootCountersZero": true,
       "playerDamageFromProjectileUnitChecked": true,
       "enemyProjectileAttackDamagesPlayerChecked": true,
-      "enemyProjectilePoseRestoredBeforeMovementRoute": true
+      "enemyProjectilePoseRestoredBeforeMovementRoute": true,
+      "latestAudioConsistencyValidationPassed": true
     },
     "latestHealthEnemySmoke": {
       "playerHealth": {
@@ -413,6 +424,9 @@
       "headedEnemyVisualCaptureNoConsoleErrors",
       "firstShotSfxPoolAvailable",
       "firstShotSfxPlayRequestNotMissed",
+      "decodedWeaponSfxProfiles",
+      "weaponSfxUsesWebAudioAfterDecode",
+      "enemyProjectileSfxRequestCounter",
       "titleScreenVisibleAfterLoading",
       "titleStartButtonEntersGameplay",
       "titleBackgroundCacheBusted",

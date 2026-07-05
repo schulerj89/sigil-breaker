@@ -87,8 +87,15 @@ export interface EnemyPlayerDamageSource {
   position: [number, number, number];
 }
 
+export interface EnemyProjectileAudioSource {
+  enemyId: string;
+  projectileSequence: number;
+  position: [number, number, number];
+}
+
 export interface EnemySystemOptions {
   damagePlayer?: (amount: number, source: EnemyPlayerDamageSource) => HealthSnapshot;
+  playProjectileSound?: (source: EnemyProjectileAudioSource) => void;
 }
 
 type EnemyMotionStyle = 'mushroom-hop' | 'slime-sway' | 'golem-stomp';
@@ -742,6 +749,11 @@ export class EnemySystem {
     projectile.mesh.position.copy(position);
     this.projectiles.push(projectile);
     this.projectilesFired++;
+    this.options.playProjectileSound?.({
+      enemyId: enemy.id,
+      projectileSequence: sequence,
+      position: vectorSnapshot(position),
+    });
     enemy.projectileCooldownSeconds = enemy.behavior.projectileCooldownSeconds;
   }
 

@@ -2,20 +2,24 @@
   "handoffVersion": "1.0.0",
   "agentId": "elevenlabs-audio-music-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T00:42:00Z",
-  "summary": "Five weapon SFX and a 48 second foundation combat loop are committed as ElevenLabs-generated MP3 assets with metadata, ledger hashes, immediate runtime SFX pools, and first-shot smoke counters.",
+  "updatedAt": "2026-07-05T04:05:00Z",
+  "summary": "Five weapon SFX and a 48 second foundation combat loop are committed as ElevenLabs-generated MP3 assets; runtime SFX now use decoded Web Audio buffers with HTML media fallback, boosted VAULT gain, projectile sound reuse, and smoke counters.",
   "observations": [
     "Previous gun sounds were procedural Web Audio and not ElevenLabs assets.",
     "Generated three weapon SFX assets with the ElevenLabs text-to-sound-effects endpoint.",
     "Generated one 24 second instrumental foundation loop with the ElevenLabs music stream endpoint.",
     "Runtime browser code loads committed public MP3 assets through publicAssetUrl and never receives an ElevenLabs API key.",
     "Audio asset prompts, endpoints, models, settings, bytes, hashes, LUFS targets, and intended use are recorded in docs/assets/source-ledger.json and source-metadata.json.",
-    "VAULT keeps the same generated MP3 file, but runtime playback gain and source metadata volume were raised to 1.0 because the heavy pulse sounded too quiet.",
+    "VAULT keeps the same generated MP3 file, but runtime playback gain and source metadata volume were raised to 1.8 because the heavy pulse sounded too quiet.",
     "Generated RIFT precision and TORCH burst SFX through the local secret broker.",
     "Replaced the old 24 second music loop with foundation-combat-loop-long.mp3 at 48 seconds.",
     "Runtime audio now preloads six committed MP3 assets.",
     "Runtime weapon SFX pools are now created immediately from the manifest, before async byte verification completes, so an early first shot has a playable SFX element available.",
-    "Audio debug snapshots now report sfxPoolProfiles, playRequests, and missedPlayRequests so smoke QA can catch a shot that had no SFX pool candidate."
+    "Audio debug snapshots now report sfxPoolProfiles, playRequests, and missedPlayRequests so smoke QA can catch a shot that had no SFX pool candidate.",
+    "Weapon SFX now decode into AudioBuffers after the first user gesture and use Web Audio one-shot sources for held-fire playback.",
+    "The HTML audio pool remains as a pre-decode fallback and reports htmlFallbackPlayRequests.",
+    "Enemy projectile SFX currently reuses the committed ElevenLabs RIFT precision MP3 at lower gain and playback rate for an MVP projectile cue.",
+    "Latest npm run validate:browser passed all five landscape viewport projects with decoded profiles, Web Audio shot playback, zero SFX play failures, and projectile sound request coverage."
   ],
   "decisions": [
     "Do not expose ElevenLabs API keys in browser code.",
@@ -26,17 +30,21 @@
     "Use runtime gain tweaks for small mix fixes when the source file, hash, and bytes do not change.",
     "Use the 48 second music loop as the default foundation music asset.",
     "Keep all ElevenLabs API use build-time/local only; browser runtime loads committed cache-busted MP3s.",
-    "Keep audio byte verification as the provenance/load gate, but do not block creation of local SFX playback pools on that async check."
+    "Keep audio byte verification as the provenance/load gate, but do not block creation of local SFX playback pools on that async check.",
+    "Prefer decoded Web Audio buffer playback for repeated combat SFX; keep HTMLAudioElement pools only as fallback.",
+    "Generate a dedicated ElevenLabs enemy projectile/impact SFX set later instead of treating the reused RIFT cue as final."
   ],
   "caughtIssues": [
     "The current browser autoplay model means music must not be expected to play before a user gesture.",
     "The asset validator needed a generated-audio source path instead of a CC0-only source gate.",
-    "The earlier SFX preload path created weapon audio pools only after async fetch verification, so very early shots could miss sound until a later cadence shot."
+    "The earlier SFX preload path created weapon audio pools only after async fetch verification, so very early shots could miss sound until a later cadence shot.",
+    "Small HTML media pools can cut off or delay rapid overlapping shots on mobile when held-fire cadence overlaps."
   ],
   "risks": [
     "The 24 second music loop may become repetitive during longer playthroughs.",
     "Generated output usage must continue to follow the active ElevenLabs account and terms.",
-    "SFX loudness is metadata-targeted but not yet measured by an automated LUFS tool."
+    "SFX loudness is metadata-targeted but not yet measured by an automated LUFS tool.",
+    "Enemy projectile sound identity is temporary because it reuses an existing ElevenLabs weapon cue."
   ],
   "blockers": [],
   "artifacts": [
@@ -49,7 +57,8 @@
     "src/game/weapons/weaponAudio.ts",
     "public/assets/audio/elevenlabs-foundation/rift-precision.mp3",
     "public/assets/audio/elevenlabs-foundation/torch-burst.mp3",
-    "public/assets/audio/elevenlabs-foundation/foundation-combat-loop-long.mp3"
+    "public/assets/audio/elevenlabs-foundation/foundation-combat-loop-long.mp3",
+    "artifacts/sub-agents/20260705-audio-consistency/elevenlabs-audio-music-agent/observations.md"
   ],
   "jsonForAgents": {
     "secretEnvVars": [
@@ -107,6 +116,14 @@
       "voice": -16
     },
     "runtimeSfxPoolsCreatedBeforeVerification": true,
+    "runtimeSfxPlaybackMode": "decoded-web-audio-buffer-with-html-media-fallback",
+    "enemyProjectileSound": {
+      "sourceAudioAssetId": "audio.weapon.rift.elevenlabs",
+      "sourceProfile": "precision",
+      "gainMultiplier": 0.54,
+      "playbackRate": 0.72,
+      "dedicatedAssetStillNeeded": true
+    },
     "firstShotSmokeCounters": {
       "sfxPoolProfiles": [
         "burst",
@@ -115,8 +132,18 @@
         "scatter",
         "sidearm"
       ],
+      "decodedSfxProfilesExpected": [
+        "burst",
+        "heavy",
+        "precision",
+        "scatter",
+        "sidearm"
+      ],
       "playRequestsIncreaseOnHoldFire": true,
-      "missedPlayRequestsExpected": 0
+      "webAudioPlayRequestsIncreaseOnHoldFire": true,
+      "enemyProjectilePlayRequestsIncreaseWhenProjectileFires": true,
+      "missedPlayRequestsExpected": 0,
+      "playFailuresExpected": 0
     }
   },
   "nextAgents": [

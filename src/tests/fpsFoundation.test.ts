@@ -450,10 +450,14 @@ describe('FPS foundation config', () => {
     const scene = new THREE.Scene();
     const playerHealth = new Health(100);
     const damageEvents: number[] = [];
+    const projectileSoundEvents: string[] = [];
     const enemies = new EnemySystem(scene, {
       damagePlayer: (amount) => {
         damageEvents.push(amount);
         return playerHealth.damage(amount);
+      },
+      playProjectileSound: (source) => {
+        projectileSoundEvents.push(`${source.enemyId}:${source.projectileSequence}`);
       },
     });
     const firstEnemy = enemies.getSnapshot().enemies[0];
@@ -478,6 +482,7 @@ describe('FPS foundation config', () => {
     expect(snapshot.projectiles.fired).toBeGreaterThan(0);
     expect(snapshot.projectiles.hitPlayer).toBeGreaterThan(0);
     expect(snapshot.projectiles.pooled).toBeGreaterThan(0);
+    expect(projectileSoundEvents).toHaveLength(snapshot.projectiles.fired);
     expect(sawActiveProjectile).toBe(true);
     expect(damageEvents).toEqual(expect.arrayContaining([7]));
     expect(playerHealth.getSnapshot().current).toBeLessThan(100);
@@ -503,7 +508,7 @@ describe('FPS foundation config', () => {
     expect(WEAPON_AUDIO_ASSETS.heavy.path).toBe('assets/audio/elevenlabs-foundation/vault-heavy.mp3');
     expect(WEAPON_AUDIO_ASSETS.precision.path).toBe('assets/audio/elevenlabs-foundation/rift-precision.mp3');
     expect(WEAPON_AUDIO_ASSETS.burst.path).toBe('assets/audio/elevenlabs-foundation/torch-burst.mp3');
-    expect(WEAPON_AUDIO_ASSETS.heavy.volume).toBe(1);
+    expect(WEAPON_AUDIO_ASSETS.heavy.volume).toBe(1.8);
     expect(FOUNDATION_MUSIC_ASSET.path).toBe(
       'assets/audio/elevenlabs-foundation/foundation-combat-loop-long.mp3',
     );

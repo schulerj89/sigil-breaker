@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-05T03:38:00Z",
-  "summary": "Enemy projectile timing and 25% faster movement stay within the current pooled-primitive projectile and kinematic movement budget; latest browser smoke passed with the production JS chunk at about 684.30 kB minified.",
+  "updatedAt": "2026-07-05T04:05:00Z",
+  "summary": "Enemy projectile timing, 25% faster movement, and decoded Web Audio SFX stay within the current pooled-primitive projectile, kinematic movement, and 858752B audio payload budgets; latest browser smoke passed with the production JS chunk at about 686.64 kB minified.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -72,7 +72,11 @@
     "Latest npm run validate:browser passed all five landscape viewports after adding enemy projectiles; production JS chunk reported about 684.03 kB minified.",
     "Increasing enemy movement speed by 25% changes transform update distance only; it adds no meshes, textures, or asset payload.",
     "Projectile readability tuning keeps the same shared pooled sphere geometry/material path, with a larger radius and depth testing disabled.",
-    "Latest npm run validate:browser passed all five landscape viewports after the first-shot projectile timing and enemy-speed fix; production JS chunk reported about 684.30 kB minified."
+    "Latest npm run validate:browser passed all five landscape viewports after the first-shot projectile timing and enemy-speed fix; production JS chunk reported about 684.30 kB minified.",
+    "Weapon and projectile SFX now use decoded Web Audio one-shot sources after gesture unlock; this creates one source/gain pair per play but avoids HTML media pool clipping for rapid fire.",
+    "The compressed MP3 ArrayBuffer is released after decode, so gameplay keeps decoded buffers plus the existing fallback media elements rather than retaining both raw fetch bytes and decoded buffers.",
+    "Enemy projectile sound reuses the existing RIFT MP3 with playback-rate/gain changes, adding no new network payload in this pass.",
+    "Latest npm run validate:browser passed all five landscape viewport projects after the decoded SFX pass; production JS chunk reported about 686.64 kB minified."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -98,7 +102,8 @@
     "Keep scene debug enemy visuals as lightweight lines and hide them with the debug toggle during normal play.",
     "Keep enemy separation as a tiny runtime steering correction while the enemy count is low; revisit broader avoidance only when rooms contain larger groups.",
     "Keep headed enemy visual QA as a local runner rather than a deploy workflow gate.",
-    "Keep enemy projectile visuals as pooled primitive placeholders until final external VFX assets are sourced."
+    "Keep enemy projectile visuals as pooled primitive placeholders until final external VFX assets are sourced.",
+    "Keep enemy projectile sound reuse temporary; add a dedicated generated SFX only when the audio budget and provenance ledger are updated together."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
@@ -112,7 +117,8 @@
     "Continuous fire increases audio/effect churn by cadence, but current visible primitives are reused instead of recreated per shot.",
     "The wider enemy hit proxy slightly increases raycast intersection volume, but candidate count is still limited to living enemies and only evaluated when firing.",
     "Raw Object3D.clone(true) is not safe for these skinned enemy GLBs even though it appears cheaper; it can make the visible body fail while bounds still report.",
-    "Enemy offense can add many active meshes if future rooms stack enemies; debug projectile active counts should be watched."
+    "Enemy offense can add many active meshes if future rooms stack enemies; debug projectile active counts should be watched.",
+    "Decoded Web Audio one-shot playback allocates small source/gain nodes per shot; sustained fire profiling should watch audio node churn on physical devices."
   ],
   "risks": [
     "Future larger weapon sets should not all preload by default without level/load-group gating.",
@@ -127,7 +133,8 @@
     "External enemy assets can quickly exceed the current lightweight enemy budget if each enemy ships unique GLBs, textures, or animations.",
     "Debug enemy line visuals add draw calls while debug is visible; future debug geometry should stay lightweight.",
     "Direct steering can fail in more complex multi-room layouts and may need a navmesh or A* path layer later.",
-    "The O(n^2) separation pass should be revisited if the level grows beyond a few dozen active enemies."
+    "The O(n^2) separation pass should be revisited if the level grows beyond a few dozen active enemies.",
+    "Future dedicated projectile/impact audio will increase payload unless it replaces the temporary RIFT reuse."
   ],
   "blockers": [],
   "artifacts": [
@@ -140,7 +147,8 @@
     "src/game/mobileZoomGuard.ts",
     "src/game/health.ts",
     "src/game/enemies/enemySystem.ts",
-    "artifacts/sub-agents/20260705-enemy-projectiles/performance-budget-agent/observations.md"
+    "artifacts/sub-agents/20260705-enemy-projectiles/performance-budget-agent/observations.md",
+    "artifacts/sub-agents/20260705-audio-consistency/performance-budget-agent/observations.md"
   ],
   "jsonForAgents": {
     "visibleFpsTarget": 60,
@@ -168,7 +176,7 @@
     "movementCollisionCost": "nearby solid-tile circle resolver while movement input is active",
     "weaponClearanceCost": "one weapon wall ray/probe for visual viewmodel avoidance",
     "shotEffectPoseCost": "shot-time and short-lived visible-effect camera-local vector/scalar math",
-    "productionJsChunkKb": 676.65,
+    "productionJsChunkKb": 686.64,
     "publicAssetCacheParam": "assetBuild",
     "browserSmokeCommand": "npm run validate:browser",
     "headedEnemyQaCommand": "npm run qa:headed:enemies",
@@ -177,7 +185,7 @@
     "browserSmokeWorkers": 2,
     "fullInteractionProject": "chromium-modern-phone-landscape",
     "mvpFastViewportSplit": true,
-    "localBrowserSmokeSeconds": 44.5,
+    "localBrowserSmokeSeconds": 154,
     "zoomGuardRuntimeCost": "event listeners only; no animation-loop work and no render resources",
     "foundationWalkableTiles": 1658,
     "foundationEnemyMarkers": 12,
@@ -211,6 +219,13 @@
     "gunScaleChange": "manifest-only",
     "reticleControlCost": "css-dom-only",
     "foundationAudioBytes": 858752,
+    "decodedSfxPlayback": {
+      "mode": "Web Audio AudioBufferSourceNode per SFX play",
+      "fallback": "existing HTMLAudioElement pool before decode",
+      "newNetworkPayloadBytes": 0,
+      "rawFetchBytesReleasedAfterDecode": true,
+      "enemyProjectileReusesAssetId": "audio.weapon.rift.elevenlabs"
+    },
     "foundationEnemyModelBytes": 347884,
     "enemyCollisionCost": "one 2.15 x 2.35 x 2.15 invisible box proxy raycast candidate per alive enemy during weapon shots only",
     "enemyMovementCost": "kinematic seek/patrol/return using squared-distance checks, tile collision resolution, and low-count O(n^2) enemy separation",
@@ -230,12 +245,13 @@
       "projectileRadiusUnits": 0.2,
       "depthTestDisabledForReadability": true
     },
-    "latestProductionJsChunkKb": 684.3,
+    "latestProductionJsChunkKb": 686.64,
     "latestBrowserValidation": {
       "command": "npm run validate:browser",
       "result": "passed",
       "projects": 5,
-      "productionJsChunkKb": 684.3
+      "durationSeconds": 154,
+      "productionJsChunkKb": 686.64
     },
     "enemyMovementBudget": {
       "speedMultiplierApplied": 1.25,

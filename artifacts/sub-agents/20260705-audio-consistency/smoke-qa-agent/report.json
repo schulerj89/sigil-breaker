@@ -1,0 +1,34 @@
+{
+  "runId": "20260705-audio-consistency",
+  "status": "complete",
+  "checks": [
+    {
+      "name": "unit audio and projectile callback smoke",
+      "command": "npm test",
+      "status": "passed",
+      "assertions": [
+        "VAULT runtime gain is 1.8",
+        "tracking enemy projectile spawns request SFX callbacks",
+        "foundation audio payload remains 858752B"
+      ]
+    },
+    {
+      "name": "browser decoded audio smoke",
+      "command": "npm run validate:browser",
+      "status": "passed",
+      "projects": 5,
+      "assertions": [
+        "decoded weapon SFX profiles are reported",
+        "held fire increments Web Audio play requests",
+        "missedPlayRequests remains zero",
+        "playFailures remains zero",
+        "enemy projectile firing increments enemyProjectilePlayRequests"
+      ]
+    }
+  ],
+  "handoffs": [
+    "docs/sub-agents/elevenlabs-audio-music-agent/handoff.json",
+    "docs/sub-agents/performance-budget-agent/handoff.json",
+    "docs/sub-agents/smoke-qa-agent/handoff.json"
+  ]
+}

@@ -249,6 +249,10 @@ export class WeaponSystem {
     };
   }
 
+  playEnemyProjectileSound(): void {
+    this.audio.playEnemyProjectile();
+  }
+
   dispose(): void {
     this.root.removeEventListener('pointerdown', this.onPointerDown);
     this.root.removeEventListener('pointerup', this.onPointerUp);
@@ -346,8 +350,8 @@ export class WeaponSystem {
     this.muzzleFlashUntil = now + this.activeWeapon.effects.flashMs;
     this.recoil = Math.min(0.18, this.recoil + this.activeWeapon.recoilKick);
     this.shotCount++;
-    this.traceShot(now);
     this.audio.play(this.activeWeapon.soundProfile);
+    this.traceShot(now);
   }
 
   private traceShot(now: number): void {

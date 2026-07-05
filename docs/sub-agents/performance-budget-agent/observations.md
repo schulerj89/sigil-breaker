@@ -113,3 +113,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Increasing enemy movement speed by 25% changes transform update distance only; it adds no meshes, textures, or asset payload.
 - Projectile readability tuning keeps the same shared pooled sphere geometry/material path, with a larger radius and depth testing disabled.
 - Latest `npm run validate:browser` passed all five landscape viewports after the first-shot projectile timing and enemy-speed fix; production JS chunk reported about 684.30 kB minified.
+- Weapon and projectile SFX now use decoded Web Audio one-shot sources after gesture unlock; this creates one source/gain pair per play but avoids HTML media pool clipping for rapid fire.
+- The compressed MP3 `ArrayBuffer` is released after decode, so gameplay keeps decoded buffers plus the existing fallback media elements rather than retaining both raw fetch bytes and decoded buffers.
+- Enemy projectile sound reuses the existing RIFT MP3 with playback-rate/gain changes, adding no new network payload in this pass.
+- Latest `npm run validate:browser` passed all five landscape viewport projects after the decoded SFX pass; production JS chunk reported about 686.64 kB minified.

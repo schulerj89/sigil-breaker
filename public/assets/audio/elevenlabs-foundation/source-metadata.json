@@ -62,7 +62,7 @@
       "intendedUse": "weapon-sfx",
       "durationSeconds": 1.1,
       "loopable": false,
-      "volume": 1,
+      "volume": 1.8,
       "lufsTarget": -14,
       "generatedAt": "2026-07-04T17:00:43.795Z",
       "path": "public/assets/audio/elevenlabs-foundation/vault-heavy.mp3",

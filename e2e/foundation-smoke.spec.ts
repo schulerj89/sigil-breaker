@@ -104,8 +104,13 @@ interface DebugSnapshot {
       musicPlaying: boolean;
       unlocked: boolean;
       sfxPoolProfiles: string[];
+      decodedSfxProfiles: string[];
       playRequests: number;
+      enemyProjectilePlayRequests: number;
+      webAudioPlayRequests: number;
+      htmlFallbackPlayRequests: number;
       missedPlayRequests: number;
+      playFailures: number;
       loadedAssetIds: string[];
       assetLoadErrors: string[];
       assetBytesLoaded: number;
@@ -369,7 +374,14 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     'audio.weapon.vault.elevenlabs',
   ]);
   expect(debugSnapshot.weapon.audio.sfxPoolProfiles).toEqual(['burst', 'heavy', 'precision', 'scatter', 'sidearm']);
+  await expect
+    .poll(async () => (await readDebugSnapshot(page)).weapon.audio.decodedSfxProfiles, {
+      timeout: 3000,
+      intervals: [80, 120, 160],
+    })
+    .toEqual(['burst', 'heavy', 'precision', 'scatter', 'sidearm']);
   expect(debugSnapshot.weapon.audio.missedPlayRequests).toBe(0);
+  expect(debugSnapshot.weapon.audio.playFailures).toBe(0);
   expect(debugSnapshot.weapon.audio.assetLoadErrors).toEqual([]);
   expect(debugSnapshot.weapon.audio.assetBytesLoaded).toBe(858_752);
   expect(debugSnapshot.weapon.audio.musicMuted).toBe(false);
@@ -498,7 +510,9 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   const shotSnapshot = await holdFireButtonUntilShotCount(page, expectedShotCountFloor);
   expect(shotSnapshot.weapon.shotCount).toBeGreaterThan(preShotSnapshot.weapon.shotCount);
   expect(shotSnapshot.weapon.audio.playRequests).toBeGreaterThan(preShotSnapshot.weapon.audio.playRequests);
+  expect(shotSnapshot.weapon.audio.webAudioPlayRequests).toBeGreaterThan(preShotSnapshot.weapon.audio.webAudioPlayRequests);
   expect(shotSnapshot.weapon.audio.missedPlayRequests).toBe(preShotSnapshot.weapon.audio.missedPlayRequests);
+  expect(shotSnapshot.weapon.audio.playFailures).toBe(preShotSnapshot.weapon.audio.playFailures);
   expect(shotSnapshot.weapon.audio.unlocked).toBe(true);
   expect(shotSnapshot.weapon.ammoInMagazine).toBeLessThan(preShotSnapshot.weapon.ammoInMagazine);
   expect(shotSnapshot.weapon.isFireHeld).toBe(true);
@@ -709,6 +723,12 @@ async function verifyEnemyProjectileAttack(page: Page): Promise<void> {
     })
     .toBeGreaterThan(before.enemies.projectiles.fired);
   await expect
+    .poll(async () => (await readDebugSnapshot(page)).weapon.audio.enemyProjectilePlayRequests, {
+      timeout: 2500,
+      intervals: [80, 120, 160],
+    })
+    .toBeGreaterThan(before.weapon.audio.enemyProjectilePlayRequests);
+  await expect
     .poll(async () => (await readDebugSnapshot(page)).enemies.projectiles.hitPlayer, {
       timeout: 3500,
       intervals: [80, 120, 160],
@@ -717,6 +737,7 @@ async function verifyEnemyProjectileAttack(page: Page): Promise<void> {
 
   const after = await readDebugSnapshot(page);
   expect(after.player.health.current).toBeLessThan(before.player.health.current);
+  expect(after.weapon.audio.playFailures).toBe(before.weapon.audio.playFailures);
 
   const resetAccepted = await page.evaluate((pose) =>
     window.__SIGILBREAKER_DEBUG__?.setPlayerPose({

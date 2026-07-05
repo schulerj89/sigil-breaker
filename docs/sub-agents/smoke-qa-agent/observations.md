@@ -153,3 +153,7 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Latest `npm run validate:browser` passed all five landscape viewport projects after the enemy first-shot timing and speed fix.
 - Unit smoke now verifies the separate boss level JSON shape, exactly one `B` marker, six `E` minion markers, reachable walkable tiles, boss phase ratios, and reward powerup range metadata.
 - `npm run validate:levels` now checks both `boss-forge-31x31` and `foundation-45x45` by default.
+- Unit smoke now verifies every spawned enemy projectile requests a projectile SFX callback.
+- Browser smoke now waits for decoded weapon SFX profiles, verifies held-fire increments Web Audio play requests, and verifies `playFailures` stays flat.
+- Browser projectile smoke now verifies `snapshot.weapon.audio.enemyProjectilePlayRequests` increases when an enemy projectile fires.
+- Latest `npm run validate:browser` passed all five landscape viewport projects after the decoded Web Audio SFX and enemy projectile SFX counter changes.

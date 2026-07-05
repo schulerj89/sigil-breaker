@@ -27,7 +27,7 @@ export const WEAPON_AUDIO_ASSETS: Record<WeaponSoundProfile, GameAudioAsset> = {
     id: 'audio.weapon.vault.elevenlabs',
     path: 'assets/audio/elevenlabs-foundation/vault-heavy.mp3',
     bytes: 18_434,
-    volume: 1,
+    volume: 1.8,
     kind: 'sfx',
   },
   precision: {

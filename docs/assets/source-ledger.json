@@ -237,8 +237,8 @@
           "assetType": "metadata",
           "sourceFile": "generated source metadata",
           "path": "public/assets/audio/elevenlabs-foundation/source-metadata.json",
-          "bytes": 5768,
-          "sha256": "d9fa456b31afe9652d0d53dba5953e2c7a0b616ad4f6883fe076e62a30493946",
+          "bytes": 5770,
+          "sha256": "86c3ab793c03163f2d8cdbe4d3a6aa727f3df03cc21dfa97ca68ffcad87fb481",
           "gameUse": "metadata",
           "loadGroup": "foundation-audio"
         }
