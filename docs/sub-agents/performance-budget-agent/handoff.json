@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-05T08:05:00-05:00",
-  "summary": "Foundation runtime remains within current smoke budgets; the A-pose Meshy player character now uses one combined character-debug runtime GLB, reducing duplicate runtime requests but still exceeding gameplay byte/triangle targets.",
+  "updatedAt": "2026-07-05T13:20:00-05:00",
+  "summary": "Foundation runtime remains within current smoke budgets; the A-pose Meshy player character now uses one combined runtime GLB and has an explicit MVP exception for first-person viewmodel, title, and debug use within a 12000000B / 90000 triangle character budget.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -90,6 +90,9 @@
     "The A-pose Meshy character debug runtime GLB is 10983096B with ten embedded animation clips.",
     "Headed player-character QA reported 81375 triangles, 2 draw calls, 2 geometries, and 3 textures for the combined GLB.",
     "The new character debug flow requests one model GLB path and no per-animation GLB runtime URLs.",
+    "The runtime GLB path is public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb.",
+    "The explicit MVP player-character runtime budget is maxRuntimeGlbBytes 12000000 and targetTriangles 90000.",
+    "The A-pose Meshy runtime GLB is accepted for first-person viewmodel, title, and debug use during MVP gameplay.",
     "npm run validate:assets reports 125309634B player character source payload after adding the A-pose reference/runtime metadata."
   ],
   "decisions": [
@@ -120,10 +123,9 @@
     "Keep enemy projectile sound reuse temporary; add a dedicated generated SFX only when the audio budget and provenance ledger are updated together.",
     "Keep music and SFX on the same Web Audio graph so browser autoplay/unlock behavior is centralized.",
     "Keep the foundation metal texture pass at three shared textures until level streaming or level-specific kits justify more surface maps.",
-    "Keep player.hero.gadget-gremlin as source/provenance only until optimized, merged, or regenerated at a lower budget.",
-    "Require a single optimized runtime character package or animation retargeting path before gameplay use.",
-    "Accept the combined GLB for character debug preview only.",
-    "Keep gameplay and title/cutscene runtime integration blocked until a later optimization pass reduces the character payload or approves an explicit exception."
+    "Accept player.hero.gadget-gremlin.apose.animated for MVP first-person viewmodel, title, and debug runtime use under the explicit 12000000B / 90000 triangle character budget.",
+    "Keep the single combined runtime GLB path for MVP instead of runtime loading separate full-character animation GLBs.",
+    "Do not treat this MVP approval as a many-instance character budget; revisit optimization, LOD, or animation retargeting before many simultaneous character instances."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
@@ -141,7 +143,7 @@
     "Decoded Web Audio one-shot playback allocates small source/gain nodes per shot; sustained fire profiling should watch audio node churn on physical devices.",
     "Meshy animation exports duplicate the full mesh per clip.",
     "The gun-hold clip needs replacement before weapon/cutscene use.",
-    "The combined GLB reduces duplicated animation runtime loading but is still above the 6000000B target and 45000 triangle target."
+    "The combined GLB exceeds the previous 6000000B / 45000 triangle target, so the new 12000000B / 90000 triangle MVP budget must remain explicit in manifests and handoffs."
   ],
   "risks": [
     "Future larger weapon sets should not all preload by default without level/load-group gating.",
@@ -158,7 +160,8 @@
     "Direct steering can fail in more complex multi-room layouts and may need a navmesh or A* path layer later.",
     "The O(n^2) separation pass should be revisited if the level grows beyond a few dozen active enemies.",
     "Future dedicated projectile/impact audio will increase payload unless it replaces the temporary RIFT reuse.",
-    "Decoded long music loops consume more runtime audio memory than streamed HTML media, so future longer tracks should be budgeted before increasing duration."
+    "Decoded long music loops consume more runtime audio memory than streamed HTML media, so future longer tracks should be budgeted before increasing duration.",
+    "The accepted Meshy player runtime is suitable for MVP first-person/title/debug use, but many simultaneous instances may exceed mobile triangle, animation, and skinning budgets."
   ],
   "blockers": [],
   "artifacts": [
@@ -306,16 +309,24 @@
     },
     "playerCharacterCandidateBudget": {
       "assetId": "player.hero.gadget-gremlin.apose.animated",
-      "runtimeIntegrated": "character-debug-only",
+      "runtimeGlbPath": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+      "runtimeIntegrated": "mvp-first-person-viewmodel-title-debug",
       "sourcePayloadBytesReportedByValidateAssets": 125309634,
       "runtimeGlbBytes": 10983096,
       "runtimeClipCount": 10,
       "trianglesObserved": 81375,
       "drawCallsObserved": 2,
       "texturesObserved": 3,
-      "targetTriangles": 45000,
-      "targetSingleRuntimeGlbBytes": 6000000,
-      "gameplayIntegrationAllowed": false
+      "targetTriangles": 90000,
+      "maxRuntimeGlbBytes": 12000000,
+      "targetSingleRuntimeGlbBytes": 12000000,
+      "gameplayIntegrationAllowed": true,
+      "allowedMvpUses": [
+        "first-person-viewmodel",
+        "title",
+        "debug"
+      ],
+      "revisitBefore": "many simultaneous character instances"
     }
   },
   "nextAgents": [

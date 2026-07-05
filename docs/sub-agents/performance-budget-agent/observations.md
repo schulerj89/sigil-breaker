@@ -130,5 +130,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 
 - The A-pose Meshy character runtime GLB is 10983096B with ten embedded clips, 81375 observed triangles, 2 draw calls, 2 geometries, and 3 textures in headed QA.
 - This replaces runtime loading of separate full-character animation GLBs in the character debug page.
-- The combined runtime is accepted for character debug preview only; gameplay, title, and cutscene loading still need optimization or an explicit budget exception.
+- The explicit MVP character runtime budget is now maxRuntimeGlbBytes 12000000 and targetTriangles 90000 for this combined GLB.
+- The combined runtime is accepted for first-person viewmodel, title, and debug use during MVP gameplay.
+- This approval is not a many-instance budget; revisit optimization, LOD, or retargeting before adding many simultaneous character instances.
 - `npm run validate:assets` now reports 125309634B player character source payload.

@@ -294,10 +294,16 @@
     ]
   },
   "budgets": {
-    "maxRuntimeGlbBytes": 6000000,
-    "targetTriangles": 45000,
+    "maxRuntimeGlbBytes": 12000000,
+    "targetTriangles": 90000,
     "maxMaterials": 4,
-    "maxRuntimeTextures": 4
+    "maxRuntimeTextures": 4,
+    "mvpAllowedUses": [
+      "first-person-viewmodel",
+      "title",
+      "debug"
+    ],
+    "revisitBefore": "many simultaneous character instances"
   },
   "docs": {
     "textTo3d": "https://docs.meshy.ai/en/api/text-to-3d",
