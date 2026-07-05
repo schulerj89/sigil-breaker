@@ -20,3 +20,5 @@ Status: needs review after browser smoke.
 ## Next Handoff Notes
 
 - Smoke QA should inspect `window.__SIGILBREAKER_DEBUG__` for loaded weapon asset IDs and errors.
+- Main-character headed QA passed visually through `npm run qa:headed:player-character` and captured rigged, idle, gun-hold, dance, and out-of-HP screenshots under `artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/`.
+- The Meshy mascot is not approved for gameplay integration yet because the source GLBs exceed byte/triangle targets and the gun-hold clip is not a clean blaster pose.

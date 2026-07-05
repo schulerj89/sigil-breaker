@@ -1,0 +1,300 @@
+{
+  "metadataVersion": "1.0.0",
+  "generatedAt": "2026-07-05T05:33:51.204Z",
+  "assetId": "player.hero.gadget-gremlin",
+  "sourceId": "meshy.main-character.gadget-gremlin.20260705",
+  "provider": "Meshy",
+  "aiModel": "meshy-6",
+  "selectedConcept": "artifacts/sub-agents/20260705-main-character-concepts/landscape-title-hud-agent/generated-concepts/002-gadget-gremlin-concept.png",
+  "prompt": "Original stylized mobile game mascot hero, compact alien gadget-runner with warm tawny fur, large pointed ears, swept hair crest, small confident muzzle, expressive eyes, oversized gloved hands with clear thumbs and four fingers, athletic biped body, curved tail, short blue-black tech scarf, asymmetrical gunmetal gauntlet with cyan neon sigil core, dark tactical vest, fitted pants, chunky boots, orange and teal accents, mischievous heroic expression, clean readable silhouette, A-pose, hands open for blaster grip, full body, no weapon, no text, no logo",
+  "texturePrompt": "Warm tawny fur, cream muzzle, dark gunmetal vest and boots, matte black fitted pants, short blue-black scarf, cyan and neon-green sigil glow only on gauntlet core, chest clasp, and boot accents, small orange and teal panels, chunky clean game texture, no readable text, no logos, no brand symbols, avoid realistic fur and tiny straps.",
+  "settings": {
+    "modelType": "standard",
+    "shouldRemesh": true,
+    "topology": "quad",
+    "targetPolycount": 45000,
+    "poseMode": "a-pose",
+    "heightMeters": 1.45,
+    "enablePbr": true,
+    "hdTexture": false,
+    "removeLighting": true,
+    "targetFormats": [
+      "glb"
+    ]
+  },
+  "tasks": {
+    "preview": {
+      "id": "019f30bd-f132-798f-a0a5-80ced9a5e288",
+      "type": "text-to-3d-preview",
+      "status": "SUCCEEDED",
+      "progress": 100,
+      "consumedCredits": 20,
+      "createdAt": 1783229184521,
+      "startedAt": 1783229184662,
+      "finishedAt": 1783229310502,
+      "taskError": null
+    },
+    "refine": {
+      "id": "019f30c0-521c-7a47-b9ec-19f28c39e56d",
+      "type": "text-to-3d-refine",
+      "status": "SUCCEEDED",
+      "progress": 100,
+      "consumedCredits": 10,
+      "createdAt": 1783229339953,
+      "startedAt": 1783229340019,
+      "finishedAt": 1783229423444,
+      "taskError": null
+    },
+    "rig": {
+      "id": "019f30c1-a442-7a88-a08a-4ccda1895154",
+      "type": "rig",
+      "status": "SUCCEEDED",
+      "progress": 100,
+      "consumedCredits": 5,
+      "createdAt": 1783229430760,
+      "startedAt": 1783229430916,
+      "finishedAt": 1783229460951,
+      "expiresAt": 1783488660951,
+      "taskError": null
+    },
+    "animations": {
+      "idle": {
+        "id": "019f30c2-3e38-7a78-8c64-97a1d1b49b7b",
+        "type": "animate",
+        "status": "SUCCEEDED",
+        "progress": 100,
+        "consumedCredits": 3,
+        "createdAt": 1783229464698,
+        "startedAt": 1783229464715,
+        "finishedAt": 1783229478803,
+        "expiresAt": 1783488678803,
+        "taskError": null
+      },
+      "idle-alt": {
+        "id": "019f30c2-8059-78dc-8bae-6829e2aacfbb",
+        "type": "animate",
+        "status": "SUCCEEDED",
+        "progress": 100,
+        "consumedCredits": 3,
+        "createdAt": 1783229481592,
+        "startedAt": 1783229481657,
+        "finishedAt": 1783229499091,
+        "expiresAt": 1783488699091,
+        "taskError": null
+      },
+      "low-health": {
+        "id": "019f30c2-d73e-7aa5-9c82-b5af1beb2938",
+        "type": "animate",
+        "status": "SUCCEEDED",
+        "progress": 100,
+        "consumedCredits": 3,
+        "createdAt": 1783229503687,
+        "startedAt": 1783229503879,
+        "finishedAt": 1783229523063,
+        "expiresAt": 1783488723063,
+        "taskError": null
+      },
+      "out-of-hp": {
+        "id": "019f30c3-2d33-7aa1-93a7-d214708f79c7",
+        "type": "animate",
+        "status": "SUCCEEDED",
+        "progress": 100,
+        "consumedCredits": 3,
+        "createdAt": 1783229525785,
+        "startedAt": 1783229525950,
+        "finishedAt": 1783229545521,
+        "expiresAt": 1783488745521,
+        "taskError": null
+      },
+      "victory": {
+        "id": "019f30c3-83a6-7ab3-80fc-e0bbe5192217",
+        "type": "animate",
+        "status": "SUCCEEDED",
+        "progress": 100,
+        "consumedCredits": 3,
+        "createdAt": 1783229547871,
+        "startedAt": 1783229547951,
+        "finishedAt": 1783229571802,
+        "expiresAt": 1783488771802,
+        "taskError": null
+      },
+      "dance": {
+        "id": "019f30c3-f027-7abf-a06c-48cfddbe606d",
+        "type": "animate",
+        "status": "SUCCEEDED",
+        "progress": 100,
+        "consumedCredits": 3,
+        "createdAt": 1783229575694,
+        "startedAt": 1783229575801,
+        "finishedAt": 1783229596922,
+        "expiresAt": 1783488796922,
+        "taskError": null
+      },
+      "gun-hold": {
+        "id": "019f30c4-5b96-7ac4-9c62-11a0ea4cb058",
+        "type": "animate",
+        "status": "SUCCEEDED",
+        "progress": 100,
+        "consumedCredits": 3,
+        "createdAt": 1783229603189,
+        "startedAt": 1783229603584,
+        "finishedAt": 1783229617649,
+        "expiresAt": 1783488817649,
+        "taskError": null
+      },
+      "run-and-shoot": {
+        "id": "019f30c4-9deb-7ae7-abbd-6373dae6252d",
+        "type": "animate",
+        "status": "SUCCEEDED",
+        "progress": 100,
+        "consumedCredits": 3,
+        "createdAt": 1783229620182,
+        "startedAt": 1783229620262,
+        "finishedAt": 1783229629264,
+        "expiresAt": 1783488829264,
+        "taskError": null
+      }
+    }
+  },
+  "downloads": {
+    "previewGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.preview.glb",
+      "bytes": 2094212,
+      "sha256": "5c1f5d86d5985ebb1b1c3c6e956b3dc0e09aab1d37685dc76263b87e05c111e5"
+    },
+    "previewThumbnail": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.preview.png",
+      "bytes": 86796,
+      "sha256": "3f9d624c93b81258a46cba40c3f06ea76d8ee5fc9e3eacb7b293704befd8d68e"
+    },
+    "previewAlphaThumbnail": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.preview-alpha.png",
+      "bytes": 103752,
+      "sha256": "6f9f143fd0b3bd026674926047ec180b3dc856658582d12b03eddfbde9770e2c"
+    },
+    "refinedGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.refined.glb",
+      "bytes": 10171132,
+      "sha256": "841cfe7cae1066027042fd2590d6923353d1ab3a94517073910932450f3098a6"
+    },
+    "refinedThumbnail": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.refined.png",
+      "bytes": 102932,
+      "sha256": "0b7189a67ad0b9bce1bc6b5fa6435af07782f122025963714d891b98409c00e4"
+    },
+    "refinedAlphaThumbnail": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.refined-alpha.png",
+      "bytes": 122951,
+      "sha256": "deedf9c67fa0a9bca22cbc929ef1670cd906b31e3996e676cabc1966cb6a5324"
+    },
+    "riggedGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.rigged.glb",
+      "bytes": 10229184,
+      "sha256": "f9d39b4aae65406c929ca8ed57d8fb3a72b2077dabe2493a08fe8a0ceb434920"
+    },
+    "walkingAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.walking.glb",
+      "bytes": 10241960,
+      "sha256": "f584b7512401dae4df735b3af3b7b0d82a4761023d535f7cd5652c9b46487f15"
+    },
+    "runningAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.running.glb",
+      "bytes": 10237348,
+      "sha256": "324790d073f21042f9513eb42500b6a0594db5ff9664f46484fd4ff7fb0f5c86"
+    },
+    "idleAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.idle.glb",
+      "bytes": 10278128,
+      "sha256": "33d029da3faa2a2bdf049a4cc6a4895bf172c1d1a9e9054467b05733676e04b7"
+    },
+    "idle-altAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.idle-alt.glb",
+      "bytes": 10255896,
+      "sha256": "eaa0785d44d9cd2ebe133473f125edf85339f6e5ebd96e8785cd68ebdeee31db"
+    },
+    "low-healthAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.low-health.glb",
+      "bytes": 10371892,
+      "sha256": "186c5da81f0c64c344b7d2be6ad1ed4c0cb27506bc96e7db156018f6e5e56fdd"
+    },
+    "out-of-hpAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.out-of-hp.glb",
+      "bytes": 10265672,
+      "sha256": "67ba2d298b65ce8a21b24cf006167a90f813df9e4c77a26e17244f146d988cc5"
+    },
+    "victoryAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.victory.glb",
+      "bytes": 10342144,
+      "sha256": "ff4b44dfa7332e02c03411a81acea41a93d48cef1170d1507380c1f0fc9a7dda"
+    },
+    "danceAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.dance.glb",
+      "bytes": 10315884,
+      "sha256": "ba6d0409d2856811d736bd2c76b58e11e8a22dd79119bec7f57f47f59c8b7d9e"
+    },
+    "gun-holdAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.gun-hold.glb",
+      "bytes": 10270624,
+      "sha256": "9ef26cf08185caecfd60011d4837c90e282cd082bc7bac62b5b9bb60f940c21c"
+    },
+    "run-and-shootAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.run-and-shoot.glb",
+      "bytes": 10237448,
+      "sha256": "e332b1e5f019f351dfaf7f287a35424cbb3169c2a02f5a6a0eda391e48b44485"
+    }
+  },
+  "animationRequests": [
+    {
+      "id": "idle",
+      "actionId": 0,
+      "name": "Idle"
+    },
+    {
+      "id": "idle-alt",
+      "actionId": 11,
+      "name": "Idle_02"
+    },
+    {
+      "id": "low-health",
+      "actionId": 31,
+      "name": "Catching_Breath"
+    },
+    {
+      "id": "out-of-hp",
+      "actionId": 8,
+      "name": "Dead"
+    },
+    {
+      "id": "victory",
+      "actionId": 59,
+      "name": "Victory_Cheer"
+    },
+    {
+      "id": "dance",
+      "actionId": 22,
+      "name": "FunnyDancing_01"
+    },
+    {
+      "id": "gun-hold",
+      "actionId": 95,
+      "name": "Gun_Hold_Left_Turn"
+    },
+    {
+      "id": "run-and-shoot",
+      "actionId": 98,
+      "name": "Run_and_Shoot"
+    }
+  ],
+  "budgets": {
+    "maxRuntimeGlbBytes": 6000000,
+    "targetTriangles": 45000,
+    "maxMaterials": 4,
+    "maxRuntimeTextures": 4
+  },
+  "docs": {
+    "textTo3d": "https://docs.meshy.ai/en/api/text-to-3d",
+    "rigging": "https://docs.meshy.ai/en/api/rigging",
+    "animation": "https://docs.meshy.ai/en/api/animation",
+    "animationLibrary": "https://docs.meshy.ai/en/api/animation-library"
+  }
+}

@@ -1,30 +1,41 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "license-provenance-curator",
-  "status": "complete",
-  "updatedAt": "2026-07-04T04:20:00Z",
-  "summary": "Approved three selected Kenney Blaster Kit 2.1 weapon models under CC0 for the first test-level weapon slice.",
+  "status": "needs-review-before-shipping",
+  "updatedAt": "2026-07-05T06:05:00Z",
+  "summary": "Meshy main-character output is recorded in the ledger as generated provenance, but final shipping should reverify Meshy account/output terms before production approval.",
   "observations": [
     "Kenney Blaster Kit 2.1 is listed as Creative Commons CC0 by the official source.",
     "The committed package includes a local LICENSE.txt beside the selected weapon assets.",
-    "docs/assets/source-ledger.json records source URL, download URL, hashes, byte counts, and redistribution flags."
+    "docs/assets/source-ledger.json records source URL, download URL, hashes, byte counts, and redistribution flags.",
+    "Meshy-generated player.hero.gadget-gremlin source pack is recorded in docs/assets/source-ledger.json with provider terms metadata.",
+    "Generated source metadata is stored at tools/meshy/generated/meshy-gadget-gremlin/summary.json and contains no API keys.",
+    "OpenAI GPT Image 2 concept metadata is stored at docs/assets/openai-main-character-concepts.json."
   ],
   "decisions": [
     "Approve weapon.blaster.spark, weapon.blaster.bore, and weapon.blaster.vault.",
     "Keep the current external weapon intake CC0-only.",
-    "Use npm run validate:assets as the local and CI provenance check."
+    "Use npm run validate:assets as the local and CI provenance check.",
+    "Do not mark the Meshy character production-approved until account plan/output terms are explicitly reverified.",
+    "Keep Meshy source pack out of gameplay loading until license and optimization gates both pass."
   ],
   "caughtIssues": [
-    "The project did not previously have a future FPS source ledger."
+    "The project did not previously have a future FPS source ledger.",
+    "Meshy commercial/output rights differ by plan; this repo should verify paid/free plan status before final shipping.",
+    "Generated mascot concepts need originality review because similar platform-mascot silhouettes can drift toward existing IP."
   ],
   "risks": [
-    "Future non-CC0 assets still need separate license review before import."
+    "Future non-CC0 assets still need separate license review before import.",
+    "Meshy output terms and account plan need final verification before the generated character is shipped as a production asset."
   ],
   "blockers": [],
   "artifacts": [
     "docs/assets/source-ledger.json",
     "public/assets/weapons/kenney-blaster-kit/LICENSE.txt",
-    "public/assets/weapons/kenney-blaster-kit/source.json"
+    "public/assets/weapons/kenney-blaster-kit/source.json",
+    "docs/assets/openai-main-character-concepts.json",
+    "public/assets/characters/meshy-gadget-gremlin/source.json",
+    "tools/meshy/generated/meshy-gadget-gremlin/summary.json"
   ],
   "jsonForAgents": {
     "approvalRequiredBeforeImport": true,
@@ -41,7 +52,15 @@
       "editorial-only",
       "unknown",
       "ripped"
-    ]
+    ],
+    "meshyMainCharacterReview": {
+      "sourceId": "meshy.main-character.gadget-gremlin.20260705",
+      "assetId": "player.hero.gadget-gremlin",
+      "ledgerRecorded": true,
+      "productionApproved": false,
+      "requiresPlanVerificationBeforeShipping": true,
+      "providerTermsUrl": "https://www.meshy.ai/terms-of-use"
+    }
   },
   "nextAgents": [
     "asset-registry-agent",

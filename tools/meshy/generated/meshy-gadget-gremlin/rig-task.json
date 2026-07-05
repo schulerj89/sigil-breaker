@@ -1,0 +1,25 @@
+{
+  "id": "019f30c1-a442-7a88-a08a-4ccda1895154",
+  "type": "rig",
+  "name": "",
+  "status": "SUCCEEDED",
+  "created_at": 1783229430760,
+  "progress": 100,
+  "started_at": 1783229430916,
+  "finished_at": 1783229460951,
+  "expires_at": 1783488660951,
+  "task_error": null,
+  "result": {
+    "rigged_character_fbx_url": "Character_output.fbx",
+    "rigged_character_glb_url": "Character_output.glb",
+    "basic_animations": {
+      "walking_glb_url": "Animation_Walking_withSkin.glb",
+      "walking_fbx_url": "Animation_Walking_withSkin.fbx",
+      "walking_armature_glb_url": "Animation_Walking_withSkin_armature.glb",
+      "running_glb_url": "Animation_Running_withSkin.glb",
+      "running_fbx_url": "Animation_Running_withSkin.fbx",
+      "running_armature_glb_url": "Animation_Running_withSkin_armature.glb"
+    }
+  },
+  "consumed_credits": 5
+}

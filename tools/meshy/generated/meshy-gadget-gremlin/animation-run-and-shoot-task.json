@@ -1,0 +1,20 @@
+{
+  "id": "019f30c4-9deb-7ae7-abbd-6373dae6252d",
+  "type": "animate",
+  "name": "",
+  "status": "SUCCEEDED",
+  "created_at": 1783229620182,
+  "progress": 100,
+  "started_at": 1783229620262,
+  "finished_at": 1783229629264,
+  "expires_at": 1783488829264,
+  "task_error": null,
+  "result": {
+    "animation_glb_url": "Animation_Run_and_Shoot_withSkin.glb",
+    "animation_fbx_url": "Animation_Run_and_Shoot_withSkin.fbx",
+    "processed_usdz_url": "",
+    "processed_armature_fbx_url": "",
+    "processed_animation_fps_fbx_url": ""
+  },
+  "consumed_credits": 3
+}

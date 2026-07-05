@@ -162,3 +162,5 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Focused screenshot QA confirmed metal wall panels with screw detail, darker gunmetal floor panels with muted caution accents, roof texture visibility, and no separate black floor grid overlay.
 - Latest `npm run validate:browser` passed all five landscape viewport projects after replacing the foundation floor, wall, and roof textures with generated metal derivatives.
 - The texture screenshot and report are stored under `artifacts/sub-agents/20260705-foundation-metal-textures/smoke-qa-agent/`.
+
+- Latest `npm run validate:browser` passed all five landscape viewport projects after staging the Meshy main-character source pack without wiring it into gameplay loading.

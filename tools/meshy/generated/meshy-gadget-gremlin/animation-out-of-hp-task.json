@@ -1,0 +1,20 @@
+{
+  "id": "019f30c3-2d33-7aa1-93a7-d214708f79c7",
+  "type": "animate",
+  "name": "",
+  "status": "SUCCEEDED",
+  "created_at": 1783229525785,
+  "progress": 100,
+  "started_at": 1783229525950,
+  "finished_at": 1783229545521,
+  "expires_at": 1783488745521,
+  "task_error": null,
+  "result": {
+    "animation_glb_url": "Animation_Dead_withSkin.glb",
+    "animation_fbx_url": "Animation_Dead_withSkin.fbx",
+    "processed_usdz_url": "",
+    "processed_armature_fbx_url": "",
+    "processed_animation_fps_fbx_url": ""
+  },
+  "consumed_credits": 3
+}

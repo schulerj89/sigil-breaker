@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T06:30:00Z",
-  "summary": "Local Playwright smoke covers title/start flow, weapons, decoded music/SFX, projectiles, map-authored enemies, debug toggles, cache-busting, zoom guards, and the latest foundation metal texture pass.",
+  "updatedAt": "2026-07-05T06:12:00Z",
+  "summary": "Local Playwright smoke covers title/start flow, weapons, audio, projectiles, enemies, debug toggles, cache-busting, zoom guards, foundation textures, and confirms staged main-character assets do not affect gameplay boot.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -105,7 +105,8 @@
     "Browser smoke now verifies snapshot.weapon.audio.musicDecoded and musicPlaying after the title start gesture, covering the music loop on the Web Audio path.",
     "Latest npm run validate:browser passed all five landscape viewport projects after moving music off HTMLAudioElement and into the shared Web Audio graph.",
     "Focused screenshot QA confirmed metal wall panels with screw detail, darker gunmetal floor panels with muted caution accents, roof texture visibility, and no separate black floor grid overlay.",
-    "Latest npm run validate:browser passed all five landscape viewport projects after replacing the foundation floor, wall, and roof textures with generated metal derivatives."
+    "Latest npm run validate:browser passed all five landscape viewport projects after replacing the foundation floor, wall, and roof textures with generated metal derivatives.",
+    "Latest npm run validate:browser passed all five landscape viewport projects after staging the Meshy main-character source pack without wiring it into gameplay loading."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -212,7 +213,8 @@
     "artifacts/sub-agents/20260705-music-web-audio/smoke-qa-agent/report.json",
     "artifacts/sub-agents/20260705-foundation-metal-textures/smoke-qa-agent/foundation-metal-wall-floor.png",
     "artifacts/sub-agents/20260705-foundation-metal-textures/smoke-qa-agent/visual-report.json",
-    "artifacts/sub-agents/20260705-foundation-metal-textures/smoke-qa-agent/report.json"
+    "artifacts/sub-agents/20260705-foundation-metal-textures/smoke-qa-agent/report.json",
+    "artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/report.json"
   ],
   "jsonForAgents": {
     "latestManualSmoke": {
@@ -304,7 +306,7 @@
       "mvpFastViewportSplit": true,
       "visualViewportScaleAfterZoomGestures": 1,
       "assetLoadErrors": 0,
-      "latestDurationSeconds": 157,
+      "latestDurationSeconds": 161,
       "testTimeoutSeconds": 240,
       "loadedAssetIdCount": 17,
       "weaponCycleCount": 5,
@@ -354,7 +356,8 @@
       "latestMusicWebAudioValidationPassed": true,
       "foundationMetalTexturePassChecked": true,
       "foundationFloorGridHelperRemovedChecked": true,
-      "foundationMetalTextureScreenshot": "artifacts/sub-agents/20260705-foundation-metal-textures/smoke-qa-agent/foundation-metal-wall-floor.png"
+      "foundationMetalTextureScreenshot": "artifacts/sub-agents/20260705-foundation-metal-textures/smoke-qa-agent/foundation-metal-wall-floor.png",
+      "mainCharacterStagedSourceDoesNotAffectGameplayBoot": true
     },
     "latestHealthEnemySmoke": {
       "playerHealth": {
@@ -585,6 +588,13 @@
         "roof texture visible",
         "floor GridHelper overlay removed"
       ]
+    },
+    "latestMainCharacterStagingSmoke": {
+      "command": "npm run validate:browser",
+      "result": "passed",
+      "projects": 5,
+      "durationSeconds": 161,
+      "runtimeIntegrated": false
     }
   },
   "nextAgents": [

@@ -124,3 +124,5 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Removing the runtime floor GridHelper eliminates the extra grid geometry/material/draw path that was only serving the old prototype look.
 - Latest `npm run validate:browser` passed all five landscape viewport projects after the foundation metal texture pass; production JS chunk reported about 687.61 kB minified.
 - Focused screenshot QA reported renderer calls 81, triangles 25702, geometries 30, and textures 53 with `qaCapture=1`.
+- Meshy main-character headed QA reported 81627 triangles and up to 7 textures in standalone playground captures, with each animation GLB around 10 MB because clips duplicate the full mesh.
+- The Meshy character is staged as source/provenance only and must not be added to initial gameplay loading until optimized, merged, or retargeted.

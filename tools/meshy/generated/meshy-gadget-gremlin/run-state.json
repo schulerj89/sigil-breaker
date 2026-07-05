@@ -1,0 +1,232 @@
+{
+  "previewTask": {
+    "id": "019f30bd-f132-798f-a0a5-80ced9a5e288",
+    "createdByRunnerAt": "2026-07-05T05:26:24.539Z",
+    "type": "text-to-3d-preview",
+    "status": "SUCCEEDED",
+    "progress": 100,
+    "consumed_credits": 20,
+    "created_at": 1783229184521,
+    "started_at": 1783229184662,
+    "finished_at": 1783229310502,
+    "task_error": null
+  },
+  "downloads": {
+    "previewGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.preview.glb",
+      "bytes": 2094212,
+      "sha256": "5c1f5d86d5985ebb1b1c3c6e956b3dc0e09aab1d37685dc76263b87e05c111e5"
+    },
+    "previewThumbnail": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.preview.png",
+      "bytes": 86796,
+      "sha256": "3f9d624c93b81258a46cba40c3f06ea76d8ee5fc9e3eacb7b293704befd8d68e"
+    },
+    "previewAlphaThumbnail": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.preview-alpha.png",
+      "bytes": 103752,
+      "sha256": "6f9f143fd0b3bd026674926047ec180b3dc856658582d12b03eddfbde9770e2c"
+    },
+    "refinedGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.refined.glb",
+      "bytes": 10171132,
+      "sha256": "841cfe7cae1066027042fd2590d6923353d1ab3a94517073910932450f3098a6"
+    },
+    "refinedThumbnail": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.refined.png",
+      "bytes": 102932,
+      "sha256": "0b7189a67ad0b9bce1bc6b5fa6435af07782f122025963714d891b98409c00e4"
+    },
+    "refinedAlphaThumbnail": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.refined-alpha.png",
+      "bytes": 122951,
+      "sha256": "deedf9c67fa0a9bca22cbc929ef1670cd906b31e3996e676cabc1966cb6a5324"
+    },
+    "riggedGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.rigged.glb",
+      "bytes": 10229184,
+      "sha256": "f9d39b4aae65406c929ca8ed57d8fb3a72b2077dabe2493a08fe8a0ceb434920"
+    },
+    "walkingAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.walking.glb",
+      "bytes": 10241960,
+      "sha256": "f584b7512401dae4df735b3af3b7b0d82a4761023d535f7cd5652c9b46487f15"
+    },
+    "runningAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.running.glb",
+      "bytes": 10237348,
+      "sha256": "324790d073f21042f9513eb42500b6a0594db5ff9664f46484fd4ff7fb0f5c86"
+    },
+    "idleAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.idle.glb",
+      "bytes": 10278128,
+      "sha256": "33d029da3faa2a2bdf049a4cc6a4895bf172c1d1a9e9054467b05733676e04b7"
+    },
+    "idle-altAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.idle-alt.glb",
+      "bytes": 10255896,
+      "sha256": "eaa0785d44d9cd2ebe133473f125edf85339f6e5ebd96e8785cd68ebdeee31db"
+    },
+    "low-healthAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.low-health.glb",
+      "bytes": 10371892,
+      "sha256": "186c5da81f0c64c344b7d2be6ad1ed4c0cb27506bc96e7db156018f6e5e56fdd"
+    },
+    "out-of-hpAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.out-of-hp.glb",
+      "bytes": 10265672,
+      "sha256": "67ba2d298b65ce8a21b24cf006167a90f813df9e4c77a26e17244f146d988cc5"
+    },
+    "victoryAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.victory.glb",
+      "bytes": 10342144,
+      "sha256": "ff4b44dfa7332e02c03411a81acea41a93d48cef1170d1507380c1f0fc9a7dda"
+    },
+    "danceAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.dance.glb",
+      "bytes": 10315884,
+      "sha256": "ba6d0409d2856811d736bd2c76b58e11e8a22dd79119bec7f57f47f59c8b7d9e"
+    },
+    "gun-holdAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.gun-hold.glb",
+      "bytes": 10270624,
+      "sha256": "9ef26cf08185caecfd60011d4837c90e282cd082bc7bac62b5b9bb60f940c21c"
+    },
+    "run-and-shootAnimationGlb": {
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.run-and-shoot.glb",
+      "bytes": 10237448,
+      "sha256": "e332b1e5f019f351dfaf7f287a35424cbb3169c2a02f5a6a0eda391e48b44485"
+    }
+  },
+  "refineTask": {
+    "id": "019f30c0-521c-7a47-b9ec-19f28c39e56d",
+    "createdByRunnerAt": "2026-07-05T05:28:59.942Z",
+    "type": "text-to-3d-refine",
+    "status": "SUCCEEDED",
+    "progress": 100,
+    "consumed_credits": 10,
+    "created_at": 1783229339953,
+    "started_at": 1783229340019,
+    "finished_at": 1783229423444,
+    "task_error": null
+  },
+  "rigTask": {
+    "id": "019f30c1-a442-7a88-a08a-4ccda1895154",
+    "createdByRunnerAt": "2026-07-05T05:30:30.750Z",
+    "type": "rig",
+    "status": "SUCCEEDED",
+    "progress": 100,
+    "consumed_credits": 5,
+    "created_at": 1783229430760,
+    "started_at": 1783229430916,
+    "finished_at": 1783229460951,
+    "expires_at": 1783488660951,
+    "task_error": null
+  },
+  "animationTasks": {
+    "idle": {
+      "id": "019f30c2-3e38-7a78-8c64-97a1d1b49b7b",
+      "createdByRunnerAt": "2026-07-05T05:31:04.704Z",
+      "type": "animate",
+      "status": "SUCCEEDED",
+      "progress": 100,
+      "consumed_credits": 3,
+      "created_at": 1783229464698,
+      "started_at": 1783229464715,
+      "finished_at": 1783229478803,
+      "expires_at": 1783488678803,
+      "task_error": null
+    },
+    "idle-alt": {
+      "id": "019f30c2-8059-78dc-8bae-6829e2aacfbb",
+      "createdByRunnerAt": "2026-07-05T05:31:21.579Z",
+      "type": "animate",
+      "status": "SUCCEEDED",
+      "progress": 100,
+      "consumed_credits": 3,
+      "created_at": 1783229481592,
+      "started_at": 1783229481657,
+      "finished_at": 1783229499091,
+      "expires_at": 1783488699091,
+      "task_error": null
+    },
+    "low-health": {
+      "id": "019f30c2-d73e-7aa5-9c82-b5af1beb2938",
+      "createdByRunnerAt": "2026-07-05T05:31:43.694Z",
+      "type": "animate",
+      "status": "SUCCEEDED",
+      "progress": 100,
+      "consumed_credits": 3,
+      "created_at": 1783229503687,
+      "started_at": 1783229503879,
+      "finished_at": 1783229523063,
+      "expires_at": 1783488723063,
+      "task_error": null
+    },
+    "out-of-hp": {
+      "id": "019f30c3-2d33-7aa1-93a7-d214708f79c7",
+      "createdByRunnerAt": "2026-07-05T05:32:05.772Z",
+      "type": "animate",
+      "status": "SUCCEEDED",
+      "progress": 100,
+      "consumed_credits": 3,
+      "created_at": 1783229525785,
+      "started_at": 1783229525950,
+      "finished_at": 1783229545521,
+      "expires_at": 1783488745521,
+      "task_error": null
+    },
+    "victory": {
+      "id": "019f30c3-83a6-7ab3-80fc-e0bbe5192217",
+      "createdByRunnerAt": "2026-07-05T05:32:27.876Z",
+      "type": "animate",
+      "status": "SUCCEEDED",
+      "progress": 100,
+      "consumed_credits": 3,
+      "created_at": 1783229547871,
+      "started_at": 1783229547951,
+      "finished_at": 1783229571802,
+      "expires_at": 1783488771802,
+      "task_error": null
+    },
+    "dance": {
+      "id": "019f30c3-f027-7abf-a06c-48cfddbe606d",
+      "createdByRunnerAt": "2026-07-05T05:32:55.704Z",
+      "type": "animate",
+      "status": "SUCCEEDED",
+      "progress": 100,
+      "consumed_credits": 3,
+      "created_at": 1783229575694,
+      "started_at": 1783229575801,
+      "finished_at": 1783229596922,
+      "expires_at": 1783488796922,
+      "task_error": null
+    },
+    "gun-hold": {
+      "id": "019f30c4-5b96-7ac4-9c62-11a0ea4cb058",
+      "createdByRunnerAt": "2026-07-05T05:33:23.196Z",
+      "type": "animate",
+      "status": "SUCCEEDED",
+      "progress": 100,
+      "consumed_credits": 3,
+      "created_at": 1783229603189,
+      "started_at": 1783229603584,
+      "finished_at": 1783229617649,
+      "expires_at": 1783488817649,
+      "task_error": null
+    },
+    "run-and-shoot": {
+      "id": "019f30c4-9deb-7ae7-abbd-6373dae6252d",
+      "createdByRunnerAt": "2026-07-05T05:33:40.188Z",
+      "type": "animate",
+      "status": "SUCCEEDED",
+      "progress": 100,
+      "consumed_credits": 3,
+      "created_at": 1783229620182,
+      "started_at": 1783229620262,
+      "finished_at": 1783229629264,
+      "expires_at": 1783488829264,
+      "task_error": null
+    }
+  }
+}

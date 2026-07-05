@@ -1,9 +1,9 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
-  "status": "complete",
-  "updatedAt": "2026-07-05T06:30:00Z",
-  "summary": "Derivative foundation metal textures keep the same three texture slots and decoded texture budget, remove the floor GridHelper path, and pass the current browser renderer budget smoke.",
+  "status": "needs-review",
+  "updatedAt": "2026-07-05T06:05:00Z",
+  "summary": "Foundation runtime remains within current smoke budgets; the new Meshy main-character candidate is staged as source only because it exceeds character runtime byte and triangle targets.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -83,7 +83,10 @@
     "The foundation metal texture pass keeps the same three texture slots and decoded texture estimate while increasing PNG source payload to 764229B, still under the 1 MB foundation environment gate.",
     "Removing the runtime floor GridHelper eliminates the extra grid geometry/material/draw path that was only serving the old prototype look.",
     "Latest npm run validate:browser passed all five landscape viewport projects after the foundation metal texture pass; production JS chunk reported about 687.61 kB minified.",
-    "Focused screenshot QA reported renderer calls 81, triangles 25702, geometries 30, and textures 53 with qaCapture enabled."
+    "Focused screenshot QA reported renderer calls 81, triangles 25702, geometries 30, and textures 53 with qaCapture enabled.",
+    "Meshy main-character headed QA reported 81627 triangles, 2 draw calls, 2 geometries, and up to 7 textures while loading tested clips standalone.",
+    "Rigged GLB is 10229184B and largest tested animation GLB is 10371892B.",
+    "The staged player-character source pack totals 113046180B and must not be added to initial gameplay loading."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -112,7 +115,9 @@
     "Keep enemy projectile visuals as pooled primitive placeholders until final external VFX assets are sourced.",
     "Keep enemy projectile sound reuse temporary; add a dedicated generated SFX only when the audio budget and provenance ledger are updated together.",
     "Keep music and SFX on the same Web Audio graph so browser autoplay/unlock behavior is centralized.",
-    "Keep the foundation metal texture pass at three shared textures until level streaming or level-specific kits justify more surface maps."
+    "Keep the foundation metal texture pass at three shared textures until level streaming or level-specific kits justify more surface maps.",
+    "Keep player.hero.gadget-gremlin as source/provenance only until optimized, merged, or regenerated at a lower budget.",
+    "Require a single optimized runtime character package or animation retargeting path before gameplay use."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
@@ -127,7 +132,9 @@
     "The wider enemy hit proxy slightly increases raycast intersection volume, but candidate count is still limited to living enemies and only evaluated when firing.",
     "Raw Object3D.clone(true) is not safe for these skinned enemy GLBs even though it appears cheaper; it can make the visible body fail while bounds still report.",
     "Enemy offense can add many active meshes if future rooms stack enemies; debug projectile active counts should be watched.",
-    "Decoded Web Audio one-shot playback allocates small source/gain nodes per shot; sustained fire profiling should watch audio node churn on physical devices."
+    "Decoded Web Audio one-shot playback allocates small source/gain nodes per shot; sustained fire profiling should watch audio node churn on physical devices.",
+    "Meshy animation exports duplicate the full mesh per clip.",
+    "The gun-hold clip needs replacement before weapon/cutscene use."
   ],
   "risks": [
     "Future larger weapon sets should not all preload by default without level/load-group gating.",
@@ -160,7 +167,9 @@
     "artifacts/sub-agents/20260705-enemy-projectiles/performance-budget-agent/observations.md",
     "artifacts/sub-agents/20260705-audio-consistency/performance-budget-agent/observations.md",
     "artifacts/sub-agents/20260705-music-web-audio/performance-budget-agent/observations.md",
-    "artifacts/sub-agents/20260705-foundation-metal-textures/performance-budget-agent/observations.md"
+    "artifacts/sub-agents/20260705-foundation-metal-textures/performance-budget-agent/observations.md",
+    "artifacts/sub-agents/20260705-main-character-concepts/performance-budget-agent/observations.md",
+    "artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/report.json"
   ],
   "jsonForAgents": {
     "visibleFpsTarget": 60,
@@ -284,6 +293,18 @@
         "geometries": 30,
         "textures": 53
       }
+    },
+    "playerCharacterCandidateBudget": {
+      "assetId": "player.hero.gadget-gremlin",
+      "runtimeIntegrated": false,
+      "sourcePayloadBytes": 113046180,
+      "riggedGlbBytes": 10229184,
+      "largestAnimationGlbBytes": 10371892,
+      "trianglesObserved": 81627,
+      "targetTriangles": 45000,
+      "maxTexturesObserved": 7,
+      "targetSingleRuntimeGlbBytes": 6000000,
+      "gameplayIntegrationAllowed": false
     }
   },
   "nextAgents": [

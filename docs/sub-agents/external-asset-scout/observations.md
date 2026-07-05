@@ -22,3 +22,5 @@ Status: complete for first weapon intake.
 
 - Read `docs/assets/source-ledger.json` before adding more weapon sources.
 - Next source scout pass should look for level-specific enemies and buildings, not more generic guns.
+- Main-character scout found KayKit and Quaternius as the best CC0 animation/fallback sources, but no free asset matched the requested distinctive playful mascot well enough to ship unchanged.
+- Meshy/custom generation is justified for the lead mascot identity; free sources should remain fallback animation/retargeting references.

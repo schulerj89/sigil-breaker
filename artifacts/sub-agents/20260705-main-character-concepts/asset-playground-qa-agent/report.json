@@ -1,0 +1,233 @@
+{
+  "runId": "20260705-main-character-concepts",
+  "headless": false,
+  "target": "http://127.0.0.1:57690/__player_character_qa.html",
+  "viewport": {
+    "width": 844,
+    "height": 390
+  },
+  "modelPath": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.rigged.glb",
+  "clips": [
+    {
+      "id": "idle",
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.idle.glb",
+      "screenshot": "player-character-idle.png"
+    },
+    {
+      "id": "gun-hold",
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.gun-hold.glb",
+      "screenshot": "player-character-gun-hold.png"
+    },
+    {
+      "id": "dance",
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.dance.glb",
+      "screenshot": "player-character-dance.png"
+    },
+    {
+      "id": "out-of-hp",
+      "path": "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.out-of-hp.glb",
+      "screenshot": "player-character-out-of-hp.png"
+    }
+  ],
+  "screenshots": [
+    "player-character-rigged-front.png",
+    "player-character-idle.png",
+    "player-character-gun-hold.png",
+    "player-character-dance.png",
+    "player-character-out-of-hp.png"
+  ],
+  "consoleMessages": [],
+  "failedRequests": [],
+  "ignoredFailedRequests": [
+    {
+      "url": "http://127.0.0.1:57690/public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.rigged.glb",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://127.0.0.1:57690/public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.idle.glb",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://127.0.0.1:57690/public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.gun-hold.glb",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://127.0.0.1:57690/public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.dance.glb",
+      "failure": "net::ERR_ABORTED"
+    },
+    {
+      "url": "http://127.0.0.1:57690/public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.out-of-hp.glb",
+      "failure": "net::ERR_ABORTED"
+    }
+  ],
+  "snapshots": [
+    {
+      "activeClipId": "rigged",
+      "bounds": {
+        "center": [
+          -4.872032222102973e-9,
+          0.7250000056043203,
+          2.1644200320913853e-9
+        ],
+        "size": [
+          1.2637743401373902,
+          1.4500000112086406,
+          0.7889890476012748
+        ]
+      },
+      "renderer": {
+        "calls": 2,
+        "triangles": 81627,
+        "geometries": 2,
+        "textures": 3
+      },
+      "animationClips": [
+        {
+          "name": "Armature|clip0|baselayer",
+          "duration": 0.30000001192092896
+        }
+      ]
+    },
+    {
+      "activeClipId": "idle",
+      "bounds": {
+        "center": [
+          -1.0146647855258095e-8,
+          0.7250000056043203,
+          4.695530742004905e-9
+        ],
+        "size": [
+          1.2852678457908817,
+          1.4500000112086406,
+          0.8261239094460184
+        ]
+      },
+      "renderer": {
+        "calls": 2,
+        "triangles": 81627,
+        "geometries": 2,
+        "textures": 4
+      },
+      "animationClips": [
+        {
+          "name": "Armature|Idle|baselayer",
+          "duration": 4.0333333015441895
+        }
+      ]
+    },
+    {
+      "activeClipId": "gun-hold",
+      "bounds": {
+        "center": [
+          -1.3252292707655045e-8,
+          0.7250000056043203,
+          6.28058799412301e-9
+        ],
+        "size": [
+          1.2975020384310552,
+          1.4500000112086406,
+          0.8478866208557448
+        ]
+      },
+      "renderer": {
+        "calls": 2,
+        "triangles": 81627,
+        "geometries": 2,
+        "textures": 5
+      },
+      "animationClips": [
+        {
+          "name": "Armature|Gun_Hold_Left_Turn|baselayer",
+          "duration": 3.700000047683716
+        }
+      ]
+    },
+    {
+      "activeClipId": "dance",
+      "bounds": {
+        "center": [
+          -1.3497727269218274e-8,
+          0.7250000056043203,
+          6.408924113632253e-9
+        ],
+        "size": [
+          1.2984552443733481,
+          1.4500000112086406,
+          0.8496031921763819
+        ]
+      },
+      "renderer": {
+        "calls": 2,
+        "triangles": 81627,
+        "geometries": 2,
+        "textures": 6
+      },
+      "animationClips": [
+        {
+          "name": "Armature|FunnyDancing_01|baselayer",
+          "duration": 7.800000190734863
+        }
+      ]
+    },
+    {
+      "activeClipId": "out-of-hp",
+      "bounds": {
+        "center": [
+          -1.0900375935207762e-8,
+          0.7250000056043203,
+          5.073649944620229e-9
+        ],
+        "size": [
+          1.2882662163109089,
+          1.4500000112086406,
+          0.8314127024190769
+        ]
+      },
+      "renderer": {
+        "calls": 2,
+        "triangles": 81627,
+        "geometries": 2,
+        "textures": 7
+      },
+      "animationClips": [
+        {
+          "name": "Armature|Dead|baselayer",
+          "duration": 3
+        }
+      ]
+    },
+    {
+      "activeClipId": "out-of-hp",
+      "bounds": {
+        "center": [
+          -1.0900375935207762e-8,
+          0.7250000056043203,
+          5.073649944620229e-9
+        ],
+        "size": [
+          1.2882662163109089,
+          1.4500000112086406,
+          0.8314127024190769
+        ]
+      },
+      "renderer": {
+        "calls": 2,
+        "triangles": 81627,
+        "geometries": 2,
+        "textures": 7
+      },
+      "animationClips": [
+        {
+          "name": "Armature|Dead|baselayer",
+          "duration": 3
+        }
+      ]
+    }
+  ],
+  "budgetWarnings": [
+    "triangle count 81627 exceeds 45000 target for gameplay integration",
+    "largest tested GLB 10315884B exceeds 6000000B target",
+    "gun-hold animation is visually inspected but not accepted as final two-hand blaster pose"
+  ],
+  "passed": true
+}

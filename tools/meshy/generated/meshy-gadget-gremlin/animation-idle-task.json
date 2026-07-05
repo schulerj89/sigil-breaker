@@ -1,0 +1,20 @@
+{
+  "id": "019f30c2-3e38-7a78-8c64-97a1d1b49b7b",
+  "type": "animate",
+  "name": "",
+  "status": "SUCCEEDED",
+  "created_at": 1783229464698,
+  "progress": 100,
+  "started_at": 1783229464715,
+  "finished_at": 1783229478803,
+  "expires_at": 1783488678803,
+  "task_error": null,
+  "result": {
+    "animation_glb_url": "Animation_Idle_withSkin.glb",
+    "animation_fbx_url": "Animation_Idle_withSkin.fbx",
+    "processed_usdz_url": "",
+    "processed_armature_fbx_url": "",
+    "processed_animation_fps_fbx_url": ""
+  },
+  "consumed_credits": 3
+}

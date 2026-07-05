@@ -14,7 +14,7 @@ const ledgerPath = path.join(repoRoot, 'docs', 'assets', 'source-ledger.json');
 const maxInitialWeaponPayloadBytes = 1_000_000;
 const maxInitialEnvironmentPayloadBytes = 1_000_000;
 const maxInitialAudioPayloadBytes = 5_000_000;
-const generatedProvidersWithOutputTerms = new Set(['ElevenLabs', 'OpenAI']);
+const generatedProvidersWithOutputTerms = new Set(['ElevenLabs', 'Meshy', 'OpenAI']);
 const execFileAsync = promisify(execFile);
 
 const ledger = JSON.parse(await readFile(ledgerPath, 'utf8'));
@@ -35,6 +35,7 @@ if (result.errors.length > 0) {
       `${result.levelOneWeaponBytes}B level-01 weapon payload`,
       `${result.foundationEnvironmentBytes}B foundation environment payload`,
       `${result.foundationAudioBytes}B foundation audio payload`,
+      `${result.playerCharacterSourceBytes}B player character source payload`,
     ].join(' | '),
   );
 }
@@ -46,6 +47,7 @@ async function validateAssetLedger(assetLedger) {
   let levelOneWeaponBytes = 0;
   let foundationEnvironmentBytes = 0;
   let foundationAudioBytes = 0;
+  let playerCharacterSourceBytes = 0;
 
   if (!Array.isArray(assetLedger.sources)) {
     return {
@@ -55,6 +57,7 @@ async function validateAssetLedger(assetLedger) {
       levelOneWeaponBytes: 0,
       foundationEnvironmentBytes: 0,
       foundationAudioBytes: 0,
+      playerCharacterSourceBytes: 0,
     };
   }
 
@@ -96,6 +99,9 @@ async function validateAssetLedger(assetLedger) {
       if (sharedFile.gameUse === 'audio' && sharedFile.loadGroup === 'foundation-audio') {
         foundationAudioBytes += Number(sharedFile.bytes) || 0;
       }
+      if (sharedFile.gameUse === 'player-character' && sharedFile.loadGroup?.startsWith('player-character-')) {
+        playerCharacterSourceBytes += Number(sharedFile.bytes) || 0;
+      }
 
       await expectCommittedFile(sharedFile.path, errors, `${source.sourceId} shared file`);
       await expectHash(sharedFile.path, sharedFile.sha256, errors, `${source.sourceId} shared file`);
@@ -126,6 +132,9 @@ async function validateAssetLedger(assetLedger) {
       }
       if (asset.gameUse === 'audio' && asset.loadGroup === 'foundation-audio') {
         foundationAudioBytes += Number(asset.bytes) || 0;
+      }
+      if (asset.gameUse === 'player-character' && asset.loadGroup?.startsWith('player-character-')) {
+        playerCharacterSourceBytes += Number(asset.bytes) || 0;
       }
 
       await expectCommittedFile(asset.path, errors, `${asset.assetId} file`);
@@ -218,6 +227,7 @@ async function validateAssetLedger(assetLedger) {
     levelOneWeaponBytes,
     foundationEnvironmentBytes,
     foundationAudioBytes,
+    playerCharacterSourceBytes,
   };
 }
 

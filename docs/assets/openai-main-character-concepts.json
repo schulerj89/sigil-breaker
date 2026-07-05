@@ -1,0 +1,67 @@
+{
+  "metadataVersion": "1.0.0",
+  "sourceId": "openai.gpt-image-2.main-character-concepts.20260705",
+  "provider": "OpenAI",
+  "modelId": "gpt-image-2",
+  "generatedAt": "2026-07-05T05:22:00Z",
+  "termsUrl": "https://openai.com/policies/row-terms-of-use/",
+  "apiCopyrightFaqUrl": "https://help.openai.com/en/articles/5008634-will-openai-claim-copyright-over-what-outputs-i-generate-with-the-api",
+  "batchSettings": {
+    "size": "1024x1024",
+    "quality": "medium",
+    "outputFormat": "png",
+    "concurrency": 3
+  },
+  "selection": {
+    "selectedConcept": "002-gadget-gremlin-concept.png",
+    "selectedArtifactPath": "artifacts/sub-agents/20260705-main-character-concepts/landscape-title-hud-agent/generated-concepts/002-gadget-gremlin-concept.png",
+    "selectedReason": "Best balance of distinctive silhouette, clean rig-friendly limbs, expressive mascot personality, blaster-capable hands, and compatibility with Sigilbreaker gunmetal/neon styling."
+  },
+  "contactSheet": {
+    "artifactPath": "artifacts/sub-agents/20260705-main-character-concepts/landscape-title-hud-agent/main-character-concept-contact-sheet.png",
+    "bytes": 1328841,
+    "sha256": "f1d803079b5df12e6d1b5fb469242c247c3191b838507fc95cebcb3dc23b944a"
+  },
+  "concepts": [
+    {
+      "id": "001-electric-trickster-concept",
+      "artifactPath": "artifacts/sub-agents/20260705-main-character-concepts/landscape-title-hud-agent/generated-concepts/001-electric-trickster-concept.png",
+      "bytes": 1523891,
+      "sha256": "6f9731c9d0e23bec25f1b353d97ebd284b9fd8924e15374ab397393a3dbf5362",
+      "prompt": "No text, no letters, no logos, no watermark. Original 3D game mascot concept sheet for a mobile FPS hero, playful energetic classic platformer spirit without copying any existing character. A bipedal fox-marsupial alien trickster with oversized expressive eyes, tall swept ears, spiky forelock, athletic torso, short snout, fingerless gloves, chunky sneakers, utility belt, and clear five-finger hands shaped to hold a sci-fi blaster handle. Show front, side, back, idle pose, low-health exhausted pose, and victory dance pose on a clean neutral studio background. Bright orange fur, teal accents, gunmetal gear, readable silhouette, high-detail stylized 3D render, game-ready proportions, no weapon in hand."
+    },
+    {
+      "id": "002-gadget-gremlin-concept",
+      "artifactPath": "artifacts/sub-agents/20260705-main-character-concepts/landscape-title-hud-agent/generated-concepts/002-gadget-gremlin-concept.png",
+      "bytes": 1481140,
+      "sha256": "80ddf39cb42c12a8f5946272243799ec88f3c24f7db3f1fb23490271dbe4971d",
+      "prompt": "No text, no letters, no logos, no watermark. Original 3D game mascot concept sheet for Sigilbreaker: a mischievous gadget runner hero with compact humanoid body, big grin, expressive brows, swept-back crest hair, fox-like tail used for balance, mechanical wrist bracer, fingerless gloves, boots, and a slung empty holster. The design should feel playful, fast, acrobatic, and cutscene friendly, with clear hands for holding a blaster handle. Show front, side, back, relaxed idle, out-of-HP dizzy collapse pose, and celebratory dance pose. Palette: warm amber fur, cobalt blue cloth, lime energy accents, dark metal gear. Clean neutral background, polished 3D render."
+    },
+    {
+      "id": "003-neon-bandit-concept",
+      "artifactPath": "artifacts/sub-agents/20260705-main-character-concepts/landscape-title-hud-agent/generated-concepts/003-neon-bandit-concept.png",
+      "bytes": 1358511,
+      "sha256": "f4471f7611257bd9ae9addb3a678430d235f47e594ec560aeb80a1bb65d671cd",
+      "prompt": "No text, no letters, no logos, no watermark. Original playable mascot hero concept for a mobile landscape Three.js FPS, designed for title screen, level-complete cutscenes, and third-person celebration shots. A lanky neon desert bandit creature with long rabbit-jackal ears, cheek tufts, angular eyebrows, wide cartoon eyes, confident smirk, vest, scarf, gloves, kneepads, oversized shoes, and a tail. Hands must be large enough to grip a blaster handle. Show front, side, back, idle bounce pose, low-health kneel pose, and dance/victory pose. Color palette: rust orange, cream muzzle, turquoise scarf, purple gloves, steel buckles. High-detail 3D render on plain gray background."
+    },
+    {
+      "id": "004-star-punk-imp-concept",
+      "artifactPath": "artifacts/sub-agents/20260705-main-character-concepts/landscape-title-hud-agent/generated-concepts/004-star-punk-imp-concept.png",
+      "bytes": 1563077,
+      "sha256": "2b9b4ce9f27e2e71f0221fb2645350adac123a86ec5a4f1019dc8026ba749e0d",
+      "prompt": "No text, no letters, no logos, no watermark. Original heroic 3D mascot for an arcade FPS: a small star-punk imp engineer with playful chaotic energy, upright bipedal stance, triangular ears, fluffy mohawk, bright eyes, expressive mouth, leather aviator vest, utility harness, oversized gloves, boots, and clear ergonomic hands for a sci-fi pistol grip. Include front, side, back views plus three animation reference poses: idle swagger, out-of-HP dramatic flop, and goofy victory dance. Color palette: magenta fur, yellow-orange face, cyan tech highlights, charcoal harness, brushed steel buckles. Clean concept sheet, high-detail stylized 3D render, not scary."
+    },
+    {
+      "id": "005-arcade-lynx-concept",
+      "artifactPath": "artifacts/sub-agents/20260705-main-character-concepts/landscape-title-hud-agent/generated-concepts/005-arcade-lynx-concept.png",
+      "bytes": 1546398,
+      "sha256": "512e4ad5fb220750a5ed7f48beb772bff8b705c6bc0c710adc6d4017d09f0553",
+      "prompt": "No text, no letters, no logos, no watermark. Original animated main-character concept sheet for a playful mobile FPS hero. A nimble arcade lynx-raccoon hybrid with long limbs, large ears, cheek whisker tufts, asymmetrical goggles pushed up on forehead, confident smile, sporty vest, gloves, belt pouches, and boots. Hands are front-facing and shaped to wrap a blaster grip; arms have enough range for gun-hold animation. Show front, side, back, idle pose, defeated/out-of-HP pose, and dance/level-complete pose. Palette: burnt orange, slate blue, ivory muzzle, neon green small accents, matte metal gear. Clean neutral studio background, high-detail stylized 3D render, game-ready silhouette."
+    }
+  ],
+  "risks": [
+    "Concept 001 is too close to orange fox mascot territory.",
+    "Concept 004 has stronger originality but too much hair/gear noise for mobile and rigging.",
+    "Generated concepts are visual direction only; final runtime model must pass Meshy/GLB QA and optimization gates."
+  ]
+}

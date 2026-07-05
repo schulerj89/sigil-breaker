@@ -1,21 +1,28 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "asset-playground-qa-agent",
-  "status": "needs-review",
-  "updatedAt": "2026-07-04T04:20:00Z",
-  "summary": "First weapon assets are integrated into the live test level, but a standalone asset playground still needs to be built.",
+  "status": "complete-with-warnings",
+  "updatedAt": "2026-07-05T06:05:00Z",
+  "summary": "Headed player-character playground QA passed visually for the Meshy mascot candidate, with explicit budget and gun-hold animation warnings before gameplay integration.",
   "observations": [
     "The live test level can temporarily validate GLB load, weapon switching, and shoot feedback.",
     "window.__SIGILBREAKER_DEBUG__ now exposes loadedAssetIds, assetLoadErrors, and weapon state.",
-    "A dedicated orbit/first-person asset playground remains missing."
+    "A dedicated orbit/first-person asset playground remains missing.",
+    "npm run qa:headed:player-character loads the rigged Meshy character and selected animation GLBs in visible Chromium.",
+    "Headed QA captured rigged-front, idle, gun-hold, dance, and out-of-HP screenshots at 844x390.",
+    "The character visually reads as a strong title/cutscene mascot candidate."
   ],
   "decisions": [
     "Use live-level smoke for the three initial CC0 weapon assets only.",
     "Require a dedicated asset playground before larger asset-library imports.",
-    "Keep screenshot artifact guidance unchanged for future playground QA."
+    "Keep screenshot artifact guidance unchanged for future playground QA.",
+    "Accept visual playground pass for source staging only.",
+    "Block gameplay integration until optimization and a better blaster-hold animation are available."
   ],
   "caughtIssues": [
-    "No standalone playground exists for scale grid, material inspection, or isolated model screenshots."
+    "No standalone playground exists for scale grid, material inspection, or isolated model screenshots.",
+    "Gun-hold clip is a crouched gesture rather than a usable two-hand blaster pose.",
+    "Headed QA records Chromium .glb net::ERR_ABORTED noise as ignored only after successful snapshots prove the asset loaded."
   ],
   "risks": [
     "Gameplay camera framing can hide model scale and material issues that an asset playground would reveal."
@@ -23,7 +30,14 @@
   "blockers": [],
   "artifacts": [
     "src/game/weapons/weaponSystem.ts",
-    "src/game/debug.ts"
+    "src/game/debug.ts",
+    "scripts/run-headed-player-character-qa.mjs",
+    "artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/report.json",
+    "artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/player-character-rigged-front.png",
+    "artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/player-character-idle.png",
+    "artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/player-character-gun-hold.png",
+    "artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/player-character-dance.png",
+    "artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/player-character-out-of-hp.png"
   ],
   "jsonForAgents": {
     "temporaryLiveLevelQa": true,
@@ -48,7 +62,25 @@
       "rendererMetricsPanel",
       "collisionProxyPreview",
       "screenshotCapture"
-    ]
+    ],
+    "latestPlayerCharacterQa": {
+      "command": "npm run qa:headed:player-character",
+      "headless": false,
+      "result": "passed-with-budget-warnings",
+      "viewport": "844x390",
+      "assetId": "player.hero.gadget-gremlin",
+      "screenshots": [
+        "player-character-rigged-front.png",
+        "player-character-idle.png",
+        "player-character-gun-hold.png",
+        "player-character-dance.png",
+        "player-character-out-of-hp.png"
+      ],
+      "triangles": 81627,
+      "maxTexturesObserved": 7,
+      "largestGlbBytes": 10371892,
+      "gameplayIntegrationBlocked": true
+    }
   },
   "nextAgents": [
     "gltf-optimization-agent",

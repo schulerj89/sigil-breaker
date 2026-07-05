@@ -1,0 +1,20 @@
+{
+  "id": "019f30c4-5b96-7ac4-9c62-11a0ea4cb058",
+  "type": "animate",
+  "name": "",
+  "status": "SUCCEEDED",
+  "created_at": 1783229603189,
+  "progress": 100,
+  "started_at": 1783229603584,
+  "finished_at": 1783229617649,
+  "expires_at": 1783488817649,
+  "task_error": null,
+  "result": {
+    "animation_glb_url": "Animation_Gun_Hold_Left_Turn_withSkin.glb",
+    "animation_fbx_url": "Animation_Gun_Hold_Left_Turn_withSkin.fbx",
+    "processed_usdz_url": "",
+    "processed_armature_fbx_url": "",
+    "processed_animation_fps_fbx_url": ""
+  },
+  "consumed_credits": 3
+}

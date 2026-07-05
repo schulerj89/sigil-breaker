@@ -1,0 +1,28 @@
+{
+  "id": "019f30bd-f132-798f-a0a5-80ced9a5e288",
+  "type": "text-to-3d-preview",
+  "mode": "preview",
+  "name": "",
+  "model_type": "standard",
+  "seed": 285812654,
+  "art_style": "realistic",
+  "texture_richness": "",
+  "prompt": "Original stylized mobile game mascot hero, compact alien gadget-runner with warm tawny fur, large pointed ears, swept hair crest, small confident muzzle, expressive eyes, oversized gloved hands with clear thumbs and four fingers, athletic biped body, curved tail, short blue-black tech scarf, asymmetrical gunmetal gauntlet with cyan neon sigil core, dark tactical vest, fitted pants, chunky boots, orange and teal accents, mischievous heroic expression, clean readable silhouette, A-pose, hands open for blaster grip, full body, no weapon, no text, no logo",
+  "negative_prompt": "",
+  "texture_prompt": "",
+  "texture_image_url": "",
+  "status": "SUCCEEDED",
+  "created_at": 1783229184521,
+  "progress": 100,
+  "started_at": 1783229184662,
+  "finished_at": 1783229310502,
+  "task_error": null,
+  "model_urls": {
+    "glb": "model.glb"
+  },
+  "thumbnail_url": "preview.png",
+  "alpha_thumbnail_url": "preview_alpha.png",
+  "video_url": "",
+  "texture_urls": [],
+  "consumed_credits": 20
+}

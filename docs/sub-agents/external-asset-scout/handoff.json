@@ -2,20 +2,27 @@
   "handoffVersion": "1.0.0",
   "agentId": "external-asset-scout",
   "status": "complete",
-  "updatedAt": "2026-07-04T04:20:00Z",
-  "summary": "Selected Kenney Blaster Kit 2.1 as the first CC0 external weapon source for three test-level guns.",
+  "updatedAt": "2026-07-05T06:05:00Z",
+  "summary": "Main-character scouting found strong CC0 animation fallback packs, but no free distinctive mascot fit; Meshy generation was justified for the lead hero identity.",
   "observations": [
     "Official Kenney source lists Blaster Kit 2.1 as Creative Commons CC0.",
     "The kit includes GLB models and preview images suitable for a quick first-person weapon selector.",
-    "Only blaster-a, blaster-h, and blaster-p were imported for the first payload."
+    "Only blaster-a, blaster-h, and blaster-p were imported for the first payload.",
+    "KayKit Adventurers plus KayKit Character Animations is the best free practical humanoid animation fallback.",
+    "Quaternius Ultimate/Base Characters plus Universal Animation Library is the safest CC0 retargeting/reference fallback.",
+    "No free source matched the requested distinctive playful lead mascot without substantial customization."
   ],
   "decisions": [
     "Use Kenney Blaster Kit 2.1 for the first weapon slice.",
     "Defer larger gun-pack imports until a level-specific roster needs them.",
-    "Keep the external-source gate CC0-only for this early mobile prototype."
+    "Keep the external-source gate CC0-only for this early mobile prototype.",
+    "Use free CC0 packs as fallback animation/retargeting references only.",
+    "Proceed with Meshy/custom generation for original main-character identity."
   ],
   "caughtIssues": [
-    "No enemy or environment asset brief exists yet, so weapon selection stayed generic sci-fi."
+    "No enemy or environment asset brief exists yet, so weapon selection stayed generic sci-fi.",
+    "Mixamo has useful development animations but raw redistribution is not a good fit for this repo.",
+    "Orange fox-like concepts need originality review to avoid established mascot similarity."
   ],
   "risks": [
     "The stylized sci-fi look may need art-direction review once the first level theme is set."
@@ -23,7 +30,8 @@
   "blockers": [],
   "artifacts": [
     "docs/assets/source-ledger.json",
-    "public/assets/weapons/kenney-blaster-kit/source.json"
+    "public/assets/weapons/kenney-blaster-kit/source.json",
+    "artifacts/sub-agents/20260705-main-character-concepts/external-asset-scout/observations.md"
   ],
   "jsonForAgents": {
     "selectedSourceId": "kenney.blaster-kit.2-1",
@@ -36,7 +44,16 @@
     "futureCandidates": [
       "quaternius.ultimate-guns-pack",
       "poly-pizza.ultimate-guns-pack"
-    ]
+    ],
+    "mainCharacterScout": {
+      "freeAssetGoodEnough": false,
+      "recommendedRoute": "Meshy generated original mascot candidate",
+      "fallbackSources": [
+        "KayKit Adventurers + KayKit Character Animations",
+        "Quaternius Base/Ultimate Characters + Universal Animation Library"
+      ],
+      "selectedGeneratedConcept": "002-gadget-gremlin-concept.png"
+    }
   },
   "nextAgents": [
     "license-provenance-curator",

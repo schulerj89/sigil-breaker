@@ -1,0 +1,20 @@
+{
+  "id": "019f30c3-83a6-7ab3-80fc-e0bbe5192217",
+  "type": "animate",
+  "name": "",
+  "status": "SUCCEEDED",
+  "created_at": 1783229547871,
+  "progress": 100,
+  "started_at": 1783229547951,
+  "finished_at": 1783229571802,
+  "expires_at": 1783488771802,
+  "task_error": null,
+  "result": {
+    "animation_glb_url": "Animation_Victory_Cheer_withSkin.glb",
+    "animation_fbx_url": "Animation_Victory_Cheer_withSkin.fbx",
+    "processed_usdz_url": "",
+    "processed_armature_fbx_url": "",
+    "processed_animation_fps_fbx_url": ""
+  },
+  "consumed_credits": 3
+}

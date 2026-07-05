@@ -1,0 +1,80 @@
+{
+  "manifestVersion": "1.0.0",
+  "assetId": "player.hero.gadget-gremlin",
+  "sourceId": "meshy.main-character.gadget-gremlin.20260705",
+  "runId": "20260705-main-character-concepts",
+  "provider": "Meshy",
+  "selectedConcept": "artifacts/sub-agents/20260705-main-character-concepts/landscape-title-hud-agent/generated-concepts/002-gadget-gremlin-concept.png",
+  "outputDir": "public/assets/characters/meshy-gadget-gremlin",
+  "metadataDir": "tools/meshy/generated/meshy-gadget-gremlin",
+  "api": {
+    "textTo3dEndpoint": "/openapi/v2/text-to-3d",
+    "riggingEndpoint": "/openapi/v1/rigging",
+    "animationEndpoint": "/openapi/v1/animations"
+  },
+  "generation": {
+    "aiModel": "meshy-6",
+    "prompt": "Original stylized mobile game mascot hero, compact alien gadget-runner with warm tawny fur, large pointed ears, swept hair crest, small confident muzzle, expressive eyes, oversized gloved hands with clear thumbs and four fingers, athletic biped body, curved tail, short blue-black tech scarf, asymmetrical gunmetal gauntlet with cyan neon sigil core, dark tactical vest, fitted pants, chunky boots, orange and teal accents, mischievous heroic expression, clean readable silhouette, A-pose, hands open for blaster grip, full body, no weapon, no text, no logo",
+    "texturePrompt": "Warm tawny fur, cream muzzle, dark gunmetal vest and boots, matte black fitted pants, short blue-black scarf, cyan and neon-green sigil glow only on gauntlet core, chest clasp, and boot accents, small orange and teal panels, chunky clean game texture, no readable text, no logos, no brand symbols, avoid realistic fur and tiny straps.",
+    "modelType": "standard",
+    "shouldRemesh": true,
+    "topology": "quad",
+    "targetPolycount": 45000,
+    "poseMode": "a-pose",
+    "heightMeters": 1.45,
+    "enablePbr": true,
+    "hdTexture": false,
+    "removeLighting": true,
+    "moderation": true,
+    "targetFormats": ["glb"],
+    "alphaThumbnail": true
+  },
+  "animationRequests": [
+    {
+      "id": "idle",
+      "actionId": 0,
+      "name": "Idle"
+    },
+    {
+      "id": "idle-alt",
+      "actionId": 11,
+      "name": "Idle_02"
+    },
+    {
+      "id": "low-health",
+      "actionId": 31,
+      "name": "Catching_Breath"
+    },
+    {
+      "id": "out-of-hp",
+      "actionId": 8,
+      "name": "Dead"
+    },
+    {
+      "id": "victory",
+      "actionId": 59,
+      "name": "Victory_Cheer"
+    },
+    {
+      "id": "dance",
+      "actionId": 22,
+      "name": "FunnyDancing_01"
+    },
+    {
+      "id": "gun-hold",
+      "actionId": 95,
+      "name": "Gun_Hold_Left_Turn"
+    },
+    {
+      "id": "run-and-shoot",
+      "actionId": 98,
+      "name": "Run_and_Shoot"
+    }
+  ],
+  "budgets": {
+    "maxRuntimeGlbBytes": 6000000,
+    "targetTriangles": 45000,
+    "maxMaterials": 4,
+    "maxRuntimeTextures": 4
+  }
+}
