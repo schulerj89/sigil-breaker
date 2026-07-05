@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "level-kit-curator",
   "status": "in-progress",
-  "updatedAt": "2026-07-04T16:13:24Z",
-  "summary": "Foundation layout QA now separates 3-unit lanes, 5-unit structural entries, and 3-per-side/6-combined splitter-post clearance, with steel-toned Kenney prototype textures and a full-level roof applied to the foundation arena.",
+  "updatedAt": "2026-07-05T01:33:52Z",
+  "summary": "Foundation layout QA now includes all-walkable reachability, opened the isolated right-side room with a 5-tile entry, and moved the exit to the bottom-right corner opposite spawn.",
   "observations": [
     "The 45 x 45 foundation map remains a placeholder layout.",
     "validate-levels now checks bounded row/column segments below 3 tiles.",
@@ -20,10 +20,15 @@
     "User-reported world coordinates -10.0, 17.8; -9.4, 17.2; and 8.2, 17.5 mapped to the bottom row 39 wall-band entries.",
     "Widened row 30 first entry to columns 15-22.",
     "Widened row 39 entries to columns 8-14 and 26-32.",
-    "The current foundation map has 1653 walkable tiles and remains spawn-to-exit reachable.",
+    "The prior foundation map had 1653 walkable tiles and remained spawn-to-exit reachable before the isolated-room access pass.",
     "The foundation level now uses steel-toned Kenney CC0 prototype textures for floor, wall, and roof surfaces.",
     "A full-level roof plane covers the 45 x 45 foundation arena at 3.92 units high.",
-    "Gameplay-height screenshot QA confirmed the steel floor, wall, and roof readability after waiting for GPU texture upload."
+    "Gameplay-height screenshot QA confirmed the steel floor, wall, and roof readability after waiting for GPU texture upload.",
+    "The isolated room at rows 11-19, columns 34-43 was unreachable from spawn and contained enemy marker row 13 column 38 plus cover row 15 column 39.",
+    "Opened column 33 rows 12-16 to create a 5-tile structural entry into the room.",
+    "Moved the X exit marker from row 1 column 43 to row 43 column 43, opposite spawn at row 1 column 1.",
+    "validate-levels now rejects any non-solid tile that is unreachable from spawn.",
+    "The current foundation map has 1658 walkable tiles and all are reachable from spawn."
   ],
   "decisions": [
     "Use unique external kits per level.",
@@ -33,14 +38,17 @@
     "Reject one-tile corner pinches even when long straight runs still pass.",
     "Keep general traversal lanes at 3 tiles but require structural wall-band entries to be at least 5 tiles.",
     "Reject continuing wall posts that split structural entries when either side is below 3 tiles or both sides total below 6 tiles.",
-    "Treat the Kenney prototype textures as lightweight foundation placeholders until a level-specific kit is selected."
+    "Treat the Kenney prototype textures as lightweight foundation placeholders until a level-specific kit is selected.",
+    "Reject unreachable walkable rooms, enemies, cover-adjacent floor, and exit spaces.",
+    "Keep the foundation exit in the bottom-right interior corner opposite the top-left spawn unless the objective changes."
   ],
   "caughtIssues": [
     "The previous lane QA could pass a diagonal wall-corner squeeze that still looked like a one-unit path.",
     "The straight-run validator could pass L-shaped edge notches because their horizontal and vertical runs were both long.",
     "The corner-pinch validator could not catch straight 2- or 3-tile door-like entries with no diagonal pinch pattern.",
     "A 5-tile structural entry can still feel like two 2-tile branches when a wall post sits just inside the entry.",
-    "Early texture screenshots could capture before GPU upload and look blank/white; browser smoke should wait for renderer texture count before validating the frame."
+    "Early texture screenshots could capture before GPU upload and look blank/white; browser smoke should wait for renderer texture count before validating the frame.",
+    "Spawn-to-exit reachability did not catch an isolated room with an enemy and cover."
   ],
   "risks": [
     "Weak scale references can make buildings, cover, and enemies feel wrong on mobile.",
@@ -51,7 +59,9 @@
     "src/game/foundationLevelMap.json",
     "scripts/validate-levels.mjs",
     "src/tests/fpsFoundation.test.ts",
-    "docs/level-foundation.md"
+    "docs/level-foundation.md",
+    "artifacts/sub-agents/20260705-level-access-exit/level-kit-curator/observations.md",
+    "artifacts/sub-agents/20260705-level-access-exit/smoke-qa-agent/report.json"
   ],
   "jsonForAgents": {
     "foundationPassageRules": {
@@ -109,13 +119,45 @@
         }
       ],
       "knownFixedPinchWorldCoordinates": [
-        [12.1, 1.6, -2.1],
-        [12.2, 1.6, 7.6],
-        [-10.0, 1.6, 17.8],
-        [-9.4, 1.6, 17.2],
-        [8.2, 1.6, 17.5]
+        [
+          12.1,
+          1.6,
+          -2.1
+        ],
+        [
+          12.2,
+          1.6,
+          7.6
+        ],
+        [
+          -10,
+          1.6,
+          17.8
+        ],
+        [
+          -9.4,
+          1.6,
+          17.2
+        ],
+        [
+          8.2,
+          1.6,
+          17.5
+        ]
       ],
-      "walkableTiles": 1653
+      "walkableTiles": 1658,
+      "rejectUnreachableWalkableTiles": true,
+      "reachableWalkableTiles": 1658,
+      "unreachableWalkableTiles": 0,
+      "openedAccessEntries": [
+        {
+          "axis": "column",
+          "column": 33,
+          "start": 12,
+          "end": 16,
+          "reason": "open isolated right-side room"
+        }
+      ]
     },
     "foundationTextureKit": {
       "sourceId": "kenney.prototype-textures.1-0",
@@ -137,12 +179,25 @@
       "rewardSpace",
       "powerupAnchors"
     ],
-    "monolithicLevelGlbAllowed": false
+    "monolithicLevelGlbAllowed": false,
+    "foundationExit": {
+      "spawn": {
+        "row": 1,
+        "column": 1
+      },
+      "exit": {
+        "row": 43,
+        "column": 43
+      },
+      "oppositeCorner": true
+    }
   },
   "nextAgents": [
     "external-asset-scout",
     "enemy-asset-curator",
     "weapon-upgrade-asset-curator",
-    "asset-playground-qa-agent"
+    "asset-playground-qa-agent",
+    "smoke-qa-agent",
+    "playthrough-qa-agent"
   ]
 }

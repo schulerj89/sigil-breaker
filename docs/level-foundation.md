@@ -17,7 +17,7 @@ The source of truth is `src/game/foundationLevelMap.json`. Runtime collision rea
 
 ```text
 #############################################
-#S..........E.........#....................X#
+#S..........E.........#.....................#
 #.....................#.....................#
 #.....................#.....................#
 #...........................................#
@@ -28,11 +28,11 @@ The source of truth is `src/game/foundationLevelMap.json`. Runtime collision rea
 #.....................#.....................#
 ################.....########################
 #.........#......................#..........#
-#.........#......................#..........#
-#.........#...........E..........#....E.....#
-#.........#......................#..........#
-#....C..E.#...........C..........#.....C....#
-#.........#......................#..........#
+#.........#.................................#
+#.........#...........E...............E.....#
+#.........#.................................#
+#....C..E.#...........C................C....#
+#.........#.................................#
 #.........#......................#..........#
 #.........#......................#..........#
 #.........#......................#..........#
@@ -59,8 +59,8 @@ The source of truth is `src/game/foundationLevelMap.json`. Runtime collision rea
 #...........................................#
 #...........................................#
 #.....................E.....................#
-#...........................................#
+#..........................................X#
 #############################################
 ```
 
-Run `npm run validate:levels` before changing this map. The checker fails unsupported symbols, broken boundaries, multiple spawn tiles, missing enemy markers, multiple `X` exit tiles, unreachable exits, any walkable tile that falls below the configured 3-unit lane width in either axis, structural wall-band entries below 5 units, structural entry splitters below 3 units per side or 6 units combined, diagonal corner cuts, and one-tile corner pinches.
+Run `npm run validate:levels` before changing this map. The checker fails unsupported symbols, broken boundaries, multiple spawn tiles, missing enemy markers, multiple `X` exit tiles, unreachable exits, unreachable walkable rooms, any walkable tile that falls below the configured 3-unit lane width in either axis, structural wall-band entries below 5 units, structural entry splitters below 3 units per side or 6 units combined, diagonal corner cuts, and one-tile corner pinches.

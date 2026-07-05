@@ -143,3 +143,5 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Browser smoke now waits for `snapshot.scene.phase === "title"`, verifies 18 boot assets including `ui.title.background.sigilbreaker.generated`, clicks `[data-title-start]`, and verifies `snapshot.scene.phase === "gameplay"`.
 - Browser smoke verifies the title background WebP URL is cache-busted with `assetBuild`.
 - Focused title screenshot is stored under `artifacts/sub-agents/20260705-title-screen/smoke-qa-agent/title-screen-844x390.png`.
+- Latest `npm run validate:browser` passed all five landscape viewport projects after opening the isolated right-side room and moving `X` to row 43, column 43.
+- `npm run validate:levels` now reports 1658 walkable tiles and all walkable tiles reachable from spawn.

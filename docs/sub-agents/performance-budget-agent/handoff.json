@@ -2,7 +2,7 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-05T00:20:00Z",
+  "updatedAt": "2026-07-05T01:33:52Z",
   "summary": "The five-gun and 12-marker enemy movement slice stays within MVP payload and renderer budgets by cloning three shared skinned enemy GLB templates with SkeletonUtils, using kinematic movement plus lightweight separation, and keeping local browser and headed enemy smoke passing with the production JS chunk at about 676.65 kB minified.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
@@ -65,7 +65,8 @@
     "Latest npm run validate:browser passed all five landscape viewport gates after skeleton-safe clone and model-bounds checks.",
     "Latest production JS chunk is about 676.65 kB minified.",
     "npm run qa:headed:enemies is a local-only visible Chromium check that reuses the production preview and adds no runtime game payload.",
-    "The favicon fix prevents browser 404 console noise in headed QA and adds no WebGL resources."
+    "The favicon fix prevents browser 404 console noise in headed QA and adds no WebGL resources.",
+    "Foundation walkable tile count is now 1658 after opening the isolated right-side room."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -169,7 +170,7 @@
     "mvpFastViewportSplit": true,
     "localBrowserSmokeSeconds": 44.5,
     "zoomGuardRuntimeCost": "event listeners only; no animation-loop work and no render resources",
-    "foundationWalkableTiles": 1653,
+    "foundationWalkableTiles": 1658,
     "foundationEnemyMarkers": 12,
     "structuralEntrySplitterValidation": true,
     "holdFireAimCost": "camera FOV blend plus existing viewmodel pose blend while held; no new WebGL resources",

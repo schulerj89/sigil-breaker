@@ -99,9 +99,13 @@ describe('FPS foundation config', () => {
 
     const tiles = getLevelTiles();
     const enemySpawnTiles = getEnemySpawnTiles();
+    const spawnTile = tiles.find((tile) => tile.symbol === 'S');
+    const exitTile = tiles.find((tile) => tile.symbol === 'X');
     expect(tiles).toHaveLength(LEVEL_WIDTH_TILES * LEVEL_HEIGHT_TILES);
     expect(tiles.filter((tile) => tile.symbol === 'S')).toHaveLength(1);
     expect(tiles.filter((tile) => tile.symbol === 'X')).toHaveLength(1);
+    expect(spawnTile).toMatchObject({ row: 1, column: 1 });
+    expect(exitTile).toMatchObject({ row: LEVEL_HEIGHT_TILES - 2, column: LEVEL_WIDTH_TILES - 2 });
     expect(enemySpawnTiles).toHaveLength(12);
     expect(enemySpawnTiles[0]).toMatchObject({ row: 1, column: 12, symbol: 'E' });
     expect(enemySpawnTiles.slice(0, 3).map((tile) => `${tile.row}:${tile.column}`)).toEqual([
@@ -123,6 +127,13 @@ describe('FPS foundation config', () => {
       expect(FOUNDATION_LEVEL_MAP[index][0]).toBe('#');
       expect(FOUNDATION_LEVEL_MAP[index][LEVEL_WIDTH_TILES - 1]).toBe('#');
     }
+
+    const reachableTileKeys = collectReachableTileKeys(spawnTile?.row ?? 0, spawnTile?.column ?? 0);
+    expect(
+      tiles
+        .filter((tile) => !isSolidSymbol(tile.symbol) && !reachableTileKeys.has(`${tile.row}:${tile.column}`))
+        .map((tile) => `${tile.row}:${tile.column}:${tile.symbol}`),
+    ).toEqual([]);
   });
 
   it('partitions the level into streamable chunks around the player', () => {
@@ -1025,6 +1036,40 @@ function findCornerPinches(): Array<Record<string, number | string>> {
 
 function isSolidAtOffset(row: number, column: number, offset: readonly [number, number]): boolean {
   return isSolidSymbol(FOUNDATION_LEVEL_MAP[row + offset[0]][column + offset[1]] as LevelTileSymbol);
+}
+
+function collectReachableTileKeys(startRow: number, startColumn: number): Set<string> {
+  const queue = [{ row: startRow, column: startColumn }];
+  const visited = new Set([`${startRow}:${startColumn}`]);
+
+  for (let index = 0; index < queue.length; index++) {
+    const current = queue[index];
+    for (const [rowStep, columnStep] of [
+      [-1, 0],
+      [1, 0],
+      [0, -1],
+      [0, 1],
+    ] as const) {
+      const row = current.row + rowStep;
+      const column = current.column + columnStep;
+      const key = `${row}:${column}`;
+      if (
+        row < 0 ||
+        row >= LEVEL_HEIGHT_TILES ||
+        column < 0 ||
+        column >= LEVEL_WIDTH_TILES ||
+        visited.has(key) ||
+        isSolidSymbol(FOUNDATION_LEVEL_MAP[row][column] as LevelTileSymbol)
+      ) {
+        continue;
+      }
+
+      visited.add(key);
+      queue.push({ row, column });
+    }
+  }
+
+  return visited;
 }
 
 function expectTupleClose(actual: readonly [number, number, number], expected: readonly [number, number, number]): void {

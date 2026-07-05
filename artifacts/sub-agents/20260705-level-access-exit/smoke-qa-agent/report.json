@@ -1,0 +1,49 @@
+{
+  "handoffVersion": "1.0.0",
+  "agentId": "smoke-qa-agent",
+  "status": "complete",
+  "updatedAt": "2026-07-05T01:33:52Z",
+  "commands": [
+    "npm run test",
+    "npm run validate:levels",
+    "npm run lint",
+    "npm run build",
+    "npm run validate:assets",
+    "npm run validate:browser"
+  ],
+  "levelAccess": {
+    "spawn": {
+      "row": 1,
+      "column": 1
+    },
+    "exit": {
+      "row": 43,
+      "column": 43
+    },
+    "openedEntry": {
+      "column": 33,
+      "rows": [
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "widthTiles": 5
+    },
+    "walkableTiles": 1658,
+    "reachableWalkableTiles": 1658,
+    "unreachableWalkableTiles": 0,
+    "enemyMarkerCount": 12
+  },
+  "browserSmoke": {
+    "projectsPassed": 5,
+    "viewports": [
+      "667x375",
+      "740x360",
+      "844x390",
+      "932x430",
+      "1024x768"
+    ]
+  }
+}

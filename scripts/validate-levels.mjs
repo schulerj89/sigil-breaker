@@ -34,6 +34,7 @@ if (result.errors.length > 0) {
       `${result.walkableTiles} walkable tiles`,
       `${result.enemyMarkerCount} enemy markers`,
       'spawn can reach exit',
+      'all walkable tiles reachable',
     ].join(' | '),
   );
 }
@@ -112,6 +113,7 @@ function validateLevel(levelData) {
   const narrowWallBandEntrySplitters = [];
   const diagonalCornerCuts = [];
   const cornerPinches = [];
+  const unreachableWalkableTiles = [];
 
   for (let row = 0; row < map.length; row++) {
     const line = map[row];
@@ -239,6 +241,17 @@ function validateLevel(levelData) {
     errors.push(`Found ${cornerPinches.length} one-tile corner pinch point(s): ${preview}`);
   }
 
+  if (spawnCount === 1) {
+    unreachableWalkableTiles.push(...findUnreachableWalkableTiles(map));
+  }
+  if (unreachableWalkableTiles.length > 0) {
+    const preview = unreachableWalkableTiles
+      .slice(0, 12)
+      .map((tile) => `(${tile.row},${tile.column}) ${tile.symbol}`)
+      .join(', ');
+    errors.push(`Found ${unreachableWalkableTiles.length} walkable tile(s) unreachable from spawn: ${preview}`);
+  }
+
   if (spawnCount === 1 && exitCount === 1 && !spawnCanReachExit(map)) {
     errors.push('Spawn cannot reach exit through walkable tiles.');
   }
@@ -252,6 +265,26 @@ function validateLevel(levelData) {
     chunkColumns: Number.isInteger(chunkSizeTiles) ? Math.ceil(width / chunkSizeTiles) : 0,
     chunkRows: Number.isInteger(chunkSizeTiles) ? Math.ceil(height / chunkSizeTiles) : 0,
   };
+}
+
+function findUnreachableWalkableTiles(map) {
+  const spawn = findSymbol(map, 'S');
+  if (!spawn) {
+    return [];
+  }
+
+  const reachable = collectReachableWalkableTiles(map, spawn);
+  const unreachable = [];
+  for (let row = 0; row < map.length; row++) {
+    for (let column = 0; column < map[row].length; column++) {
+      const symbol = map[row][column];
+      if (!SOLID_SYMBOLS.has(symbol) && !reachable.has(toKey(row, column))) {
+        unreachable.push({ row, column, symbol });
+      }
+    }
+  }
+
+  return unreachable;
 }
 
 function findNarrowSegments(map, minimumOpenTiles) {
@@ -724,15 +757,15 @@ function spawnCanReachExit(map) {
     return false;
   }
 
-  const queue = [spawn];
-  const visited = new Set([toKey(spawn.row, spawn.column)]);
+  return collectReachableWalkableTiles(map, spawn).has(toKey(exit.row, exit.column));
+}
+
+function collectReachableWalkableTiles(map, start) {
+  const queue = [start];
+  const visited = new Set([toKey(start.row, start.column)]);
 
   for (let index = 0; index < queue.length; index++) {
     const current = queue[index];
-    if (current.row === exit.row && current.column === exit.column) {
-      return true;
-    }
-
     for (const [rowStep, columnStep] of [
       [-1, 0],
       [1, 0],
@@ -760,7 +793,7 @@ function spawnCanReachExit(map) {
     }
   }
 
-  return false;
+  return visited;
 }
 
 function findSymbol(map, symbol) {
