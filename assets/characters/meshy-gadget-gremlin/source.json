@@ -1,45 +1,40 @@
 {
-  "sourceId": "meshy.main-character.gadget-gremlin.20260705",
+  "sourceId": "meshy.main-character.gadget-gremlin.apose.20260705",
   "provider": "Meshy",
-  "assetId": "player.hero.gadget-gremlin",
-  "generatedAt": "2026-07-05T05:33:51.204Z",
+  "assetId": "player.hero.gadget-gremlin.apose",
+  "generatedAt": "2026-07-05T12:55:30.518Z",
   "modelId": "meshy-6",
-  "integrationStatus": "rejected-placeholder",
-  "reworkRequired": {
-    "reason": "The generated model drifted from the selected concept and was not created from a clean A-pose reference image.",
-    "nextPipeline": "Generate one front-facing A-pose image from the selected concept, run Meshy Image-to-3D from that reference, then rig and attach or merge animation clips.",
-    "runtimeAnimationTarget": "One optimized player GLB with multiple named animation clips, or a lightweight runtime clip bundle without duplicate mesh payloads."
-  },
+  "integrationStatus": "character-debug-runtime",
+  "generationPipeline": "gpt-image-2-apose-reference-to-meshy-image-to-3d",
   "selectedConcept": "artifacts/sub-agents/20260705-main-character-concepts/landscape-title-hud-agent/generated-concepts/002-gadget-gremlin-concept.png",
+  "referenceImage": "artifacts/sub-agents/20260705-main-character-apose/landscape-title-hud-agent/generated-reference/player.hero.gadget-gremlin.apose-reference.png",
+  "runtimeModel": "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb",
+  "runtimeAnimations": [
+    "walking",
+    "running",
+    "idle",
+    "idle-alt",
+    "low-health",
+    "out-of-hp",
+    "victory",
+    "dance",
+    "gun-hold",
+    "run-and-shoot"
+  ],
   "meshyDocs": {
-    "textTo3d": "https://docs.meshy.ai/en/api/text-to-3d",
+    "imageTo3d": "https://docs.meshy.ai/en/api/image-to-3d",
     "rigging": "https://docs.meshy.ai/en/api/rigging",
     "animation": "https://docs.meshy.ai/en/api/animation",
     "animationLibrary": "https://docs.meshy.ai/en/api/animation-library"
   },
   "runtimeFiles": [
-    "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.preview.glb",
-    "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.preview.png",
-    "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.preview-alpha.png",
-    "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.refined.glb",
-    "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.refined.png",
-    "public/assets/characters/meshy-gadget-gremlin/previews/player.hero.gadget-gremlin.refined-alpha.png",
-    "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.rigged.glb",
-    "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.walking.glb",
-    "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.running.glb",
-    "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.idle.glb",
-    "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.idle-alt.glb",
-    "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.low-health.glb",
-    "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.out-of-hp.glb",
-    "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.victory.glb",
-    "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.dance.glb",
-    "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.gun-hold.glb",
-    "public/assets/characters/meshy-gadget-gremlin/animations/player.hero.gadget-gremlin.run-and-shoot.glb"
+    "public/assets/characters/meshy-gadget-gremlin/models/player.hero.gadget-gremlin.apose.animated.glb"
   ],
+  "intermediatePolicy": "Meshy generated separate full-character GLBs per animation. Those were used locally to build the combined runtime GLB and are intentionally not runtime files for this pass.",
   "notes": [
     "Generated through the local secret broker; no API keys are stored in this metadata.",
-    "Meshy output URLs are intentionally not stored because they expire and can include account-scoped paths.",
-    "Character is staged for asset playground QA before gameplay integration.",
-    "This generated character is a placeholder only; it should be replaced by an A-pose-image-driven Meshy pass before gameplay or title integration."
+    "The runtime GLB contains one mesh/skeleton with ten embedded animation clips for character debug.",
+    "Meshy intermediate animation GLBs are retained as source artifacts only; runtime code must load the combined GLB.",
+    "The combined runtime GLB is still above the 6 MB target and needs a later optimization pass before gameplay/cutscene use."
   ]
 }
