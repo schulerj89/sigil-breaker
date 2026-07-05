@@ -29,6 +29,9 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - Debug state now exposes `weapon.isFireHeld`, `weapon.aimBlend`, and `weapon.cameraFovDegrees` for QA and tuning.
 - Tracking enemies now fire visible energy-orb projectiles when the player is in range and line of sight.
 - Enemy projectiles damage the shared player `Health` instance, so the existing HP bar reflects enemy hits without adding a separate damage model.
+- Enemy movement speed increased 25% for all current behaviors: Mushnub 1.6, slime 1.775, and Goleling 1.275 units per second.
+- Enemies now use a short first-shot delay when they newly enter tracking, so the first projectile appears quickly instead of waiting on the spawn-staggered cooldown.
+- Enemy projectiles were enlarged and depth-tested off so they read more clearly in the first-person view.
 
 ## Decisions
 
@@ -45,6 +48,7 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - Keep per-weapon aim poses in the manifest because the three starter guns have different silhouettes.
 - Use low-damage, cadence-gated enemy projectiles for the MVP so combat pressure is readable without sudden unavoidable health loss.
 - Keep projectiles blocked by tile walls; enemies briefly retry instead of shooting through closed rooms.
+- Keep first-shot tracking response fast, then return to the normal cooldown cadence for follow-up shots.
 
 ## Caught Issues
 
@@ -55,6 +59,7 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - Tap-only fire did not give enough FPS feel; the hold action needed aim zoom, continuous cadence, and centered weapon framing.
 - The first hold-fire zoom response felt too abrupt; future changes should keep the eased damping behavior or replace it with a better measured transition.
 - Enemy movement and health existed before enemy offense, so playthrough QA had no way to verify player damage from enemies.
+- Spawn-staggered projectile cooldowns made enemies feel like they were not shooting when first acquired; the first tracking shot now has its own shorter delay.
 
 ## Next Handoff Notes
 
@@ -64,3 +69,4 @@ Status: complete after body-only movement collision, wall-shot, entry-width, spl
 - Playthrough QA should re-check hold-fire while turning and moving because fire now owns aim, cadence, FOV, and pose state.
 - Playthrough QA should re-check SPARK cyan, BORE orange, and VAULT violet shot readability in landscape phone view.
 - Playthrough QA should check whether projectile speed, damage, and cooldown feel fair when the player enters rooms with multiple tracking enemies.
+- Playthrough QA should re-check whether the 25% faster enemy movement still leaves enough mobile aiming time in small rooms.

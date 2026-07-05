@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
   "status": "needs-review",
-  "updatedAt": "2026-07-05T02:49:00Z",
-  "summary": "The five-gun, 12-marker enemy movement, and enemy projectile slice stays within MVP payload and renderer budgets by cloning three shared skinned enemy GLB templates, using kinematic movement plus lightweight separation, and pooling primitive projectile meshes; latest local browser smoke passed with the production JS chunk at about 684.03 kB minified.",
+  "updatedAt": "2026-07-05T03:38:00Z",
+  "summary": "Enemy projectile timing and 25% faster movement stay within the current pooled-primitive projectile and kinematic movement budget; latest browser smoke passed with the production JS chunk at about 684.30 kB minified.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -69,7 +69,10 @@
     "Foundation walkable tile count is now 1658 after opening the isolated right-side room.",
     "Enemy projectiles use one shared SphereGeometry, one shared additive MeshBasicMaterial, and pooled meshes.",
     "Projectile collision uses tile raycasts and flat segment checks against the player; no physics engine or mesh collision was added.",
-    "Latest npm run validate:browser passed all five landscape viewports after adding enemy projectiles; production JS chunk reported about 684.03 kB minified."
+    "Latest npm run validate:browser passed all five landscape viewports after adding enemy projectiles; production JS chunk reported about 684.03 kB minified.",
+    "Increasing enemy movement speed by 25% changes transform update distance only; it adds no meshes, textures, or asset payload.",
+    "Projectile readability tuning keeps the same shared pooled sphere geometry/material path, with a larger radius and depth testing disabled.",
+    "Latest npm run validate:browser passed all five landscape viewports after the first-shot projectile timing and enemy-speed fix; production JS chunk reported about 684.30 kB minified."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -223,15 +226,21 @@
       "perShotMaterialAllocation": false,
       "pooling": true,
       "debugPath": "snapshot.enemies.projectiles",
-      "activeCountField": "snapshot.enemies.projectiles.active"
+      "activeCountField": "snapshot.enemies.projectiles.active",
+      "projectileRadiusUnits": 0.2,
+      "depthTestDisabledForReadability": true
     },
-    "latestProductionJsChunkKb": 684.03,
+    "latestProductionJsChunkKb": 684.3,
     "latestBrowserValidation": {
       "command": "npm run validate:browser",
       "result": "passed",
       "projects": 5,
-      "durationSeconds": 159,
-      "productionJsChunkKb": 684.03
+      "productionJsChunkKb": 684.3
+    },
+    "enemyMovementBudget": {
+      "speedMultiplierApplied": 1.25,
+      "movementModelStillKinematic": true,
+      "newMeshesOrAssets": false
     }
   },
   "nextAgents": [

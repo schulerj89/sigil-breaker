@@ -110,3 +110,6 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Projectile updates are simple vector integration plus tile raycasts and flat player segment checks, scoped to active projectiles only.
 - Projectile debug counters are exposed under `snapshot.enemies.projectiles` so smoke/performance checks can track active count and hit totals.
 - Latest `npm run validate:browser` passed all five landscape viewports after adding enemy projectiles; production JS chunk reported about 684.03 kB minified.
+- Increasing enemy movement speed by 25% changes transform update distance only; it adds no meshes, textures, or asset payload.
+- Projectile readability tuning keeps the same shared pooled sphere geometry/material path, with a larger radius and depth testing disabled.
+- Latest `npm run validate:browser` passed all five landscape viewports after the first-shot projectile timing and enemy-speed fix; production JS chunk reported about 684.30 kB minified.

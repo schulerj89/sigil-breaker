@@ -25,9 +25,12 @@ export interface EnemySnapshot {
   assetLoaded: boolean;
   state: EnemyAiState;
   behavior: string;
+  speedUnitsPerSecond: number;
   facingYawRadians: number;
   detectRadiusUnits: number;
   loseRadiusUnits: number;
+  projectileRangeUnits: number;
+  projectileCooldownSeconds: number;
   debugVisible: boolean;
   attachments: {
     visual: [number, number, number];
@@ -163,10 +166,11 @@ const ENEMY_HIT_FLASH_SECONDS = 0.16;
 const DEBUG_RING_SEGMENTS = 40;
 const DEBUG_FRONT_CONE_RADIANS = Math.PI / 7;
 const PLAYER_PROJECTILE_HIT_RADIUS_UNITS = 0.48;
-const PROJECTILE_RADIUS_UNITS = 0.13;
+const PROJECTILE_RADIUS_UNITS = 0.2;
 const PROJECTILE_SPAWN_FORWARD_UNITS = 0.72;
 const PROJECTILE_PLAYER_TARGET_Y = 1.35;
 const PROJECTILE_LINE_OF_SIGHT_PADDING_UNITS = 0.35;
+const FIRST_TRACKING_PROJECTILE_DELAY_SECONDS = 0.08;
 const ROLE_NAMES = [
   'vanguard',
   'lane-anchor',
@@ -185,7 +189,7 @@ const ROLE_NAMES = [
 
 const MUSHROOM_BEHAVIOR: EnemyBehaviorDefinition = {
   id: 'mushroom-hop-square',
-  speedUnitsPerSecond: 1.28,
+  speedUnitsPerSecond: 1.6,
   turnResponse: 7,
   detectRadiusUnits: 6.2,
   loseRadiusUnits: 8,
@@ -206,7 +210,7 @@ const MUSHROOM_BEHAVIOR: EnemyBehaviorDefinition = {
 
 const SLIME_BEHAVIOR: EnemyBehaviorDefinition = {
   id: 'slime-side-sway',
-  speedUnitsPerSecond: 1.42,
+  speedUnitsPerSecond: 1.775,
   turnResponse: 8,
   detectRadiusUnits: 5.8,
   loseRadiusUnits: 7.4,
@@ -225,7 +229,7 @@ const SLIME_BEHAVIOR: EnemyBehaviorDefinition = {
 
 const GOLEM_BEHAVIOR: EnemyBehaviorDefinition = {
   id: 'goleling-heavy-square',
-  speedUnitsPerSecond: 1.02,
+  speedUnitsPerSecond: 1.275,
   turnResponse: 5.6,
   detectRadiusUnits: 6.8,
   loseRadiusUnits: 8.6,
@@ -272,10 +276,11 @@ export class EnemySystem {
   private readonly hitFlashGeometry = new THREE.SphereGeometry(0.92, 16, 8);
   private readonly projectileGeometry = new THREE.SphereGeometry(PROJECTILE_RADIUS_UNITS, 12, 8);
   private readonly projectileMaterial = new THREE.MeshBasicMaterial({
-    color: 0xff5c8a,
+    color: 0xff3f8f,
     transparent: true,
-    opacity: 0.88,
+    opacity: 0.96,
     depthWrite: false,
+    depthTest: false,
     blending: THREE.AdditiveBlending,
   });
   private readonly enemies: RuntimeEnemy[] = [];
@@ -391,9 +396,12 @@ export class EnemySystem {
       assetLoaded: enemy.assetLoaded,
       state: enemy.state,
       behavior: enemy.behavior.id,
+      speedUnitsPerSecond: roundMetric(enemy.behavior.speedUnitsPerSecond),
       facingYawRadians: roundMetric(enemy.facingYawRadians),
       detectRadiusUnits: enemy.behavior.detectRadiusUnits,
       loseRadiusUnits: enemy.behavior.loseRadiusUnits,
+      projectileRangeUnits: enemy.behavior.projectileRangeUnits,
+      projectileCooldownSeconds: roundMetric(enemy.projectileCooldownSeconds),
       debugVisible: enemy.debugGroup.visible,
       attachments: {
         visual: objectWorldSnapshot(enemy.visualSlot),
@@ -567,6 +575,12 @@ export class EnemySystem {
   private updateEnemyState(enemy: RuntimeEnemy): void {
     const playerDistanceSq = flatDistanceSquared(enemy.position, this.player);
     if (playerDistanceSq <= enemy.behavior.detectRadiusUnits * enemy.behavior.detectRadiusUnits) {
+      if (enemy.state !== 'tracking') {
+        enemy.projectileCooldownSeconds = Math.min(
+          enemy.projectileCooldownSeconds,
+          FIRST_TRACKING_PROJECTILE_DELAY_SECONDS,
+        );
+      }
       enemy.state = 'tracking';
       return;
     }

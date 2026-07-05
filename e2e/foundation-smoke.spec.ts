@@ -30,6 +30,8 @@ interface DebugSnapshot {
   scene: {
     phase: 'loading' | 'title' | 'gameplay';
     playerPosition: [number, number, number];
+    yawRadians: number;
+    pitchRadians: number;
   };
   level: {
     id: string;
@@ -154,9 +156,12 @@ interface DebugSnapshot {
       assetLoaded: boolean;
       state: 'patrolling' | 'tracking' | 'returning';
       behavior: string;
+      speedUnitsPerSecond: number;
       facingYawRadians: number;
       detectRadiusUnits: number;
       loseRadiusUnits: number;
+      projectileRangeUnits: number;
+      projectileCooldownSeconds: number;
       debugVisible: boolean;
       attachments: {
         visual: [number, number, number];
@@ -534,6 +539,8 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
     return;
   }
 
+  await verifyEnemyProjectileAttack(page);
+
   await page.locator('.game-canvas').click({ position: { x: 12, y: 12 } });
   await driveUntil(page, 'KeyA', (routeSnapshot) => routeSnapshot.scene.playerPosition[2] < -21.15, 2500);
   const wallPushStart = await readDebugSnapshot(page);
@@ -676,6 +683,55 @@ async function waitForSceneAssets(page: Page): Promise<void> {
       snapshot.rendererMetrics.textures >= 4
     );
   }, EXPECTED_LOADED_ASSET_IDS.length);
+}
+
+async function verifyEnemyProjectileAttack(page: Page): Promise<void> {
+  const before = await readDebugSnapshot(page);
+  const targetEnemy = before.enemies.enemies.find((enemy) => enemy.health.isAlive && enemy.id !== 'enemy.monster.mushnub.vanguard');
+  expect(targetEnemy).toBeDefined();
+
+  const enemy = targetEnemy as DebugSnapshot['enemies']['enemies'][number];
+  const poseAccepted = await page.evaluate((origin) =>
+    window.__SIGILBREAKER_DEBUG__?.setPlayerPose({
+      x: origin[0] - 5.7,
+      z: origin[2],
+      yawRadians: -Math.PI / 2,
+      pitchRadians: 0,
+    }) ?? false,
+    enemy.origin,
+  );
+  expect(poseAccepted).toBe(true);
+
+  await expect
+    .poll(async () => (await readDebugSnapshot(page)).enemies.projectiles.fired, {
+      timeout: 2500,
+      intervals: [80, 120, 160],
+    })
+    .toBeGreaterThan(before.enemies.projectiles.fired);
+  await expect
+    .poll(async () => (await readDebugSnapshot(page)).enemies.projectiles.hitPlayer, {
+      timeout: 3500,
+      intervals: [80, 120, 160],
+    })
+    .toBeGreaterThan(before.enemies.projectiles.hitPlayer);
+
+  const after = await readDebugSnapshot(page);
+  expect(after.player.health.current).toBeLessThan(before.player.health.current);
+
+  const resetAccepted = await page.evaluate((pose) =>
+    window.__SIGILBREAKER_DEBUG__?.setPlayerPose({
+      x: pose.position[0],
+      z: pose.position[2],
+      yawRadians: pose.yawRadians,
+      pitchRadians: pose.pitchRadians,
+    }) ?? false,
+    {
+      position: before.scene.playerPosition,
+      yawRadians: before.scene.yawRadians,
+      pitchRadians: before.scene.pitchRadians,
+    },
+  );
+  expect(resetAccepted).toBe(true);
 }
 
 async function verifyPortraitRotatePrompt(page: Page): Promise<void> {

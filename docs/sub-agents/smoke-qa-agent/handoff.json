@@ -2,7 +2,7 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T03:16:00Z",
+  "updatedAt": "2026-07-05T03:38:00Z",
   "summary": "Local Playwright smoke covers title/start flow, weapons, SFX, map-authored GLB enemies, debug toggles, cache-busting, zoom guards, and the latest level access/exit changes.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
@@ -94,7 +94,10 @@
     "Browser smoke asserts snapshot.enemies.projectiles exists and starts with zero active/fired/hit counters at boot.",
     "Latest npm run validate:browser passed all five landscape viewport projects after adding enemy projectile debug counters and player-damage wiring.",
     "Unit smoke verifies the separate boss level JSON shape, exactly one B marker, six E minion markers, reachable walkable tiles, boss phase ratios, and reward powerup range metadata.",
-    "npm run validate:levels now checks both boss-forge-31x31 and foundation-45x45 by default."
+    "npm run validate:levels now checks both boss-forge-31x31 and foundation-45x45 by default.",
+    "Unit smoke now verifies the first tracking projectile fires within a few frames and pins the 25% faster Mushnub speed.",
+    "Browser smoke now poses the player near a living enemy in the full interaction project and verifies projectile fired, projectile hitPlayer, and reduced player HP before restoring the original pose.",
+    "Latest npm run validate:browser passed all five landscape viewport projects after the enemy first-shot timing and speed fix."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -192,7 +195,8 @@
     "src/game/bossLevelMap.json",
     "src/game/levelConfigs.ts",
     "docs/level-boss.md",
-    "artifacts/sub-agents/20260705-boss-level-config/smoke-qa-agent/report.json"
+    "artifacts/sub-agents/20260705-boss-level-config/smoke-qa-agent/report.json",
+    "artifacts/sub-agents/20260705-enemy-projectile-speed-fix/smoke-qa-agent/report.json"
   ],
   "jsonForAgents": {
     "latestManualSmoke": {
@@ -284,7 +288,7 @@
       "mvpFastViewportSplit": true,
       "visualViewportScaleAfterZoomGestures": 1,
       "assetLoadErrors": 0,
-      "latestDurationSeconds": 159,
+      "latestDurationSeconds": 152,
       "testTimeoutSeconds": 240,
       "loadedAssetIdCount": 17,
       "weaponCycleCount": 5,
@@ -321,7 +325,9 @@
       "foundationWalkableTiles": 1658,
       "enemyProjectileDebugCountersChecked": true,
       "enemyProjectileBootCountersZero": true,
-      "playerDamageFromProjectileUnitChecked": true
+      "playerDamageFromProjectileUnitChecked": true,
+      "enemyProjectileAttackDamagesPlayerChecked": true,
+      "enemyProjectilePoseRestoredBeforeMovementRoute": true
     },
     "latestHealthEnemySmoke": {
       "playerHealth": {
@@ -414,7 +420,10 @@
       "exitMarkerOppositeSpawnCorner",
       "enemyProjectileDebugCounters",
       "bossLevelConfigValidated",
-      "multiLevelMapValidation"
+      "multiLevelMapValidation",
+      "enemyProjectileAttackDamagesPlayerInBrowser",
+      "enemyFirstTrackingShotTiming",
+      "enemySpeedIncreasePinned"
     ],
     "screenshotNames": [
       "boot-mobile-landscape.png",
@@ -497,7 +506,9 @@
         "command": "npm run validate:browser",
         "result": "passed",
         "projects": 5
-      }
+      },
+      "firstTrackingShotTimingChecked": true,
+      "browserDamageChecked": true
     },
     "bossLevelConfigSmoke": {
       "unitTest": "registers a separate boss level JSON configuration",
@@ -522,6 +533,11 @@
         "result": "passed",
         "browserRuntimeChanged": false
       }
+    },
+    "enemySpeedSmoke": {
+      "unitTest": "spawns enemies from E markers and updates patrol, tracking, return, and debug state",
+      "speedMultiplierApplied": 1.25,
+      "mushnubSpeedUnitsPerSecond": 1.6
     }
   },
   "nextAgents": [

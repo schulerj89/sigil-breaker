@@ -388,6 +388,7 @@ describe('FPS foundation config', () => {
       origin: [firstOrigin.worldX, 0, firstOrigin.worldZ],
       position: [firstOrigin.worldX, 0, firstOrigin.worldZ],
       state: 'patrolling',
+      speedUnitsPerSecond: 1.6,
       debugVisible: false,
     });
     expect(Math.hypot(first.origin[0] + 21, first.origin[2] + 21)).toBeGreaterThan(9);
@@ -426,6 +427,7 @@ describe('FPS foundation config', () => {
     expect(trackingSnapshot.debugVisible).toBe(true);
     expect(trackingSnapshot.position[0]).toBeLessThan(patrolSnapshot.position[0]);
     expect(Math.abs(trackingSnapshot.facingYawRadians)).toBeGreaterThan(0.01);
+    expect(trackingSnapshot.speedUnitsPerSecond).toBeCloseTo(1.6);
 
     for (let frame = 0; frame < 140; frame++) {
       enemies.update(0.05, [22, 1.62, 21], false);
@@ -455,17 +457,24 @@ describe('FPS foundation config', () => {
       },
     });
     const firstEnemy = enemies.getSnapshot().enemies[0];
-    const playerPosition: [number, number, number] = [firstEnemy.origin[0] - 4.8, 1.62, firstEnemy.origin[2]];
+    const playerPosition: [number, number, number] = [firstEnemy.origin[0] - 5.8, 1.62, firstEnemy.origin[2]];
 
     let sawActiveProjectile = false;
+    let firstFiredFrame: number | null = null;
     for (let frame = 0; frame < 160 && damageEvents.length === 0; frame++) {
       enemies.update(0.05, playerPosition, true);
       const projectileSnapshot = enemies.getSnapshot().projectiles;
       sawActiveProjectile = sawActiveProjectile || projectileSnapshot.active > 0;
+      if (firstFiredFrame === null && projectileSnapshot.fired > 0) {
+        firstFiredFrame = frame;
+      }
     }
 
     const snapshot = enemies.getSnapshot();
     expect(snapshot.enemies[0].state).toBe('tracking');
+    expect(snapshot.enemies[0].projectileRangeUnits).toBeGreaterThanOrEqual(8.8);
+    expect(firstFiredFrame).not.toBeNull();
+    expect(firstFiredFrame ?? Number.POSITIVE_INFINITY).toBeLessThanOrEqual(3);
     expect(snapshot.projectiles.fired).toBeGreaterThan(0);
     expect(snapshot.projectiles.hitPlayer).toBeGreaterThan(0);
     expect(snapshot.projectiles.pooled).toBeGreaterThan(0);

@@ -1,0 +1,28 @@
+{
+  "runId": "20260705-enemy-projectile-speed-fix",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "unit projectile timing and speed",
+      "command": "npm test",
+      "result": "passed",
+      "assertions": [
+        "tracking enemy fires a projectile within a few frames",
+        "projectile damages player health",
+        "Mushnub speed is 1.6 units per second"
+      ]
+    },
+    {
+      "name": "browser projectile attack smoke",
+      "command": "npm run validate:browser",
+      "result": "passed",
+      "assertions": [
+        "full interaction project poses player near an alive enemy",
+        "enemy projectile fired counter increases",
+        "enemy projectile hitPlayer counter increases",
+        "player HP decreases",
+        "player pose is restored before movement route"
+      ]
+    }
+  ]
+}
