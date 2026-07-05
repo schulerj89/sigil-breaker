@@ -1,0 +1,41 @@
+{
+  "agentId": "smoke-qa-agent",
+  "status": "complete",
+  "updatedAt": "2026-07-05T06:30:00Z",
+  "scope": "foundation metal texture visual smoke and production browser validation",
+  "visualCapture": {
+    "screenshot": "artifacts/sub-agents/20260705-foundation-metal-textures/smoke-qa-agent/foundation-metal-wall-floor.png",
+    "viewport": {
+      "width": 2048,
+      "height": 949
+    },
+    "confirmed": [
+      "wall metal panels and screw detail visible",
+      "floor no longer uses a separate black grid overlay",
+      "floor has darker gunmetal color and caution stripe accents",
+      "roof texture is visible over the arena"
+    ],
+    "knownHeadlessNoise": "Headless Chromium emitted empty Three.js shader validation messages during screenshot capture; Playwright smoke filters this known browser-only noise."
+  },
+  "browserValidation": {
+    "command": "npm run validate:browser",
+    "result": "passed",
+    "durationSeconds": 157,
+    "workers": 2,
+    "projectsPassed": 5,
+    "viewports": [
+      "667x375",
+      "740x360",
+      "844x390",
+      "932x430",
+      "1024x768"
+    ],
+    "assetLoadErrors": 0,
+    "foundationEnvironmentTexturesChecked": true,
+    "foundationEnvironmentTexturesRenderedChecked": true
+  },
+  "nextAgents": [
+    "performance-budget-agent",
+    "level-kit-curator"
+  ]
+}

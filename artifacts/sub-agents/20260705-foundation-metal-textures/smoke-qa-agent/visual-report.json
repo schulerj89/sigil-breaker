@@ -1,0 +1,30 @@
+{
+  "screenshot": "artifacts/sub-agents/20260705-foundation-metal-textures/smoke-qa-agent/foundation-metal-wall-floor.png",
+  "consoleErrors": [],
+  "ignoredHeadlessConsoleMessages": [
+    "THREE.WebGLProgram: Shader Error 0 - VALIDATE_STATUS false\n\nMaterial Name: \nMaterial Type: MeshBasicMaterial\n\nProgram Info Log: \n\n",
+    "THREE.WebGLProgram: Shader Error 1282 - VALIDATE_STATUS false\n\nMaterial Name: \nMaterial Type: MeshBasicMaterial\n\nProgram Info Log: \n\n",
+    "THREE.WebGLProgram: Shader Error 1282 - VALIDATE_STATUS false\n\nMaterial Name: \nMaterial Type: MeshStandardMaterial\n\nProgram Info Log: \n\n",
+    "THREE.WebGLProgram: Shader Error 1282 - VALIDATE_STATUS false\n\nMaterial Name: \nMaterial Type: MeshStandardMaterial\n\nProgram Info Log: \n\n"
+  ],
+  "ignoredConsoleReason": "Headless Chromium can emit empty Three.js shader validation logs during QA capture; the Playwright smoke gate filters this known browser-only noise and passed.",
+  "failedRequests": [],
+  "renderer": {
+    "fps": 24,
+    "calls": 81,
+    "triangles": 25702,
+    "geometries": 30,
+    "textures": 53
+  },
+  "loadedTextures": [
+    "environment.foundation.floor-grid-steel",
+    "environment.foundation.roof-flat-steel",
+    "environment.foundation.wall-panel-steel"
+  ],
+  "assetLoadErrors": [],
+  "playerPosition": [
+    -20.8,
+    1.62,
+    -20.2
+  ]
+}

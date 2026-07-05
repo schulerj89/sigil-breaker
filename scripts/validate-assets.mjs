@@ -133,7 +133,7 @@ async function validateAssetLedger(assetLedger) {
       await expectByteSize(asset.path, asset.bytes, errors, `${asset.assetId} file`);
 
       if (asset.assetType === 'texture') {
-        if (asset.sourceSha256 !== asset.sha256) {
+        if (asset.modified !== true && asset.sourceSha256 !== asset.sha256) {
           errors.push(`${asset.assetId} sourceSha256 must match sha256 for unmodified copied textures.`);
         }
         if (asset.optimizedSha256 !== asset.sha256) {

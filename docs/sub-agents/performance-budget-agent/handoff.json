@@ -1,9 +1,9 @@
 {
   "handoffVersion": "1.0.0",
   "agentId": "performance-budget-agent",
-  "status": "needs-review",
-  "updatedAt": "2026-07-05T05:32:00Z",
-  "summary": "Enemy projectile timing, 25% faster movement, and decoded Web Audio music/SFX stay within the current pooled-primitive projectile, kinematic movement, and 858752B audio payload budgets; latest browser smoke passed with the production JS chunk at about 688.31 kB minified.",
+  "status": "complete",
+  "updatedAt": "2026-07-05T06:30:00Z",
+  "summary": "Derivative foundation metal textures keep the same three texture slots and decoded texture budget, remove the floor GridHelper path, and pass the current browser renderer budget smoke.",
   "observations": [
     "Three selected GLB weapon models plus their shared texture total 164055B of source payload.",
     "Debug memory metrics include weaponModelBytesLoaded.",
@@ -37,7 +37,7 @@
     "Latest production JS chunk reported by Vite is about 651.33 kB minified and still triggers the known large chunk warning.",
     "Latest npm run validate:browser passed all five landscape viewports in 44.5 seconds with two workers and the QA restart loop after the steel texture, wall height, movement speed, and centered-gun changes.",
     "Browser smoke now asserts render calls, triangles, geometries, and textures against the debug budget object.",
-    "The steel foundation texture pass uses three 1024 x 1024 PNG textures totaling 22445B source payload and about 12MB decoded RGBA estimate.",
+    "The steel foundation texture pass uses three 1024 x 1024 derivative PNG textures totaling 764229B source payload and about 12MB decoded RGBA estimate.",
     "The full-level roof adds one PlaneGeometry, one MeshBasicMaterial, and one draw call.",
     "The heavy browser smoke project now restarts the app five times through the QA restart hook and rechecks loaded assets plus renderer budgets each time.",
     "Health and enemy state add CPU/gameplay objects only; the player health bar is DOM HUD.",
@@ -79,7 +79,11 @@
     "Latest npm run validate:browser passed all five landscape viewport projects after the decoded SFX pass; production JS chunk reported about 686.64 kB minified.",
     "Music now shares the Web Audio graph as a decoded loop, replacing the separate HTMLAudioElement path without adding network payload.",
     "Audio asset fetch/verification for music and SFX runs in parallel with Promise.all; the decoded music buffer is the only added long-lived audio buffer beyond existing SFX buffers.",
-    "Latest npm run validate:browser passed all five landscape viewport projects after the Web Audio music pass; production JS chunk reported about 688.31 kB minified."
+    "Latest npm run validate:browser passed all five landscape viewport projects after the Web Audio music pass; production JS chunk reported about 688.31 kB minified.",
+    "The foundation metal texture pass keeps the same three texture slots and decoded texture estimate while increasing PNG source payload to 764229B, still under the 1 MB foundation environment gate.",
+    "Removing the runtime floor GridHelper eliminates the extra grid geometry/material/draw path that was only serving the old prototype look.",
+    "Latest npm run validate:browser passed all five landscape viewport projects after the foundation metal texture pass; production JS chunk reported about 687.61 kB minified.",
+    "Focused screenshot QA reported renderer calls 81, triangles 25702, geometries 30, and textures 53 with qaCapture enabled."
   ],
   "decisions": [
     "Preload the three initial weapon GLBs because the payload is small and weapon switching should be instant.",
@@ -107,7 +111,8 @@
     "Keep headed enemy visual QA as a local runner rather than a deploy workflow gate.",
     "Keep enemy projectile visuals as pooled primitive placeholders until final external VFX assets are sourced.",
     "Keep enemy projectile sound reuse temporary; add a dedicated generated SFX only when the audio budget and provenance ledger are updated together.",
-    "Keep music and SFX on the same Web Audio graph so browser autoplay/unlock behavior is centralized."
+    "Keep music and SFX on the same Web Audio graph so browser autoplay/unlock behavior is centralized.",
+    "Keep the foundation metal texture pass at three shared textures until level streaming or level-specific kits justify more surface maps."
   ],
   "caughtIssues": [
     "Detached loaded weapon models need explicit disposal when the weapon system is torn down.",
@@ -154,7 +159,8 @@
     "src/game/enemies/enemySystem.ts",
     "artifacts/sub-agents/20260705-enemy-projectiles/performance-budget-agent/observations.md",
     "artifacts/sub-agents/20260705-audio-consistency/performance-budget-agent/observations.md",
-    "artifacts/sub-agents/20260705-music-web-audio/performance-budget-agent/observations.md"
+    "artifacts/sub-agents/20260705-music-web-audio/performance-budget-agent/observations.md",
+    "artifacts/sub-agents/20260705-foundation-metal-textures/performance-budget-agent/observations.md"
   ],
   "jsonForAgents": {
     "visibleFpsTarget": 60,
@@ -182,7 +188,7 @@
     "movementCollisionCost": "nearby solid-tile circle resolver while movement input is active",
     "weaponClearanceCost": "one weapon wall ray/probe for visual viewmodel avoidance",
     "shotEffectPoseCost": "shot-time and short-lived visible-effect camera-local vector/scalar math",
-    "productionJsChunkKb": 688.31,
+    "productionJsChunkKb": 687.61,
     "publicAssetCacheParam": "assetBuild",
     "browserSmokeCommand": "npm run validate:browser",
     "headedEnemyQaCommand": "npm run qa:headed:enemies",
@@ -191,7 +197,7 @@
     "browserSmokeWorkers": 2,
     "fullInteractionProject": "chromium-modern-phone-landscape",
     "mvpFastViewportSplit": true,
-    "localBrowserSmokeSeconds": 154,
+    "localBrowserSmokeSeconds": 157,
     "zoomGuardRuntimeCost": "event listeners only; no animation-loop work and no render resources",
     "foundationWalkableTiles": 1658,
     "foundationEnemyMarkers": 12,
@@ -199,8 +205,10 @@
     "holdFireAimCost": "camera FOV blend plus existing viewmodel pose blend while held; no new WebGL resources",
     "wallHeightUnits": 3.84,
     "roofHeightUnits": 3.92,
-    "foundationEnvironmentTextureSourceBytes": 22445,
+    "foundationEnvironmentTextureSourceBytes": 764229,
     "foundationEnvironmentTextureDecodedBytesEstimate": 12582912,
+    "foundationEnvironmentTextureCount": 3,
+    "floorGridHelperRemoved": true,
     "foundationRoofCost": "one plane geometry, one mesh/material, one draw call",
     "enemyProxyCost": {
       "count": 12,
@@ -252,18 +260,30 @@
       "projectileRadiusUnits": 0.2,
       "depthTestDisabledForReadability": true
     },
-    "latestProductionJsChunkKb": 688.31,
+    "latestProductionJsChunkKb": 687.61,
     "latestBrowserValidation": {
       "command": "npm run validate:browser",
       "result": "passed",
       "projects": 5,
-      "durationSeconds": 154,
-      "productionJsChunkKb": 688.31
+      "durationSeconds": 157,
+      "productionJsChunkKb": 687.61
     },
     "enemyMovementBudget": {
       "speedMultiplierApplied": 1.25,
       "movementModelStillKinematic": true,
       "newMeshesOrAssets": false
+    },
+    "foundationMetalTexturePass": {
+      "textureSlotsAdded": 0,
+      "decodedBytesEstimate": 12582912,
+      "sourcePayloadBytes": 764229,
+      "floorGridHelperRemoved": true,
+      "visualCaptureRenderer": {
+        "calls": 81,
+        "triangles": 25702,
+        "geometries": 30,
+        "textures": 53
+      }
     }
   },
   "nextAgents": [

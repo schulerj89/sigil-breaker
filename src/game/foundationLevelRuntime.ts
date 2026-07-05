@@ -22,7 +22,7 @@ const MATRIX_BYTES = 16 * Float32Array.BYTES_PER_ELEMENT;
 export const FOUNDATION_WALL_HEIGHT_UNITS = 3.84;
 export const FOUNDATION_COVER_HEIGHT_UNITS = 1.15;
 export const FOUNDATION_ROOF_HEIGHT_UNITS = 3.92;
-export const FOUNDATION_ENVIRONMENT_TEXTURE_SOURCE_BYTES = 22_445;
+export const FOUNDATION_ENVIRONMENT_TEXTURE_SOURCE_BYTES = 764_229;
 export const FOUNDATION_ENVIRONMENT_TEXTURE_DECODED_BYTES = 3 * 1024 * 1024 * 4;
 
 interface EnvironmentTextureDefinition {
@@ -35,7 +35,7 @@ const FOUNDATION_ENVIRONMENT_TEXTURES = {
   floor: {
     id: 'environment.foundation.floor-grid-steel',
     path: 'assets/environment/kenney-prototype-textures/textures/floor-grid-steel.png',
-    repeat: [8, 8],
+    repeat: [6, 6],
   },
   wall: {
     id: 'environment.foundation.wall-panel-steel',
@@ -45,7 +45,7 @@ const FOUNDATION_ENVIRONMENT_TEXTURES = {
   roof: {
     id: 'environment.foundation.roof-flat-steel',
     path: 'assets/environment/kenney-prototype-textures/textures/roof-flat-steel.png',
-    repeat: [8, 8],
+    repeat: [5, 5],
   },
 } as const satisfies Record<string, EnvironmentTextureDefinition>;
 
@@ -96,7 +96,7 @@ export function createFoundationLevelRuntime(
   const floorGeometry = track(new THREE.PlaneGeometry(levelWidth, levelDepth, 1, 1));
   const floorMaterial = track(
     new THREE.MeshBasicMaterial({
-      color: 0xffffff,
+      color: 0xa8b6b8,
       map: floorTexture,
     }),
   );
@@ -104,22 +104,10 @@ export function createFoundationLevelRuntime(
   floor.rotation.x = -Math.PI / 2;
   scene.add(floor);
 
-  const grid = new THREE.GridHelper(levelWidth, LEVEL_WIDTH_TILES, 0xb6c5d0, 0x5d6974);
-  grid.position.y = 0.01;
-  track(grid.geometry);
-  if (Array.isArray(grid.material)) {
-    for (const material of grid.material) {
-      track(material);
-    }
-  } else {
-    track(grid.material);
-  }
-  scene.add(grid);
-
   const roofGeometry = track(new THREE.PlaneGeometry(levelWidth, levelDepth, 1, 1));
   const roofMaterial = track(
     new THREE.MeshBasicMaterial({
-      color: 0xffffff,
+      color: 0x8d9ba0,
       map: roofTexture,
       side: THREE.FrontSide,
     }),
@@ -133,15 +121,16 @@ export function createFoundationLevelRuntime(
   const wallGeometry = track(new THREE.BoxGeometry(LEVEL_TILE_SIZE, FOUNDATION_WALL_HEIGHT_UNITS, LEVEL_TILE_SIZE));
   const wallMaterial = track(
     new THREE.MeshBasicMaterial({
-      color: 0xffffff,
+      color: 0xb6c5c7,
       map: wallTexture,
     }),
   );
   const coverGeometry = track(new THREE.BoxGeometry(LEVEL_TILE_SIZE, FOUNDATION_COVER_HEIGHT_UNITS, LEVEL_TILE_SIZE));
   const coverMaterial = track(
     new THREE.MeshStandardMaterial({
-      color: 0x3f5560,
-      roughness: 0.66,
+      color: 0x596a70,
+      roughness: 0.48,
+      metalness: 0.54,
     }),
   );
   const exitGeometry = track(new THREE.CylinderGeometry(0.36, 0.36, 0.08, 20));
@@ -155,7 +144,6 @@ export function createFoundationLevelRuntime(
   const sharedGeometryBytes =
     estimateGeometryBytes(floorGeometry) +
     estimateGeometryBytes(roofGeometry) +
-    estimateGeometryBytes(grid.geometry) +
     estimateGeometryBytes(wallGeometry) +
     estimateGeometryBytes(coverGeometry) +
     estimateGeometryBytes(exitGeometry);
@@ -164,7 +152,7 @@ export function createFoundationLevelRuntime(
   const chunksById = new Map(chunks.map((chunk) => [chunk.id, chunk]));
   const loadedChunks = new Map<string, THREE.Group>();
   const activeChunkIds = new Set<string>();
-  const staticSceneObjects = [ambient, keyLight, floor, grid, roof];
+  const staticSceneObjects = [ambient, keyLight, floor, roof];
 
   return {
     update: (playerPosition) => {

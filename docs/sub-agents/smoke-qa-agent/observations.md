@@ -159,3 +159,6 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Latest `npm run validate:browser` passed all five landscape viewport projects after the decoded Web Audio SFX and enemy projectile SFX counter changes.
 - Browser smoke now verifies `snapshot.weapon.audio.musicDecoded` and `musicPlaying` after the title start gesture, covering the music loop on the Web Audio path.
 - Latest `npm run validate:browser` passed all five landscape viewport projects after moving music off `HTMLAudioElement` and into the shared Web Audio graph.
+- Focused screenshot QA confirmed metal wall panels with screw detail, darker gunmetal floor panels with muted caution accents, roof texture visibility, and no separate black floor grid overlay.
+- Latest `npm run validate:browser` passed all five landscape viewport projects after replacing the foundation floor, wall, and roof textures with generated metal derivatives.
+- The texture screenshot and report are stored under `artifacts/sub-agents/20260705-foundation-metal-textures/smoke-qa-agent/`.

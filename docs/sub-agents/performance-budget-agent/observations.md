@@ -33,7 +33,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Latest production JS chunk is about 651.33 kB minified and still triggers the known Vite large chunk warning.
 - Latest `npm run validate:browser` passed all five landscape viewports in 44.5 seconds with two workers and the QA restart loop after the steel texture, wall height, movement speed, and centered-gun changes.
 - Browser smoke now asserts render calls, triangles, geometries, and textures against the debug budget object.
-- The steel foundation texture pass uses three 1024 x 1024 PNG textures totaling 22445B source payload and about 12MB decoded RGBA estimate.
+- The steel foundation texture pass now uses three 1024 x 1024 derivative PNG textures totaling 764229B source payload and about 12MB decoded RGBA estimate.
 - The full-level roof adds one PlaneGeometry, one MeshBasicMaterial, and one draw call.
 - The foundation floor, wall, and roof use unlit textured materials so the steel-toned prototype textures stay visible without extra lighting work.
 - The heavy browser smoke project now restarts the app five times through the QA restart hook and rechecks loaded assets plus renderer budgets each time.
@@ -120,3 +120,7 @@ Status: needs review after input/collision/effect-pose/entry-splitter, body-coll
 - Music now shares the Web Audio graph as a decoded loop, replacing the separate `HTMLAudioElement` path without adding network payload.
 - Audio asset fetch/verification for music and SFX runs in parallel with `Promise.all`; the decoded music buffer is the only added long-lived audio buffer beyond existing SFX buffers.
 - Latest `npm run validate:browser` passed all five landscape viewport projects after the Web Audio music pass; production JS chunk reported about 688.31 kB minified.
+- The foundation metal texture pass keeps the same three texture slots and decoded texture estimate while increasing PNG source payload to 764229B, still under the 1 MB foundation environment gate.
+- Removing the runtime floor GridHelper eliminates the extra grid geometry/material/draw path that was only serving the old prototype look.
+- Latest `npm run validate:browser` passed all five landscape viewport projects after the foundation metal texture pass; production JS chunk reported about 687.61 kB minified.
+- Focused screenshot QA reported renderer calls 81, triangles 25702, geometries 30, and textures 53 with `qaCapture=1`.
