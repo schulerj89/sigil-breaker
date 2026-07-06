@@ -3,10 +3,10 @@ import { publicAssetUrl } from './assetUrls';
 import { DEBUG_SCENE_ID, GAME_TITLE, PERFORMANCE_BUDGETS, type GamePhase } from './config';
 import { createDebugApi, type DebugApi, type UiLoadingSnapshot } from './debug';
 import { DeathCinematicStage, type DeathCinematicStageSnapshot } from './deathCinematicStage';
-import { EnemySystem } from './enemies/enemySystem';
+import { EnemySystem, type EnemySystemSnapshot } from './enemies/enemySystem';
 import { createFoundationLevelRuntime, type FoundationLevelRuntime } from './foundationLevelRuntime';
 import { FpsControls } from './fpsControls';
-import { Health } from './health';
+import { Health, type HealthSnapshot } from './health';
 import {
   CHARACTER_VOICE_LINES,
   VOICE_LAB_TITLE,
@@ -18,10 +18,11 @@ import {
   IntroCinematicStage,
   type IntroCinematicStageSnapshot,
 } from './introCinematicStage';
-import { getSpawnPosition, LEVEL_HEIGHT_TILES, LEVEL_WIDTH_TILES } from './levelMap';
+import { getLevelTiles, getSpawnPosition, LEVEL_HEIGHT_TILES, LEVEL_WIDTH_TILES } from './levelMap';
 import { createMobileZoomGuard } from './mobileZoomGuard';
 import { createPlayerCharacterPoseHarness } from './playerCharacterPoseHarness';
 import { TitleHeroStage, type TitleHeroStageSnapshot } from './titleHeroStage';
+import { VictoryCinematicStage, type VictoryCinematicStageSnapshot } from './victoryCinematicStage';
 import { WEAPON_DEFINITIONS } from './weapons/weaponManifest';
 import { WeaponSystem } from './weapons/weaponSystem';
 
@@ -34,14 +35,29 @@ const TITLE_BACKGROUND_ASSET_ID = 'ui.title.background.gadget-rift.generated';
 const TITLE_BACKGROUND_PATH = 'assets/title/gadget-rift-title-bg.webp';
 const TITLE_START_TRANSITION_MS = 360;
 const DEATH_ACTIONS_REVEAL_SECONDS = 3.2;
+const VICTORY_SCORE_REVEAL_SECONDS = 2.2;
 const PLAYER_MAX_HEALTH = 25;
 const HUD_UPDATE_INTERVAL_MS = 250;
 const HUD_RELOAD_UPDATE_INTERVAL_MS = 50;
 const EXPECTED_GAMEPLAY_ASSET_COUNT = 28;
 const EXPECTED_BOOT_ASSET_COUNT = EXPECTED_GAMEPLAY_ASSET_COUNT + 2;
+const EXIT_RIFT_TRIGGER_RADIUS_UNITS = 1.05;
 const DEATH_VOICE_LINES: readonly CharacterVoiceLine[] = CHARACTER_VOICE_LINES.filter(
   (line) => line.category === 'fail',
 );
+const VICTORY_VOICE_LINES: readonly CharacterVoiceLine[] = CHARACTER_VOICE_LINES.filter(
+  (line) => line.category === 'level-complete',
+);
+
+interface VictoryScore {
+  clearTimeSeconds: number;
+  enemiesDestroyed: number;
+  enemiesTotal: number;
+  hp: number;
+  hpMax: number;
+  shotsFired: number;
+  rank: string;
+}
 
 declare global {
   interface Window {
@@ -84,6 +100,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   };
 
   const levelRuntime = createFoundationLevelRuntime(scene, track);
+  const exitRiftPosition = readFoundationExitPosition();
   const zoomGuard = track(createMobileZoomGuard(root));
   const controls = new FpsControls(root, camera);
   const playerHealth = new Health(PLAYER_MAX_HEALTH);
@@ -108,9 +125,11 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   const titleHeroStage = new TitleHeroStage(TITLE_BACKGROUND_PATH);
   const introCinematicStage = new IntroCinematicStage(root, camera);
   const deathCinematicStage = new DeathCinematicStage(scene, camera);
+  const victoryCinematicStage = new VictoryCinematicStage(scene, camera);
   void titleHeroStage.load();
   void introCinematicStage.load();
   void deathCinematicStage.load();
+  void victoryCinematicStage.load();
   weaponSystemRef.current = weaponSystem;
   levelRuntime.update(controls.getSnapshot().player.position);
 
@@ -125,7 +144,12 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   let titleBackgroundLoaded = false;
   let titleBackgroundError: string | null = null;
   let lastDeathVoiceLineId: string | null = null;
+  let lastVictoryVoiceLineId: string | null = null;
   let deathActionsVisible = false;
+  let victoryScoreVisible = false;
+  let victoryActionsVisible = false;
+  let levelStartedAt = performance.now();
+  let currentVictoryScore: VictoryScore = createEmptyVictoryScore();
 
   const debug = createDebugApi(
     renderer,
@@ -146,12 +170,15 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
         titleHeroStage.getSnapshot(),
         introCinematicStage.getSnapshot(),
         deathCinematicStage.getSnapshot(),
+        victoryCinematicStage.getSnapshot(),
         titleBackgroundLoaded,
         titleBackgroundError,
       ),
       titleHero: titleHeroStage.getSnapshot(),
       introCinematic: introCinematicStage.getSnapshot(),
       deathCinematic: deathCinematicStage.getSnapshot(),
+      victoryCinematic: victoryCinematicStage.getSnapshot(),
+      victoryScore: currentVictoryScore,
     }),
     (pose) => controls.setPose(pose),
     (amount) => playerHealth.damage(amount),
@@ -173,6 +200,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   const debugToggle = root.querySelector<HTMLButtonElement>('[data-debug-toggle]');
   const debugDeathButton = root.querySelector<HTMLButtonElement>('[data-debug-death]');
   const debugDeathGameplayButton = root.querySelector<HTMLButtonElement>('[data-debug-death-gameplay]');
+  const debugVictoryButton = root.querySelector<HTMLButtonElement>('[data-debug-victory]');
   const titleStartButton = root.querySelector<HTMLButtonElement>('[data-title-start]');
   const titleCharacterDebugButton = root.querySelector<HTMLButtonElement>('[data-title-character-debug]');
   const titleVoiceLabButton = root.querySelector<HTMLButtonElement>('[data-title-voice-lab]');
@@ -181,6 +209,11 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   const voiceLabBackButton = root.querySelector<HTMLButtonElement>('[data-voice-lab-back]');
   const deathTryAgainButton = root.querySelector<HTMLButtonElement>('[data-death-try-again]');
   const deathReturnTitleButton = root.querySelector<HTMLButtonElement>('[data-death-return-title]');
+  const victoryCinematicScreen = root.querySelector<HTMLElement>('[data-victory-cinematic]');
+  const victoryCaption = root.querySelector<HTMLElement>('[data-victory-caption]');
+  const victoryContinueButton = root.querySelector<HTMLButtonElement>('[data-victory-continue]');
+  const victoryTryAgainButton = root.querySelector<HTMLButtonElement>('[data-victory-try-again]');
+  const victoryReturnTitleButton = root.querySelector<HTMLButtonElement>('[data-victory-return-title]');
   const loadingScreen = root.querySelector<HTMLElement>('[data-loading-screen]');
   const titleScreen = root.querySelector<HTMLElement>('[data-title-screen]');
   const introCinematicScreen = root.querySelector<HTMLElement>('[data-intro-cinematic]');
@@ -192,6 +225,8 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     if (shell) {
       shell.dataset.gamePhase = gamePhase;
       shell.classList.toggle('game-shell--death-actions-visible', deathActionsVisible);
+      shell.classList.toggle('game-shell--victory-score-visible', victoryScoreVisible);
+      shell.classList.toggle('game-shell--victory-actions-visible', victoryActionsVisible);
     }
     if (titleStartButton) {
       titleStartButton.disabled = gamePhase !== 'title';
@@ -205,16 +240,22 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     loadingScreen?.setAttribute('aria-hidden', String(gamePhase !== 'loading'));
     titleScreen?.setAttribute('aria-hidden', String(gamePhase !== 'title'));
     introCinematicScreen?.setAttribute('aria-hidden', String(gamePhase !== 'intro-cinematic'));
+    victoryCinematicScreen?.setAttribute('aria-hidden', String(gamePhase !== 'victory-cinematic'));
     characterDebugScreen?.setAttribute('aria-hidden', String(gamePhase !== 'character-debug'));
     voiceLabScreen?.setAttribute('aria-hidden', String(gamePhase !== 'voice-lab'));
     deathCinematicScreen?.setAttribute('aria-hidden', String(gamePhase !== 'death-cinematic'));
     controls.setInputEnabled(gamePhase === 'gameplay');
     weaponSystem.setInputEnabled(gamePhase === 'gameplay');
     weaponSystem.setViewVisible(gamePhase === 'gameplay');
-    weaponSystem.setMusicPhase(gamePhase === 'gameplay' || gamePhase === 'death-cinematic' ? 'gameplay' : 'title');
+    weaponSystem.setMusicPhase(
+      gamePhase === 'gameplay' || gamePhase === 'death-cinematic' || gamePhase === 'victory-cinematic'
+        ? 'gameplay'
+        : 'title',
+    );
     titleHeroStage.setVisible(gamePhase === 'title' || gamePhase === 'voice-lab');
     introCinematicStage.setVisible(gamePhase === 'intro-cinematic');
     deathCinematicStage.setVisible(gamePhase === 'death-cinematic');
+    victoryCinematicStage.setVisible(gamePhase === 'victory-cinematic');
   };
   const finishIntroCinematic = (): void => {
     if (gamePhase !== 'intro-cinematic') {
@@ -224,6 +265,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     weaponSystem.stopVoice();
     introCinematicStage.close();
     resetCombatState();
+    startLevelTimer();
     gamePhase = 'gameplay';
     applyGamePhase();
   };
@@ -273,6 +315,12 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     weaponSystem.resetCombatState();
     levelRuntime.update(controls.getSnapshot().player.position);
   };
+  const isPlayerInsideExitRift = (position: readonly [number, number, number]): boolean => {
+    return Math.hypot(position[0] - exitRiftPosition.x, position[2] - exitRiftPosition.z) <= EXIT_RIFT_TRIGGER_RADIUS_UNITS;
+  };
+  const startLevelTimer = (): void => {
+    levelStartedAt = performance.now();
+  };
   const chooseDeathVoiceLine = (): CharacterVoiceLine | null => {
     if (DEATH_VOICE_LINES.length === 0) {
       return null;
@@ -287,6 +335,45 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   };
   const playDeathVoice = (line: CharacterVoiceLine): void => {
     weaponSystem.playVoice(line);
+  };
+  const chooseVictoryVoiceLine = (): CharacterVoiceLine | null => {
+    if (VICTORY_VOICE_LINES.length === 0) {
+      return null;
+    }
+
+    const choices = VICTORY_VOICE_LINES.length > 1
+      ? VICTORY_VOICE_LINES.filter((line) => line.id !== lastVictoryVoiceLineId)
+      : VICTORY_VOICE_LINES;
+    const line = choices[readRandomIndex(choices.length)];
+    lastVictoryVoiceLineId = line.id;
+    return line;
+  };
+  const openVictoryCinematic = (): void => {
+    const victoryVoiceLine = chooseVictoryVoiceLine();
+    if (gamePhase !== 'gameplay' || !victoryVoiceLine) {
+      return;
+    }
+
+    victoryScoreVisible = false;
+    victoryActionsVisible = false;
+    const controlsSnapshot = controls.getSnapshot();
+    currentVictoryScore = createVictoryScore(
+      performance.now() - levelStartedAt,
+      playerHealth.getSnapshot(),
+      enemySystem.getSnapshot(),
+      weaponSystem.getSnapshot().shotCount,
+    );
+    updateVictoryScoreboard(root, currentVictoryScore);
+    victoryCinematicStage.open({
+      playerPosition: controlsSnapshot.player.position,
+      yawRadians: controlsSnapshot.player.yawRadians,
+    });
+    if (victoryCaption) {
+      victoryCaption.textContent = stripVoiceDirectionTags(victoryVoiceLine.text);
+    }
+    gamePhase = 'victory-cinematic';
+    applyGamePhase();
+    weaponSystem.playVoice(victoryVoiceLine);
   };
   const openDeathCinematic = (): void => {
     const deathVoiceLine = chooseDeathVoiceLine();
@@ -315,6 +402,22 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     deathActionsVisible = true;
     applyGamePhase();
   };
+  const revealVictoryScore = (): void => {
+    if (victoryScoreVisible) {
+      return;
+    }
+
+    victoryScoreVisible = true;
+    applyGamePhase();
+  };
+  const continueFromVictoryScore = (): void => {
+    if (gamePhase !== 'victory-cinematic' || !victoryScoreVisible) {
+      return;
+    }
+
+    victoryActionsVisible = true;
+    applyGamePhase();
+  };
   const retryAfterDeath = (): void => {
     if (gamePhase !== 'death-cinematic') {
       return;
@@ -324,6 +427,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     deathCinematicStage.close();
     deathActionsVisible = false;
     resetCombatState();
+    startLevelTimer();
     gamePhase = 'gameplay';
     applyGamePhase();
   };
@@ -335,6 +439,35 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     weaponSystem.stopVoice();
     deathCinematicStage.close();
     deathActionsVisible = false;
+    resetCombatState();
+    gamePhase = 'title';
+    applyGamePhase();
+  };
+  const retryAfterVictory = (): void => {
+    if (gamePhase !== 'victory-cinematic') {
+      return;
+    }
+
+    weaponSystem.stopVoice();
+    victoryCinematicStage.close();
+    victoryScoreVisible = false;
+    victoryActionsVisible = false;
+    currentVictoryScore = createEmptyVictoryScore();
+    resetCombatState();
+    startLevelTimer();
+    gamePhase = 'gameplay';
+    applyGamePhase();
+  };
+  const returnToTitleAfterVictory = (): void => {
+    if (gamePhase !== 'victory-cinematic') {
+      return;
+    }
+
+    weaponSystem.stopVoice();
+    victoryCinematicStage.close();
+    victoryScoreVisible = false;
+    victoryActionsVisible = false;
+    currentVictoryScore = createEmptyVictoryScore();
     resetCombatState();
     gamePhase = 'title';
     applyGamePhase();
@@ -427,6 +560,30 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     event.preventDefault();
     returnToTitleAfterDeath();
   };
+  const onVictoryContinuePointerDown = (event: PointerEvent): void => {
+    event.preventDefault();
+    continueFromVictoryScore();
+  };
+  const onVictoryContinueClick = (event: MouseEvent): void => {
+    event.preventDefault();
+    continueFromVictoryScore();
+  };
+  const onVictoryTryAgainPointerDown = (event: PointerEvent): void => {
+    event.preventDefault();
+    retryAfterVictory();
+  };
+  const onVictoryTryAgainClick = (event: MouseEvent): void => {
+    event.preventDefault();
+    retryAfterVictory();
+  };
+  const onVictoryReturnTitlePointerDown = (event: PointerEvent): void => {
+    event.preventDefault();
+    returnToTitleAfterVictory();
+  };
+  const onVictoryReturnTitleClick = (event: MouseEvent): void => {
+    event.preventDefault();
+    returnToTitleAfterVictory();
+  };
   const updateDebugVisibility = (): void => {
     shell?.classList.toggle('game-shell--debug-hidden', !debugVisible);
     if (debugToggle) {
@@ -457,6 +614,10 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
 
     playerHealth.damage(playerHealth.max);
   };
+  const onDebugVictoryPointerDown = (event: PointerEvent): void => {
+    event.preventDefault();
+    openVictoryCinematic();
+  };
   titleStartButton?.addEventListener('pointerdown', onTitleStartPointerDown);
   titleStartButton?.addEventListener('click', onTitleStartClick);
   titleCharacterDebugButton?.addEventListener('pointerdown', onTitleCharacterDebugPointerDown);
@@ -471,9 +632,16 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
   deathTryAgainButton?.addEventListener('click', onDeathTryAgainClick);
   deathReturnTitleButton?.addEventListener('pointerdown', onDeathReturnTitlePointerDown);
   deathReturnTitleButton?.addEventListener('click', onDeathReturnTitleClick);
+  victoryContinueButton?.addEventListener('pointerdown', onVictoryContinuePointerDown);
+  victoryContinueButton?.addEventListener('click', onVictoryContinueClick);
+  victoryTryAgainButton?.addEventListener('pointerdown', onVictoryTryAgainPointerDown);
+  victoryTryAgainButton?.addEventListener('click', onVictoryTryAgainClick);
+  victoryReturnTitleButton?.addEventListener('pointerdown', onVictoryReturnTitlePointerDown);
+  victoryReturnTitleButton?.addEventListener('click', onVictoryReturnTitleClick);
   debugToggle?.addEventListener('pointerdown', onDebugTogglePointerDown);
   debugDeathButton?.addEventListener('pointerdown', onDebugDeathPointerDown);
   debugDeathGameplayButton?.addEventListener('pointerdown', onDebugDeathGameplayPointerDown);
+  debugVictoryButton?.addEventListener('pointerdown', onDebugVictoryPointerDown);
   applyGamePhase();
   updateDebugVisibility();
 
@@ -488,6 +656,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
     titleHeroStage.resize(width, height);
     introCinematicStage.resize(width, height);
     deathCinematicStage.resize(width, height);
+    victoryCinematicStage.resize(width, height);
   };
 
   const animate = (now: number): void => {
@@ -500,6 +669,8 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       enemySystem.update(deltaSeconds, controls.getSnapshot().player.position, debugVisible);
       if (!playerHealth.isAlive) {
         openDeathCinematic();
+      } else if (isPlayerInsideExitRift(controls.getSnapshot().player.position)) {
+        openVictoryCinematic();
       }
     }
     if (gamePhase === 'character-debug') {
@@ -510,18 +681,25 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       titleHeroStage.render(renderer);
     } else if (gamePhase === 'intro-cinematic') {
       introCinematicStage.update(deltaSeconds);
-      levelRuntime.update(introCinematicStage.getStreamingAnchor());
+      levelRuntime.update(introCinematicStage.getStreamingAnchor(), deltaSeconds);
       introCinematicStage.render(renderer, scene);
     } else if (gamePhase === 'death-cinematic') {
       deathCinematicStage.update(deltaSeconds);
       if (deathCinematicStage.getSnapshot().phaseTimeSeconds >= DEATH_ACTIONS_REVEAL_SECONDS) {
         revealDeathActions();
       }
-      levelRuntime.update(controls.getSnapshot().player.position);
+      levelRuntime.update(controls.getSnapshot().player.position, deltaSeconds);
       deathCinematicStage.render(renderer);
+    } else if (gamePhase === 'victory-cinematic') {
+      victoryCinematicStage.update(deltaSeconds);
+      if (victoryCinematicStage.getSnapshot().phaseTimeSeconds >= VICTORY_SCORE_REVEAL_SECONDS) {
+        revealVictoryScore();
+      }
+      levelRuntime.update(controls.getSnapshot().player.position, deltaSeconds);
+      victoryCinematicStage.render(renderer);
     } else {
       weaponSystem.update(deltaSeconds, now);
-      levelRuntime.update(controls.getSnapshot().player.position);
+      levelRuntime.update(controls.getSnapshot().player.position, deltaSeconds);
       renderer.render(scene, camera);
     }
 
@@ -536,6 +714,7 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
         titleHeroStage.getSnapshot(),
         introCinematicStage.getSnapshot(),
         deathCinematicStage.getSnapshot(),
+        victoryCinematicStage.getSnapshot(),
         titleBackgroundLoaded,
         titleBackgroundError,
       );
@@ -570,11 +749,13 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       titleHeroStage.dispose();
       introCinematicStage.dispose();
       deathCinematicStage.dispose();
+      victoryCinematicStage.dispose();
       titleBackgroundImage.onload = null;
       titleBackgroundImage.onerror = null;
       debugToggle?.removeEventListener('pointerdown', onDebugTogglePointerDown);
       debugDeathButton?.removeEventListener('pointerdown', onDebugDeathPointerDown);
       debugDeathGameplayButton?.removeEventListener('pointerdown', onDebugDeathGameplayPointerDown);
+      debugVictoryButton?.removeEventListener('pointerdown', onDebugVictoryPointerDown);
       titleStartButton?.removeEventListener('pointerdown', onTitleStartPointerDown);
       titleStartButton?.removeEventListener('click', onTitleStartClick);
       titleCharacterDebugButton?.removeEventListener('pointerdown', onTitleCharacterDebugPointerDown);
@@ -589,6 +770,12 @@ export function createGame(root: HTMLElement): SigilbreakerApp {
       deathTryAgainButton?.removeEventListener('click', onDeathTryAgainClick);
       deathReturnTitleButton?.removeEventListener('pointerdown', onDeathReturnTitlePointerDown);
       deathReturnTitleButton?.removeEventListener('click', onDeathReturnTitleClick);
+      victoryContinueButton?.removeEventListener('pointerdown', onVictoryContinuePointerDown);
+      victoryContinueButton?.removeEventListener('click', onVictoryContinueClick);
+      victoryTryAgainButton?.removeEventListener('pointerdown', onVictoryTryAgainPointerDown);
+      victoryTryAgainButton?.removeEventListener('click', onVictoryTryAgainClick);
+      victoryReturnTitleButton?.removeEventListener('pointerdown', onVictoryReturnTitlePointerDown);
+      victoryReturnTitleButton?.removeEventListener('click', onVictoryReturnTitleClick);
       resizeObserver.disconnect();
       window.removeEventListener('orientationchange', resize);
       scene.traverse((object) => {
@@ -654,6 +841,14 @@ function createShellMarkup(): string {
             data-debug-death-gameplay
             aria-label="Trigger gameplay death on next tick"
           >KO2</button>
+          <button
+            class="hud__icon-button hud__icon-button--debug hud__icon-button--victory"
+            type="button"
+            data-ui-control
+            data-debug-ui
+            data-debug-victory
+            aria-label="Trigger victory cinematic"
+          >WIN</button>
           <button
             class="hud__icon-button hud__icon-button--music"
             type="button"
@@ -750,6 +945,46 @@ function createShellMarkup(): string {
             type="button"
             data-ui-control
             data-death-return-title
+          >RETURN TO TITLE</button>
+        </div>
+      </div>
+      <div class="victory-cinematic" data-victory-cinematic aria-hidden="true">
+        <div class="victory-cinematic__bar victory-cinematic__bar--top" aria-hidden="true"></div>
+        <div class="victory-cinematic__bar victory-cinematic__bar--bottom" aria-hidden="true">
+          <div class="victory-cinematic__caption" data-victory-caption>Rift sealed! Nice work!</div>
+        </div>
+        <section class="victory-scoreboard" data-victory-scoreboard aria-label="Level clear scoreboard">
+          <div class="victory-scoreboard__eyebrow">LEVEL CLEAR</div>
+          <div class="victory-scoreboard__rank" data-victory-rank>A</div>
+          <div class="victory-scoreboard__grid">
+            <span>TIME</span>
+            <strong data-victory-time>0:00</strong>
+            <span>HP</span>
+            <strong data-victory-hp>${PLAYER_MAX_HEALTH} / ${PLAYER_MAX_HEALTH}</strong>
+            <span>HOSTILES</span>
+            <strong data-victory-enemies>0 / 0</strong>
+            <span>SHOTS</span>
+            <strong data-victory-shots>0</strong>
+          </div>
+          <button
+            class="victory-scoreboard__continue"
+            type="button"
+            data-ui-control
+            data-victory-continue
+          >CONTINUE</button>
+        </section>
+        <div class="victory-cinematic__actions" data-victory-actions>
+          <button
+            class="death-cinematic__button death-cinematic__button--primary"
+            type="button"
+            data-ui-control
+            data-victory-try-again
+          >TRY AGAIN</button>
+          <button
+            class="death-cinematic__button"
+            type="button"
+            data-ui-control
+            data-victory-return-title
           >RETURN TO TITLE</button>
         </div>
       </div>
@@ -886,6 +1121,7 @@ function readLoadingSnapshot(
   titleHeroSnapshot: TitleHeroStageSnapshot,
   introCinematicSnapshot: IntroCinematicStageSnapshot,
   deathCinematicSnapshot: DeathCinematicStageSnapshot,
+  victoryCinematicSnapshot: VictoryCinematicStageSnapshot,
   titleBackgroundLoaded: boolean,
   titleBackgroundError: string | null,
 ): UiLoadingSnapshot {
@@ -904,6 +1140,7 @@ function readLoadingSnapshot(
     ...titleHeroSnapshot.errors,
     ...introCinematicSnapshot.errors,
     ...deathCinematicSnapshot.errors,
+    ...victoryCinematicSnapshot.errors,
   ];
   if (titleBackgroundError) {
     assetLoadErrors.push(titleBackgroundError);
@@ -920,7 +1157,8 @@ function readLoadingSnapshot(
     titleBackgroundLoaded &&
     titleHeroSnapshot.loaded &&
     introCinematicSnapshot.portraitLoaded &&
-    deathCinematicSnapshot.loaded;
+    deathCinematicSnapshot.loaded &&
+    victoryCinematicSnapshot.loaded;
 
   return {
     ready,
@@ -961,6 +1199,82 @@ function updateLoadingScreen(root: HTMLElement, snapshot: UiLoadingSnapshot): vo
   if (fill) {
     fill.style.width = `${Math.max(0, Math.min(1, snapshot.loadedAssets / snapshot.expectedAssets)) * 100}%`;
   }
+}
+
+function readFoundationExitPosition(): THREE.Vector3 {
+  const exitTile = getLevelTiles().find((tile) => tile.symbol === 'X');
+  if (!exitTile) {
+    throw new Error('Foundation level is missing an X exit tile.');
+  }
+
+  return new THREE.Vector3(exitTile.worldX, 0, exitTile.worldZ);
+}
+
+function createEmptyVictoryScore(): VictoryScore {
+  return {
+    clearTimeSeconds: 0,
+    enemiesDestroyed: 0,
+    enemiesTotal: 0,
+    hp: PLAYER_MAX_HEALTH,
+    hpMax: PLAYER_MAX_HEALTH,
+    shotsFired: 0,
+    rank: 'A',
+  };
+}
+
+function createVictoryScore(
+  elapsedMs: number,
+  health: HealthSnapshot,
+  enemies: EnemySystemSnapshot,
+  shotsFired: number,
+): VictoryScore {
+  const clearTimeSeconds = Math.max(0, elapsedMs / 1000);
+  const hp = Math.max(0, Math.round(health.current));
+  const hpRatio = health.max > 0 ? health.current / health.max : 0;
+  const clearRatio = enemies.total > 0 ? enemies.destroyed / enemies.total : 0;
+  const rankScore =
+    hpRatio * 42 +
+    clearRatio * 38 +
+    Math.max(0, 1 - clearTimeSeconds / 180) * 20 -
+    Math.max(0, shotsFired - 80) * 0.08;
+
+  return {
+    clearTimeSeconds: roundMetric(clearTimeSeconds),
+    enemiesDestroyed: enemies.destroyed,
+    enemiesTotal: enemies.total,
+    hp,
+    hpMax: Math.round(health.max),
+    shotsFired,
+    rank: readVictoryRank(rankScore),
+  };
+}
+
+function updateVictoryScoreboard(root: HTMLElement, score: VictoryScore): void {
+  setHudText(root, '[data-victory-rank]', score.rank);
+  setHudText(root, '[data-victory-time]', formatVictoryTime(score.clearTimeSeconds));
+  setHudText(root, '[data-victory-hp]', `${score.hp} / ${score.hpMax}`);
+  setHudText(root, '[data-victory-enemies]', `${score.enemiesDestroyed} / ${score.enemiesTotal}`);
+  setHudText(root, '[data-victory-shots]', String(score.shotsFired));
+}
+
+function readVictoryRank(score: number): string {
+  if (score >= 92) {
+    return 'S';
+  }
+  if (score >= 78) {
+    return 'A';
+  }
+  if (score >= 58) {
+    return 'B';
+  }
+  return 'C';
+}
+
+function formatVictoryTime(seconds: number): string {
+  const totalSeconds = Math.max(0, Math.round(seconds));
+  const minutes = Math.floor(totalSeconds / 60);
+  const remainder = totalSeconds % 60;
+  return `${minutes}:${String(remainder).padStart(2, '0')}`;
 }
 
 function shouldPreserveDrawingBuffer(): boolean {
@@ -1031,6 +1345,10 @@ function formatCoordinates(position: readonly [number, number, number]): string 
 
 function formatCoordinate(value: number): string {
   return value.toFixed(1);
+}
+
+function roundMetric(value: number): number {
+  return Math.round(value * 10) / 10;
 }
 
 function stripVoiceDirectionTags(text: string): string {

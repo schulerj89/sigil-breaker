@@ -82,3 +82,13 @@ Status: not run for full implementation yet; updated with weapon-pose and hold-f
 - The deck, hostile, and weapons shots now use look targets inside walkable space, with the hostile shot moved to a more readable central room enemy.
 - Screenshot QA recaptured 667x375 intro frames under `artifacts/sub-agents/20260705-intro-cinematic-polish/smoke-qa-agent/`.
 - Future intro shots should avoid look targets on `#` or outside the map, because collision safety can prevent clipping but cannot make a bad composition readable.
+
+## 2026-07-05 - Victory Cinematic
+
+- Added `victory-cinematic` as a separate phase from death, title, and gameplay.
+- `src/game/victoryCinematicStage.ts` reuses the full rigged Glyph GLB and plays the embedded `dance` animation in the live level scene.
+- The victory camera orbits while always looking at Glyph; the model rotates toward the camera so the dance reads from the front.
+- Victory uses existing Glyph level-complete voice lines and stores scoreboard state in `snapshot.ui.victoryScore`.
+- The debug HUD now exposes a `WIN` button for fast QA of the end-of-level cinematic without walking the full level.
+- The exit rift can trigger victory naturally when the player enters the rift radius.
+- Screenshot QA captured the victory scoreboard at `artifacts/sub-agents/20260705-victory-cinematic/smoke-qa-agent/victory-scoreboard-667x375.png`.

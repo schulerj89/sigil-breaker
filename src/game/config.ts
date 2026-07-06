@@ -26,6 +26,7 @@ export type GamePhase =
   | 'intro-cinematic'
   | 'gameplay'
   | 'death-cinematic'
+  | 'victory-cinematic'
   | 'character-debug'
   | 'voice-lab';
 

@@ -16,7 +16,18 @@ import {
 import type { LevelStreamingSnapshot } from './levelStreaming';
 import type { MobileZoomGuardSnapshot } from './mobileZoomGuard';
 import type { TitleHeroStageSnapshot } from './titleHeroStage';
+import type { VictoryCinematicStageSnapshot } from './victoryCinematicStage';
 import type { WeaponSystemSnapshot } from './weapons/weaponSystem';
+
+export interface VictoryScoreSnapshot {
+  clearTimeSeconds: number;
+  enemiesDestroyed: number;
+  enemiesTotal: number;
+  hp: number;
+  hpMax: number;
+  shotsFired: number;
+  rank: string;
+}
 
 export interface DebugSnapshot {
   buildId: string;
@@ -92,6 +103,8 @@ export interface DebugSnapshot {
     titleHero: TitleHeroStageSnapshot;
     introCinematic: IntroCinematicStageSnapshot;
     deathCinematic: DeathCinematicStageSnapshot;
+    victoryCinematic: VictoryCinematicStageSnapshot;
+    victoryScore: VictoryScoreSnapshot;
   };
   budgets: typeof PERFORMANCE_BUDGETS;
 }
@@ -116,6 +129,8 @@ export interface UiSnapshot {
   titleHero: TitleHeroStageSnapshot;
   introCinematic: IntroCinematicStageSnapshot;
   deathCinematic: DeathCinematicStageSnapshot;
+  victoryCinematic: VictoryCinematicStageSnapshot;
+  victoryScore: VictoryScoreSnapshot;
 }
 
 export interface DebugApi {
@@ -174,6 +189,9 @@ export function createDebugApi(
         ...weaponSnapshot.assetLoadErrors,
         ...enemySnapshot.assetLoadErrors,
         ...uiSnapshot.titleHero.errors,
+        ...uiSnapshot.introCinematic.errors,
+        ...uiSnapshot.deathCinematic.errors,
+        ...uiSnapshot.victoryCinematic.errors,
         ...uiSnapshot.loading.assetLoadErrors.filter((error) => error.startsWith('ui.')),
       ];
 
@@ -252,6 +270,7 @@ export function createDebugApi(
             'debug-toggle',
             'debug-death',
             'debug-death-gameplay',
+            'debug-victory',
           ],
         },
         ui: uiSnapshot,
@@ -270,7 +289,7 @@ function getCameraMode(phase: GamePhase): CameraMode {
     return 'death';
   }
 
-  if (phase === 'intro-cinematic') {
+  if (phase === 'intro-cinematic' || phase === 'victory-cinematic') {
     return 'cinematic';
   }
 

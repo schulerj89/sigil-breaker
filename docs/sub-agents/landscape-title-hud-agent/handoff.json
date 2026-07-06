@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "landscape-title-hud-agent",
   "status": "complete",
-  "updatedAt": "2026-07-06T00:12:00Z",
-  "summary": "Landscape title/HUD now includes title tools, starting weapon switch, normal ammo HUD, and a mobile intro cinematic overlay with Commander Kade portrait, fitted mobile captions, black bars, and skip control.",
+  "updatedAt": "2026-07-06T01:02:00Z",
+  "summary": "Landscape title/HUD now includes title tools, starting weapon switch, normal ammo HUD, a mobile intro cinematic overlay, and a victory scoreboard flow with Continue, Try Again, and Return to Title actions.",
   "observations": [
     "Center metrics HUD includes FPS, XYZ coordinates, JS heap, level triangle count, and chunk count.",
     "Coordinates use the player's debug scene position with one decimal precision.",
@@ -39,7 +39,10 @@
     "The intro overlay uses black cinematic bars, a portrait panel, shot label, live captions, and a skip button.",
     "Intro dialogue captions now use a smaller intro-specific type scale with non-uppercase dialogue for better 667x375 landscape fit.",
     "The bottom intro cinematic bar is taller on short landscape screens so two-line captions fit without covering too much of the scene.",
-    "Screenshot QA measured four intro captions at 667x375 and confirmed their bounds stay inside the bottom bar."
+    "Screenshot QA measured four intro captions at 667x375 and confirmed their bounds stay inside the bottom bar.",
+    "Victory now uses a right-side scoreboard with rank, clear time, HP, hostiles, shots, and Continue.",
+    "Try Again and Return to Title stay hidden until the player presses Continue on the victory scoreboard.",
+    "The debug HUD now exposes a WIN button beside KO/KO2 for victory-cinematic QA."
   ],
   "decisions": [
     "Landscape is the playable orientation.",
@@ -61,7 +64,8 @@
     "Keep the character debug page title-accessible and mobile landscape-first while using the combined A-pose runtime GLB.",
     "Keep ammo visible with health in the normal HUD because reload state is core combat feedback, not debug-only telemetry.",
     "Use concept 03 jackal-strategist as Commander Kade for the flat portrait MVP.",
-    "Keep commander portrait as a cache-busted public WebP until a future 3D commander model is justified."
+    "Keep commander portrait as a cache-busted public WebP until a future 3D commander model is justified.",
+    "Keep the victory scoreboard right-anchored on phone landscape so the full 3D Glyph dance remains visible."
   ],
   "caughtIssues": [
     "Initial coordinate badge sizing risked crowding the 667 px landscape HUD; CSS now uses auto/minmax/auto grid columns and wrapped center metrics.",
@@ -73,7 +77,8 @@
     "The look zone needed to be disabled outside gameplay so the character debug page can receive mobile touches cleanly.",
     "Smoke coverage did not previously prove the sliders were visible.",
     "Keeping ammo visible adds top-right HUD width, so short landscape CSS needs to stay compact.",
-    "The original intro caption scale was too large for longer commander lines on phone landscape."
+    "The original intro caption scale was too large for longer commander lines on phone landscape.",
+    "Victory post-score buttons must use visibility/display hiding, not opacity-only hiding, so mobile QA and Playwright do not treat hidden actions as visible."
   ],
   "risks": [
     "Reward UI can become unreadable if powerup names and stat copy are not constrained early.",
@@ -98,7 +103,8 @@
     "public/assets/characters/commander-kade/commander-kade-hologram.webp",
     "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/assessment.md",
     "artifacts/sub-agents/20260705-first-intro-cinematic/landscape-title-hud-agent/commander-kade-concept-contact-sheet.png",
-    "artifacts/sub-agents/20260705-intro-cinematic-polish/smoke-qa-agent"
+    "artifacts/sub-agents/20260705-intro-cinematic-polish/smoke-qa-agent",
+    "artifacts/sub-agents/20260705-victory-cinematic/smoke-qa-agent"
   ],
   "jsonForAgents": {
     "hudElements": [
@@ -239,6 +245,24 @@
         "fontSize": "clamp(12px, 2.15vw, 20px)",
         "artifactPath": "artifacts/sub-agents/20260705-intro-cinematic-polish/smoke-qa-agent"
       }
+    },
+    "victoryScoreboard": {
+      "phase": "victory-cinematic",
+      "screenSelector": "[data-victory-cinematic]",
+      "scoreboardSelector": "[data-victory-scoreboard]",
+      "continueSelector": "[data-victory-continue]",
+      "tryAgainSelector": "[data-victory-try-again]",
+      "returnTitleSelector": "[data-victory-return-title]",
+      "debugTriggerSelector": "[data-debug-victory]",
+      "scoreDebugPath": "snapshot.ui.victoryScore",
+      "fields": [
+        "rank",
+        "clearTimeSeconds",
+        "hp",
+        "enemiesDestroyed",
+        "shotsFired"
+      ],
+      "artifactPath": "artifacts/sub-agents/20260705-victory-cinematic/smoke-qa-agent"
     }
   },
   "nextAgents": [

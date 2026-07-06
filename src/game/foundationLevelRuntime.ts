@@ -50,7 +50,7 @@ const FOUNDATION_ENVIRONMENT_TEXTURES = {
 } as const satisfies Record<string, EnvironmentTextureDefinition>;
 
 export interface FoundationLevelRuntime {
-  update: (playerPosition: readonly [number, number, number]) => void;
+  update: (playerPosition: readonly [number, number, number], deltaSeconds?: number) => void;
   getSnapshot: () => LevelStreamingSnapshot;
   dispose: () => void;
 }
@@ -175,9 +175,11 @@ export function createFoundationLevelRuntime(
   const loadedChunks = new Map<string, THREE.Group>();
   const activeChunkIds = new Set<string>();
   const staticSceneObjects = [ambient, keyLight, floor, roof];
+  let elapsedSeconds = 0;
 
   return {
-    update: (playerPosition) => {
+    update: (playerPosition, deltaSeconds = 0) => {
+      elapsedSeconds += Math.min(Math.max(deltaSeconds, 0), 0.1);
       const playerTile = worldToTile(playerPosition[0], playerPosition[2]);
       if (!playerTile) {
         return;
@@ -219,6 +221,13 @@ export function createFoundationLevelRuntime(
       activeChunkIds.clear();
       for (const chunkId of nextActiveIds) {
         activeChunkIds.add(chunkId);
+      }
+
+      for (const chunkId of activeChunkIds) {
+        const group = loadedChunks.get(chunkId);
+        if (group) {
+          animateExitRiftMarkers(group, elapsedSeconds);
+        }
       }
     },
     getSnapshot: () => {
@@ -322,10 +331,42 @@ function createChunkGroup(
     );
     exitMarker.name = `foundation-exit-${chunk.id}`;
     exitMarker.position.set(tile.worldX, 0, tile.worldZ);
+    exitMarker.userData.riftPhase = (tile.column * 0.37 + tile.row * 0.19) % (Math.PI * 2);
     group.add(exitMarker);
   }
 
   return group;
+}
+
+function animateExitRiftMarkers(group: THREE.Group, elapsedSeconds: number): void {
+  for (const marker of group.children) {
+    if (!(marker instanceof THREE.Group) || !marker.name.startsWith('foundation-exit-')) {
+      continue;
+    }
+
+    const phase = typeof marker.userData.riftPhase === 'number' ? marker.userData.riftPhase : 0;
+    marker.position.y = Math.sin(elapsedSeconds * 2.2 + phase) * 0.045;
+    marker.rotation.y = elapsedSeconds * 0.38 + phase * 0.08;
+
+    const ringA = marker.getObjectByName('foundation-exit-rift-ring-a');
+    const ringB = marker.getObjectByName('foundation-exit-rift-ring-b');
+    const core = marker.getObjectByName('foundation-exit-rift-core');
+
+    if (ringA) {
+      ringA.rotation.y = Math.PI / 7 + elapsedSeconds * 1.55;
+      ringA.rotation.z = Math.sin(elapsedSeconds * 1.3 + phase) * 0.12;
+    }
+    if (ringB) {
+      ringB.rotation.x = Math.PI / 2 + Math.sin(elapsedSeconds * 1.1 + phase) * 0.08;
+      ringB.rotation.z = Math.PI / 9 - elapsedSeconds * 1.2;
+    }
+    if (core) {
+      const pulse = 1 + Math.sin(elapsedSeconds * 4.2 + phase) * 0.16;
+      core.rotation.y = elapsedSeconds * 2.1;
+      core.rotation.x = elapsedSeconds * 1.4;
+      core.scale.setScalar(pulse);
+    }
+  }
 }
 
 function createExitRiftMarker(

@@ -36,10 +36,20 @@ const EXPECTED_LOADED_ASSET_IDS = [
   'weapon.blaster.spark',
 ] as const;
 
+type DebugGamePhase =
+  | 'loading'
+  | 'title'
+  | 'intro-cinematic'
+  | 'gameplay'
+  | 'death-cinematic'
+  | 'victory-cinematic'
+  | 'character-debug'
+  | 'voice-lab';
+
 interface DebugSnapshot {
   buildId: string;
   scene: {
-    phase: 'loading' | 'title' | 'intro-cinematic' | 'gameplay' | 'death-cinematic' | 'character-debug' | 'voice-lab';
+    phase: DebugGamePhase;
     playerPosition: [number, number, number];
     yawRadians: number;
     pitchRadians: number;
@@ -259,7 +269,7 @@ interface DebugSnapshot {
   };
   ui: {
     debugVisible: boolean;
-    phase: 'loading' | 'title' | 'intro-cinematic' | 'gameplay' | 'death-cinematic' | 'character-debug' | 'voice-lab';
+    phase: DebugGamePhase;
     loading: {
       ready: boolean;
       loadedAssets: number;
@@ -326,6 +336,33 @@ interface DebugSnapshot {
         size: [number, number, number];
       } | null;
       errors: string[];
+    };
+    victoryCinematic: {
+      assetId: string;
+      modelPath: string;
+      loaded: boolean;
+      modelBytesLoaded: number;
+      clipId: string;
+      clipDurationSeconds: number;
+      visible: boolean;
+      phaseTimeSeconds: number;
+      orbitAngleRadians: number;
+      celebrationPosition: [number, number, number] | null;
+      cameraPosition: [number, number, number] | null;
+      modelBounds: {
+        center: [number, number, number];
+        size: [number, number, number];
+      } | null;
+      errors: string[];
+    };
+    victoryScore: {
+      clearTimeSeconds: number;
+      enemiesDestroyed: number;
+      enemiesTotal: number;
+      hp: number;
+      hpMax: number;
+      shotsFired: number;
+      rank: string;
     };
   };
   budgets: {
@@ -637,6 +674,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   await expect(page.locator('[data-weapon-ammo-meter]')).toBeVisible();
   await expect(page.locator('[data-debug-death]')).toBeHidden();
   await expect(page.locator('[data-debug-death-gameplay]')).toBeHidden();
+  await expect(page.locator('[data-debug-victory]')).toBeHidden();
   await expect(page.locator('[data-health-meter]')).toBeVisible();
   await page.locator('[data-debug-toggle]').tap();
   await expect.poll(async () => (await readDebugSnapshot(page)).ui.debugVisible).toBe(true);
@@ -644,6 +682,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
   await expect(page.locator('[data-debug-fps]')).toBeVisible();
   await expect(page.locator('[data-debug-death]')).toBeVisible();
   await expect(page.locator('[data-debug-death-gameplay]')).toBeVisible();
+  await expect(page.locator('[data-debug-victory]')).toBeVisible();
   await expect(page.locator('[data-debug-toggle]')).toHaveText('DBG');
   await expect(page.locator('[data-debug-toggle]')).toHaveAttribute('aria-pressed', 'false');
   await expect(page.locator('[data-fire-button]')).not.toHaveText(/F/);
@@ -825,6 +864,7 @@ test('mobile landscape foundation exposes QA metrics and cache-busted weapon ass
 
   await verifyEnemyProjectileAttack(page);
   await verifyDeathCinematic(page);
+  await verifyVictoryCinematic(page);
 
   await page.locator('.game-canvas').click({ position: { x: 12, y: 12 } });
   await driveUntil(page, 'KeyA', (routeSnapshot) => routeSnapshot.scene.playerPosition[2] < -21.15, 2500);
@@ -1301,6 +1341,84 @@ async function verifyDeathCinematic(page: Page): Promise<void> {
   await page.locator('[data-death-try-again]').click();
   await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('gameplay');
   await expect(page.locator('[data-death-cinematic]')).toBeHidden();
+  const reset = await readDebugSnapshot(page);
+  expect(reset.player.health.current).toBe(reset.player.health.max);
+  expect(reset.enemies.alive).toBe(reset.enemies.total);
+  expect(reset.enemies.projectiles.fired).toBe(0);
+  expect(reset.weapon.shotCount).toBe(0);
+  expect(reset.weapon.activeWeaponId).toBe('weapon.blaster.spark');
+}
+
+async function verifyVictoryCinematic(page: Page): Promise<void> {
+  const before = await readDebugSnapshot(page);
+  if (!before.ui.debugVisible) {
+    await page.locator('[data-debug-toggle]').tap();
+    await expect.poll(async () => (await readDebugSnapshot(page)).ui.debugVisible).toBe(true);
+  }
+
+  const beforeVoiceRequests = before.weapon.audio.voicePlayRequests;
+  await expect(page.locator('[data-debug-victory]')).toBeVisible();
+  await page.locator('[data-debug-victory]').tap();
+
+  await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('victory-cinematic');
+  await expect(page.locator('[data-victory-cinematic]')).toBeVisible();
+  await expect(page.locator('[data-victory-caption]')).toContainText(/Rift sealed|slick|Nice work/i);
+  await expect
+    .poll(async () => (await readDebugSnapshot(page)).weapon.audio.voicePlayRequests)
+    .toBeGreaterThan(beforeVoiceRequests);
+  await expect
+    .poll(async () => (await readDebugSnapshot(page)).ui.victoryCinematic.phaseTimeSeconds, {
+      timeout: 5000,
+      intervals: [120, 180, 240],
+    })
+    .toBeGreaterThanOrEqual(2.2);
+  await expect(page.locator('[data-victory-scoreboard]')).toBeVisible();
+  await expect(page.locator('[data-victory-continue]')).toBeVisible();
+  await expect(page.locator('[data-victory-try-again]')).toBeHidden();
+  await expect(page.locator('[data-victory-return-title]')).toBeHidden();
+
+  const cinematic = await readDebugSnapshot(page);
+  expect(cinematic.ui.victoryCinematic).toMatchObject({
+    assetId: 'player.hero.gadget-gremlin.apose.animated',
+    clipId: 'dance',
+    loaded: true,
+    visible: true,
+    errors: [],
+  });
+  expect(cinematic.ui.victoryCinematic.clipDurationSeconds).toBeGreaterThan(0);
+  expect(cinematic.ui.victoryCinematic.phaseTimeSeconds).toBeGreaterThanOrEqual(2.2);
+  expect(cinematic.ui.victoryCinematic.celebrationPosition).toEqual([
+    before.scene.playerPosition[0],
+    0,
+    before.scene.playerPosition[2],
+  ]);
+  expect(cinematic.ui.victoryCinematic.cameraPosition).not.toBeNull();
+  expect(cinematic.ui.victoryCinematic.cameraPosition![1]).toBeGreaterThan(1);
+  expect(cinematic.ui.victoryCinematic.modelBounds).not.toBeNull();
+  expect(cinematic.ui.victoryScore).toMatchObject({
+    hp: before.player.health.current,
+    hpMax: before.player.health.max,
+    enemiesDestroyed: before.enemies.destroyed,
+    enemiesTotal: before.enemies.total,
+    shotsFired: before.weapon.shotCount,
+  });
+  expect(cinematic.ui.victoryScore.clearTimeSeconds).toBeGreaterThanOrEqual(0);
+  expect(['S', 'A', 'B', 'C']).toContain(cinematic.ui.victoryScore.rank);
+  await expect(page.locator('[data-victory-rank]')).toHaveText(cinematic.ui.victoryScore.rank);
+  await expect(page.locator('[data-victory-hp]')).toHaveText(`${cinematic.ui.victoryScore.hp} / ${cinematic.ui.victoryScore.hpMax}`);
+  await expect(page.locator('[data-victory-enemies]')).toHaveText(
+    `${cinematic.ui.victoryScore.enemiesDestroyed} / ${cinematic.ui.victoryScore.enemiesTotal}`,
+  );
+  await expect(page.locator('[data-victory-shots]')).toHaveText(String(cinematic.ui.victoryScore.shotsFired));
+
+  await page.locator('[data-victory-continue]').click();
+  await expect(page.locator('[data-victory-continue]')).toBeHidden();
+  await expect(page.locator('[data-victory-try-again]')).toBeVisible();
+  await expect(page.locator('[data-victory-return-title]')).toBeVisible();
+
+  await page.locator('[data-victory-try-again]').click();
+  await expect.poll(async () => (await readDebugSnapshot(page)).scene.phase).toBe('gameplay');
+  await expect(page.locator('[data-victory-cinematic]')).toBeHidden();
   const reset = await readDebugSnapshot(page);
   expect(reset.player.health.current).toBe(reset.player.health.max);
   expect(reset.enemies.alive).toBe(reset.enemies.total);

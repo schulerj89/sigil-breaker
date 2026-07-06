@@ -367,6 +367,7 @@ canvas {
 .title-screen,
 .intro-cinematic,
 .death-cinematic,
+.victory-cinematic,
 .character-debug,
 .voice-lab {
   position: absolute;
@@ -385,6 +386,7 @@ canvas {
 .game-shell:not([data-game-phase="title"]) .title-screen,
 .game-shell:not([data-game-phase="intro-cinematic"]) .intro-cinematic,
 .game-shell:not([data-game-phase="death-cinematic"]) .death-cinematic,
+.game-shell:not([data-game-phase="victory-cinematic"]) .victory-cinematic,
 .game-shell:not([data-game-phase="character-debug"]) .character-debug,
 .game-shell:not([data-game-phase="voice-lab"]) .voice-lab {
   display: none;
@@ -394,13 +396,15 @@ canvas {
 }
 
 .intro-cinematic,
-.death-cinematic {
+.death-cinematic,
+.victory-cinematic {
   z-index: 7;
   pointer-events: none;
 }
 
 .intro-cinematic__bar,
-.death-cinematic__bar {
+.death-cinematic__bar,
+.victory-cinematic__bar {
   position: absolute;
   left: 0;
   right: 0;
@@ -418,13 +422,15 @@ canvas {
 }
 
 .intro-cinematic__bar--top,
-.death-cinematic__bar--top {
+.death-cinematic__bar--top,
+.victory-cinematic__bar--top {
   top: 0;
   transform-origin: top;
 }
 
 .intro-cinematic__bar--bottom,
-.death-cinematic__bar--bottom {
+.death-cinematic__bar--bottom,
+.victory-cinematic__bar--bottom {
   bottom: 0;
   transform-origin: bottom;
   display: grid;
@@ -448,7 +454,8 @@ canvas {
 }
 
 .game-shell[data-game-phase="intro-cinematic"] .intro-cinematic__bar,
-.game-shell[data-game-phase="death-cinematic"] .death-cinematic__bar {
+.game-shell[data-game-phase="death-cinematic"] .death-cinematic__bar,
+.game-shell[data-game-phase="victory-cinematic"] .victory-cinematic__bar {
   opacity: 1;
   transform: scaleY(1);
 }
@@ -463,7 +470,8 @@ canvas {
 
 .intro-cinematic__speaker,
 .intro-cinematic__caption,
-.death-cinematic__caption {
+.death-cinematic__caption,
+.victory-cinematic__caption {
   color: #fff4d0;
   font-weight: 900;
   letter-spacing: 0;
@@ -492,11 +500,13 @@ canvas {
   text-transform: none;
 }
 
-.death-cinematic__caption {
+.death-cinematic__caption,
+.victory-cinematic__caption {
   max-width: min(720px, 70vw);
 }
 
-.death-cinematic__caption {
+.death-cinematic__caption,
+.victory-cinematic__caption {
   justify-self: center;
   font-family: var(--sigil-font-title);
   font-size: clamp(17px, 3.2vw, 30px);
@@ -666,6 +676,135 @@ canvas {
   box-shadow:
     0 0 20px rgb(255 184 58 / 0.22),
     inset 4px 0 0 rgb(126 255 213 / 0.9);
+}
+
+.victory-scoreboard {
+  position: absolute;
+  right: max(18px, env(safe-area-inset-right));
+  top: 50%;
+  z-index: 3;
+  width: min(250px, 34vw);
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid rgb(126 255 213 / 0.48);
+  background:
+    linear-gradient(180deg, rgb(6 22 24 / 0.9), rgb(3 8 10 / 0.95)),
+    rgb(3 8 10 / 0.9);
+  box-shadow:
+    0 0 28px rgb(87 255 203 / 0.15),
+    inset 4px 0 0 rgb(255 191 73 / 0.92);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(10px, -50%);
+  transition:
+    opacity 240ms ease,
+    visibility 240ms ease,
+    transform 240ms ease;
+}
+
+.game-shell--victory-score-visible .victory-scoreboard {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(0, -50%);
+}
+
+.victory-scoreboard__eyebrow,
+.victory-scoreboard__grid span,
+.victory-scoreboard__grid strong,
+.victory-scoreboard__continue {
+  font-family: var(--sigil-font-title);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.victory-scoreboard__eyebrow {
+  color: #8fffd4;
+  font-size: 13px;
+  text-shadow: 0 0 12px rgb(91 255 207 / 0.26);
+}
+
+.victory-scoreboard__rank {
+  width: 64px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgb(255 191 73 / 0.9);
+  color: #fff4d0;
+  font-family: var(--sigil-font-title);
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1;
+  background: rgb(255 191 73 / 0.12);
+  box-shadow: 0 0 20px rgb(255 191 73 / 0.18);
+}
+
+.victory-scoreboard__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 7px 10px;
+  align-items: center;
+  padding-top: 2px;
+}
+
+.victory-scoreboard__grid span {
+  color: rgb(220 255 242 / 0.76);
+  font-size: 10px;
+}
+
+.victory-scoreboard__grid strong {
+  color: #fff4d0;
+  font-size: 13px;
+  text-align: right;
+}
+
+.victory-scoreboard__continue {
+  height: 42px;
+  margin-top: 4px;
+  border: 2px solid rgb(126 255 213 / 0.68);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 20% 18%, rgb(255 244 208 / 0.18), transparent 31%),
+    linear-gradient(135deg, rgb(21 67 66 / 0.96), rgb(7 14 16 / 0.96));
+  color: #dcfff2;
+  font-size: 12px;
+  box-shadow: 0 0 18px rgb(49 255 185 / 0.14);
+  touch-action: none;
+  appearance: none;
+}
+
+.game-shell--victory-actions-visible .victory-scoreboard__continue {
+  display: none;
+}
+
+.victory-cinematic__actions {
+  position: absolute;
+  left: 50%;
+  bottom: calc(max(72px, 18vh) + max(12px, env(safe-area-inset-bottom)));
+  z-index: 4;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(-50%, 10px);
+  transition:
+    opacity 240ms ease,
+    visibility 240ms ease,
+    transform 240ms ease;
+}
+
+.game-shell--victory-actions-visible .victory-cinematic__actions {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
 }
 
 .loading-screen {
@@ -1796,11 +1935,13 @@ canvas {
     font-size: 12px;
   }
 
-  .death-cinematic__bar {
+  .death-cinematic__bar,
+  .victory-cinematic__bar {
     height: max(54px, 17vh);
   }
 
-  .death-cinematic__bar--bottom {
+  .death-cinematic__bar--bottom,
+  .victory-cinematic__bar--bottom {
     padding:
       0
       max(66px, env(safe-area-inset-right))
@@ -1808,12 +1949,14 @@ canvas {
       max(66px, env(safe-area-inset-left));
   }
 
-  .death-cinematic__caption {
+  .death-cinematic__caption,
+  .victory-cinematic__caption {
     max-width: min(620px, 72vw);
     font-size: 20px;
   }
 
-  .death-cinematic__actions {
+  .death-cinematic__actions,
+  .victory-cinematic__actions {
     bottom: calc(max(54px, 17vh) + max(8px, env(safe-area-inset-bottom)));
     gap: 9px;
   }
@@ -1822,6 +1965,40 @@ canvas {
     min-width: 132px;
     height: 42px;
     font-size: 12px;
+  }
+
+  .victory-scoreboard {
+    right: max(10px, env(safe-area-inset-right));
+    width: min(210px, 34vw);
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .victory-scoreboard__rank {
+    width: 52px;
+    height: 46px;
+    font-size: 29px;
+  }
+
+  .victory-scoreboard__eyebrow {
+    font-size: 11px;
+  }
+
+  .victory-scoreboard__grid {
+    gap: 6px 8px;
+  }
+
+  .victory-scoreboard__grid span {
+    font-size: 8px;
+  }
+
+  .victory-scoreboard__grid strong {
+    font-size: 10px;
+  }
+
+  .victory-scoreboard__continue {
+    height: 36px;
+    font-size: 10px;
   }
 
   .voice-lab__topbar {

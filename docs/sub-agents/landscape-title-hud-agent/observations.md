@@ -170,3 +170,11 @@ Status: complete for debug coordinate, music mute, weapon cycle, and rotate prom
 - The bottom cinematic bar is taller on short mobile landscape screens so two-line dialogue has room without covering the scene.
 - Screenshot QA measured the caption and bottom-bar rectangles at 667x375; all four sampled intro captions fit within the bar.
 - Latest screenshot artifacts are under `artifacts/sub-agents/20260705-intro-cinematic-polish/smoke-qa-agent/`.
+
+## 2026-07-05 - Victory Scoreboard
+
+- Victory now has a dedicated scoreboard overlay with rank, clear time, HP, hostiles cleared, shots fired, and a Continue button.
+- Pressing Continue reveals Try Again and Return to Title; those actions stay hidden until the scoreboard is acknowledged.
+- The scoreboard is right-anchored on phone landscape so the full 3D Glyph victory dance remains visible in the level scene.
+- The debug HUD adds a `WIN` button beside KO/KO2 for fast victory-cinematic QA.
+- Smoke QA checks `[data-victory-scoreboard]`, `[data-victory-continue]`, `[data-victory-try-again]`, and `[data-victory-return-title]`.

@@ -174,3 +174,11 @@ Status: complete for MVP-fast input/collision/layout plus coordinate/cache/effec
 - Browser smoke now verifies the player viewmodel `armMask` contract: one source skinned mesh is reduced to a right-side arm mesh with fewer than 20000 visible triangles.
 - Latest headed player-viewmodel QA passed after the arm-only runtime mask and gun-priority render ordering update.
 - Headed player-viewmodel QA now fails if any cycled weapon's idle viewmodel grip falls back into the hidden legacy Y position, covering the switch-guns disappearance regression.
+
+## 2026-07-05 - Victory Cinematic Smoke
+
+- Browser smoke now checks the debug `WIN` button is hidden with debug off and visible with debug on.
+- Full interaction smoke taps `WIN`, verifies `victory-cinematic`, the full Glyph GLB, the `dance` clip, the level-complete caption, and the scoreboard snapshot.
+- Smoke waits for the scoreboard reveal, presses Continue, verifies Try Again and Return to Title appear, then presses Try Again and verifies gameplay resets.
+- Focused Pages-preview screenshot QA captured the front-facing Glyph victory dance and right-side scoreboard at `artifacts/sub-agents/20260705-victory-cinematic/smoke-qa-agent/victory-scoreboard-667x375.png`.
+- Latest `npm run validate:browser` passed all five landscape viewport projects after adding the animated rift, victory cinematic, scoreboard, and debug WIN route.

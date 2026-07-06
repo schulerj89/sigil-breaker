@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "smoke-qa-agent",
   "status": "complete",
-  "updatedAt": "2026-07-05T06:12:00Z",
-  "summary": "Local Playwright smoke covers title/start flow, weapons, audio, projectiles, enemies, debug toggles, cache-busting, zoom guards, foundation textures, and confirms staged main-character assets do not affect gameplay boot.",
+  "updatedAt": "2026-07-06T01:02:00Z",
+  "summary": "Local Playwright smoke covers title/start flow, weapons, audio, projectiles, enemies, debug toggles, cache-busting, zoom guards, foundation textures, player viewmodel, and the victory cinematic scoreboard flow.",
   "observations": [
     "Local browser smoke used an 844 x 390 landscape viewport.",
     "Debug API reported all three weapon asset IDs loaded with no assetLoadErrors.",
@@ -106,7 +106,12 @@
     "Latest npm run validate:browser passed all five landscape viewport projects after moving music off HTMLAudioElement and into the shared Web Audio graph.",
     "Focused screenshot QA confirmed metal wall panels with screw detail, darker gunmetal floor panels with muted caution accents, roof texture visibility, and no separate black floor grid overlay.",
     "Latest npm run validate:browser passed all five landscape viewport projects after replacing the foundation floor, wall, and roof textures with generated metal derivatives.",
-    "Latest npm run validate:browser passed all five landscape viewport projects after staging the Meshy main-character source pack without wiring it into gameplay loading."
+    "Latest npm run validate:browser passed all five landscape viewport projects after staging the Meshy main-character source pack without wiring it into gameplay loading.",
+    "Browser smoke now verifies the debug WIN button is hidden with debug off and visible with debug on.",
+    "Full interaction smoke taps WIN, verifies victory-cinematic, the full Glyph GLB, the dance clip, the level-complete caption, and the victory scoreboard snapshot.",
+    "Smoke presses Continue on the victory scoreboard, verifies Try Again and Return to Title appear, then presses Try Again and verifies gameplay resets.",
+    "Focused Pages-preview screenshot QA captured the front-facing Glyph victory dance and scoreboard at artifacts/sub-agents/20260705-victory-cinematic/smoke-qa-agent/victory-scoreboard-667x375.png.",
+    "Latest npm run validate:browser passed all five landscape viewport projects after adding the animated rift, victory cinematic, scoreboard, and debug WIN route."
   ],
   "decisions": [
     "Keep manual browser smoke for this slice.",
@@ -182,7 +187,8 @@
     "Full-route coverage should be re-expanded per viewport before a larger release gate or when viewport-specific gameplay bugs appear.",
     "Future enemy replacement can pass the current smoke while still feeling poor if hit/death feedback is not screenshot-tested.",
     "Future debug visual regressions may need deterministic screenshots in addition to snapshot booleans.",
-    "Future screenshot QA should use deterministic camera poses for enemy hit/death frames; the latest focused pass used debug snapshots for placement and destruction confidence."
+    "Future screenshot QA should use deterministic camera poses for enemy hit/death frames; the latest focused pass used debug snapshots for placement and destruction confidence.",
+    "Future victory smoke should route to the actual exit rift once playthrough pathing is fast enough; the current gate uses the debug WIN trigger for MVP speed."
   ],
   "blockers": [],
   "artifacts": [
@@ -214,7 +220,9 @@
     "artifacts/sub-agents/20260705-foundation-metal-textures/smoke-qa-agent/foundation-metal-wall-floor.png",
     "artifacts/sub-agents/20260705-foundation-metal-textures/smoke-qa-agent/visual-report.json",
     "artifacts/sub-agents/20260705-foundation-metal-textures/smoke-qa-agent/report.json",
-    "artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/report.json"
+    "artifacts/sub-agents/20260705-main-character-concepts/asset-playground-qa-agent/report.json",
+    "src/game/victoryCinematicStage.ts",
+    "artifacts/sub-agents/20260705-victory-cinematic/smoke-qa-agent/victory-scoreboard-667x375.png"
   ],
   "jsonForAgents": {
     "latestManualSmoke": {
@@ -306,7 +314,7 @@
       "mvpFastViewportSplit": true,
       "visualViewportScaleAfterZoomGestures": 1,
       "assetLoadErrors": 0,
-      "latestDurationSeconds": 161,
+      "latestDurationSeconds": 252,
       "testTimeoutSeconds": 240,
       "loadedAssetIdCount": 17,
       "weaponCycleCount": 5,
@@ -357,7 +365,14 @@
       "foundationMetalTexturePassChecked": true,
       "foundationFloorGridHelperRemovedChecked": true,
       "foundationMetalTextureScreenshot": "artifacts/sub-agents/20260705-foundation-metal-textures/smoke-qa-agent/foundation-metal-wall-floor.png",
-      "mainCharacterStagedSourceDoesNotAffectGameplayBoot": true
+      "mainCharacterStagedSourceDoesNotAffectGameplayBoot": true,
+      "victoryCinematicChecked": true,
+      "victoryDebugTriggerChecked": true,
+      "victoryDanceClipChecked": true,
+      "victoryScoreboardChecked": true,
+      "victoryContinueActionsChecked": true,
+      "victoryTryAgainResetChecked": true,
+      "victoryScreenshot": "artifacts/sub-agents/20260705-victory-cinematic/smoke-qa-agent/victory-scoreboard-667x375.png"
     },
     "latestHealthEnemySmoke": {
       "playerHealth": {
@@ -457,7 +472,10 @@
       "multiLevelMapValidation",
       "enemyProjectileAttackDamagesPlayerInBrowser",
       "enemyFirstTrackingShotTiming",
-      "enemySpeedIncreasePinned"
+      "enemySpeedIncreasePinned",
+      "victoryCinematicDanceClip",
+      "victoryScoreboardContinueFlow",
+      "victoryTryAgainReset"
     ],
     "screenshotNames": [
       "boot-mobile-landscape.png",
@@ -478,7 +496,8 @@
       "headed-first-enemy-posed-far.png",
       "headed-first-enemy-facing-close.png",
       "title-screen-844x390.png",
-      "foundation-metal-wall-floor.png"
+      "foundation-metal-wall-floor.png",
+      "victory-scoreboard-667x375.png"
     ],
     "latestTitleScreenSmoke": {
       "command": "npm run validate:browser",

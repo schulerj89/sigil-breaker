@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "camera-cutscene-agent",
   "status": "implemented-first-death-and-first-intro-cinematics",
-  "updatedAt": "2026-07-06T00:12:00Z",
-  "summary": "Death cinematic remains implemented, and the first level intro cinematic is now implemented as an intro-cinematic phase with Commander Kade hologram portrait, captions, ElevenLabs VO, skip handoff, camera wall-safety, cinematic shots over the live level, and an exit rift objective marker.",
+  "updatedAt": "2026-07-06T01:02:00Z",
+  "summary": "Death, intro, and victory cinematics are implemented as separate phases. Victory now uses the full rigged Glyph GLB, dance animation, front-facing orbit camera, level-complete voice, scoreboard handoff, and animated exit rift trigger.",
   "observations": [
     "No camera modes, viewmodel framing, or cutscene system exists yet.",
     "Weapon muzzle, tracer, and wall-impact positions are derived from src/game/weapons/weaponViewPose.ts.",
@@ -28,7 +28,10 @@
     "Skip and natural intro completion share the same handoff: stop voice, close intro, reset combat state, then enter gameplay.",
     "Level streaming follows the intro cinematic look target so distant shots can display without loading the whole level.",
     "Intro camera placement now raycasts from the look target toward the desired camera position and pulls the camera in front of blocking wall tiles.",
-    "The deck, hostile, and weapons intro shots now use walkable-space look targets, with the hostile cue aimed at a more readable central room enemy."
+    "The deck, hostile, and weapons intro shots now use walkable-space look targets, with the hostile cue aimed at a more readable central room enemy.",
+    "VictoryCinematicStage renders the full Glyph GLB in the live level scene and plays the embedded dance clip.",
+    "The victory camera orbits and looks at Glyph while the model rotates toward the camera for front-readable dance framing.",
+    "The exit rift can trigger victory naturally when the player enters its radius, and the debug HUD exposes a WIN trigger for fast QA."
   ],
   "decisions": [
     "Cutscenes must be skippable.",
@@ -47,14 +50,17 @@
     "Intro cinematic should be its own intro-cinematic phase with skip available after 2 seconds and input restored before gameplay.",
     "The first commander implementation is a flat hologram portrait, not a 3D Meshy commander model.",
     "The first intro is now implemented as phase intro-cinematic between title and gameplay.",
-    "Intro skip unlocks after 2 seconds and must restore normal first-person gameplay state."
+    "Intro skip unlocks after 2 seconds and must restore normal first-person gameplay state.",
+    "Victory must be distinct from death so level-complete score and retry/title actions can evolve independently.",
+    "Victory uses existing Glyph level-complete voice lines until the dialogue/audio agent creates a dedicated win pack."
   ],
   "caughtIssues": [
     "Pointer-drag screenshot QA can approximate pitch-up/down firing, but deterministic debug look poses are needed for stable visual regression.",
     "Held-fire centering is debug-state tested but not screenshot-regressed for each weapon silhouette.",
     "The first standalone stage did not preserve the exact room where the player died.",
     "Initial live-level screenshots showed only walls because the camera rotated into a blocked corner angle before the character read.",
-    "The out-of-HP animation uses skinned authoring units that made the character effectively huge until the death clone applied a 0.01 scale correction."
+    "The out-of-HP animation uses skinned authoring units that made the character effectively huge until the death clone applied a 0.01 scale correction.",
+    "Initial victory screenshot showed Glyph side-on; VictoryCinematicStage now rotates the model toward the camera during the orbit."
   ],
   "risks": [
     "Camera and viewmodel decisions can break touch controls and HUD readability if reviewed late.",
@@ -74,7 +80,9 @@
     "src/game/introCinematicStage.ts",
     "public/assets/characters/commander-kade/commander-kade-hologram.webp",
     "artifacts/sub-agents/20260705-first-intro-cinematic/camera-cutscene-agent/observations.md",
-    "artifacts/sub-agents/20260705-intro-cinematic-polish/smoke-qa-agent"
+    "artifacts/sub-agents/20260705-intro-cinematic-polish/smoke-qa-agent",
+    "src/game/victoryCinematicStage.ts",
+    "artifacts/sub-agents/20260705-victory-cinematic/smoke-qa-agent"
   ],
   "jsonForAgents": {
     "cameraModes": [
@@ -206,6 +214,22 @@
         "wallPadding": 0.48
       },
       "screenshotArtifacts": "artifacts/sub-agents/20260705-intro-cinematic-polish/smoke-qa-agent"
+    },
+    "victoryCinematic": {
+      "phase": "victory-cinematic",
+      "stage": "src/game/victoryCinematicStage.ts",
+      "rendering": "live_level_scene",
+      "clipId": "dance",
+      "voiceCategories": [
+        "level-complete"
+      ],
+      "manualDebugTrigger": "data-debug-victory",
+      "scoreSnapshotPath": "snapshot.ui.victoryScore",
+      "scoreRevealSeconds": 2.2,
+      "actionsReveal": "after data-victory-continue",
+      "primaryAction": "Try Again",
+      "secondaryAction": "Return to Title",
+      "screenshotArtifacts": "artifacts/sub-agents/20260705-victory-cinematic/smoke-qa-agent"
     },
     "requiredDebugPoses": [
       "first-person-fire",
