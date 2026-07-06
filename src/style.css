@@ -413,6 +413,10 @@ canvas {
     transform 280ms ease;
 }
 
+.intro-cinematic__bar {
+  height: max(64px, 16vh);
+}
+
 .intro-cinematic__bar--top,
 .death-cinematic__bar--top {
   top: 0;
@@ -434,6 +438,15 @@ canvas {
     max(86px, env(safe-area-inset-left));
 }
 
+.intro-cinematic__bar--bottom {
+  height: max(104px, 27vh);
+  padding:
+    0
+    max(42px, env(safe-area-inset-right))
+    max(8px, env(safe-area-inset-bottom))
+    max(42px, env(safe-area-inset-left));
+}
+
 .game-shell[data-game-phase="intro-cinematic"] .intro-cinematic__bar,
 .game-shell[data-game-phase="death-cinematic"] .death-cinematic__bar {
   opacity: 1;
@@ -444,19 +457,17 @@ canvas {
   min-width: 0;
   justify-self: center;
   display: grid;
-  gap: 6px;
-  width: min(760px, 70vw);
+  gap: 5px;
+  width: min(760px, 100%);
 }
 
 .intro-cinematic__speaker,
 .intro-cinematic__caption,
 .death-cinematic__caption {
   color: #fff4d0;
-  font-family: var(--sigil-font-title);
   font-weight: 900;
   letter-spacing: 0;
   text-align: center;
-  text-transform: uppercase;
   text-shadow:
     0 0 18px rgb(255 196 72 / 0.38),
     0 3px 0 rgb(0 0 0 / 0.8);
@@ -464,22 +475,33 @@ canvas {
 
 .intro-cinematic__speaker {
   color: #8fffd4;
+  font-family: var(--sigil-font-title);
   font-size: clamp(11px, 2.2vw, 15px);
   line-height: 1;
+  text-transform: uppercase;
   text-shadow:
     0 0 12px rgb(91 255 207 / 0.34),
     0 2px 0 rgb(0 0 0 / 0.8);
 }
 
-.intro-cinematic__caption,
+.intro-cinematic__caption {
+  max-width: min(720px, 100%);
+  font-family: var(--sigil-font-display);
+  font-size: clamp(12px, 2.15vw, 20px);
+  line-height: 1.12;
+  text-transform: none;
+}
+
 .death-cinematic__caption {
   max-width: min(720px, 70vw);
-  font-size: clamp(17px, 3.2vw, 30px);
-  line-height: 0.98;
 }
 
 .death-cinematic__caption {
   justify-self: center;
+  font-family: var(--sigil-font-title);
+  font-size: clamp(17px, 3.2vw, 30px);
+  line-height: 0.98;
+  text-transform: uppercase;
 }
 
 .intro-cinematic__portrait {

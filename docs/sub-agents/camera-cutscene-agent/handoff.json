@@ -2,8 +2,8 @@
   "handoffVersion": "1.0.0",
   "agentId": "camera-cutscene-agent",
   "status": "implemented-first-death-and-first-intro-cinematics",
-  "updatedAt": "2026-07-05T23:34:05Z",
-  "summary": "Death cinematic remains implemented, and the first level intro cinematic is now implemented as an intro-cinematic phase with Commander Kade hologram portrait, captions, ElevenLabs VO, skip handoff, cinematic camera shots over the live level, and an exit rift objective marker.",
+  "updatedAt": "2026-07-06T00:12:00Z",
+  "summary": "Death cinematic remains implemented, and the first level intro cinematic is now implemented as an intro-cinematic phase with Commander Kade hologram portrait, captions, ElevenLabs VO, skip handoff, camera wall-safety, cinematic shots over the live level, and an exit rift objective marker.",
   "observations": [
     "No camera modes, viewmodel framing, or cutscene system exists yet.",
     "Weapon muzzle, tracer, and wall-impact positions are derived from src/game/weapons/weaponViewPose.ts.",
@@ -26,7 +26,9 @@
     "IntroCinematicStage now runs five timed camera shots over the existing level scene before gameplay.",
     "The intro uses a flat Commander Kade hologram portrait and live captions for the MVP commander presentation.",
     "Skip and natural intro completion share the same handoff: stop voice, close intro, reset combat state, then enter gameplay.",
-    "Level streaming follows the intro cinematic look target so distant shots can display without loading the whole level."
+    "Level streaming follows the intro cinematic look target so distant shots can display without loading the whole level.",
+    "Intro camera placement now raycasts from the look target toward the desired camera position and pulls the camera in front of blocking wall tiles.",
+    "The deck, hostile, and weapons intro shots now use walkable-space look targets, with the hostile cue aimed at a more readable central room enemy."
   ],
   "decisions": [
     "Cutscenes must be skippable.",
@@ -57,7 +59,8 @@
   "risks": [
     "Camera and viewmodel decisions can break touch controls and HUD readability if reviewed late.",
     "Future strict wall occlusion for death cameras needs room-aware obstruction checks first.",
-    "Intro camera paths can clip into the current roof/walls unless authored from safe first-level coordinates."
+    "Intro camera paths can clip into the current roof/walls unless authored from safe first-level coordinates.",
+    "The camera wall-safety pass prevents clipping but cannot rescue unreadable shot composition if future look targets are placed on walls or outside the map."
   ],
   "blockers": [],
   "artifacts": [
@@ -70,7 +73,8 @@
     "docs/cinematics/first-level-intro-cinematic-plan.md",
     "src/game/introCinematicStage.ts",
     "public/assets/characters/commander-kade/commander-kade-hologram.webp",
-    "artifacts/sub-agents/20260705-first-intro-cinematic/camera-cutscene-agent/observations.md"
+    "artifacts/sub-agents/20260705-first-intro-cinematic/camera-cutscene-agent/observations.md",
+    "artifacts/sub-agents/20260705-intro-cinematic-polish/smoke-qa-agent"
   ],
   "jsonForAgents": {
     "cameraModes": [
@@ -194,7 +198,14 @@
         "close intro",
         "reset combat state",
         "enter gameplay"
-      ]
+      ],
+      "cameraSafety": {
+        "source": "src/game/introCinematicStage.ts",
+        "method": "raycast from look target to desired camera position, pull in front of wall, then resolve level collision",
+        "collisionRadius": 0.34,
+        "wallPadding": 0.48
+      },
+      "screenshotArtifacts": "artifacts/sub-agents/20260705-intro-cinematic-polish/smoke-qa-agent"
     },
     "requiredDebugPoses": [
       "first-person-fire",

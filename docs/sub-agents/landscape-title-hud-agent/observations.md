@@ -163,3 +163,10 @@ Status: complete for debug coordinate, music mute, weapon cycle, and rotate prom
 - GPT Image 2 generated the runtime hologram portrait at `public/assets/characters/commander-kade/commander-kade-hologram.webp`.
 - The intro overlay uses cinematic black bars, a compact portrait panel, speaker/caption text, a shot label, and a skip button that appears after 2 seconds.
 - Loading now gates on the commander portrait and reports `snapshot.ui.loading.introPortraitLoaded`.
+
+## 2026-07-05 - Intro Caption Fit Polish
+
+- Intro cinematic captions now use a smaller intro-specific type scale with non-uppercase dialogue for better 667x375 landscape readability.
+- The bottom cinematic bar is taller on short mobile landscape screens so two-line dialogue has room without covering the scene.
+- Screenshot QA measured the caption and bottom-bar rectangles at 667x375; all four sampled intro captions fit within the bar.
+- Latest screenshot artifacts are under `artifacts/sub-agents/20260705-intro-cinematic-polish/smoke-qa-agent/`.

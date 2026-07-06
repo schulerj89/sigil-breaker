@@ -5,12 +5,22 @@ import {
   INTRO_COMMANDER_VOICE_LINES,
   type CharacterVoiceLine,
 } from './characterVoice';
-import { getLevelTiles, getSpawnPosition, type LevelTile } from './levelMap';
+import {
+  getLevelTiles,
+  getSpawnPosition,
+  raycastLevel,
+  resolveLevelCollision,
+  type LevelTile,
+} from './levelMap';
 
 export const INTRO_COMMANDER_PORTRAIT_ASSET_ID = 'ui.cinematic.commander-kade.hologram';
 export const INTRO_COMMANDER_PORTRAIT_PATH = 'assets/characters/commander-kade/commander-kade-hologram.webp';
 export const INTRO_CINEMATIC_SKIP_UNLOCK_SECONDS = 2;
 export const INTRO_CINEMATIC_TOTAL_SECONDS = 35.2;
+const INTRO_CAMERA_COLLISION_RADIUS = 0.34;
+const INTRO_CAMERA_WALL_PADDING = 0.48;
+const INTRO_CAMERA_NEAR_WALL_FALLBACK_RATIO = 0.55;
+const INTRO_CAMERA_MIN_WALL_DISTANCE = 0.16;
 
 interface IntroCinematicCue {
   cueId: string;
@@ -271,6 +281,7 @@ export class IntroCinematicStage {
 
     this.cameraPosition.lerpVectors(shot.cameraStart, shot.cameraEnd, t);
     this.lookTarget.lerpVectors(shot.lookStart, shot.lookEnd, t);
+    resolveIntroCameraPlacement(this.cameraPosition, this.lookTarget);
     this.camera.position.copy(this.cameraPosition);
     this.camera.fov = THREE.MathUtils.lerp(shot.fovStart, shot.fovEnd, t);
     this.camera.lookAt(this.lookTarget);
@@ -302,44 +313,83 @@ export class IntroCinematicStage {
   }
 }
 
+function resolveIntroCameraPlacement(cameraPosition: THREE.Vector3, lookTarget: THREE.Vector3): void {
+  pullCameraInFrontOfNearestWall(cameraPosition, lookTarget);
+
+  const resolved = resolveLevelCollision(
+    cameraPosition.x,
+    cameraPosition.z,
+    INTRO_CAMERA_COLLISION_RADIUS,
+    8,
+  );
+  cameraPosition.x = resolved.x;
+  cameraPosition.z = resolved.z;
+
+  pullCameraInFrontOfNearestWall(cameraPosition, lookTarget);
+}
+
+function pullCameraInFrontOfNearestWall(cameraPosition: THREE.Vector3, lookTarget: THREE.Vector3): void {
+  const offsetX = cameraPosition.x - lookTarget.x;
+  const offsetZ = cameraPosition.z - lookTarget.z;
+  const distance = Math.hypot(offsetX, offsetZ);
+  if (distance <= 0.001) {
+    return;
+  }
+
+  const directionX = offsetX / distance;
+  const directionZ = offsetZ / distance;
+  const wallHit = raycastLevel(lookTarget.x, lookTarget.z, directionX, directionZ, distance);
+  if (!wallHit || wallHit.distance >= distance - INTRO_CAMERA_WALL_PADDING) {
+    return;
+  }
+
+  const beforeWallDistance = wallHit.distance - INTRO_CAMERA_WALL_PADDING;
+  const safeDistance = beforeWallDistance > INTRO_CAMERA_MIN_WALL_DISTANCE
+    ? beforeWallDistance
+    : Math.max(INTRO_CAMERA_MIN_WALL_DISTANCE, wallHit.distance * INTRO_CAMERA_NEAR_WALL_FALLBACK_RATIO);
+  cameraPosition.x = lookTarget.x + directionX * safeDistance;
+  cameraPosition.z = lookTarget.z + directionZ * safeDistance;
+}
+
 function createIntroShots(
   spawn: THREE.Vector3,
   exitTile: LevelTile,
   enemyTiles: readonly LevelTile[],
 ): readonly IntroShot[] {
   const firstEnemy = enemyTiles[0] ?? exitTile;
+  const roomEnemy = selectRoomReadableEnemy(enemyTiles) ?? firstEnemy;
   const midEnemy = enemyTiles[Math.floor(enemyTiles.length / 2)] ?? firstEnemy;
   const exitPosition = new THREE.Vector3(exitTile.worldX, 0, exitTile.worldZ);
   const spawnLook = new THREE.Vector3(spawn.x, 1.0, spawn.z);
-  const firstEnemyLook = new THREE.Vector3(firstEnemy.worldX, 0.85, firstEnemy.worldZ);
+  const roomEnemyLook = new THREE.Vector3(roomEnemy.worldX, 0.85, roomEnemy.worldZ);
   const midEnemyLook = new THREE.Vector3(midEnemy.worldX, 0.95, midEnemy.worldZ);
   const exitLook = new THREE.Vector3(exitPosition.x, 1.0, exitPosition.z);
 
   return [
     {
       cueId: 'deck-breach',
-      cameraStart: new THREE.Vector3(spawn.x + 4.6, 2.35, spawn.z + 5.8),
-      cameraEnd: new THREE.Vector3(spawn.x + 2.2, 1.85, spawn.z + 3.2),
+      cameraStart: new THREE.Vector3(spawn.x + 6.6, 2.35, spawn.z + 6.2),
+      cameraEnd: new THREE.Vector3(spawn.x + 4.2, 1.85, spawn.z + 3.8),
       lookStart: spawnLook,
-      lookEnd: new THREE.Vector3(spawn.x - 1.5, 1.0, spawn.z),
+      lookEnd: new THREE.Vector3(spawn.x + 7.4, 1.05, spawn.z + 1.8),
       fovStart: 58,
       fovEnd: 52,
     },
     {
       cueId: 'hostiles',
-      cameraStart: new THREE.Vector3(firstEnemy.worldX + 4.2, 2.45, firstEnemy.worldZ + 5.2),
-      cameraEnd: new THREE.Vector3(firstEnemy.worldX + 1.5, 2.0, firstEnemy.worldZ + 2.8),
-      lookStart: firstEnemyLook,
-      lookEnd: new THREE.Vector3(firstEnemy.worldX - 1.2, 0.95, firstEnemy.worldZ - 0.5),
+      cameraStart: new THREE.Vector3(roomEnemy.worldX + 4.6, 2.45, roomEnemy.worldZ + 4.4),
+      cameraEnd: new THREE.Vector3(roomEnemy.worldX + 2.6, 2.0, roomEnemy.worldZ + 2.4),
+      lookStart: roomEnemyLook,
+      lookEnd: new THREE.Vector3(roomEnemy.worldX - 1.2, 0.95, roomEnemy.worldZ - 0.5),
       fovStart: 60,
       fovEnd: 54,
     },
     {
       cueId: 'weapons',
-      cameraStart: new THREE.Vector3(spawn.x + 1.3, 1.55, spawn.z + 1.6),
-      cameraEnd: new THREE.Vector3(spawn.x + 2.2, 1.55, spawn.z + 0.8),
-      lookStart: new THREE.Vector3(spawn.x + 4.4, 1.25, spawn.z - 1.2),
-      lookEnd: new THREE.Vector3(spawn.x + 5.2, 1.15, spawn.z - 1.9),
+      cameraStart: new THREE.Vector3(spawn.x + 2.2, 1.55, spawn.z + 3.1),
+      cameraEnd: new THREE.Vector3(spawn.x + 3.2, 1.55, spawn.z + 2.4),
+      lookStart: new THREE.Vector3(spawn.x + 8.8, 1.25, spawn.z + 2.0),
+      lookEnd: new THREE.Vector3(spawn.x + 10.6, 1.15, spawn.z + 1.6),
       fovStart: 50,
       fovEnd: 48,
     },
@@ -362,6 +412,10 @@ function createIntroShots(
       fovEnd: 46,
     },
   ];
+}
+
+function selectRoomReadableEnemy(enemyTiles: readonly LevelTile[]): LevelTile | null {
+  return enemyTiles.find((tile) => tile.row >= 12 && tile.row <= 18 && tile.column >= 18 && tile.column <= 36) ?? null;
 }
 
 function readExitTile(): LevelTile {

@@ -74,3 +74,11 @@ Status: not run for full implementation yet; updated with weapon-pose and hold-f
 - The intro uses the flat Commander Kade hologram portrait for MVP instead of blocking on a 3D commander model.
 - Level streaming follows the cinematic look target during intro shots so distant areas can appear without loading the whole level.
 - A simple glowing 3D exit rift marker is now attached to the `X` tile as the first objective visual.
+
+## 2026-07-05 - Intro Cinematic Camera Polish
+
+- Intro camera placement now runs a level raycast from the look target toward the desired camera position before rendering each frame.
+- If the desired camera would sit behind a wall, the camera is pulled in front of that wall and then passed through the normal level collision resolver.
+- The deck, hostile, and weapons shots now use look targets inside walkable space, with the hostile shot moved to a more readable central room enemy.
+- Screenshot QA recaptured 667x375 intro frames under `artifacts/sub-agents/20260705-intro-cinematic-polish/smoke-qa-agent/`.
+- Future intro shots should avoid look targets on `#` or outside the map, because collision safety can prevent clipping but cannot make a bad composition readable.
